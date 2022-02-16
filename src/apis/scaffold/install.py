@@ -10,14 +10,13 @@ from webdriver_manager.utils import get_browser_version_from_os
 
 from services.hcaptcha_challenger import YOLO
 from services.settings import DIR_MODEL, logger
-from services.utils import get_challenge_ctx
 
 
 def _download_model(onnx_prefix="yolov5s6"):
     """下载 YOLOv4 目标检测模型"""
     logger.debug("Downloading YOLOv5 object detection model...")
 
-    YOLO(dir_model=DIR_MODEL,onnx_prefix=onnx_prefix).download_model()
+    YOLO(dir_model=DIR_MODEL, onnx_prefix=onnx_prefix).download_model()
 
 
 def _download_driver():
@@ -48,19 +47,7 @@ def _download_driver():
     )
 
 
-def run(model:str="yolov5s6"):
+def run(model: str = "yolov5s6"):
     """下载项目运行所需的各项依赖"""
     _download_model(onnx_prefix=model)
     _download_driver()
-
-
-@logger.catch()
-def test():
-    """检查挑战者驱动版本是否适配"""
-    ctx = get_challenge_ctx(silence=True)
-    try:
-        ctx.get("https://www.baidu.com")
-    finally:
-        ctx.quit()
-
-    logger.success("The adaptation is successful")

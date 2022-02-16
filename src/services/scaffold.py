@@ -17,6 +17,11 @@ class Scaffold:
         install.run(model=model)
 
     @staticmethod
+    def test():
+        """测试挑战者驱动是否适配"""
+        challenge.test()
+
+    @staticmethod
     def demo(silence: Optional[bool] = False, model: Optional[str] = "yolov5s6"):
         """正面硬刚人机挑战"""
         challenge.demo(silence=silence, onnx_prefix=model)

@@ -51,5 +51,17 @@ def demo(silence: Optional[bool] = False, onnx_prefix="yolov5s6"):
         ctx.quit()
 
 
+@logger.catch()
+def test():
+    """检查挑战者驱动版本是否适配"""
+    ctx = get_challenge_ctx(silence=True)
+    try:
+        ctx.get("https://www.baidu.com")
+    finally:
+        ctx.quit()
+
+    logger.success("The adaptation is successful")
+
+
 if __name__ == '__main__':
     demo()
