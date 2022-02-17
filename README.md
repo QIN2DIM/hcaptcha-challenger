@@ -28,18 +28,18 @@ Just implement some interfaces to make `AI vs AI` possible.
 
 ## Usage
 
-1. Clone the project code in the way you like.
+1. **Clone the project code in the way you like.**
 
-2. Execute the following command in the project root directory.
+2. **Execute the following command in the project root directory.**
 
    ```bash
    # hcaptcha-challenger
    pip install -r ./requirements.txt
    ```
 
-3. Download Project Dependencies.
+3. **Download Project Dependencies.**
 
-   The implementation includes downloading the `YOLOv5` target detection model and detecting `google-chrome` in the current environment.
+   The implementation includes downloading the `YOLOv5` object detection model and detecting `google-chrome` in the current environment.
 
    If `google-chrome` is missing please follow the [prompts](#tour) to download the latest version of the client, if google-chrome is present you need to make sure it is up to date.
 
@@ -50,7 +50,7 @@ Just implement some interfaces to make `AI vs AI` possible.
    python main.py install
    ```
 
-4. Start the test program.
+4. **Start the test program.**
 
    Check if `chromedriver` is compatible with `google-chrome`.
 
@@ -59,18 +59,17 @@ Just implement some interfaces to make `AI vs AI` possible.
    python main.py test
    ```
 
-5. Start the demo program.
+5. **Start the demo program.**
 
    If the previous test passed perfectly, now is the perfect time to run the demo!
 
    ```bash
    # hcaptcha-challenger/src
    python main.py demo
+   
+   # Linux.
+   export LC_ALL=zh_CN.UTF8 && export LANG=zh_CN.UTF8 && python3 main.py demo
    ```
-
-6. Have a good time.
-
-   Enjoy it and port it to your project.
 
 ## Advanced
 
@@ -145,3 +144,7 @@ Just implement some interfaces to make `AI vs AI` possible.
 ### Install Google Chrome on Windows / MacOs
 
 Just go to [Google Chrome](https://www.google.com/chrome/) official website to download and install.
+
+## Reference
+
+- hCaptcha challenge template site [@maximedrn](https://github.com/maximedrn/hcaptcha-solver-python-selenium)
