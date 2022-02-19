@@ -43,7 +43,7 @@ Just implement some interfaces to make `AI vs AI` possible.
 
    If `google-chrome` is missing please follow the [prompts](#tour) to download the latest version of the client, if google-chrome is present you need to make sure it is up to date.
 
-   Now you need to execute the `cd` command to access the  `/src` directory of project and execute the following command to download the project dependencies.
+   Now you need to execute the `cd` command to access the  `src/` directory of project and execute the following command to download the project dependencies.
 
    ```bash
    # hcaptcha-challenger/src
