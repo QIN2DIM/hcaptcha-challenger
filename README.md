@@ -11,7 +11,7 @@
 	<br>
 </div>
 
-![hcaptcha-challenger-demo](https://github.com/QIN2DIM/img_pool/blob/main/img/hcaptcha-challenger2.gif)
+![hcaptcha-challenger-demo](https://github.com/QIN2DIM/img_pool/blob/main/img/hcaptcha-challenger3.gif)
 
 ## Introduction
 
