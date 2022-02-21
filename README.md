@@ -68,7 +68,7 @@ Just implement some interfaces to make `AI vs AI` possible.
    python main.py demo
    
    # Linux.
-   export LC_ALL=zh_CN.UTF8 && export LANG=zh_CN.UTF8 && python3 main.py demo
+   export LANGUAGE=zh_CN.UTF8 && python3 main.py demo
    ```
 
 ## Advanced
