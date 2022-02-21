@@ -10,12 +10,14 @@ from services.hcaptcha_challenger import ArmorCaptcha, ArmorUtils, YOLO
 from services.settings import logger, HCAPTCHA_DEMO_SITES, DIR_MODEL, DIR_CHALLENGE
 from services.utils import get_challenge_ctx
 
+SAMPLE_SITE = HCAPTCHA_DEMO_SITES[0]
 
-def demo(silence: Optional[bool] = False, onnx_prefix="yolov5s6"):
+
+def demo(silence: Optional[bool] = False, onnx_prefix: Optional[str] = None):
     """人机挑战演示 顶级接口"""
     logger.info("Starting demo project...")
 
-    # 指定嵌入式模型
+    # 实例化嵌入式模型
     yolo = YOLO(DIR_MODEL, onnx_prefix=onnx_prefix)
 
     # 实例化挑战者组件
@@ -26,15 +28,14 @@ def demo(silence: Optional[bool] = False, onnx_prefix="yolov5s6"):
     ctx = get_challenge_ctx(silence=silence)
     try:
         # 读取 hCaptcha challenge 测试站点
-        # 默认使用 maximedrn 提供的测试站点
-        demo_url = HCAPTCHA_DEMO_SITES[0]
-        ctx.get(demo_url)
+        ctx.get(SAMPLE_SITE)
 
+        # 必要的等待时间
         time.sleep(3)
 
-        # 检测当前页面是否出现可点击的 hcaptcha checkbox
-        # 测试站点必然会弹出 checkbox，此处的弹性等待时长默认为 5s，
-        # 若 5s 仍未加载出 checkbox 说明您当前的网络状态堪忧
+        # 检测当前页面是否出现可点击的 `hcaptcha checkbox`
+        # `样本站点` 必然会弹出 `checkbox`，此处的弹性等待时长默认为 5s，
+        # 若 5s 仍未加载出 `checkbox` 说明您当前的网络状态堪忧
         if challenger_utils.face_the_checkbox(ctx):
             start = time.time()
 
@@ -56,12 +57,8 @@ def test():
     """检查挑战者驱动版本是否适配"""
     ctx = get_challenge_ctx(silence=True)
     try:
-        ctx.get("https://www.baidu.com")
+        ctx.get(SAMPLE_SITE)
     finally:
         ctx.quit()
 
     logger.success("The adaptation is successful")
-
-
-if __name__ == '__main__':
-    demo()

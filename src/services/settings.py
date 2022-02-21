@@ -12,28 +12,33 @@ HCAPTCHA_DEMO_SITES = [
     "https://maximedrn.github.io/hcaptcha-solver-python-selenium/"
 ]
 # ---------------------------------------------------
-# [√]工程根目录定位
+# [√]Lock the project directory
 # ---------------------------------------------------
-# 系统根目录
+# Source root directory
 PROJECT_ROOT = dirname(dirname(__file__))
-# 文件数据库目录
+
+# File database directory
 PROJECT_DATABASE = join(PROJECT_ROOT, "database")
-# YOLO模型
+
+# The storage directory of the YOLO object detection model
 DIR_MODEL = join(PROJECT_ROOT, "model")
-# 运行缓存目录
+
+# Run cache directory
 DIR_TEMP_CACHE = join(PROJECT_DATABASE, "temp_cache")
-# 挑战缓存
+
+# Directory for challenge images
 DIR_CHALLENGE = join(DIR_TEMP_CACHE, "_challenge")
-# 服务日志目录
+
+# Service log directory
 DIR_LOG = join(PROJECT_DATABASE, "logs")
 # ---------------------------------------------------
-# [√]服务器日志配置
+# [√]Server log configuration
 # ---------------------------------------------------
 logger = ToolBox.init_log(
     error=join(DIR_LOG, "error.log"), runtime=join(DIR_LOG, "runtime.log")
 )
 # ---------------------------------------------------
-# 路径补全
+# [√]Path completion
 # ---------------------------------------------------
 for _pending in [
     PROJECT_DATABASE,

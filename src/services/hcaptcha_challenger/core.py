@@ -30,7 +30,7 @@ from .exceptions import (
 
 
 class YOLO:
-    """用于实现图像分类的 YOLO 模型"""
+    """YOLO model for image classification"""
 
     def __init__(self, dir_model, onnx_prefix: str = "yolov5s6"):
         self.dir_model = "./model" if dir_model is None else dir_model
@@ -131,7 +131,7 @@ class YOLO:
         ]
 
     def download_model(self):
-        """下载模型和权重参数"""
+        """Download model and weight parameters"""
         if not os.path.exists(self.dir_model):
             os.mkdir(self.dir_model)
         if os.path.exists(self.onnx_model["path"]):
@@ -143,10 +143,14 @@ class YOLO:
 
     def detect_common_objects(self, img_stream, confidence=0.4, nms_thresh=0.4):
         """
-        目标检测
+        Object Detection
 
-        获取给定图像中识别出的多个标签
-        :param img_stream: 图像文件二进制流
+        Get multiple labels identified in a given image
+
+        :param img_stream: image file binary stream
+             with open(img_filepath, "rb") as file:
+                data = file.read()
+             detect_common_objects(img_stream=data)
         :param confidence:
         :param nms_thresh:
         :return: bbox, label, conf
@@ -192,7 +196,7 @@ class YOLO:
 
 
 class ArmorCaptcha:
-    """hCAPTCHA challenge 驱动控制"""
+    """hCAPTCHA challenge drive control"""
 
     def __init__(self, dir_workspace: str = None, debug=False):
 
@@ -209,6 +213,7 @@ class ArmorCaptcha:
             "卡车": "truck",
             "公交车": "bus",
             "巴土": "bus",
+            "巴士": "bus",
             "飞机": "aeroplane",
             "ー条船": "boat",
             "船": "boat",
@@ -216,11 +221,11 @@ class ArmorCaptcha:
             "摩托车": "motorbike",
         }
 
-        # 样本标签映射 {挑战图片1: locator1, ...}
+        # Store the `element locator` of challenge images {挑战图片1: locator1, ...}
         self.alias2locator = {}
-        # 填充下载链接映射 {挑战图片1: url1, ...}
+        # Store the `download link` of the challenge image {挑战图片1: url1, ...}
         self.alias2url = {}
-        # 填充挑战图片的缓存地址 {挑战图片1: "/images/挑战图片1.png", ...}
+        # Store the `directory` of challenge image {挑战图片1: "/images/挑战图片1.png", ...}
         self.alias2path = {}
         # 存储模型分类结果 {挑战图片1: bool, ...}
         self.alias2answer = {}

@@ -2,7 +2,7 @@
 # Time       : 2022/2/15 17:40
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
-# Description: 🚀 哟挑战者！
+# Description: 🚀 Yo Challenger!
 from fire import Fire
 
 from services.scaffold import Scaffold

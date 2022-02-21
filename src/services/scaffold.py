@@ -9,19 +9,19 @@ from apis.scaffold import install, challenge
 
 
 class Scaffold:
-    """系统脚手架 顶级接口指令"""
+    """System scaffolding Top-level interface commands"""
 
     @staticmethod
-    def install(model:Optional[str]="yolov5s6"):
-        """下载运行依赖"""
+    def install(model: Optional[str] = None):
+        """Download Project Dependencies"""
         install.run(model=model)
 
     @staticmethod
     def test():
-        """测试挑战者驱动是否适配"""
+        """Test the Challenger drive for fitment"""
         challenge.test()
 
     @staticmethod
-    def demo(silence: Optional[bool] = False, model: Optional[str] = "yolov5s6"):
-        """正面硬刚人机挑战"""
+    def demo(silence: Optional[bool] = False, model: Optional[str] = None):
+        """Dueling with hCaptcha challenge"""
         challenge.demo(silence=silence, onnx_prefix=model)

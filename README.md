@@ -66,9 +66,6 @@ Just implement some interfaces to make `AI vs AI` possible.
    ```bash
    # hcaptcha-challenger/src
    python main.py demo
-   
-   # Linux.
-   export LANGUAGE=zh_CN.UTF8 && python3 main.py demo
    ```
 
 ## Advanced

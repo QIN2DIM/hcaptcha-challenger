@@ -5,6 +5,7 @@
 # Description:
 import sys
 import webbrowser
+from typing import Optional
 
 from webdriver_manager.utils import get_browser_version_from_os
 
@@ -12,7 +13,7 @@ from services.hcaptcha_challenger import YOLO
 from services.settings import DIR_MODEL, logger
 
 
-def _download_model(onnx_prefix="yolov5s6"):
+def _download_model(onnx_prefix: Optional[str] = None):
     """下载 YOLOv4 目标检测模型"""
     logger.debug("Downloading YOLOv5 object detection model...")
 
@@ -47,7 +48,7 @@ def _download_driver():
     )
 
 
-def run(model: str = "yolov5s6"):
+def run(model: Optional[str] = None):
     """下载项目运行所需的各项依赖"""
     _download_model(onnx_prefix=model)
     _download_driver()

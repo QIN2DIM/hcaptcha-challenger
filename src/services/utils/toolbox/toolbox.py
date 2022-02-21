@@ -3,6 +3,7 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
+import os
 import sys
 from typing import Optional
 
@@ -12,11 +13,11 @@ from selenium.webdriver import ChromeOptions
 
 
 class ToolBox:
-    """可移植的工具箱"""
+    """Portable Toolbox"""
 
     @staticmethod
     def init_log(**sink_path):
-        """初始化 loguru 日志信息"""
+        """Initialize loguru log information"""
         event_logger_format = (
             "<g>{time:YYYY-MM-DD HH:mm:ss}</g> | "
             "<lvl>{level}</lvl> - "
@@ -51,20 +52,31 @@ class ToolBox:
         return logger
 
 
-def _set_ctx() -> ChromeOptions:
-    """统一的 ChromeOptions 启动参数"""
-    options = ChromeOptions()
-    options.add_argument("--log-level=3")
-    options.add_argument("--lang=zh-CN")  # 可能仅在 Windows 生效
-    options.add_argument("--disable-dev-shm-usage")
-    return options
+def get_challenge_ctx(silence: Optional[bool] = None, language: Optional[str] = None):
+    """
+    Challenger drive for handling human-machine challenges
 
+    :param silence: Control headless browser
 
-def get_challenge_ctx(silence: Optional[bool] = None):
-    """挑战者驱动 用于处理人机挑战"""
+    :param language: Restrict the language of hCatpcha label.
+    In the current version, `language` parameter must be `zh`.
+    See https://github.com/QIN2DIM/hcaptcha-challenger/issues/2
 
+    :return:
+    """
+    # Control headless browser
     silence = True if silence is None or "linux" in sys.platform else silence
 
-    # 控制挑战者驱动版本，避免过于超前
+    # - Restrict browser startup parameters
+    options = ChromeOptions()
+    options.add_argument("--log-level=3")
+    options.add_argument("--disable-dev-shm-usage")
+
+    # - Restrict the language of hCaptcha label
+    # - Environment variables are valid only in the current process
+    # and do not affect other processes in the operating system
+    os.environ["LANGUAGE"] = "zh" if language is None else language
+    options.add_argument(f"--lang={os.getenv('LANGUAGE')}")
+
     logger.debug("🎮 Activate challenger context")
-    return uc.Chrome(options=_set_ctx(), headless=silence)
+    return uc.Chrome(options=options, headless=silence)
