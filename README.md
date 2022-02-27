@@ -138,10 +138,12 @@ Just implement some interfaces to make `AI vs AI` possible.
    sudo yum localinstall google-chrome-stable_current_x86_64.rpm
    ```
 
-### Install Google Chrome on Windows / MacOs
+### Install Google Chrome on Windows / MacOS
 
 Just go to [Google Chrome](https://www.google.com/chrome/) official website to download and install.
 
 ## Reference
 
 - hCaptcha challenge template site [@maximedrn](https://github.com/maximedrn/hcaptcha-solver-python-selenium)
+- [ultralytics/yolov5: YOLOv5 🚀 ](https://github.com/ultralytics/yolov5)
+- [ultrafunkamsterdam/undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
