@@ -23,5 +23,10 @@ class Scaffold:
 
     @staticmethod
     def demo(silence: Optional[bool] = False, model: Optional[str] = None):
-        """Dueling with hCaptcha challenge"""
+        """Dueling with hCAPTCHA challenge using YOLOv5"""
         challenge.demo(silence=silence, onnx_prefix=model)
+
+    @staticmethod
+    def demo_v2(silence: Optional[bool] = False, model: Optional[str] = None):
+        """Processing hCAPTCHA challenges using Image-Segmentation"""
+        challenge.demo_v2(silence=silence,onnx_prefix=model)

@@ -9,7 +9,8 @@ from os.path import join, dirname
 from services.utils import ToolBox
 
 HCAPTCHA_DEMO_SITES = [
-    "https://maximedrn.github.io/hcaptcha-solver-python-selenium/"
+    "https://maximedrn.github.io/hcaptcha-solver-python-selenium/",
+    "https://signup.cloud.oracle.com",
 ]
 # ---------------------------------------------------
 # [√]Lock the project directory

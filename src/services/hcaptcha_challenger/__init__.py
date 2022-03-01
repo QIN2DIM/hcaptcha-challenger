@@ -3,8 +3,8 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
-from .core import YOLO, ArmorCaptcha, ArmorUtils
-
+from .core import ArmorCaptcha, ArmorUtils
+from .solutions.yolo import YOLO
 __all__ = [
     "YOLO",
     "ArmorCaptcha",

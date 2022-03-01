@@ -10,10 +10,12 @@ from services.hcaptcha_challenger import ArmorCaptcha, ArmorUtils, YOLO
 from services.settings import logger, HCAPTCHA_DEMO_SITES, DIR_MODEL, DIR_CHALLENGE
 from services.utils import get_challenge_ctx
 
-SAMPLE_SITE = HCAPTCHA_DEMO_SITES[0]
 
-
-def demo(silence: Optional[bool] = False, onnx_prefix: Optional[str] = None):
+def demo(
+        silence: Optional[bool] = False,
+        onnx_prefix: Optional[str] = None,
+        sample_site: Optional[str] = HCAPTCHA_DEMO_SITES[0]
+):
     """人机挑战演示 顶级接口"""
     logger.info("Starting demo project...")
 
@@ -28,7 +30,7 @@ def demo(silence: Optional[bool] = False, onnx_prefix: Optional[str] = None):
     ctx = get_challenge_ctx(silence=silence)
     try:
         # 读取 hCaptcha challenge 测试站点
-        ctx.get(SAMPLE_SITE)
+        ctx.get(sample_site)
 
         # 必要的等待时间
         time.sleep(3)
@@ -52,12 +54,23 @@ def demo(silence: Optional[bool] = False, onnx_prefix: Optional[str] = None):
         ctx.quit()
 
 
+def demo_v2(silence: Optional[bool] = False, onnx_prefix: Optional[str] = None):
+    """
+    人机挑战演示 顶级接口 演示垂直河流 SKI 解法
+
+    :param silence:
+    :param onnx_prefix:
+    :return:
+    """
+    demo(silence, onnx_prefix, sample_site=HCAPTCHA_DEMO_SITES[1])
+
+
 @logger.catch()
 def test():
     """检查挑战者驱动版本是否适配"""
     ctx = get_challenge_ctx(silence=True)
     try:
-        ctx.get(SAMPLE_SITE)
+        ctx.get(HCAPTCHA_DEMO_SITES[0])
     finally:
         ctx.quit()
 
