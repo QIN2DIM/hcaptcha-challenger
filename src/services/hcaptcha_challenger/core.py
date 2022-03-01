@@ -3,10 +3,6 @@ import os
 import re
 import time
 import urllib.request
-from typing import Optional
-
-import cv2
-import numpy as np
 from loguru import logger
 from selenium.common.exceptions import (
     ElementNotVisibleException,
@@ -18,181 +14,17 @@ from selenium.common.exceptions import (
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+from typing import Optional
 from undetected_chromedriver import Chrome
 
 from services.utils import AshFramework
+from .solutions import ski_river
 from .exceptions import (
     LabelNotFoundException,
     ChallengeReset,
     ChallengeTimeout,
     AssertTimeout
 )
-
-
-class YOLO:
-    """YOLO model for image classification"""
-
-    def __init__(self, dir_model, onnx_prefix: str = "yolov5s6"):
-        self.dir_model = "./model" if dir_model is None else dir_model
-        self.onnx_prefix = (
-            "yolov5s6"
-            if onnx_prefix not in ["yolov5m6", "yolov5s6", "yolov5n6"]
-            else onnx_prefix
-        )
-
-        self.onnx_model = {
-            "name": f"{self.onnx_prefix}(onnx)_model",
-            "path": os.path.join(self.dir_model, f"{self.onnx_prefix}.onnx"),
-            "src": f"https://github.com/QIN2DIM/hcaptcha-challenger/releases/download/model/{self.onnx_prefix}.onnx",
-        }
-
-        # COCO namespace
-        self.classes = [
-            "person",
-            "bicycle",
-            "car",
-            "motorbike",
-            "aeroplane",
-            "bus",
-            "train",
-            "truck",
-            "boat",
-            "traffic light",
-            "fire hydrant",
-            "stop sign",
-            "parking meter",
-            "bench",
-            "bird",
-            "cat",
-            "dog",
-            "horse",
-            "sheep",
-            "cow",
-            "elephant",
-            "bear",
-            "zebra",
-            "giraffe",
-            "backpack",
-            "umbrella",
-            "handbag",
-            "tie",
-            "suitcase",
-            "frisbee",
-            "skis",
-            "snowboard",
-            "sports ball",
-            "kite",
-            "baseball bat",
-            "baseball glove",
-            "skateboard",
-            "surfboard",
-            "tennis racket",
-            "bottle",
-            "wine glass",
-            "cup",
-            "fork",
-            "knife",
-            "spoon",
-            "bowl",
-            "banana",
-            "apple",
-            "sandwich",
-            "orange",
-            "broccoli",
-            "carrot",
-            "hot dog",
-            "pizza",
-            "donut",
-            "cake",
-            "chair",
-            "sofa",
-            "pottedplant",
-            "bed",
-            "diningtable",
-            "toilet",
-            "tvmonitor",
-            "laptop",
-            "mouse",
-            "remote",
-            "keyboard",
-            "cell phone",
-            "microwave",
-            "oven",
-            "toaster",
-            "sink",
-            "refrigerator",
-            "book",
-            "clock",
-            "vase",
-            "scissors",
-            "teddy bear",
-            "hair drier",
-            "toothbrush",
-        ]
-
-    def download_model(self):
-        """Download model and weight parameters"""
-        if not os.path.exists(self.dir_model):
-            os.mkdir(self.dir_model)
-        if os.path.exists(self.onnx_model["path"]):
-            return
-
-        print(f"Downloading {self.onnx_model['name']} from {self.onnx_model['src']}")
-
-        urllib.request.urlretrieve(self.onnx_model["src"], self.onnx_model["path"])
-
-    def detect_common_objects(self, img_stream, confidence=0.4, nms_thresh=0.4):
-        """
-        Object Detection
-
-        Get multiple labels identified in a given image
-
-        :param img_stream: image file binary stream
-             with open(img_filepath, "rb") as file:
-                data = file.read()
-             detect_common_objects(img_stream=data)
-        :param confidence:
-        :param nms_thresh:
-        :return: bbox, label, conf
-        """
-        np_array = np.frombuffer(img_stream, np.uint8)
-        img = cv2.imdecode(np_array, flags=1)
-        height, width = img.shape[:2]
-
-        blob = cv2.dnn.blobFromImage(
-            img, 1 / 255.0, (128, 128), (0, 0, 0), swapRB=True, crop=False
-        )
-        self.download_model()
-
-        net = cv2.dnn.readNetFromONNX(self.onnx_model["path"])
-
-        net.setInput(blob)
-
-        class_ids = []
-        confidences = []
-        boxes = []
-
-        outs = net.forward()
-
-        for out in outs:
-            for detection in out:
-                scores = detection[5:]
-                class_id = np.argmax(scores)
-                max_conf = scores[class_id]
-                if max_conf > confidence:
-                    center_x = int(detection[0] * width)
-                    center_y = int(detection[1] * height)
-                    w = int(detection[2] * width)
-                    h = int(detection[3] * height)
-                    x = center_x - (w / 2)
-                    y = center_y - (h / 2)
-                    class_ids.append(class_id)
-                    confidences.append(float(max_conf))
-                    boxes.append([x, y, w, h])
-
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, confidence, nms_thresh)
-
-        return [str(self.classes[class_ids[i]]) for i in indices]
 
 
 class ArmorCaptcha:
@@ -219,6 +51,7 @@ class ArmorCaptcha:
             "船": "boat",
             "汽车": "car",
             "摩托车": "motorbike",
+            "垂直河流": "vertical river"
         }
 
         # Store the `element locator` of challenge images {挑战图片1: locator1, ...}
@@ -265,6 +98,14 @@ class ArmorCaptcha:
             self.log(message="模型泛化较差，逃逸", label=self.label)
             return True
         return False
+
+    def switch_solution(self,mirror, label: Optional[str] = None):
+        """模型卸载"""
+        label = self.label if label is None else label
+
+        if label in ["垂直河流"]:
+            return ski_river.RiverChallenger()
+        return mirror
 
     def mark_samples(self, ctx: Chrome):
         """
@@ -379,7 +220,7 @@ class ArmorCaptcha:
 
         self.runtime_workspace = workspace_
 
-    def challenge(self, ctx: Chrome, model: YOLO, confidence=0.39, nms_thresh=0.7):
+    def challenge(self, ctx: Chrome, model):
         """
         图像分类，元素点击，答案提交
 
@@ -405,15 +246,13 @@ class ArmorCaptcha:
             with open(img_filepath, "rb") as file:
                 data = file.read()
 
-            t0 = time.time()
             # 获取识别结果
-            labels = model.detect_common_objects(
-                data, confidence=confidence, nms_thresh=nms_thresh
-            )
+            t0 = time.time()
+            result = model.solution(img_stream=data, label=self.label_alias[self.label])
             ta.append(time.time() - t0)
 
             # 模型会根据置信度给出图片中的多个目标，只要命中一个就算通过
-            if self.label_alias[self.label] in labels:
+            if result:
                 # 选中标签元素
                 try:
                     self.alias2locator[alias].click()
@@ -432,7 +271,7 @@ class ArmorCaptcha:
         except (TimeoutException, ElementClickInterceptedException):
             raise ChallengeTimeout("CPU 算力不足，无法在规定时间内完成挑战")
 
-        self.log(message=f"提交挑战 {model.onnx_model['name']}: {round(sum(ta), 2)}s")
+        self.log(message=f"提交挑战 {model.flag}: {round(sum(ta), 2)}s")
 
     def challenge_success(self, ctx: Chrome, init: bool = True):
         """
@@ -498,7 +337,7 @@ class ArmorCaptcha:
         self.log("挑战成功")
         return True
 
-    def anti_hcaptcha(self, ctx: Chrome, model: YOLO):
+    def anti_hcaptcha(self, ctx: Chrome, model):
         """
         Handle hcaptcha challenge
 
@@ -542,6 +381,10 @@ class ArmorCaptcha:
         if self.tactical_retreat():
             ctx.switch_to.default_content()
             return False
+
+        # [👻] 注册解决方案
+        # 根据挑战类型自动匹配不同的模型
+        model = self.switch_solution(mirror=model)
 
         # [👻] 人机挑战！
         try:
