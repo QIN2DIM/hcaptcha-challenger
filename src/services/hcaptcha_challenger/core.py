@@ -3,6 +3,8 @@ import os
 import re
 import time
 import urllib.request
+from typing import Optional
+
 from loguru import logger
 from selenium.common.exceptions import (
     ElementNotVisibleException,
@@ -14,17 +16,16 @@ from selenium.common.exceptions import (
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from typing import Optional
 from undetected_chromedriver import Chrome
 
 from services.utils import AshFramework
-from .solutions import ski_river
 from .exceptions import (
     LabelNotFoundException,
     ChallengeReset,
     ChallengeTimeout,
     AssertTimeout
 )
+from .solutions import sk_recognition
 
 
 class ArmorCaptcha:
@@ -51,7 +52,8 @@ class ArmorCaptcha:
             "船": "boat",
             "汽车": "car",
             "摩托车": "motorbike",
-            "垂直河流": "vertical river"
+            "垂直河流": "vertical river",
+            "天空中向左飞行的飞机": "airplane in the sky flying left"
         }
 
         # Store the `element locator` of challenge images {挑战图片1: locator1, ...}
@@ -99,12 +101,14 @@ class ArmorCaptcha:
             return True
         return False
 
-    def switch_solution(self,mirror, label: Optional[str] = None):
+    def switch_solution(self, mirror, label: Optional[str] = None):
         """模型卸载"""
         label = self.label if label is None else label
 
         if label in ["垂直河流"]:
-            return ski_river.RiverChallenger()
+            return sk_recognition.RiverChallenger()
+        if label in ["天空中向左飞行的飞机"]:
+            return sk_recognition.DetectionChallenger()
         return mirror
 
     def mark_samples(self, ctx: Chrome):
@@ -158,7 +162,7 @@ class ArmorCaptcha:
         except TimeoutException:
             raise ChallengeReset("人机挑战意外通过")
         try:
-            _label = re.split(r"[包含 的]", label_obj.text)[2]
+            _label = re.split(r"[包含 图片]", label_obj.text)[2][:-1]
         except (AttributeError, IndexError):
             raise LabelNotFoundException("获取到异常的标签对象。")
         else:
