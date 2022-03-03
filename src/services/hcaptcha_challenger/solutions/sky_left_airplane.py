@@ -12,6 +12,7 @@ class SkyLeftAirplaneChallenger:
     def __init__(self):
         self.flag = "skyleftairplane_model"
         self.sky_threshold = 1800
+        self.left_threshold = 30
         self.debug = False
 
     @staticmethod
@@ -76,8 +77,10 @@ class SkyLeftAirplaneChallenger:
         min_x = np.min(np.nonzero(edges1), axis=1)[1]
         max_x = np.max(np.nonzero(edges1), axis=1)[1]
 
-        left_nonzero = np.count_nonzero(edges1[:, min_x:min(max_x, min_x + 10)])
-        right_nonzero = np.count_nonzero(edges1[:, max(min_x, max_x - 10):max_x])
+        left_nonzero = np.count_nonzero(edges1[:,
+                                               min_x:min(max_x, min_x + self.left_threshold)])
+        right_nonzero = np.count_nonzero(edges1[:,
+                                                max(min_x, max_x - self.left_threshold):max_x])
 
         # print(left_nonzero, right_nonzero)
 
