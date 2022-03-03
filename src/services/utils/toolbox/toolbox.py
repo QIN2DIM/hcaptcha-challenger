@@ -79,4 +79,4 @@ def get_challenge_ctx(silence: Optional[bool] = None, language: Optional[str] = 
     options.add_argument(f"--lang={os.getenv('LANGUAGE')}")
 
     logger.debug("🎮 Activate challenger context")
-    return uc.Chrome(options=options, headless=silence, version_main=98)
+    return uc.Chrome(options=options, headless=silence)
