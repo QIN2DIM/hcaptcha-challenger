@@ -12,10 +12,10 @@ from services.utils import get_challenge_ctx
 
 
 def demo(
-        silence: Optional[bool] = False,
-        onnx_prefix: Optional[str] = None,
-        sample_site: Optional[str] = HCAPTCHA_DEMO_SITES[0],
-        wait_: Optional[bool] = False,
+    silence: Optional[bool] = False,
+    onnx_prefix: Optional[str] = None,
+    sample_site: Optional[str] = HCAPTCHA_DEMO_SITES[0],
+    wait_: Optional[bool] = False,
 ):
     """人机挑战演示 顶级接口"""
     logger.info("Starting demo project...")
@@ -37,8 +37,10 @@ def demo(
         time.sleep(3)
 
         if wait_:
-            input("Please manually clear all masking elements to ensure that "
-                  "the man-machine challenge is fully displayed before continuing to run.")
+            input(
+                "Please manually clear all masking elements to ensure that "
+                "the man-machine challenge is fully displayed before continuing to run."
+            )
 
         # 检测当前页面是否出现可点击的 `hcaptcha checkbox`
         # `样本站点` 必然会弹出 `checkbox`，此处的弹性等待时长默认为 5s，
@@ -54,7 +56,7 @@ def demo(
 
             challenger.log(f"演示结束，挑战总耗时：{round(time.time() - start, 2)}s")
     finally:
-        input(f"[EXIT] Press any key to exit...")
+        input("[EXIT] Press any key to exit...")
 
         ctx.quit()
 

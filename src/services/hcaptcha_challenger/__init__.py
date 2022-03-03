@@ -5,6 +5,7 @@
 # Description:
 from .core import ArmorCaptcha, ArmorUtils
 from .solutions.yolo import YOLO
+
 __all__ = [
     "YOLO",
     "ArmorCaptcha",

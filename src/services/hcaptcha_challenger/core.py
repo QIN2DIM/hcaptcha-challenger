@@ -23,7 +23,7 @@ from .exceptions import (
     LabelNotFoundException,
     ChallengeReset,
     ChallengeTimeout,
-    AssertTimeout
+    AssertTimeout,
 )
 from .solutions import sk_recognition
 
@@ -53,7 +53,7 @@ class ArmorCaptcha:
             "汽车": "car",
             "摩托车": "motorbike",
             "垂直河流": "vertical river",
-            "天空中向左飞行的飞机": "airplane in the sky flying left"
+            "天空中向左飞行的飞机": "airplane in the sky flying left",
         }
 
         # Store the `element locator` of challenge images {挑战图片1: locator1, ...}
@@ -71,7 +71,7 @@ class ArmorCaptcha:
 
         self._headers = {
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.62",
+            "Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.62",
         }
 
     def log(self, message: str, **params) -> None:
@@ -329,10 +329,12 @@ class ArmorCaptcha:
             return False
 
         if not init and _high_threat_proxy_access():
-            self.log("挑战被迫重置 可能原因如下：\n"
-                     "1. 使用了高威胁的代理IP，需要更换系统代理；"
-                     "2. 自动化特征被识别，需要使用 `挑战者驱动` 运行解算程序，消除控制特征；"
-                     "3. 识别正确率较低，进入下一轮挑战；")
+            self.log(
+                "挑战被迫重置 可能原因如下：\n"
+                "1. 使用了高威胁的代理IP，需要更换系统代理；"
+                "2. 自动化特征被识别，需要使用 `挑战者驱动` 运行解算程序，消除控制特征；"
+                "3. 识别正确率较低，进入下一轮挑战；"
+            )
 
         # TODO 这里需要插入一段复杂逻辑用于判断挑战是否通过
         # 可参考思路有：断言网址变更/页面跳转/DOM刷新/意外弹窗 等
@@ -438,7 +440,6 @@ class ArmorCaptcha:
 
 
 class ArmorUtils:
-
     @staticmethod
     def fall_in_captcha_login(ctx: Chrome) -> Optional[bool]:
         """

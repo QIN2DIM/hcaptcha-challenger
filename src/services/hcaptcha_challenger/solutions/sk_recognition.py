@@ -238,7 +238,7 @@ class RiverChallenger(SKRecognition):
         graph_.nodes[dst]["total color"] += graph_.nodes[src]["total color"]
         graph_.nodes[dst]["pixel count"] += graph_.nodes[src]["pixel count"]
         graph_.nodes[dst]["mean color"] = (
-                graph_.nodes[dst]["total color"] / graph_.nodes[dst]["pixel count"]
+            graph_.nodes[dst]["total color"] / graph_.nodes[dst]["pixel count"]
         )
 
     def solution(self, img_stream, **kwargs) -> bool:  # noqa
@@ -301,10 +301,10 @@ class DetectionChallenger(SKRecognition):
         max_x = np.max(np.nonzero(edges1), axis=1)[1]
 
         left_nonzero = np.count_nonzero(
-            edges1[:, min_x: min(max_x, min_x + self.left_threshold)]
+            edges1[:, min_x : min(max_x, min_x + self.left_threshold)]
         )
         right_nonzero = np.count_nonzero(
-            edges1[:, max(min_x, max_x - self.left_threshold): max_x]
+            edges1[:, max(min_x, max_x - self.left_threshold) : max_x]
         )
 
         # Flying towards the right

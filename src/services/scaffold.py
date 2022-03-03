@@ -30,10 +30,10 @@ class Scaffold:
     def demo_v2(silence: Optional[bool] = False, model: Optional[str] = None):
         """Processing hCAPTCHA challenges using Image-Segmentation"""
         # label: vertical river
-        challenge.demo_v2(silence=silence,onnx_prefix=model)
+        challenge.demo_v2(silence=silence, onnx_prefix=model)
 
     @staticmethod
     def demo_v3(silence: Optional[bool] = False, model: Optional[str] = None):
         """Processing hCAPTCHA challenges using Image-Segmentation"""
         # label: airplane in the sky flying left
-        challenge.demo_v3(silence=silence,onnx_prefix=model)
+        challenge.demo_v3(silence=silence, onnx_prefix=model)

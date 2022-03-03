@@ -11,7 +11,7 @@ from services.utils import ToolBox
 HCAPTCHA_DEMO_SITES = [
     "https://maximedrn.github.io/hcaptcha-solver-python-selenium/",
     "https://signup.cloud.oracle.com",
-    "https://discord.com/register"
+    "https://discord.com/register",
 ]
 # ---------------------------------------------------
 # [√]Lock the project directory
