@@ -3,6 +3,8 @@ import os
 import re
 import time
 import urllib.request
+from typing import Optional
+
 from loguru import logger
 from selenium.common.exceptions import (
     ElementNotVisibleException,
@@ -14,17 +16,16 @@ from selenium.common.exceptions import (
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from typing import Optional
 from undetected_chromedriver import Chrome
 
 from services.utils import AshFramework
-from .solutions import ski_river
 from .exceptions import (
     LabelNotFoundException,
     ChallengeReset,
     ChallengeTimeout,
-    AssertTimeout
+    AssertTimeout,
 )
+from .solutions import sk_recognition
 
 
 class ArmorCaptcha:
@@ -51,7 +52,8 @@ class ArmorCaptcha:
             "船": "boat",
             "汽车": "car",
             "摩托车": "motorbike",
-            "垂直河流": "vertical river"
+            "垂直河流": "vertical river",
+            "天空中向左飞行的飞机": "airplane in the sky flying left",
         }
 
         # Store the `element locator` of challenge images {挑战图片1: locator1, ...}
@@ -69,7 +71,7 @@ class ArmorCaptcha:
 
         self._headers = {
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.62",
+            "Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.62",
         }
 
     def log(self, message: str, **params) -> None:
@@ -99,12 +101,14 @@ class ArmorCaptcha:
             return True
         return False
 
-    def switch_solution(self,mirror, label: Optional[str] = None):
+    def switch_solution(self, mirror, label: Optional[str] = None):
         """模型卸载"""
         label = self.label if label is None else label
 
         if label in ["垂直河流"]:
-            return ski_river.RiverChallenger()
+            return sk_recognition.RiverChallenger()
+        if label in ["天空中向左飞行的飞机"]:
+            return sk_recognition.DetectionChallenger()
         return mirror
 
     def mark_samples(self, ctx: Chrome):
@@ -158,7 +162,7 @@ class ArmorCaptcha:
         except TimeoutException:
             raise ChallengeReset("人机挑战意外通过")
         try:
-            _label = re.split(r"[包含 的]", label_obj.text)[2]
+            _label = re.split(r"[包含 图片]", label_obj.text)[2][:-1]
         except (AttributeError, IndexError):
             raise LabelNotFoundException("获取到异常的标签对象。")
         else:
@@ -325,10 +329,12 @@ class ArmorCaptcha:
             return False
 
         if not init and _high_threat_proxy_access():
-            self.log("挑战被迫重置 可能原因如下：\n"
-                     "1. 使用了高威胁的代理IP，需要更换系统代理；"
-                     "2. 自动化特征被识别，需要使用 `挑战者驱动` 运行解算程序，消除控制特征；"
-                     "3. 识别正确率较低，进入下一轮挑战；")
+            self.log(
+                "挑战被迫重置 可能原因如下：\n"
+                "1. 使用了高威胁的代理IP，需要更换系统代理；"
+                "2. 自动化特征被识别，需要使用 `挑战者驱动` 运行解算程序，消除控制特征；"
+                "3. 识别正确率较低，进入下一轮挑战；"
+            )
 
         # TODO 这里需要插入一段复杂逻辑用于判断挑战是否通过
         # 可参考思路有：断言网址变更/页面跳转/DOM刷新/意外弹窗 等
@@ -434,7 +440,6 @@ class ArmorCaptcha:
 
 
 class ArmorUtils:
-
     @staticmethod
     def fall_in_captcha_login(ctx: Chrome) -> Optional[bool]:
         """
