@@ -4,6 +4,7 @@
 # Github     : https://github.com/beiyuouo
 # Description:
 import hashlib
+import time
 
 import cv2
 import numpy as np
@@ -283,7 +284,12 @@ class DetectionChallenger(SKRecognition):
 
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
+
+        # This algorithm is too fast! You need to add some delay before returning the correct result.
+        # Without the delay, this solution would have passed the challenge in `0.03s`,
+        # which is `humanly' impossible to do.
         if self.rainbow_table.get(hashlib.md5(img_stream).hexdigest()):
+            time.sleep(0.25)
             return True
 
         img_arr = np.frombuffer(img_stream, np.uint8)
@@ -310,4 +316,6 @@ class DetectionChallenger(SKRecognition):
         # Flying towards the right
         if left_nonzero > right_nonzero:
             return False
+
+        time.sleep(0.25)
         return True
