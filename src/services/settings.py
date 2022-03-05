@@ -8,11 +8,27 @@ from os.path import join, dirname
 
 from services.utils import ToolBox
 
+_HCAPTCHA_DEMO_API = "https://accounts.hcaptcha.com/demo?sitekey={}"
+_SITE_KEYS = {
+    "epic": "91e4137f-95af-4bc9-97af-cdcedce21c8c",
+    "hcaptcha": "00000000-0000-0000-0000-000000000000",
+    "discord": "f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34",
+    "oracle": "d857545c-9806-4f9e-8e9d-327f565aeb46",
+    "publisher": "c86d730b-300a-444c-a8c5-5312e7a93628",
+}
+
+# https://www.wappalyzer.com/technologies/security/hcaptcha/
 HCAPTCHA_DEMO_SITES = [
-    "https://maximedrn.github.io/hcaptcha-solver-python-selenium/",
-    "https://signup.cloud.oracle.com",
-    "https://discord.com/register",
+    # [√] label: Tags follow point-in-time changes
+    _HCAPTCHA_DEMO_API.format(_SITE_KEYS["publisher"]),
+    # [√] label: `vertical river`
+    _HCAPTCHA_DEMO_API.format(_SITE_KEYS["oracle"]),
+    # [x] label: `airplane in the sky flying left`
+    _HCAPTCHA_DEMO_API.format(_SITE_KEYS["discord"]),
+    # [√] label: hcaptcha-challenger
+    _HCAPTCHA_DEMO_API.format(_SITE_KEYS["hcaptcha"]),
 ]
+
 # ---------------------------------------------------
 # [√]Lock the project directory
 # ---------------------------------------------------

@@ -473,7 +473,6 @@ class ArmorUtils:
     def fall_in_captcha_runtime(ctx: Chrome) -> Optional[bool]:
         """捕获隐藏在周免游戏订单中的人机挑战"""
         try:
-            # //iframe[@id='talon_frame_checkout_free_prod']
             WebDriverWait(ctx, 5, ignored_exceptions=WebDriverException).until(
                 EC.presence_of_element_located(
                     (By.XPATH, "//iframe[contains(@title,'content')]")
@@ -487,8 +486,7 @@ class ArmorUtils:
     def face_the_checkbox(ctx: Chrome) -> Optional[bool]:
         """遇见 hCaptcha checkbox"""
         try:
-            # "//div[@id='talon_frame_checkout_free_prod']"
-            WebDriverWait(ctx, 5, ignored_exceptions=WebDriverException).until(
+            WebDriverWait(ctx, 8, ignored_exceptions=WebDriverException).until(
                 EC.presence_of_element_located(
                     (By.XPATH, "//iframe[contains(@title,'checkbox')]")
                 )

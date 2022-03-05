@@ -3,10 +3,11 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
+import os
+
 import cv2
 import numpy as np
-import os
-import urllib.request
+import requests
 
 
 class YOLO:
@@ -119,9 +120,16 @@ class YOLO:
         if os.path.exists(self.onnx_model["path"]):
             return
 
-        print(f"Downloading {self.onnx_model['name']} from {self.onnx_model['src']}")
+        if not self.onnx_model["src"].lower().startswith("http"):
+            raise ValueError from None
 
-        urllib.request.urlretrieve(self.onnx_model["src"], self.onnx_model["path"])
+        print(f"Downloading {self.onnx_model['name']} from {self.onnx_model['src']}")
+        with requests.get(self.onnx_model["src"], stream=True) as response, open(
+                self.onnx_model["path"], "wb"
+        ) as file:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    file.write(chunk)
 
     def detect_common_objects(self, img_stream, confidence=0.4, nms_thresh=0.4):
         """

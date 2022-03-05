@@ -6,6 +6,7 @@
 from typing import Optional
 
 from apis.scaffold import install, challenge
+from services.settings import HCAPTCHA_DEMO_SITES
 
 
 class Scaffold:
@@ -24,16 +25,16 @@ class Scaffold:
     @staticmethod
     def demo(silence: Optional[bool] = False, model: Optional[str] = None):
         """Dueling with hCAPTCHA challenge using YOLOv5"""
-        challenge.demo(silence=silence, onnx_prefix=model)
+        challenge.runner(HCAPTCHA_DEMO_SITES[0], silence=silence, onnx_prefix=model)
 
     @staticmethod
-    def demo_v2(silence: Optional[bool] = False, model: Optional[str] = None):
+    def demo_v2(silence: Optional[bool] = False):
         """Processing hCAPTCHA challenges using Image-Segmentation"""
         # label: vertical river
-        challenge.demo_v2(silence=silence, onnx_prefix=model)
+        challenge.runner(HCAPTCHA_DEMO_SITES[1], silence=silence)
 
     @staticmethod
-    def demo_v3(silence: Optional[bool] = False, model: Optional[str] = None):
+    def demo_v3(silence: Optional[bool] = False):
         """Processing hCAPTCHA challenges using Image-Segmentation"""
         # label: airplane in the sky flying left
-        challenge.demo_v3(silence=silence, onnx_prefix=model)
+        challenge.runner(HCAPTCHA_DEMO_SITES[2], silence=silence)

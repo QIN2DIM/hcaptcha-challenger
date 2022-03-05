@@ -194,9 +194,6 @@ class SKRecognition:
 class RiverChallenger(SKRecognition):
     """A fast solution for identifying vertical rivers"""
 
-    def __init__(self):
-        super().__init__()
-
     @staticmethod
     def _weight_mean_color(graph_, src: int, dst: int, n: int):  # noqa
         """Callback to handle merging nodes by recomputing mean color.
@@ -224,7 +221,7 @@ class RiverChallenger(SKRecognition):
         return {"weight": diff}
 
     @staticmethod
-    def _merge_mean_color(graph_, src, dst):
+    def _merge_mean_color(graph_, src: int, dst: int):
         """Callback called before merging two nodes of a mean color distance graph.
 
         This method computes the mean color of `dst`.
@@ -282,7 +279,7 @@ class DetectionChallenger(SKRecognition):
         img[-2, :] = 0
         return img
 
-    def solution(self, img_stream, **kwargs) -> bool:
+    def solution(self, img_stream: bytes, **kwargs) -> bool:
         """Implementation process of solution"""
 
         # This algorithm is too fast! You need to add some delay before returning the correct result.
@@ -307,10 +304,10 @@ class DetectionChallenger(SKRecognition):
         max_x = np.max(np.nonzero(edges1), axis=1)[1]
 
         left_nonzero = np.count_nonzero(
-            edges1[:, min_x : min(max_x, min_x + self.left_threshold)]
+            edges1[:, min_x: min(max_x, min_x + self.left_threshold)]
         )
         right_nonzero = np.count_nonzero(
-            edges1[:, max(min_x, max_x - self.left_threshold) : max_x]
+            edges1[:, max(min_x, max_x - self.left_threshold): max_x]
         )
 
         # Flying towards the right
