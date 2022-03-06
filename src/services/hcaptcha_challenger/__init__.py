@@ -5,8 +5,10 @@
 # Description:
 from .core import ArmorCaptcha, ArmorUtils
 from .solutions.yolo import YOLO
+from .solutions.sk_recognition import SKRecognition
 
 __all__ = [
+    "SKRecognition",
     "YOLO",
     "ArmorCaptcha",
     "ArmorUtils",

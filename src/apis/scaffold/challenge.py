@@ -6,15 +6,18 @@
 import time
 from typing import Optional
 
+from selenium.common.exceptions import WebDriverException
+
 from services.hcaptcha_challenger import ArmorCaptcha, ArmorUtils, YOLO
+from services.hcaptcha_challenger.exceptions import ChallengeReset
 from services.settings import logger, HCAPTCHA_DEMO_SITES, DIR_MODEL, DIR_CHALLENGE
 from services.utils import get_challenge_ctx
 
 
 def runner(
-        sample_site: str,
-        silence: Optional[bool] = False,
-        onnx_prefix: Optional[str] = None,
+    sample_site: str,
+    silence: Optional[bool] = False,
+    onnx_prefix: Optional[str] = None,
 ):
     """人机挑战演示 顶级接口"""
     logger.info("Starting demo project...")
@@ -29,25 +32,31 @@ def runner(
     # 实例化挑战者驱动
     ctx = get_challenge_ctx(silence=silence)
     try:
-        # 读取 hCaptcha challenge 测试站点
-        ctx.get(sample_site)
+        for _ in range(5):
+            try:
+                # 读取 hCaptcha challenge 测试站点
+                ctx.get(sample_site)
 
-        # 必要的等待时间
-        time.sleep(3)
+                # 必要的等待时间
+                time.sleep(3)
 
-        # 检测当前页面是否出现可点击的 `hcaptcha checkbox`
-        # `样本站点` 必然会弹出 `checkbox`，此处的弹性等待时长默认为 5s，
-        # 若 5s 仍未加载出 `checkbox` 说明您当前的网络状态堪忧
-        if challenger_utils.face_the_checkbox(ctx):
-            start = time.time()
+                # 检测当前页面是否出现可点击的 `hcaptcha checkbox`
+                # `样本站点` 必然会弹出 `checkbox`，此处的弹性等待时长默认为 5s，
+                # 若 5s 仍未加载出 `checkbox` 说明您当前的网络状态堪忧
+                if challenger_utils.face_the_checkbox(ctx):
+                    start = time.time()
 
-            # 进入 iframe-checkbox --> 处理 hcaptcha checkbox --> 退出 iframe-checkbox
-            challenger.anti_checkbox(ctx)
+                    # 进入 iframe-checkbox --> 处理 hcaptcha checkbox --> 退出 iframe-checkbox
+                    challenger.anti_checkbox(ctx)
 
-            # 进入 iframe-content --> 处理 hcaptcha challenge --> 退出 iframe-content
-            challenger.anti_hcaptcha(ctx, model=yolo)
+                    # 进入 iframe-content --> 处理 hcaptcha challenge --> 退出 iframe-content
+                    challenger.anti_hcaptcha(ctx, model=yolo)
 
-            challenger.log(f"演示结束，挑战总耗时：{round(time.time() - start, 2)}s")
+                    challenger.log(f"演示结束，挑战总耗时：{round(time.time() - start, 2)}s")
+
+                break
+            except (WebDriverException, ChallengeReset):
+                continue
     finally:
         input("[EXIT] Press any key to exit...")
 

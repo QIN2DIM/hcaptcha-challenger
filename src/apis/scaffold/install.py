@@ -9,8 +9,8 @@ from typing import Optional
 
 from webdriver_manager.utils import get_browser_version_from_os
 
-from services.hcaptcha_challenger import YOLO
-from services.settings import DIR_MODEL, logger
+from services.hcaptcha_challenger import YOLO, SKRecognition
+from services.settings import DIR_MODEL, logger, PATH_RAINBOW
 
 
 def _download_model(onnx_prefix: Optional[str] = None):
@@ -18,6 +18,13 @@ def _download_model(onnx_prefix: Optional[str] = None):
     logger.debug("Downloading YOLOv5 object detection model...")
 
     YOLO(dir_model=DIR_MODEL, onnx_prefix=onnx_prefix).download_model()
+
+
+def _download_rainbow():
+    """同步强化彩虹表"""
+    logger.debug("Downloading Reinforcement Rainbow Table...")
+
+    SKRecognition().sync_rainbow(path_rainbow=PATH_RAINBOW, convert=True)
 
 
 def _download_driver():
@@ -52,3 +59,4 @@ def run(model: Optional[str] = None):
     """下载项目运行所需的各项依赖"""
     _download_model(onnx_prefix=model)
     _download_driver()
+    _download_rainbow()

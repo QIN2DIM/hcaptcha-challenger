@@ -5,7 +5,6 @@ import time
 import urllib.request
 from typing import Optional
 
-from loguru import logger
 from selenium.common.exceptions import (
     ElementNotVisibleException,
     ElementClickInterceptedException,
@@ -18,6 +17,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
 
+from services.settings import logger, PATH_RAINBOW
 from services.utils import AshFramework
 from .exceptions import (
     LabelNotFoundException,
@@ -94,6 +94,34 @@ class ArmorCaptcha:
             os.mkdir(_workspace)
         return _workspace
 
+    def get_label(self, ctx: Chrome):
+        """
+        获取人机挑战需要识别的图片类型（标签）
+
+        :param ctx:
+        :return:
+        """
+        try:
+            label_obj = WebDriverWait(
+                ctx, 5, ignored_exceptions=ElementNotVisibleException
+            ).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, "//div[@class='prompt-text']")
+                )
+            )
+        except TimeoutException:
+            raise ChallengeReset("人机挑战意外通过")
+        try:
+            _label = re.split(r"[包含 图片]", label_obj.text)[2][:-1]
+        except (AttributeError, IndexError):
+            raise LabelNotFoundException("获取到异常的标签对象。")
+        else:
+            self.label = _label
+            self.log(
+                message="获取挑战标签",
+                label=f"{self.label}({self.label_alias.get(self.label, 'none')})",
+            )
+
     def tactical_retreat(self) -> bool:
         """模型存在泛化死角，遇到指定标签时主动进入下一轮挑战，节约时间"""
         if self.label in ["水上飞机"] or not self.label_alias.get(self.label):
@@ -106,9 +134,9 @@ class ArmorCaptcha:
         label = self.label if label is None else label
 
         if label in ["垂直河流"]:
-            return sk_recognition.RiverChallenger()
+            return sk_recognition.RiverChallenger(path_rainbow=PATH_RAINBOW)
         if label in ["天空中向左飞行的飞机"]:
-            return sk_recognition.DetectionChallenger()
+            return sk_recognition.DetectionChallenger(path_rainbow=PATH_RAINBOW)
         return mirror
 
     def mark_samples(self, ctx: Chrome):
@@ -143,34 +171,6 @@ class ArmorCaptcha:
                 except IndexError:
                     continue
             self.alias2locator.update({alias: sample})
-
-    def get_label(self, ctx: Chrome):
-        """
-        获取人机挑战需要识别的图片类型（标签）
-
-        :param ctx:
-        :return:
-        """
-        try:
-            label_obj = WebDriverWait(
-                ctx, 30, ignored_exceptions=ElementNotVisibleException
-            ).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, "//div[@class='prompt-text']")
-                )
-            )
-        except TimeoutException:
-            raise ChallengeReset("人机挑战意外通过")
-        try:
-            _label = re.split(r"[包含 图片]", label_obj.text)[2][:-1]
-        except (AttributeError, IndexError):
-            raise LabelNotFoundException("获取到异常的标签对象。")
-        else:
-            self.label = _label
-            self.log(
-                message="获取挑战标签",
-                label=f"{self.label}({self.label_alias.get(self.label, 'none')})",
-            )
 
     def download_images(self):
         """
@@ -343,6 +343,26 @@ class ArmorCaptcha:
         self.log("挑战成功")
         return True
 
+    def anti_checkbox(self, ctx: Chrome):
+        """处理复选框"""
+        # [👻] 进入复选框
+        ctx.switch_to.frame(
+            WebDriverWait(ctx, 5, ignored_exceptions=ElementNotVisibleException).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, "//iframe[contains(@title,'checkbox')]")
+                )
+            )
+        )
+
+        # [👻] 点击复选框
+        self.log("Handle hCaptcha checkbox")
+        WebDriverWait(ctx, 5).until(
+            EC.element_to_be_clickable((By.ID, "checkbox"))
+        ).click()
+
+        # [👻] 回到主线剧情
+        ctx.switch_to.default_content()
+
     def anti_hcaptcha(self, ctx: Chrome, model):
         """
         Handle hcaptcha challenge
@@ -417,26 +437,6 @@ class ArmorCaptcha:
             # 回到主线剧情
             ctx.switch_to.default_content()
             return True
-
-    def anti_checkbox(self, ctx: Chrome):
-        """处理复选框"""
-        # [👻] 进入复选框
-        ctx.switch_to.frame(
-            WebDriverWait(ctx, 5, ignored_exceptions=ElementNotVisibleException).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, "//iframe[contains(@title,'checkbox')]")
-                )
-            )
-        )
-
-        # [👻] 点击复选框
-        self.log("Handle hCaptcha checkbox")
-        WebDriverWait(ctx, 5).until(
-            EC.element_to_be_clickable((By.ID, "checkbox"))
-        ).click()
-
-        # [👻] 回到主线剧情
-        ctx.switch_to.default_content()
 
 
 class ArmorUtils:

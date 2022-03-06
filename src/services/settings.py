@@ -41,6 +41,8 @@ PROJECT_DATABASE = join(PROJECT_ROOT, "database")
 # The storage directory of the YOLO object detection model
 DIR_MODEL = join(PROJECT_ROOT, "model")
 
+PATH_RAINBOW = join(DIR_MODEL, "rainbow.yaml")
+
 # Run cache directory
 DIR_TEMP_CACHE = join(PROJECT_DATABASE, "temp_cache")
 

@@ -125,7 +125,7 @@ class YOLO:
 
         print(f"Downloading {self.onnx_model['name']} from {self.onnx_model['src']}")
         with requests.get(self.onnx_model["src"], stream=True) as response, open(
-                self.onnx_model["path"], "wb"
+            self.onnx_model["path"], "wb"
         ) as file:
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:
