@@ -92,19 +92,54 @@ Just implement some interfaces to make `AI vs AI` possible.
    python main.py demo --model=yolov5n6
    ```
 
-3. Comparison of programs.
+3. Specify the challenge source.
 
-   The following table shows the average solving time of the `hCAPTCHA` challenge for 30 rounds (one round for every 9 challenge images) of mixed categories processed by onnx models of different sizes.
+   Mapping the target site's `hcaptcha iframe` to the demo site by specifying the `site-key`. The selectable sources can be viewed in the variable [_SITE_KEYS](https://github.com/QIN2DIM/hcaptcha-challenger/blob/main/src/services/settings.py).
 
-   | model(onnx) | avg_time(s) | size(MB) |
-   | :---------: | :---------: | :------: |
-   |  yolov5n6   |  **0.71**   | **12.4** |
-   |  yolov5s6   |    1.422    |   48.2   |
-   |  yolov5m6   |    3.05     |   136    |
+   ```bash
+   # hcaptcha-challenger/src
+   python main.py demo --target=discord
+   ```
+   
+4. Specify the challenge language.
 
-   - Use of the `YOLOv5n6(onnx)` embedded scheme to obtain solution speeds close to the limit.
+   [dev] Start the challenge in the specified language and the page elements will be replaced. Currently only `zh` and `en` are supported.
 
-   - Use of the `YOLOv5s6(onnx)` embedded solution, which allows for an optimal balance between stability, power consumption, and solution efficiency.
+   ```bash
+   # hcaptcha-challenger/src
+   python main.py demo --lang=en
+   ```
+
+## Solutions
+
+You may be surprised by the lack of a `pass rate` in the following table, but if you have run the `hcaptcha-challenger` demo, you will see that it is almost impossible to fail a challenge, i.e. the `pass rates` for the various solutions provided by `hcaptcha-challenger` are almost close to THE ONE.
+
+### YOLOv5(onnx)
+
+The following table shows the average solving time of the `hCAPTCHA` challenge for 30 rounds (one round for every 9 challenge images) of mixed categories processed by onnx models of different sizes.
+
+- Use of the `YOLOv5n6(onnx)` embedded scheme to obtain solution speeds close to the limit.
+- Use of the `YOLOv5s6(onnx)` embedded solution, which allows for an optimal balance between stability, power consumption, and solution efficiency.
+
+| model(onnx) | avg_time(s) | size(MB) |
+| :---------: | :---------: | :------: |
+|  yolov5n6   |  **0.71**   | **12.4** |
+|  yolov5s6   |    1.422    |   48.2   |
+|  yolov5m6   |    3.05     |   136    |
+
+### SK-IMAGE
+
+The following table shows the speed statistics of solving for **specific labels** using image segmentation in the same experimental setting.
+
+- The solving time is negligible using the `rainbow` method, which is as fast as taking a dictionary value.
+- The advantage of the `base` method is that it does not rely on any external model and can perform tasks in a variety of low-configuration containers through image processing alone.
+
+|             method(SK-IMAGE)              | avg_time(ms) | size(MB) |
+| :---------------------------------------: | :----------: | :------: |
+|           vertical river (base)           |     2883     |  **/**   |
+|         vertical river (rainbow)          |    **/**     |   0.29   |
+|  airplane in the sky flying left (base)   |      30      |  **/**   |
+| airplane in the sky flying left (rainbow) |    **/**     |   0.29   |
 
 ## Tour
 
