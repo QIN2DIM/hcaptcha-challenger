@@ -15,7 +15,7 @@ assignees: ''
 
 <!--The UTC time of your first issue submission-->
 
-## prompt-text
+## prompt message
 
 <!--Prompt message, which must contain all known labels.  It is critical that the prompt information be copied from the web page tabs rather than entered manually.-->
 
