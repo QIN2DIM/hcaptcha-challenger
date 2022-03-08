@@ -24,6 +24,7 @@ from .exceptions import (
     ChallengeReset,
     ChallengeTimeout,
     AssertTimeout,
+    ChallengeLangException,
 )
 from .solutions import sk_recognition
 
@@ -31,16 +32,8 @@ from .solutions import sk_recognition
 class ArmorCaptcha:
     """hCAPTCHA challenge drive control"""
 
-    def __init__(self, dir_workspace: str = None, debug=False):
-
-        self.action_name = "ArmorCaptcha"
-        self.debug = debug
-
-        # 存储挑战图片的目录
-        self.runtime_workspace = ""
-
-        # 博大精深！
-        self.label_alias = {
+    label_alias = {
+        "zh": {
             "自行车": "bicycle",
             "火车": "train",
             "卡车": "truck",
@@ -50,11 +43,44 @@ class ArmorCaptcha:
             "飞机": "aeroplane",
             "ー条船": "boat",
             "船": "boat",
-            "汽车": "car",
             "摩托车": "motorbike",
             "垂直河流": "vertical river",
             "天空中向左飞行的飞机": "airplane in the sky flying left",
-        }
+        },
+        "en": {
+            "airplane": "aeroplane",
+            "аirplane": "aeroplane",
+            "motorbus": "bus",
+            "mοtorbus": "bus",
+            "truck": "truck",
+            "truсk": "truck",
+            "motorcycle": "motorbike",
+            "boat": "boat",
+            "bicycle": "bicycle",
+            "train": "train",
+            "vertical river": "vertical river",
+            "airplane in the sky flying left": "airplane in the sky flying left",
+        },
+    }
+
+    def __init__(
+        self, dir_workspace: str = None, lang: Optional[str] = "zh", debug=False
+    ):
+        if not isinstance(lang, str) or not self.label_alias.get(lang):
+            raise ChallengeLangException(
+                f"Challenge language [{lang}] not yet supported."
+                f" -lang={list(self.label_alias.keys())}"
+            )
+
+        self.action_name = "ArmorCaptcha"
+        self.debug = debug
+
+        # 存储挑战图片的目录
+        self.runtime_workspace = ""
+
+        # 博大精深！
+        self.lang = lang
+        self.label_alias = self.label_alias[lang]
 
         # Store the `element locator` of challenge images {挑战图片1: locator1, ...}
         self.alias2locator = {}
@@ -62,17 +88,18 @@ class ArmorCaptcha:
         self.alias2url = {}
         # Store the `directory` of challenge image {挑战图片1: "/images/挑战图片1.png", ...}
         self.alias2path = {}
-        # 存储模型分类结果 {挑战图片1: bool, ...}
-        self.alias2answer = {}
         # 图像标签
         self.label = ""
         # 运行缓存
         self.dir_workspace = dir_workspace if dir_workspace else "."
 
-        self._headers = {
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.62",
-        }
+    def _init_workspace(self):
+        """初始化工作目录，存放缓存的挑战图片"""
+        _prefix = f"{int(time.time())}" + f"_{self.label}" if self.label else ""
+        _workspace = os.path.join(self.dir_workspace, _prefix)
+        if not os.path.exists(_workspace):
+            os.mkdir(_workspace)
+        return _workspace
 
     def log(self, message: str, **params) -> None:
         """格式化日志信息"""
@@ -86,13 +113,13 @@ class ArmorCaptcha:
             flag_ += " ".join([f"{i[0]}={i[1]}" for i in params.items()])
         logger.debug(flag_)
 
-    def _init_workspace(self):
-        """初始化工作目录，存放缓存的挑战图片"""
-        _prefix = f"{int(time.time())}" + f"_{self.label}" if self.label else ""
-        _workspace = os.path.join(self.dir_workspace, _prefix)
-        if not os.path.exists(_workspace):
-            os.mkdir(_workspace)
-        return _workspace
+    def split_prompt_message(self, prompt_message: str) -> str:
+        """根据指定的语种在提示信息中分离挑战标签"""
+        labels_mirror = {
+            "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1],
+            "en": re.split(r"containing a", prompt_message)[-1][1:].strip(),
+        }
+        return labels_mirror[self.lang]
 
     def get_label(self, ctx: Chrome):
         """
@@ -101,6 +128,7 @@ class ArmorCaptcha:
         :param ctx:
         :return:
         """
+
         try:
             label_obj = WebDriverWait(
                 ctx, 5, ignored_exceptions=ElementNotVisibleException
@@ -111,31 +139,36 @@ class ArmorCaptcha:
             )
         except TimeoutException:
             raise ChallengeReset("人机挑战意外通过")
+
         try:
-            _label = re.split(r"[包含 图片]", label_obj.text)[2][:-1]
+            _label = self.split_prompt_message(prompt_message=label_obj.text)
         except (AttributeError, IndexError):
             raise LabelNotFoundException("获取到异常的标签对象。")
         else:
             self.label = _label
-            self.log(
-                message="获取挑战标签",
-                label=f"{self.label}({self.label_alias.get(self.label, 'none')})",
-            )
+            if self.label_alias.get(self.label):
+                self.log(message="Get the challenge label", label=f"「{self.label}」")
+            else:
+                self.log(
+                    message="Get the exception label",
+                    prompt_message=f"「{label_obj.text}」",
+                )
 
     def tactical_retreat(self) -> bool:
         """模型存在泛化死角，遇到指定标签时主动进入下一轮挑战，节约时间"""
-        if self.label in ["水上飞机"] or not self.label_alias.get(self.label):
-            self.log(message="模型泛化较差，逃逸", label=self.label)
+        retreat_labels = ["hcaptcha-challenger", "seaplane"]
+        if self.label_alias.get(self.label, "hcaptcha-challenger") in retreat_labels:
+            self.log(message="Avoiding the unmanageable challenge", label=self.label)
             return True
         return False
 
-    def switch_solution(self, mirror, label: Optional[str] = None):
+    def switch_solution(self, mirror):
         """模型卸载"""
-        label = self.label if label is None else label
+        label = self.label_alias.get(self.label)
 
-        if label in ["垂直河流"]:
+        if label in ["vertical river"]:
             return sk_recognition.RiverChallenger(path_rainbow=PATH_RAINBOW)
-        if label in ["天空中向左飞行的飞机"]:
+        if label in ["airplane in the sky flying left"]:
             return sk_recognition.DetectionChallenger(path_rainbow=PATH_RAINBOW)
         return mirror
 
@@ -146,7 +179,7 @@ class ArmorCaptcha:
         :param ctx:
         :return:
         """
-        self.log(message="获取挑战图片链接及元素定位器")
+        self.log(message="Get challenge image links and element locators")
 
         # 等待图片加载完成
         WebDriverWait(ctx, 10, ignored_exceptions=ElementNotVisibleException).until(
@@ -203,7 +236,7 @@ class ArmorCaptcha:
                     with open(path_challenge_img, "wb") as file:
                         file.write(await response.read())
 
-        self.log(message="下载挑战图片")
+        self.log(message="Download the challenge image")
 
         # 初始化挑战图片下载目录
         workspace_ = self._init_workspace()
@@ -241,7 +274,7 @@ class ArmorCaptcha:
 
         :return:
         """
-        self.log(message="开始挑战")
+        self.log(message="Start the challenge")
 
         # {{< IMAGE CLASSIFICATION >}}
         ta = []
@@ -273,9 +306,12 @@ class ArmorCaptcha:
                 )
             ).click()
         except (TimeoutException, ElementClickInterceptedException):
-            raise ChallengeTimeout("CPU 算力不足，无法在规定时间内完成挑战")
+            raise ChallengeTimeout(
+                "CPU computing power is insufficient "
+                "to complete the challenge within the time limit"
+            )
 
-        self.log(message=f"提交挑战 {model.flag}: {round(sum(ta), 2)}s")
+        self.log(message=f"Submit the challenge - {model.flag}: {round(sum(ta), 2)}s")
 
     def challenge_success(self, ctx: Chrome, init: bool = True):
         """
@@ -325,7 +361,7 @@ class ArmorCaptcha:
         # hcaptcha 最多两轮验证，一般情况下，账号信息有误仅会执行一轮，然后返回登录窗格提示密码错误
         # 其次是被识别为自动化控制，这种情况也是仅执行一轮，回到登录窗格提示“返回数据错误”
         if init and not _continue_action():
-            self.log("挑战继续")
+            self.log("Continue the challenge")
             return False
 
         if not init and _high_threat_proxy_access():
@@ -340,7 +376,7 @@ class ArmorCaptcha:
         # 可参考思路有：断言网址变更/页面跳转/DOM刷新/意外弹窗 等
         # 这些判断都是根据具体的应用场景，具体的页面元素进行编写的
         # 单独解决 hCaptcha challenge 并不困难，困难的是在业务运行时处理
-        self.log("挑战成功")
+        self.log("Challenge success")
         return True
 
     def anti_checkbox(self, ctx: Chrome):

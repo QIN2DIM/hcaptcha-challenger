@@ -4,7 +4,7 @@
 # Github     : https://github.com/beiyuouo
 # Description:
 import hashlib
-import os.path
+import os
 import time
 from typing import Optional
 

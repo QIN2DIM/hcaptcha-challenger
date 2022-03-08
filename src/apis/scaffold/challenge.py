@@ -14,47 +14,59 @@ from services.settings import logger, HCAPTCHA_DEMO_SITES, DIR_MODEL, DIR_CHALLE
 from services.utils import get_challenge_ctx
 
 
+@logger.catch()
 def runner(
     sample_site: str,
+    lang: Optional[str] = "zh",
     silence: Optional[bool] = False,
     onnx_prefix: Optional[str] = None,
 ):
     """人机挑战演示 顶级接口"""
     logger.info("Starting demo project...")
 
-    # 实例化嵌入式模型
+    # Instantiating embedded models
     yolo = YOLO(DIR_MODEL, onnx_prefix=onnx_prefix)
 
-    # 实例化挑战者组件
-    challenger = ArmorCaptcha(dir_workspace=DIR_CHALLENGE, debug=True)
+    # Instantiating Challenger Components
+    challenger = ArmorCaptcha(dir_workspace=DIR_CHALLENGE, lang=lang, debug=True)
     challenger_utils = ArmorUtils()
 
-    # 实例化挑战者驱动
-    ctx = get_challenge_ctx(silence=silence)
+    # Instantiating the Challenger Drive
+    ctx = get_challenge_ctx(silence=silence, lang=lang)
     try:
         for _ in range(5):
             try:
-                # 读取 hCaptcha challenge 测试站点
+                # Read the hCaptcha challenge test site
                 ctx.get(sample_site)
 
-                # 必要的等待时间
+                # Necessary waiting time
                 time.sleep(3)
 
-                # 检测当前页面是否出现可点击的 `hcaptcha checkbox`
-                # `样本站点` 必然会弹出 `checkbox`，此处的弹性等待时长默认为 5s，
-                # 若 5s 仍未加载出 `checkbox` 说明您当前的网络状态堪忧
+                # Detects if a clickable `hcaptcha checkbox` appears on the current page.
+                # The `sample site` must pop up the `checkbox`, where the flexible wait time defaults to 5s.
+                # If the `checkbox` does not load in 5s, your network is in a bad state.
                 if challenger_utils.face_the_checkbox(ctx):
                     start = time.time()
 
-                    # 进入 iframe-checkbox --> 处理 hcaptcha checkbox --> 退出 iframe-checkbox
+                    # Enter iframe-checkbox --> Process hcaptcha checkbox --> Exit iframe-checkbox
                     challenger.anti_checkbox(ctx)
 
-                    # 进入 iframe-content --> 处理 hcaptcha challenge --> 退出 iframe-content
-                    challenger.anti_hcaptcha(ctx, model=yolo)
+                    # Enter iframe-content --> process hcaptcha challenge --> exit iframe-content
+                    result = challenger.anti_hcaptcha(ctx, model=yolo)
+                    if not result:
+                        continue
 
-                    challenger.log(f"演示结束，挑战总耗时：{round(time.time() - start, 2)}s")
+                    challenger.log(
+                        f"End of demo - total: {round(time.time() - start, 2)}s"
+                    )
 
                 break
+
+            # Do not capture the `ChallengeReset` signal in the outermost layer.
+            # In the demo project, we wanted the human challenge to pop up, not pass after processing the checkbox.
+            # So when this happens, we reload the page to activate hcaptcha repeatedly.
+            # But in your project, if you've passed the challenge by just handling the checkbox,
+            # there's no need to refresh the page!
             except (WebDriverException, ChallengeReset):
                 continue
     finally:

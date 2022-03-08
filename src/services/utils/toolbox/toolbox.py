@@ -52,15 +52,14 @@ class ToolBox:
         return logger
 
 
-def get_challenge_ctx(silence: Optional[bool] = None, language: Optional[str] = None):
+def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None):
     """
     Challenger drive for handling human-machine challenges
 
     :param silence: Control headless browser
 
-    :param language: Restrict the language of hCatpcha label.
-    In the current version, `language` parameter must be `zh`.
-    See https://github.com/QIN2DIM/hcaptcha-challenger/issues/2
+    :param lang: Restrict the language of hCatpcha label.
+    See https://github.com/QIN2DIM/hcaptcha-challenger/issues/13
 
     :return:
     """
@@ -75,7 +74,7 @@ def get_challenge_ctx(silence: Optional[bool] = None, language: Optional[str] = 
     # - Restrict the language of hCaptcha label
     # - Environment variables are valid only in the current process
     # and do not affect other processes in the operating system
-    os.environ["LANGUAGE"] = "zh" if language is None else language
+    os.environ["LANGUAGE"] = "zh" if lang is None else lang
     options.add_argument(f"--lang={os.getenv('LANGUAGE')}")
 
     logger.debug("🎮 Activate challenger context")

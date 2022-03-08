@@ -23,6 +23,10 @@ class ChallengeException(ArmorException):
     """hCAPTCHA Challenge basic exceptions"""
 
 
+class ChallengeLangException(ChallengeException):
+    """指定了不兼容的挑战语言"""
+
+
 class ChallengeReset(ChallengeException):
     """挑战失败，需要重试"""
 
