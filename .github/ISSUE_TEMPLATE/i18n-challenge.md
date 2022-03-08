@@ -15,7 +15,7 @@ assignees: ''
 
 <!--The UTC time of your first issue submission-->
 
-## prompt message
+## Prompt message
 
 <!--Prompt message, which must contain all known labels.  It is critical that the prompt information be copied from the web page tabs rather than entered manually.-->
 
@@ -70,7 +70,6 @@ label_alias = {
 <!--Must be elegant and refined enough to work with all labels-->
 
 ```python
-# samples
 labels_mirror = {
     "zh": re.split(r"[包含 图片]", label_obj.text)[2][:-1],
     "en": re.split(r"containing a", label_obj.text)[-1][1:].strip(),
