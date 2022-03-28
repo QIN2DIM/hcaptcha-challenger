@@ -132,3 +132,4 @@ src/database
 src/model
 tests/
 docs-src/
+.pypirc
