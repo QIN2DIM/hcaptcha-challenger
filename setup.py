@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 from os import path as os_path
-import src
+import hcaptcha_challenger
 
 this_directory = os_path.abspath(os_path.dirname(__file__))
 
 setup(name="hcaptcha-challenger",
-      version=src.__version__,
+      version=hcaptcha_challenger.__version__,
       keywords=[
           "hcaptcha",
           "hcaptcha-challenger",
@@ -30,7 +30,7 @@ setup(name="hcaptcha-challenger",
           "dev": ["nox", "pytest"],
           "test": ["pytest"],
       },
-      python_requires='>=3.6',
+      python_requires='>=3.7',
       classifiers=[
           'Topic :: Scientific/Engineering',
           'Topic :: Scientific/Engineering :: Artificial Intelligence',
