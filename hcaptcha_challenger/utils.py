@@ -9,7 +9,10 @@ import sys
 from typing import Optional, List, Union
 
 import aiohttp
+import undetected_chromedriver as uc
 from loguru import logger
+from selenium.webdriver import ChromeOptions
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 class AshFramework:
@@ -136,10 +139,6 @@ def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None
 
     :return:
     """
-    import undetected_chromedriver as uc
-    from selenium.webdriver import ChromeOptions
-    from webdriver_manager.chrome import ChromeDriverManager
-
     # Control headless browser
     silence = True if silence is None or "linux" in sys.platform else silence
 

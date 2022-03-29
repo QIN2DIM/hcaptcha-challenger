@@ -7,4 +7,4 @@ from .solver import Solver
 
 __all__ = ["Solver"]
 
-__version__ = "0.0.1.post.1"
+__version__ = "0.0.1.post.2"
