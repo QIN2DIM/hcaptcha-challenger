@@ -23,8 +23,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
 
-from services.settings import logger, PATH_RAINBOW
-from services.utils import AshFramework
+from ._settings import PATH_RAINBOW, logger
 from .exceptions import (
     LabelNotFoundException,
     ChallengeReset,
@@ -33,6 +32,7 @@ from .exceptions import (
     ChallengeLangException,
 )
 from .solutions import sk_recognition
+from .utils import AshFramework
 
 
 class _ArmorCaptcha:
@@ -71,7 +71,7 @@ class _ArmorCaptcha:
     }
 
     def __init__(
-        self, dir_workspace: str = None, lang: Optional[str] = "zh", debug=False
+            self, dir_workspace: str = None, lang: Optional[str] = "zh", debug=False
     ):
         if not isinstance(lang, str) or not self.label_alias.get(lang):
             raise ChallengeLangException(
@@ -537,7 +537,7 @@ class _ArmorUtils:
 
 class Solver(_ArmorCaptcha):
     def __init__(
-        self, ctx: Chrome, lang: Optional[str] = "en", debug: Optional[bool] = None
+            self, lang: Optional[str] = "en", debug: Optional[bool] = None
     ):
         super().__init__(lang=lang, debug=bool(debug))
         self.action_name = "Solver"
