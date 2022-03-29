@@ -1,6 +1,7 @@
 import asyncio
 import os
 import re
+import sys
 import time
 import urllib.request
 from typing import Optional
@@ -133,9 +134,7 @@ class ArmorCaptcha:
             label_obj = WebDriverWait(
                 ctx, 5, ignored_exceptions=ElementNotVisibleException
             ).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, "//div[@class='prompt-text']")
-                )
+                EC.presence_of_element_located((By.XPATH, "//div[@class='prompt-text']"))
             )
         except TimeoutException:
             raise ChallengeReset("人机挑战意外通过")
@@ -183,9 +182,7 @@ class ArmorCaptcha:
 
         # 等待图片加载完成
         WebDriverWait(ctx, 10, ignored_exceptions=ElementNotVisibleException).until(
-            EC.presence_of_all_elements_located(
-                (By.XPATH, "//div[@class='task-image']")
-            )
+            EC.presence_of_all_elements_located((By.XPATH, "//div[@class='task-image']"))
         )
         time.sleep(1)
 
@@ -225,9 +222,6 @@ class ArmorCaptcha:
         class ImageDownloader(AshFramework):
             """协程助推器 提高挑战图片的下载效率"""
 
-            def __init__(self, docker=None):
-                super().__init__(docker=docker)
-
             async def control_driver(self, context, session=None):
                 path_challenge_img, url = context
 
@@ -249,11 +243,14 @@ class ArmorCaptcha:
             docker_.append((path_challenge_img_, url_))
 
         # 初始化图片下载器
-        downloader = ImageDownloader(docker=docker_)
-
-        # 启动最高功率的协程任务
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(downloader.subvert(workers="fast"))
+        if "win" in sys.platform:
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+            asyncio.run(ImageDownloader(docker=docker_).subvert(workers="fast"))
+        else:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(
+                ImageDownloader(docker=docker_).subvert(workers="fast")
+            )
 
         self.runtime_workspace = workspace_
 

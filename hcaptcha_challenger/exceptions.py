@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# Time       : 2022/3/28 21:14
+# Author     : QIN2DIM
+# Github     : https://github.com/QIN2DIM
+# Description:
 from typing import Optional, Sequence
 
 

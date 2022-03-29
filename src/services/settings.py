@@ -60,12 +60,6 @@ logger = ToolBox.init_log(
 # ---------------------------------------------------
 # [√]Path completion
 # ---------------------------------------------------
-for _pending in [
-    PROJECT_DATABASE,
-    DIR_MODEL,
-    DIR_TEMP_CACHE,
-    DIR_CHALLENGE,
-    DIR_LOG,
-]:
+for _pending in [PROJECT_DATABASE, DIR_MODEL, DIR_TEMP_CACHE, DIR_CHALLENGE, DIR_LOG]:
     if not os.path.exists(_pending):
         os.mkdir(_pending)

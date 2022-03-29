@@ -1,6 +1,12 @@
+# -*- coding: utf-8 -*-
+# Time       : 2022/3/28 21:01
+# Author     : QIN2DIM
+# Github     : https://github.com/QIN2DIM
+# Description:
 import asyncio
 import os
 import re
+import sys
 import time
 import urllib.request
 from typing import Optional
@@ -29,7 +35,7 @@ from .exceptions import (
 from .solutions import sk_recognition
 
 
-class ArmorCaptcha:
+class _ArmorCaptcha:
     """hCAPTCHA challenge drive control"""
 
     label_alias = {
@@ -56,6 +62,7 @@ class ArmorCaptcha:
             "truсk": "truck",
             "motorcycle": "motorbike",
             "boat": "boat",
+            "bοat": "boat",
             "bicycle": "bicycle",
             "train": "train",
             "vertical river": "vertical river",
@@ -133,9 +140,7 @@ class ArmorCaptcha:
             label_obj = WebDriverWait(
                 ctx, 5, ignored_exceptions=ElementNotVisibleException
             ).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, "//div[@class='prompt-text']")
-                )
+                EC.presence_of_element_located((By.XPATH, "//div[@class='prompt-text']"))
             )
         except TimeoutException:
             raise ChallengeReset("人机挑战意外通过")
@@ -183,9 +188,7 @@ class ArmorCaptcha:
 
         # 等待图片加载完成
         WebDriverWait(ctx, 10, ignored_exceptions=ElementNotVisibleException).until(
-            EC.presence_of_all_elements_located(
-                (By.XPATH, "//div[@class='task-image']")
-            )
+            EC.presence_of_all_elements_located((By.XPATH, "//div[@class='task-image']"))
         )
         time.sleep(1)
 
@@ -225,9 +228,6 @@ class ArmorCaptcha:
         class ImageDownloader(AshFramework):
             """协程助推器 提高挑战图片的下载效率"""
 
-            def __init__(self, docker=None):
-                super().__init__(docker=docker)
-
             async def control_driver(self, context, session=None):
                 path_challenge_img, url = context
 
@@ -249,11 +249,14 @@ class ArmorCaptcha:
             docker_.append((path_challenge_img_, url_))
 
         # 初始化图片下载器
-        downloader = ImageDownloader(docker=docker_)
-
-        # 启动最高功率的协程任务
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(downloader.subvert(workers="fast"))
+        if "win" in sys.platform:
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+            asyncio.run(ImageDownloader(docker=docker_).subvert(workers="fast"))
+        else:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(
+                ImageDownloader(docker=docker_).subvert(workers="fast")
+            )
 
         self.runtime_workspace = workspace_
 
@@ -475,7 +478,7 @@ class ArmorCaptcha:
             return True
 
 
-class ArmorUtils:
+class _ArmorUtils:
     @staticmethod
     def fall_in_captcha_login(ctx: Chrome) -> Optional[bool]:
         """
@@ -530,3 +533,20 @@ class ArmorUtils:
             return True
         except TimeoutException:
             return False
+
+
+class Solver(_ArmorCaptcha):
+    def __init__(
+        self, ctx: Chrome, lang: Optional[str] = "en", debug: Optional[bool] = None
+    ):
+        super().__init__(lang=lang, debug=bool(debug))
+        self.action_name = "Solver"
+        self.utils = _ArmorUtils()
+
+    def solve(self, ctx: Chrome, checkbox: Optional[bool] = None):
+        """
+
+        :param ctx:
+        :param checkbox:
+        :return:
+        """

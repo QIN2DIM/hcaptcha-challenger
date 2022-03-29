@@ -186,7 +186,7 @@ class DetectionChallenger(SKRecognition):
             img_stream, rainbow_key="airplane in the sky flying left"
         )
         if match_output is not None:
-            time.sleep(0.03)
+            time.sleep(0.3)
             return match_output
 
         img_arr = np.frombuffer(img_stream, np.uint8)
