@@ -8,21 +8,21 @@ import webbrowser
 from typing import Optional
 
 from webdriver_manager.utils import get_browser_version_from_os
-
+from webdriver_manager.chrome import ChromeType
 from services.hcaptcha_challenger import YOLO, SKRecognition
 from services.settings import DIR_MODEL, logger, PATH_RAINBOW
 
 
 def _download_model(onnx_prefix: Optional[str] = None):
     """下载 YOLOv4 目标检测模型"""
-    logger.debug("Downloading YOLOv5 object detection model...")
+    logger.debug("Downloading YOLOv5(ONNX) object detection model...")
 
     YOLO(dir_model=DIR_MODEL, onnx_prefix=onnx_prefix).download_model()
 
 
 def _download_rainbow():
     """同步强化彩虹表"""
-    logger.debug("Downloading Reinforcement Rainbow Table...")
+    logger.debug("Downloading Rainbow Table...")
 
     SKRecognition().sync_rainbow(path_rainbow=PATH_RAINBOW, convert=True)
 
@@ -32,7 +32,7 @@ def _download_driver():
     logger.debug("Detecting google-chrome...")
 
     # 检测环境变量 `google-chrome`
-    browser_version = get_browser_version_from_os("google-chrome")
+    browser_version = get_browser_version_from_os(ChromeType.GOOGLE)
     if browser_version != "UNKNOWN":
         return
 

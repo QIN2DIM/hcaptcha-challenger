@@ -6,7 +6,7 @@
 import os
 from os.path import join, dirname
 
-from services.utils import ToolBox
+from .utils import ToolBox
 
 _HCAPTCHA_DEMO_API = "https://accounts.hcaptcha.com/demo?sitekey={}"
 _SITE_KEYS = {

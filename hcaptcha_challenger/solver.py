@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# Time       : 2022/3/28 21:01
+# Author     : QIN2DIM
+# Github     : https://github.com/QIN2DIM
+# Description:
 import asyncio
 import os
 import re
@@ -18,8 +23,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
 
-from services.settings import logger, PATH_RAINBOW
-from services.utils import AshFramework
+from ._settings import PATH_RAINBOW, logger
 from .exceptions import (
     LabelNotFoundException,
     ChallengeReset,
@@ -28,9 +32,10 @@ from .exceptions import (
     ChallengeLangException,
 )
 from .solutions import sk_recognition
+from .utils import AshFramework
 
 
-class ArmorCaptcha:
+class _ArmorCaptcha:
     """hCAPTCHA challenge drive control"""
 
     label_alias = {
@@ -57,6 +62,7 @@ class ArmorCaptcha:
             "truсk": "truck",
             "motorcycle": "motorbike",
             "boat": "boat",
+            "bοat": "boat",
             "bicycle": "bicycle",
             "train": "train",
             "vertical river": "vertical river",
@@ -65,7 +71,7 @@ class ArmorCaptcha:
     }
 
     def __init__(
-        self, dir_workspace: str = None, lang: Optional[str] = "zh", debug=False
+            self, dir_workspace: str = None, lang: Optional[str] = "zh", debug=False
     ):
         if not isinstance(lang, str) or not self.label_alias.get(lang):
             raise ChallengeLangException(
@@ -472,7 +478,7 @@ class ArmorCaptcha:
             return True
 
 
-class ArmorUtils:
+class _ArmorUtils:
     @staticmethod
     def fall_in_captcha_login(ctx: Chrome) -> Optional[bool]:
         """
@@ -527,3 +533,20 @@ class ArmorUtils:
             return True
         except TimeoutException:
             return False
+
+
+class Solver(_ArmorCaptcha):
+    def __init__(
+            self, lang: Optional[str] = "en", debug: Optional[bool] = None
+    ):
+        super().__init__(lang=lang, debug=bool(debug))
+        self.action_name = "Solver"
+        self.utils = _ArmorUtils()
+
+    def solve(self, ctx: Chrome, checkbox: Optional[bool] = None):
+        """
+
+        :param ctx:
+        :param checkbox:
+        :return:
+        """
