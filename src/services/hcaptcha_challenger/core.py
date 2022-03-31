@@ -47,6 +47,7 @@ class ArmorCaptcha:
             "摩托车": "motorbike",
             "垂直河流": "vertical river",
             "天空中向左飞行的飞机": "airplane in the sky flying left",
+            "请选择天空中所有向右飞行的飞机": "airplanes in the sky that are flying to the right",
         },
         "en": {
             "airplane": "aeroplane",
@@ -61,6 +62,7 @@ class ArmorCaptcha:
             "train": "train",
             "vertical river": "vertical river",
             "airplane in the sky flying left": "airplane in the sky flying left",
+            "Please select all airplanes in the sky that are flying to the rіght": "airplanes in the sky that are flying to the right",
         },
     }
 
@@ -117,8 +119,12 @@ class ArmorCaptcha:
     def split_prompt_message(self, prompt_message: str) -> str:
         """根据指定的语种在提示信息中分离挑战标签"""
         labels_mirror = {
-            "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1],
-            "en": re.split(r"containing a", prompt_message)[-1][1:].strip(),
+            "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1]
+            if "包含" in prompt_message
+            else prompt_message,
+            "en": re.split(r"containing a", prompt_message)[-1][1:].strip()
+            if "containing" in prompt_message
+            else prompt_message,
         }
         return labels_mirror[self.lang]
 
@@ -169,6 +175,9 @@ class ArmorCaptcha:
             return sk_recognition.RiverChallenger(path_rainbow=PATH_RAINBOW)
         if label in ["airplane in the sky flying left"]:
             return sk_recognition.DetectionChallenger(path_rainbow=PATH_RAINBOW)
+        if label in ["airplanes in the sky that are flying to the right"]:
+            return sk_recognition.RightPlane(path_rainbow=PATH_RAINBOW)
+
         return mirror
 
     def mark_samples(self, ctx: Chrome):

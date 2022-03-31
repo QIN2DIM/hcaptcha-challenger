@@ -216,3 +216,44 @@ class DetectionChallenger(SKRecognition):
 
         time.sleep(0.25)
         return True
+
+
+class RightPlane(DetectionChallenger):
+    def __init__(self, path_rainbow: Optional[str] = None):
+        super().__init__(path_rainbow=path_rainbow)
+
+    def solution(self, img_stream: bytes, **kwargs) -> bool:
+        match_output = self.match_rainbow(
+            img_stream, rainbow_key="airplanes in the sky that are flying to the right"
+        )
+        if match_output is not None:
+            time.sleep(0.2)
+            return match_output
+
+        img_arr = np.frombuffer(img_stream, np.uint8)
+        img = cv2.imdecode(img_arr, flags=1)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        edges1 = feature.canny(img)
+        edges1 = self._remove_border(edges1)
+
+        # On the ground
+        if np.count_nonzero(edges1) > self.sky_threshold:
+            return False
+
+        min_x = np.min(np.nonzero(edges1), axis=1)[1]
+        max_x = np.max(np.nonzero(edges1), axis=1)[1]
+
+        left_nonzero = np.count_nonzero(
+            edges1[:, min_x : min(max_x, min_x + self.left_threshold)]
+        )
+        right_nonzero = np.count_nonzero(
+            edges1[:, max(min_x, max_x - self.left_threshold) : max_x]
+        )
+
+        # Flying towards the left
+        if left_nonzero < right_nonzero:
+            return False
+
+        time.sleep(0.15)
+        return True
