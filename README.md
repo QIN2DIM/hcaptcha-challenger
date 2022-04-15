@@ -6,7 +6,7 @@
     <a href="https://github.com/QIN2DIM/hcaptcha-challenger/releases"><img src="https://img.shields.io/github/downloads/qin2dim/hcaptcha-challenger/total?style=for-the-badge"></a>
 	<br>
     <a href="https://github.com/QIN2DIM/hcaptcha-challenger/"><img src="https://img.shields.io/github/stars/QIN2DIM/hcaptcha-challenger?style=social"></a>
-	<a href = "https://t.me/joinchat/HlB9SQJubb5VmNU5"><img src="https://img.shields.io/static/v1?style=social&logo=telegram&label=chat&message=studio" ></a>
+	<a href = "https://t.me/+tJrSQ0_0ujkwZmZh"><img src="https://img.shields.io/static/v1?style=social&logo=telegram&label=chat&message=studio" ></a>
 	<br>
 	<br>
 </div>
