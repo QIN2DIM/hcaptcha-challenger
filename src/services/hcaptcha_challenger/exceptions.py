@@ -4,9 +4,7 @@ from typing import Optional, Sequence
 class ArmorException(Exception):
     """Armor module basic exception"""
 
-    def __init__(
-        self, msg: Optional[str] = None, stacktrace: Optional[Sequence[str]] = None
-    ):
+    def __init__(self, msg: Optional[str] = None, stacktrace: Optional[Sequence[str]] = None):
         self.msg = msg
         self.stacktrace = stacktrace
         super().__init__()
@@ -27,8 +25,8 @@ class ChallengeLangException(ChallengeException):
     """指定了不兼容的挑战语言"""
 
 
-class ChallengeReset(ChallengeException):
-    """挑战失败，需要重试"""
+class ChallengePassed(ChallengeException):
+    """挑战未弹出"""
 
 
 class LoadImageTimeout(ChallengeException):

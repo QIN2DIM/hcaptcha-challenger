@@ -50,9 +50,7 @@ def _download_driver():
     if "linux" not in sys.platform:
         webbrowser.open("https://www.google.com/chrome/")
 
-    logger.info(
-        "Re-execute the `install` scaffolding command after the installation is complete."
-    )
+    logger.info("Re-execute the `install` scaffolding command after the installation is complete.")
 
 
 def run(model: Optional[str] = None):

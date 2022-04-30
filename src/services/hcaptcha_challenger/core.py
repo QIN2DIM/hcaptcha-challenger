@@ -4,14 +4,13 @@ import re
 import sys
 import time
 import urllib.request
-from typing import Optional
+from typing import Optional, Union, Tuple
 
 from selenium.common.exceptions import (
     ElementNotVisibleException,
     ElementClickInterceptedException,
     WebDriverException,
     TimeoutException,
-    NoSuchElementException,
 )
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -22,12 +21,12 @@ from services.settings import logger, PATH_RAINBOW
 from services.utils import AshFramework
 from .exceptions import (
     LabelNotFoundException,
-    ChallengeReset,
+    ChallengePassed,
     ChallengeTimeout,
     AssertTimeout,
     ChallengeLangException,
 )
-from .solutions import sk_recognition
+from .solutions import sk_recognition, de_stylized
 
 
 class ArmorCaptcha:
@@ -57,18 +56,34 @@ class ArmorCaptcha:
             "truck": "truck",
             "truсk": "truck",
             "motorcycle": "motorbike",
+            "mοtorcycle": "motorbike",
             "boat": "boat",
             "bicycle": "bicycle",
             "train": "train",
+            "trаin": "train",
             "vertical river": "vertical river",
             "airplane in the sky flying left": "airplane in the sky flying left",
             "Please select all airplanes in the sky that are flying to the rіght": "airplanes in the sky that are flying to the right",
+            # "Please select all the elephants drawn with lеaves": "elephants drawn with leaves",
         },
     }
 
-    def __init__(
-        self, dir_workspace: str = None, lang: Optional[str] = "zh", debug=False
-    ):
+    HOOK_CHALLENGE = "//iframe[contains(@title,'content')]"
+
+    # <success> Challenge Passed by following the expected
+    CHALLENGE_SUCCESS = "success"
+    # <continue> Continue the challenge
+    CHALLENGE_CONTINUE = "continue"
+    # <crash> Failure of the challenge as expected
+    CHALLENGE_CRASH = "crash"
+    # <retry> Your proxy IP may have been flagged
+    CHALLENGE_RETRY = "retry"
+    # <refresh> Skip the specified label as expected
+    CHALLENGE_REFRESH = "refresh"
+    # <backcall> (New Challenge) Types of challenges not yet scheduled
+    CHALLENGE_BACKCALL = "backcall"
+
+    def __init__(self, dir_workspace: str = None, lang: Optional[str] = "zh", debug=False):
         if not isinstance(lang, str) or not self.label_alias.get(lang):
             raise ChallengeLangException(
                 f"Challenge language [{lang}] not yet supported."
@@ -83,7 +98,7 @@ class ArmorCaptcha:
 
         # 博大精深！
         self.lang = lang
-        self.label_alias = self.label_alias[lang]
+        self.label_alias: dict = self.label_alias[lang]
 
         # Store the `element locator` of challenge images {挑战图片1: locator1, ...}
         self.alias2locator = {}
@@ -116,6 +131,11 @@ class ArmorCaptcha:
             flag_ += " ".join([f"{i[0]}={i[1]}" for i in params.items()])
         logger.debug(flag_)
 
+    def switch_to_challenge_frame(self, ctx: Chrome):
+        WebDriverWait(ctx, 15, ignored_exceptions=ElementNotVisibleException).until(
+            EC.frame_to_be_available_and_switch_to_it((By.XPATH, self.HOOK_CHALLENGE))
+        )
+
     def split_prompt_message(self, prompt_message: str) -> str:
         """根据指定的语种在提示信息中分离挑战标签"""
         labels_mirror = {
@@ -137,13 +157,11 @@ class ArmorCaptcha:
         """
 
         try:
-            label_obj = WebDriverWait(
-                ctx, 5, ignored_exceptions=ElementNotVisibleException
-            ).until(
+            label_obj = WebDriverWait(ctx, 5, ignored_exceptions=ElementNotVisibleException).until(
                 EC.presence_of_element_located((By.XPATH, "//div[@class='prompt-text']"))
             )
         except TimeoutException:
-            raise ChallengeReset("人机挑战意外通过")
+            raise ChallengePassed("人机挑战意外通过")
 
         try:
             _label = self.split_prompt_message(prompt_message=label_obj.text)
@@ -152,31 +170,36 @@ class ArmorCaptcha:
         else:
             self.label = _label
             if self.label_alias.get(self.label):
-                self.log(message="Get the challenge label", label=f"「{self.label}」")
-            else:
-                self.log(
-                    message="Get the exception label",
-                    prompt_message=f"「{label_obj.text}」",
-                )
+                self.log(message="Get label", label=f"「{self.label}」")
 
-    def tactical_retreat(self) -> bool:
+    def tactical_retreat(self) -> Optional[str]:
         """模型存在泛化死角，遇到指定标签时主动进入下一轮挑战，节约时间"""
-        retreat_labels = ["hcaptcha-challenger", "seaplane"]
-        if self.label_alias.get(self.label, "hcaptcha-challenger") in retreat_labels:
-            self.log(message="Avoiding the unmanageable challenge", label=self.label)
-            return True
-        return False
+        retreat_labels = ["seaplane", "ѕeaplane"]
+
+        pending_label = self.label_alias.get(self.label)
+
+        if not pending_label:
+            self.log(message="Types of challenges not yet scheduled", prompt=f"「{self.label}」")
+            return self.CHALLENGE_BACKCALL
+        if pending_label in retreat_labels:
+            self.log(message="Avoiding the unmanageable challenge", label=f"「{self.label}」")
+            return self.CHALLENGE_REFRESH
+        return self.CHALLENGE_CONTINUE
 
     def switch_solution(self, mirror):
         """模型卸载"""
         label = self.label_alias.get(self.label)
 
         if label in ["vertical river"]:
-            return sk_recognition.RiverChallenger(path_rainbow=PATH_RAINBOW)
+            return sk_recognition.VerticalRiverRecognition(path_rainbow=PATH_RAINBOW)
         if label in ["airplane in the sky flying left"]:
-            return sk_recognition.DetectionChallenger(path_rainbow=PATH_RAINBOW)
+            return sk_recognition.LeftPlaneRecognition(path_rainbow=PATH_RAINBOW)
         if label in ["airplanes in the sky that are flying to the right"]:
-            return sk_recognition.RightPlane(path_rainbow=PATH_RAINBOW)
+            return sk_recognition.RightPlaneRecognition(path_rainbow=PATH_RAINBOW)
+        # if label in ["elephants drawn with leaves"]:
+        #     return de_stylized.ElephantDrawnWithLeaves(path_rainbow=PATH_RAINBOW)
+        # if label in ["horses drawn with flowers"]:
+        #     return de_stylized.HorsesDrawnWithFlowers(path_rainbow=PATH_RAINBOW)
 
         return mirror
 
@@ -187,7 +210,7 @@ class ArmorCaptcha:
         :param ctx:
         :return:
         """
-        self.log(message="Get challenge image links and element locators")
+        # self.log(message="Get challenge image links and element locators")
 
         # 等待图片加载完成
         WebDriverWait(ctx, 10, ignored_exceptions=ElementNotVisibleException).until(
@@ -201,9 +224,7 @@ class ArmorCaptcha:
             alias = sample.get_attribute("aria-label")
             while True:
                 try:
-                    image_style = sample.find_element(
-                        By.CLASS_NAME, "image"
-                    ).get_attribute("style")
+                    image_style = sample.find_element(By.CLASS_NAME, "image").get_attribute("style")
                     url = re.split(r'[(")]', image_style)[2]
                     self.alias2url.update({alias: url})
                     break
@@ -239,7 +260,7 @@ class ArmorCaptcha:
                     with open(path_challenge_img, "wb") as file:
                         file.write(await response.read())
 
-        self.log(message="Download the challenge image")
+        # self.log(message="Download the challenge image")
 
         # 初始化挑战图片下载目录
         workspace_ = self._init_workspace()
@@ -252,14 +273,12 @@ class ArmorCaptcha:
             docker_.append((path_challenge_img_, url_))
 
         # 初始化图片下载器
-        if "win" in sys.platform:
+        if sys.platform.startswith("win") or "cygwin" in sys.platform:
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
             asyncio.run(ImageDownloader(docker=docker_).subvert(workers="fast"))
         else:
             loop = asyncio.get_event_loop()
-            loop.run_until_complete(
-                ImageDownloader(docker=docker_).subvert(workers="fast")
-            )
+            loop.run_until_complete(ImageDownloader(docker=docker_).subvert(workers="fast"))
 
         self.runtime_workspace = workspace_
 
@@ -280,7 +299,7 @@ class ArmorCaptcha:
 
         :return:
         """
-        self.log(message="Start the challenge")
+        # self.log(message="Start the challenge")
 
         # {{< IMAGE CLASSIFICATION >}}
         ta = []
@@ -299,113 +318,116 @@ class ArmorCaptcha:
                 # 选中标签元素
                 try:
                     self.alias2locator[alias].click()
-                except WebDriverException:
-                    pass
+                except WebDriverException as err:
+                    self.log("Failed to click on element", alias=alias, err=err)
 
         # {{< SUBMIT ANSWER >}}
         try:
-            WebDriverWait(
-                ctx, 35, ignored_exceptions=ElementClickInterceptedException
-            ).until(
-                EC.element_to_be_clickable(
-                    (By.XPATH, "//div[@class='button-submit button']")
-                )
+            WebDriverWait(ctx, 35, ignored_exceptions=ElementClickInterceptedException).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[@class='button-submit button']"))
             ).click()
-        except (TimeoutException, ElementClickInterceptedException):
+        except WebDriverException as err:
             raise ChallengeTimeout(
                 "CPU computing power is insufficient "
                 "to complete the challenge within the time limit"
-            )
+            ) from err
 
         self.log(message=f"Submit the challenge - {model.flag}: {round(sum(ta), 2)}s")
 
-    def challenge_success(self, ctx: Chrome, init: bool = True):
+    def challenge_success(self, ctx: Chrome) -> Tuple[str, str]:
         """
         判断挑战是否成功的复杂逻辑
 
-        IF index is True:
-        经过首轮识别点击后，出现四种结果：
-        - 直接通过验证（小概率）
-        - 进入第二轮（正常情况）
-          通过短时间内可否继续点击拼图来断言是否陷入第二轮测试
-        - 要求重试（小概率）
-          特征被识别或网络波动，需要重试
-        - 通过验证，弹出 2FA 双重认证
-          无法处理，任务结束
+        # 首轮测试后判断短时间内页内是否存在可点击的拼图元素
+        # hcaptcha 最多两轮验证，一般情况下，账号信息有误仅会执行一轮，然后返回登录窗格提示密码错误
+        # 其次是被识别为自动化控制，这种情况也是仅执行一轮，回到登录窗格提示“返回数据错误”
+
+        经过首轮识别点击后，出现四种结果:
+            1. 直接通过验证（小概率）
+            2. 进入第二轮（正常情况）
+                通过短时间内可否继续点击拼图来断言是否陷入第二轮测试
+            3. 要求重试（小概率）
+                特征被识别|网络波动|被标记的（代理）IP
+            4. 通过验证，弹出 2FA 双重认证
+              无法处理，任务结束
 
         :param ctx: 挑战者驱动上下文
-        :param init: 是否为初次挑战
         :return:
         """
 
-        def _continue_action():
+        def is_challenge_image_clickable():
             try:
-                time.sleep(3)
-                ctx.find_element(By.XPATH, "//div[@class='task-image']")
-            except NoSuchElementException:
-                return True
-            else:
-                return False
-
-        def _high_threat_proxy_access():
-            """error-text:: 请再试一次"""
-            # 未设置子网桥系统代理
-            if not urllib.request.getproxies():
-                return False
-
-            try:
-                WebDriverWait(ctx, 2, ignored_exceptions=WebDriverException).until(
-                    EC.visibility_of_element_located(
-                        (By.XPATH, "//div[@class='error-text']")
-                    )
+                WebDriverWait(ctx, 1).until(
+                    EC.presence_of_element_located((By.XPATH, "//div[@class='task-image']"))
                 )
                 return True
             except TimeoutException:
                 return False
 
-        # 首轮测试后判断短时间内页内是否存在可点击的拼图元素
-        # hcaptcha 最多两轮验证，一般情况下，账号信息有误仅会执行一轮，然后返回登录窗格提示密码错误
-        # 其次是被识别为自动化控制，这种情况也是仅执行一轮，回到登录窗格提示“返回数据错误”
-        if init and not _continue_action():
-            self.log("Continue the challenge")
-            return False
+        def is_flagged_flow():
+            try:
+                WebDriverWait(ctx, 1, 0.1).until(
+                    EC.visibility_of_element_located((By.XPATH, "//div[@class='error-text']"))
+                )
+                if urllib.request.getproxies():
+                    logger.warning("Your proxy IP may have been flagged.")
+                return True
+            except TimeoutException:
+                return False
 
-        if not init and _high_threat_proxy_access():
-            self.log(
-                "挑战被迫重置 可能原因如下：\n"
-                "1. 使用了高威胁的代理IP，需要更换系统代理；"
-                "2. 自动化特征被识别，需要使用 `挑战者驱动` 运行解算程序，消除控制特征；"
-                "3. 识别正确率较低，进入下一轮挑战；"
-            )
+        def is_successful_at_the_demo_site():
+            """//div[contains(@class,'hcaptcha-success')]"""
+            try:
+                ctx.switch_to.default_content()
+                WebDriverWait(ctx, 1, 0.1).until(
+                    EC.visibility_of_element_located(
+                        (By.XPATH, "//div[contains(@class,'hcaptcha-success')]")
+                    )
+                )
+                return True
+            except TimeoutException:
+                pass
 
-        # TODO 这里需要插入一段复杂逻辑用于判断挑战是否通过
+        # Necessary.
+        time.sleep(2)
+
+        # Pop prompt "Please try again".
+        if is_flagged_flow():
+            return self.CHALLENGE_RETRY, "重置挑战"
+
+        if is_challenge_image_clickable():
+            return self.CHALLENGE_CONTINUE, "继续挑战"
+
+        # Work only at the demo site.
+        if is_successful_at_the_demo_site():
+            return self.CHALLENGE_SUCCESS, "退火成功"
+
+        # TODO > Here you need to insert a piece of business code
+        #  based on your project to determine if the challenge passes
         # 可参考思路有：断言网址变更/页面跳转/DOM刷新/意外弹窗 等
         # 这些判断都是根据具体的应用场景，具体的页面元素进行编写的
         # 单独解决 hCaptcha challenge 并不困难，困难的是在业务运行时处理
-        self.log("Challenge success")
-        return True
+        return self.CHALLENGE_SUCCESS, "退火成功"
 
     def anti_checkbox(self, ctx: Chrome):
         """处理复选框"""
         # [👻] 进入复选框
-        ctx.switch_to.frame(
-            WebDriverWait(ctx, 5, ignored_exceptions=ElementNotVisibleException).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, "//iframe[contains(@title,'checkbox')]")
-                )
+        WebDriverWait(ctx, 5, ignored_exceptions=ElementNotVisibleException).until(
+            EC.frame_to_be_available_and_switch_to_it(
+                (By.XPATH, "//iframe[contains(@title,'checkbox')]")
             )
         )
 
         # [👻] 点击复选框
         self.log("Handle hCaptcha checkbox")
-        WebDriverWait(ctx, 5).until(
-            EC.element_to_be_clickable((By.ID, "checkbox"))
-        ).click()
+        WebDriverWait(ctx, 5).until(EC.element_to_be_clickable((By.ID, "checkbox"))).click()
+
+        # [👻] 您的网络发送过多的请求...
 
         # [👻] 回到主线剧情
         ctx.switch_to.default_content()
 
-    def anti_hcaptcha(self, ctx: Chrome, model):
+    def anti_hcaptcha(self, ctx: Chrome, model) -> Union[bool, str]:
         """
         Handle hcaptcha challenge
 
@@ -431,54 +453,52 @@ class ArmorCaptcha:
         and Privacy Workshops (SPW), 2021, pp. 422-431, doi: 10.1109/SPW53761.2021.00061.
 
         > ps:该篇文章中的部分内容已过时，如今的 hcaptcha challenge 远没有作者说的那么容易应付。
-
+        :param ctx:
+        :param model:
         :return:
         """
-        # [👻] 进入人机挑战关卡
-        ctx.switch_to.frame(
-            WebDriverWait(ctx, 15, ignored_exceptions=ElementNotVisibleException).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, "//iframe[contains(@title,'content')]")
-                )
-            )
-        )
 
-        # [👻] 获取挑战图片
-        # 多轮验证标签不会改变
-        self.get_label(ctx)
-        if self.tactical_retreat():
-            ctx.switch_to.default_content()
-            return False
-
-        # [👻] 注册解决方案
-        # 根据挑战类型自动匹配不同的模型
-        model = self.switch_solution(mirror=model)
-
-        # [👻] 人机挑战！
+        # [👻] 它來了！
         try:
-            for index in range(2):
+            for index in range(3):
+                # [👻] 進入挑戰框架
+                self.switch_to_challenge_frame(ctx)
+
+                # [👻] 獲取挑戰標簽
+                self.get_label(ctx)
+
+                # [👻] 編排定位器索引
                 self.mark_samples(ctx)
 
+                # [👻] 拉取挑戰圖片
                 self.download_images()
 
+                # [👻] 滤除无法处理的挑战类别
+                drop = self.tactical_retreat()
+                if drop in [self.CHALLENGE_BACKCALL, self.CHALLENGE_REFRESH]:
+                    ctx.switch_to.default_content()
+                    return drop
+
+                # [👻] 注册解决方案
+                # 根据挑战类型自动匹配不同的模型
+                model = self.switch_solution(mirror=model)
+
+                # [👻] 識別|點擊|提交
                 self.challenge(ctx, model=model)
 
-                result = self.challenge_success(ctx, init=not bool(index))
+                # [👻] 輪詢控制臺響應
+                result, message = self.challenge_success(ctx)
+                ctx.switch_to.default_content()
 
-                # 仅一轮测试就通过
-                if index == 0 and result:
-                    break
-                # 断言超时
-                if index == 1 and result is False:
-                    ctx.switch_to.default_content()
-                    return False
-        except ChallengeReset:
+                self.log("Get response", desc=result)
+                if result in [self.CHALLENGE_SUCCESS, self.CHALLENGE_CRASH, self.CHALLENGE_RETRY]:
+                    return result
+                time.sleep(1)
+
+        except (WebDriverException,) as err:
+            logger.exception(err)
             ctx.switch_to.default_content()
-            return self.anti_hcaptcha(ctx, model=model)
-        else:
-            # 回到主线剧情
-            ctx.switch_to.default_content()
-            return True
+            return self.CHALLENGE_CRASH
 
 
 class ArmorUtils:
@@ -516,9 +536,7 @@ class ArmorUtils:
         """捕获隐藏在周免游戏订单中的人机挑战"""
         try:
             WebDriverWait(ctx, 5, ignored_exceptions=WebDriverException).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, "//iframe[contains(@title,'content')]")
-                )
+                EC.presence_of_element_located((By.XPATH, "//iframe[contains(@title,'content')]"))
             )
             return True
         except TimeoutException:
@@ -529,9 +547,7 @@ class ArmorUtils:
         """遇见 hCaptcha checkbox"""
         try:
             WebDriverWait(ctx, 8, ignored_exceptions=WebDriverException).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, "//iframe[contains(@title,'checkbox')]")
-                )
+                EC.presence_of_element_located((By.XPATH, "//iframe[contains(@title,'checkbox')]"))
             )
             return True
         except TimeoutException:

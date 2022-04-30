@@ -9,8 +9,9 @@ from typing import Optional
 
 import undetected_chromedriver as uc
 from loguru import logger
-from selenium.webdriver import ChromeOptions
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common.exceptions import WebDriverException
+from webdriver_manager.chrome import ChromeDriverManager, ChromeType
+from webdriver_manager.utils import get_browser_version_from_os
 
 
 class ToolBox:
@@ -68,9 +69,11 @@ def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None
     silence = True if silence is None or "linux" in sys.platform else silence
 
     # - Restrict browser startup parameters
-    options = ChromeOptions()
+    options = uc.ChromeOptions()
     options.add_argument("--log-level=3")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-blink-features=AutomationControlled")
 
     # - Restrict the language of hCaptcha label
     # - Environment variables are valid only in the current process
@@ -78,11 +81,23 @@ def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None
     os.environ["LANGUAGE"] = "zh" if lang is None else lang
     options.add_argument(f"--lang={os.getenv('LANGUAGE')}")
 
+    if silence is True:
+        options.add_argument("--disable-gpu")
+        options.add_argument("--disable-software-rasterizer")
+
     # - Use chromedriver cache to improve application startup speed
     # - Requirement: undetected-chromedriver >= 3.1.5.post2
     driver_executable_path = ChromeDriverManager(log_level=0).install()
+    version_main = get_browser_version_from_os(ChromeType.GOOGLE).split(".")[0]
 
     logger.debug("🎮 Activate challenger context")
-    return uc.Chrome(
-        options=options, headless=silence, driver_executable_path=driver_executable_path
-    )
+    try:
+        return uc.Chrome(
+            options=options, headless=silence, driver_executable_path=driver_executable_path
+        )
+    except WebDriverException:
+        return uc.Chrome(
+            options=options,
+            headless=silence,
+            version_main=int(version_main) if version_main.isdigit() else None,
+        )

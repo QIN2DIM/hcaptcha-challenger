@@ -30,9 +30,7 @@ class Scaffold:
 
     @staticmethod
     def demo(
-        silence: Optional[bool] = False,
-        model: Optional[str] = None,
-        target: Optional[str] = None,
+        silence: Optional[bool] = False, model: Optional[str] = None, target: Optional[str] = None
     ):
         """
         Dueling with hCAPTCHA challenge using YOLOv5.
@@ -43,10 +41,9 @@ class Scaffold:
         or: python main.py demo --target=discord     |
         or: python main.py demo --lang=en            |
         ---------------------------------------------------
-
-        :param silence: Default：False，Whether to silence the browser window.
-        :param model: Default: yolov5s6. within [yolov5n6 yolov5s6 yolov5m6]
-        :param target: Default: None. Designate `Challenge Source`. See the global value SITE_KEYS.
+        :param silence: Default False. Whether to silence the browser window.
+        :param model: Default "yolov5s6". within [yolov5n6 yolov5s6 yolov5m6]
+        :param target: Default None. Designate `Challenge Source`. See the global value SITE_KEYS.
         :return:
         """
         if _SITE_KEYS.get(target):
@@ -55,24 +52,17 @@ class Scaffold:
             sample_site = HCAPTCHA_DEMO_SITES[0]
 
         challenge.runner(
-            sample_site,
-            lang=Scaffold.challenge_language,
-            silence=silence,
-            onnx_prefix=model,
+            sample_site, lang=Scaffold.challenge_language, silence=silence, onnx_prefix=model
         )
 
     @staticmethod
     def demo_v2(silence: Optional[bool] = False):
         """Processing hCAPTCHA challenges using Image-Segmentation"""
         # label: vertical river
-        challenge.runner(
-            HCAPTCHA_DEMO_SITES[1], lang=Scaffold.challenge_language, silence=silence
-        )
+        challenge.runner(HCAPTCHA_DEMO_SITES[1], lang=Scaffold.challenge_language, silence=silence)
 
     @staticmethod
     def demo_v3(silence: Optional[bool] = False):
         """Processing hCAPTCHA challenges using Image-Segmentation"""
         # label: airplane in the sky flying left
-        challenge.runner(
-            HCAPTCHA_DEMO_SITES[2], lang=Scaffold.challenge_language, silence=silence
-        )
+        challenge.runner(HCAPTCHA_DEMO_SITES[2], lang=Scaffold.challenge_language, silence=silence)

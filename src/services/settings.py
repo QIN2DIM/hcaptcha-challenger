@@ -54,9 +54,7 @@ DIR_LOG = join(PROJECT_DATABASE, "logs")
 # ---------------------------------------------------
 # [√]Server log configuration
 # ---------------------------------------------------
-logger = ToolBox.init_log(
-    error=join(DIR_LOG, "error.log"), runtime=join(DIR_LOG, "runtime.log")
-)
+logger = ToolBox.init_log(error=join(DIR_LOG, "error.log"), runtime=join(DIR_LOG, "runtime.log"))
 # ---------------------------------------------------
 # [√]Path completion
 # ---------------------------------------------------

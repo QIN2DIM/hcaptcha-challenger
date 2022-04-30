@@ -16,9 +16,7 @@ class YOLO:
     def __init__(self, dir_model, onnx_prefix: str = "yolov5s6"):
         self.dir_model = "./model" if dir_model is None else dir_model
         self.onnx_prefix = (
-            "yolov5s6"
-            if onnx_prefix not in ["yolov5m6", "yolov5s6", "yolov5n6"]
-            else onnx_prefix
+            "yolov5s6" if onnx_prefix not in ["yolov5m6", "yolov5s6", "yolov5n6"] else onnx_prefix
         )
 
         self.onnx_model = {
@@ -149,9 +147,7 @@ class YOLO:
         img = cv2.imdecode(np_array, flags=1)
         height, width = img.shape[:2]
 
-        blob = cv2.dnn.blobFromImage(
-            img, 1 / 255.0, (128, 128), (0, 0, 0), swapRB=True, crop=False
-        )
+        blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (128, 128), (0, 0, 0), swapRB=True, crop=False)
         self.download_model()
 
         net = cv2.dnn.readNetFromONNX(self.onnx_model["path"])

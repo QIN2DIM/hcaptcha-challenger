@@ -3,7 +3,7 @@ name: PYPI release
 on:
   # workflow_dispatch
   push:
-    branches: [main]
+    branches: [_unused]
     paths-ignore:
       - "README.md"
       - ".github/**"

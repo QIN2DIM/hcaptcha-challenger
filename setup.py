@@ -4,6 +4,7 @@ import hcaptcha_challenger
 
 this_directory = os_path.abspath(os_path.dirname(__file__))
 
+# python setup.py sdist bdist_wheel && python -m twine upload dist/*
 setup(
     name="hcaptcha-challenger",
     version=hcaptcha_challenger.__version__,
