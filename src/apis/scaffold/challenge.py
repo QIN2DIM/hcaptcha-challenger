@@ -8,7 +8,7 @@ from typing import Optional
 
 from selenium.common.exceptions import WebDriverException
 
-from services.hcaptcha_challenger import ArmorCaptcha, ArmorUtils, YOLO
+from services.hcaptcha_challenger import ArmorCaptcha, ArmorUtils
 from services.hcaptcha_challenger.exceptions import ChallengePassed
 from services.settings import logger, HCAPTCHA_DEMO_SITES, DIR_MODEL, DIR_CHALLENGE
 from services.utils import get_challenge_ctx
@@ -23,9 +23,6 @@ def runner(
 ):
     """Human-Machine Challenge Demonstration | Top Interface"""
     logger.info("Starting demo project...")
-
-    # Instantiating embedded models
-    yolo = YOLO(DIR_MODEL, onnx_prefix=onnx_prefix)
 
     # Instantiating Challenger Components
     challenger = ArmorCaptcha(dir_workspace=DIR_CHALLENGE, lang=lang, debug=True)
@@ -50,10 +47,10 @@ def runner(
                 challenger.anti_checkbox(ctx)
 
                 # Enter iframe-content --> process hcaptcha challenge --> exit iframe-content
-                resp = challenger.anti_hcaptcha(ctx, model=yolo)
+                resp = challenger.anti_hcaptcha(ctx, dir_model=DIR_MODEL, onnx_prefix=onnx_prefix)
                 if resp == challenger.CHALLENGE_SUCCESS:
                     challenger.log(f"End of demo - total: {round(time.time() - start, 2)}s")
-                    logger.success(f"PASS[{i+1}|5]".center(28, "="))
+                    logger.success(f"PASS[{i + 1}|5]".center(28, "="))
                 elif resp == challenger.CHALLENGE_RETRY:
                     ctx.refresh()
 

@@ -26,7 +26,7 @@ from .exceptions import (
     AssertTimeout,
     ChallengeLangException,
 )
-from .solutions import sk_recognition, de_stylized
+from .solutions import sk_recognition, de_stylized, yolo, kernel
 
 
 class ArmorCaptcha:
@@ -34,6 +34,7 @@ class ArmorCaptcha:
 
     label_alias = {
         "zh": {
+            "水上飞机": "seaplane",
             "自行车": "bicycle",
             "火车": "train",
             "卡车": "truck",
@@ -47,12 +48,16 @@ class ArmorCaptcha:
             "垂直河流": "vertical river",
             "天空中向左飞行的飞机": "airplane in the sky flying left",
             "请选择天空中所有向右飞行的飞机": "airplanes in the sky that are flying to the right",
+            "请选择所有用树叶画的大象": "elephants drawn with leaves",
         },
         "en": {
+            "seaplane": "seaplane",
+            "ѕeaplane": "seaplane",
             "airplane": "aeroplane",
             "аirplane": "aeroplane",
             "motorbus": "bus",
             "mοtorbus": "bus",
+            "bus": "bus",
             "truck": "truck",
             "truсk": "truck",
             "motorcycle": "motorbike",
@@ -64,7 +69,9 @@ class ArmorCaptcha:
             "vertical river": "vertical river",
             "airplane in the sky flying left": "airplane in the sky flying left",
             "Please select all airplanes in the sky that are flying to the rіght": "airplanes in the sky that are flying to the right",
-            # "Please select all the elephants drawn with lеaves": "elephants drawn with leaves",
+            "Please select all airplanes in the sky that are flying to the right": "airplanes in the sky that are flying to the right",
+            "Please select all the elephants drawn with lеaves": "elephants drawn with leaves",
+            "Please select all the elephants drawn with leaves": "elephants drawn with leaves",
         },
     }
 
@@ -113,7 +120,9 @@ class ArmorCaptcha:
 
     def _init_workspace(self):
         """初始化工作目录，存放缓存的挑战图片"""
-        _prefix = f"{int(time.time())}" + f"_{self.label}" if self.label else ""
+        _prefix = (
+            f"{int(time.time())}" + f"_{self.label_alias.get(self.label, '')}" if self.label else ""
+        )
         _workspace = os.path.join(self.dir_workspace, _prefix)
         if not os.path.exists(_workspace):
             os.mkdir(_workspace)
@@ -155,6 +164,8 @@ class ArmorCaptcha:
         :param ctx:
         :return:
         """
+        # Necessary.
+        time.sleep(0.5)
 
         try:
             label_obj = WebDriverWait(ctx, 5, ignored_exceptions=ElementNotVisibleException).until(
@@ -174,7 +185,7 @@ class ArmorCaptcha:
 
     def tactical_retreat(self) -> Optional[str]:
         """模型存在泛化死角，遇到指定标签时主动进入下一轮挑战，节约时间"""
-        retreat_labels = ["seaplane", "ѕeaplane"]
+        retreat_labels = []
 
         pending_label = self.label_alias.get(self.label)
 
@@ -186,7 +197,7 @@ class ArmorCaptcha:
             return self.CHALLENGE_REFRESH
         return self.CHALLENGE_CONTINUE
 
-    def switch_solution(self, mirror):
+    def switch_solution(self, dir_model, onnx_prefix):
         """模型卸载"""
         label = self.label_alias.get(self.label)
 
@@ -196,12 +207,13 @@ class ArmorCaptcha:
             return sk_recognition.LeftPlaneRecognition(path_rainbow=PATH_RAINBOW)
         if label in ["airplanes in the sky that are flying to the right"]:
             return sk_recognition.RightPlaneRecognition(path_rainbow=PATH_RAINBOW)
-        # if label in ["elephants drawn with leaves"]:
-        #     return de_stylized.ElephantDrawnWithLeaves(path_rainbow=PATH_RAINBOW)
-        # if label in ["horses drawn with flowers"]:
-        #     return de_stylized.HorsesDrawnWithFlowers(path_rainbow=PATH_RAINBOW)
-
-        return mirror
+        if label in ["elephants drawn with leaves"]:
+            return de_stylized.ElephantsDrawnWithLeaves(dir_model, path_rainbow=PATH_RAINBOW)
+        if label in ["horses drawn with flowers"]:
+            return de_stylized.HorsesDrawnWithFlowers(dir_model, path_rainbow=PATH_RAINBOW)
+        if label in ["seaplane"]:
+            return kernel.RainbowSeaplane(path_rainbow=PATH_RAINBOW)
+        return yolo.YOLO(dir_model, onnx_prefix=onnx_prefix)
 
     def mark_samples(self, ctx: Chrome):
         """
@@ -411,23 +423,25 @@ class ArmorCaptcha:
 
     def anti_checkbox(self, ctx: Chrome):
         """处理复选框"""
-        # [👻] 进入复选框
-        WebDriverWait(ctx, 5, ignored_exceptions=ElementNotVisibleException).until(
-            EC.frame_to_be_available_and_switch_to_it(
-                (By.XPATH, "//iframe[contains(@title,'checkbox')]")
-            )
-        )
+        for _ in range(8):
+            try:
+                # [👻] 进入复选框
+                WebDriverWait(ctx, 2, ignored_exceptions=ElementNotVisibleException).until(
+                    EC.frame_to_be_available_and_switch_to_it(
+                        (By.XPATH, "//iframe[contains(@title,'checkbox')]")
+                    )
+                )
+                # [👻] 点击复选框
+                WebDriverWait(ctx, 2).until(EC.element_to_be_clickable((By.ID, "checkbox"))).click()
+                self.log("Handle hCaptcha checkbox")
+                return True
+            except TimeoutException:
+                pass
+            finally:
+                # [👻] 回到主线剧情
+                ctx.switch_to.default_content()
 
-        # [👻] 点击复选框
-        self.log("Handle hCaptcha checkbox")
-        WebDriverWait(ctx, 5).until(EC.element_to_be_clickable((By.ID, "checkbox"))).click()
-
-        # [👻] 您的网络发送过多的请求...
-
-        # [👻] 回到主线剧情
-        ctx.switch_to.default_content()
-
-    def anti_hcaptcha(self, ctx: Chrome, model) -> Union[bool, str]:
+    def anti_hcaptcha(self, ctx: Chrome, dir_model, onnx_prefix) -> Union[bool, str]:
         """
         Handle hcaptcha challenge
 
@@ -454,7 +468,8 @@ class ArmorCaptcha:
 
         > ps:该篇文章中的部分内容已过时，如今的 hcaptcha challenge 远没有作者说的那么容易应付。
         :param ctx:
-        :param model:
+        :param dir_model:
+        :param onnx_prefix:
         :return:
         """
 
@@ -481,7 +496,7 @@ class ArmorCaptcha:
 
                 # [👻] 注册解决方案
                 # 根据挑战类型自动匹配不同的模型
-                model = self.switch_solution(mirror=model)
+                model = self.switch_solution(dir_model, onnx_prefix)
 
                 # [👻] 識別|點擊|提交
                 self.challenge(ctx, model=model)

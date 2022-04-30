@@ -12,7 +12,7 @@ from skimage import feature
 from skimage.future import graph
 from skimage.segmentation import slic
 
-from ._kernel import Solutions
+from .kernel import Solutions
 
 
 class SKRecognition(Solutions):
@@ -80,9 +80,13 @@ class SKRecognition(Solutions):
 class VerticalRiverRecognition(SKRecognition):
     """A fast solution for identifying vertical rivers"""
 
-    def solution(self, img_stream, **kwargs) -> bool:  # noqa
+    def __init__(self, path_rainbow: Optional[str] = None):
+        super().__init__(path_rainbow=path_rainbow)
+        self.rainbow_key = "vertical river"
+
+    def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
-        match_output = self.match_rainbow(img_stream, rainbow_key="vertical river")
+        match_output = self.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
         if match_output is not None:
             time.sleep(0.03)
             return match_output
@@ -116,10 +120,11 @@ class LeftPlaneRecognition(SKRecognition):
         super().__init__(path_rainbow=path_rainbow)
         self.sky_threshold = 1800
         self.left_threshold = 30
+        self.rainbow_key = "airplane in the sky flying left"
 
     def solution(self, img_stream: bytes, **kwargs) -> bool:
         """Implementation process of solution"""
-        match_output = self.match_rainbow(img_stream, rainbow_key="airplane in the sky flying left")
+        match_output = self.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
         if match_output is not None:
             time.sleep(0.3)
             return match_output
@@ -154,11 +159,10 @@ class RightPlaneRecognition(SKRecognition):
         super().__init__(path_rainbow=path_rainbow)
         self.sky_threshold = 1800
         self.left_threshold = 30
+        self.rainbow_key = "airplanes in the sky that are flying to the right"
 
     def solution(self, img_stream: bytes, **kwargs) -> bool:
-        match_output = self.match_rainbow(
-            img_stream, rainbow_key="airplanes in the sky that are flying to the right"
-        )
+        match_output = self.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
         if match_output is not None:
             time.sleep(0.2)
             return match_output

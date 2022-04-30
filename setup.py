@@ -8,12 +8,7 @@ this_directory = os_path.abspath(os_path.dirname(__file__))
 setup(
     name="hcaptcha-challenger",
     version=hcaptcha_challenger.__version__,
-    keywords=[
-        "hcaptcha",
-        "hcaptcha-challenger",
-        "hcaptcha-challenger-python",
-        "hcaptcha-solver",
-    ],
+    keywords=["hcaptcha", "hcaptcha-challenger", "hcaptcha-challenger-python", "hcaptcha-solver"],
     author="QIN2DIM",
     author_email="qinse.top@foxmail.com",
     maintainer="QIN2DIM, Bingjie Yan",
@@ -23,9 +18,7 @@ setup(
     long_description_content_type="text/markdown",
     license="GNU General Public License v3.0",
     url="https://github.com/QIN2DIM/hcaptcha-challenger",
-    packages=find_packages(
-        include=["hcaptcha_challenger", "hcaptcha_challenger.*", "LICENSE"]
-    ),
+    packages=find_packages(include=["hcaptcha_challenger", "hcaptcha_challenger.*", "LICENSE"]),
     install_requires=[
         "fire~=0.4.0",
         "loguru~=0.6.0",

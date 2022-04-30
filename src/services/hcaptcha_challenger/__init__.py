@@ -4,7 +4,8 @@
 # Github     : https://github.com/QIN2DIM
 # Description:
 from .core import ArmorCaptcha, ArmorUtils
-from .solutions.yolo import YOLO
+from .solutions.de_stylized import ElephantsDrawnWithLeaves
 from .solutions.sk_recognition import SKRecognition
+from .solutions.yolo import YOLO
 
-__all__ = ["SKRecognition", "YOLO", "ArmorCaptcha", "ArmorUtils"]
+__all__ = ["SKRecognition", "YOLO", "ArmorCaptcha", "ArmorUtils", "ElephantsDrawnWithLeaves"]

@@ -72,6 +72,36 @@ class Solutions:
             pass
         return None
 
+    @staticmethod
+    def download_model_(dir_model, path_model, model_src, model_name):
+        """Download the de-stylized binary classification model"""
+        if not os.path.exists(dir_model):
+            os.mkdir(dir_model)
+        if os.path.exists(path_model):
+            return
+
+        if not model_src.lower().startswith("http"):
+            raise ValueError from None
+
+        print(f"Downloading {model_name} from {model_src}")
+        with requests.get(model_src, stream=True) as response, open(path_model, "wb") as file:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    file.write(chunk)
+
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
         raise NotImplementedError
+
+
+class RainbowSeaplane(Solutions):
+    """Handle challenge 「seaplane」"""
+
+    def __init__(self, path_rainbow=None):
+        super(RainbowSeaplane, self).__init__(flag="Rainbow", path_rainbow=path_rainbow)
+
+        self.rainbow_key = "seaplane"
+
+    def solution(self, img_stream, **kwargs) -> bool:
+        """Implementation process of solution"""
+        return self.match_rainbow(img_stream, self.rainbow_key)

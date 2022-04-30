@@ -7,7 +7,8 @@ import os
 
 import cv2
 import numpy as np
-import requests
+
+from .kernel import Solutions
 
 
 class YOLO:
@@ -112,22 +113,13 @@ class YOLO:
         ]
 
     def download_model(self):
-        """Download model and weight parameters"""
-        if not os.path.exists(self.dir_model):
-            os.mkdir(self.dir_model)
-        if os.path.exists(self.onnx_model["path"]):
-            return
-
-        if not self.onnx_model["src"].lower().startswith("http"):
-            raise ValueError from None
-
-        print(f"Downloading {self.onnx_model['name']} from {self.onnx_model['src']}")
-        with requests.get(self.onnx_model["src"], stream=True) as response, open(
-            self.onnx_model["path"], "wb"
-        ) as file:
-            for chunk in response.iter_content(chunk_size=1024):
-                if chunk:
-                    file.write(chunk)
+        """Download YOLOv5(ONNX) model"""
+        Solutions.download_model_(
+            dir_model=self.dir_model,
+            path_model=self.onnx_model["path"],
+            model_src=self.onnx_model["src"],
+            model_name=self.onnx_model["name"],
+        )
 
     def detect_common_objects(self, img_stream, confidence=0.4, nms_thresh=0.4):
         """
