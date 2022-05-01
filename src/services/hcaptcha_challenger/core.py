@@ -26,7 +26,7 @@ from .exceptions import (
     AssertTimeout,
     ChallengeLangException,
 )
-from .solutions import sk_recognition, de_stylized, yolo, kernel
+from .solutions import sk_recognition, resnet, yolo
 
 
 class ArmorCaptcha:
@@ -118,6 +118,8 @@ class ArmorCaptcha:
         # 运行缓存
         self.dir_workspace = dir_workspace if dir_workspace else "."
 
+        self.threat = 0
+
     def _init_workspace(self):
         """初始化工作目录，存放缓存的挑战图片"""
         _prefix = (
@@ -200,20 +202,19 @@ class ArmorCaptcha:
     def switch_solution(self, dir_model, onnx_prefix):
         """模型卸载"""
         label = self.label_alias.get(self.label)
-
+        if label in ["seaplane"]:
+            return resnet.ResNetSeaplane(dir_model)
+        if label in ["elephants drawn with leaves"]:
+            return resnet.ElephantsDrawnWithLeaves(dir_model, path_rainbow=PATH_RAINBOW)
         if label in ["vertical river"]:
             return sk_recognition.VerticalRiverRecognition(path_rainbow=PATH_RAINBOW)
         if label in ["airplane in the sky flying left"]:
             return sk_recognition.LeftPlaneRecognition(path_rainbow=PATH_RAINBOW)
         if label in ["airplanes in the sky that are flying to the right"]:
             return sk_recognition.RightPlaneRecognition(path_rainbow=PATH_RAINBOW)
-        if label in ["elephants drawn with leaves"]:
-            return de_stylized.ElephantsDrawnWithLeaves(dir_model, path_rainbow=PATH_RAINBOW)
         if label in ["horses drawn with flowers"]:
-            return de_stylized.HorsesDrawnWithFlowers(dir_model, path_rainbow=PATH_RAINBOW)
-        if label in ["seaplane"]:
-            return kernel.RainbowSeaplane(path_rainbow=PATH_RAINBOW)
-        return yolo.YOLO(dir_model, onnx_prefix=onnx_prefix)
+            return resnet.HorsesDrawnWithFlowers(dir_model, path_rainbow=PATH_RAINBOW)
+        return yolo.YOLO(dir_model, onnx_prefix)
 
     def mark_samples(self, ctx: Chrome):
         """
@@ -272,8 +273,6 @@ class ArmorCaptcha:
                     with open(path_challenge_img, "wb") as file:
                         file.write(await response.read())
 
-        # self.log(message="Download the challenge image")
-
         # 初始化挑战图片下载目录
         workspace_ = self._init_workspace()
 
@@ -292,6 +291,7 @@ class ArmorCaptcha:
             loop = asyncio.get_event_loop()
             loop.run_until_complete(ImageDownloader(docker=docker_).subvert(workers="fast"))
 
+        self.log(message="Download the challenge image")
         self.runtime_workspace = workspace_
 
     def challenge(self, ctx: Chrome, model):
@@ -381,7 +381,8 @@ class ArmorCaptcha:
                 WebDriverWait(ctx, 1, 0.1).until(
                     EC.visibility_of_element_located((By.XPATH, "//div[@class='error-text']"))
                 )
-                if urllib.request.getproxies():
+                self.threat += 1
+                if urllib.request.getproxies() and self.threat >1:
                     logger.warning("Your proxy IP may have been flagged.")
                 return True
             except TimeoutException:

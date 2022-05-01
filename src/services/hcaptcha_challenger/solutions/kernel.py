@@ -12,9 +12,9 @@ import yaml
 
 
 class Solutions:
-    def __init__(self, flag: str, path_rainbow: str):
+    def __init__(self, name: str, path_rainbow: str = None):
         self.path_rainbow = "rainbow.yaml" if path_rainbow is None else path_rainbow
-        self.flag = flag
+        self.flag = name
         self.rainbow_table = self.build_rainbow(path_rainbow=self.path_rainbow)
 
     @staticmethod
@@ -75,10 +75,10 @@ class Solutions:
     @staticmethod
     def download_model_(dir_model, path_model, model_src, model_name):
         """Download the de-stylized binary classification model"""
-        if not os.path.exists(dir_model):
-            os.mkdir(dir_model)
         if os.path.exists(path_model):
             return
+        if not os.path.exists(dir_model):
+            os.mkdir(dir_model)
 
         if not model_src.lower().startswith("http"):
             raise ValueError from None
@@ -92,16 +92,3 @@ class Solutions:
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
         raise NotImplementedError
-
-
-class RainbowSeaplane(Solutions):
-    """Handle challenge 「seaplane」"""
-
-    def __init__(self, path_rainbow=None):
-        super(RainbowSeaplane, self).__init__(flag="Rainbow", path_rainbow=path_rainbow)
-
-        self.rainbow_key = "seaplane"
-
-    def solution(self, img_stream, **kwargs) -> bool:
-        """Implementation process of solution"""
-        return self.match_rainbow(img_stream, self.rainbow_key)

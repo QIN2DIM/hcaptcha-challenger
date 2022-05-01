@@ -10,7 +10,12 @@ from typing import Optional
 from webdriver_manager.chrome import ChromeType
 from webdriver_manager.utils import get_browser_version_from_os
 
-from services.hcaptcha_challenger import YOLO, SKRecognition, ElephantsDrawnWithLeaves
+from services.hcaptcha_challenger import (
+    YOLO,
+    SKRecognition,
+    ElephantsDrawnWithLeaves,
+    ResNetSeaplane,
+)
 from services.settings import DIR_MODEL, logger, PATH_RAINBOW
 
 
@@ -20,6 +25,7 @@ def _download_model(onnx_prefix: Optional[str] = None):
 
     YOLO(dir_model=DIR_MODEL, onnx_prefix=onnx_prefix).download_model()
     ElephantsDrawnWithLeaves(dir_model=DIR_MODEL).download_model()
+    ResNetSeaplane(dir_model=DIR_MODEL).download_model()
 
 
 def _download_rainbow():

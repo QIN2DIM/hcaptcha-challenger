@@ -17,7 +17,7 @@ from .kernel import Solutions
 
 class SKRecognition(Solutions):
     def __init__(self, path_rainbow: Optional[str] = None):
-        super().__init__(flag="skimage_model", path_rainbow=path_rainbow)
+        super().__init__("skimage_model", path_rainbow)
 
     @staticmethod
     def _weight_mean_color(graph_, src: int, dst: int, n: int):  # noqa
