@@ -8,7 +8,7 @@ import webbrowser
 from typing import Optional
 
 from webdriver_manager.chrome import ChromeType
-from webdriver_manager.utils import get_browser_version_from_os
+from webdriver_manager.core.utils import get_browser_version_from_os
 
 from services.hcaptcha_challenger import (
     YOLO,

@@ -11,7 +11,7 @@ import undetected_chromedriver as uc
 from loguru import logger
 from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager, ChromeType
-from webdriver_manager.utils import get_browser_version_from_os
+from webdriver_manager.core.utils import get_browser_version_from_os
 
 
 class ToolBox:
@@ -87,7 +87,7 @@ def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None
 
     # - Use chromedriver cache to improve application startup speed
     # - Requirement: undetected-chromedriver >= 3.1.5.post2
-    driver_executable_path = ChromeDriverManager(log_level=0).install()
+    driver_executable_path = ChromeDriverManager().install()
     version_main = get_browser_version_from_os(ChromeType.GOOGLE).split(".")[0]
 
     logger.debug("🎮 Activate challenger context")

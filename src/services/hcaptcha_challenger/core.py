@@ -284,6 +284,7 @@ class ArmorCaptcha:
             docker_.append((path_challenge_img_, url_))
 
         # 初始化图片下载器
+        self.log(message="Download the challenge image")
         if sys.platform.startswith("win") or "cygwin" in sys.platform:
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
             asyncio.run(ImageDownloader(docker=docker_).subvert(workers="fast"))
@@ -291,7 +292,6 @@ class ArmorCaptcha:
             loop = asyncio.get_event_loop()
             loop.run_until_complete(ImageDownloader(docker=docker_).subvert(workers="fast"))
 
-        self.log(message="Download the challenge image")
         self.runtime_workspace = workspace_
 
     def challenge(self, ctx: Chrome, model):
