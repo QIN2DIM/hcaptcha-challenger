@@ -1,6 +1,6 @@
 <div align="center">
     <h1> hCaptcha Challenger</h1>
-    <p>🚀 Gracefully face hCaptcha challenge with Yolov5(ONNX) embedded solution.</p>
+    <p>🚀 Gracefully face hCaptcha challenge with Yolov5n6(ONNX) embedded solution.</p>
     <img src="https://img.shields.io/static/v1?message=reference&color=blue&style=for-the-badge&logo=micropython&label=python">
     <img src="https://img.shields.io/github/license/QIN2DIM/hcaptcha-challenger?style=for-the-badge">
     <a href="https://github.com/QIN2DIM/hcaptcha-challenger/releases"><img src="https://img.shields.io/github/downloads/qin2dim/hcaptcha-challenger/total?style=for-the-badge"></a>
