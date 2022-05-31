@@ -14,11 +14,9 @@ from .kernel import Solutions
 class YOLO:
     """YOLO model for image classification"""
 
-    def __init__(self, dir_model, onnx_prefix: str = "yolov5s6"):
+    def __init__(self, dir_model: str = None, onnx_prefix: str = "yolov5s6"):
         self.dir_model = "./model" if dir_model is None else dir_model
-        self.onnx_prefix = (
-            "yolov5s6" if onnx_prefix not in ["yolov5m6", "yolov5s6", "yolov5n6"] else onnx_prefix
-        )
+        self.onnx_prefix = "yolov5s6" if onnx_prefix not in ["yolov5m6", "yolov5s6", "yolov5n6"] else onnx_prefix
 
         self.onnx_model = {
             "name": f"{self.onnx_prefix}(onnx)_model",
@@ -121,7 +119,7 @@ class YOLO:
             model_name=self.onnx_model["name"],
         )
 
-    def detect_common_objects(self, img_stream, confidence=0.4, nms_thresh=0.4):
+    def detect_common_objects(self, img, confidence=0.4, nms_thresh=0.4):
         """
         Object Detection
 
@@ -135,8 +133,6 @@ class YOLO:
         :param nms_thresh:
         :return: bbox, label, conf
         """
-        np_array = np.frombuffer(img_stream, np.uint8)
-        img = cv2.imdecode(np_array, flags=1)
         height, width = img.shape[:2]
 
         blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (128, 128), (0, 0, 0), swapRB=True, crop=False)
@@ -176,5 +172,61 @@ class YOLO:
         """Implementation process of solution"""
         confidence = kwargs.get("confidence", 0.4)
         nms_thresh = kwargs.get("nms_thresh", 0.4)
-        labels = self.detect_common_objects(img_stream, confidence, nms_thresh)
+        img = self.stream_to_nparray(img_stream)
+        labels = self.detect_common_objects(img, confidence, nms_thresh)
         return bool(label in labels)
+
+    def solution_dev(self, src_dir: str, **kwargs):
+        if not os.path.exists(src_dir):
+            raise FileNotFoundError(f"{src_dir} not found")
+            return
+        _suffix = ".png"
+        for _prefix, _, files in os.walk(src_dir):
+            for filename in files:
+                if not filename.endswith(_suffix):
+                    continue
+                path_img = os.path.join(_prefix, filename)
+                with open(path_img, "rb") as file:
+                    yield path_img, self.solution(file.read(), **kwargs)
+
+    @staticmethod
+    def stream_to_nparray(img_stream: bytes) -> np.ndarray:
+        """Convert a stream to numpy array"""
+        np_array = np.frombuffer(img_stream, np.uint8)
+        img = cv2.imdecode(np_array, flags=1)
+        return img
+
+
+class YOLOWithAugmentation(YOLO):
+    """YOLO model with data augmentation"""
+
+    def __init__(self, dir_model: str = None, onnx_prefix: str = "yolov5s6"):
+        super().__init__(dir_model, onnx_prefix)
+
+    def solution(self, img_stream: bytes, label: str, **kwargs) -> bool:
+        """Implementation process of solution"""
+        confidence = kwargs.get("confidence", 0.4)
+        nms_thresh = kwargs.get("nms_thresh", 0.4)
+        img = self.stream_to_nparray(img_stream)
+        # cv2.imshow("img", img)
+        # denoise
+        img = cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 21)
+        # cv2.imshow("img_denoise", img)
+        # cv2.waitKey(0)
+
+        labels = self.detect_common_objects(img, confidence, nms_thresh)
+        return bool(label in labels)
+
+
+if __name__ == "__main__":
+    sol = YOLOWithAugmentation()
+
+    yes_path = os.path.join(".", "database", "airplane", "yes")
+    for path_, resp in sol.solution_dev(yes_path, label="aeroplane"):
+        print(path_, resp)
+
+    print("-" * 20)
+
+    no_path = os.path.join(".", "database", "airplane", "bad")
+    for path_, resp in sol.solution_dev(no_path, label="aeroplane"):
+        print(path_, resp)
