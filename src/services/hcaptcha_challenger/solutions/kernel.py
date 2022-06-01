@@ -92,3 +92,15 @@ class Solutions:
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
         raise NotImplementedError
+
+    def solution_dev(self, src_dir: str, **kwargs):
+        if not os.path.exists(src_dir):
+            return
+        _suffix = ".png"
+        for _prefix, _, files in os.walk(src_dir):
+            for filename in files:
+                if not filename.endswith(_suffix):
+                    continue
+                path_img = os.path.join(_prefix, filename)
+                with open(path_img, "rb") as file:
+                    yield path_img, self.solution(file.read(), **kwargs)
