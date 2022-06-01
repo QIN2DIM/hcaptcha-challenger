@@ -33,7 +33,9 @@ class Solutions:
 
         if convert or not os.path.exists(rainbow_obj["path"]):
             print(f"Downloading {rainbow_obj['name']} from {rainbow_obj['src']}")
-            with requests.get(rainbow_obj["src"], stream=True) as response, open(rainbow_obj["path"], "wb") as file:
+            with requests.get(rainbow_obj["src"], stream=True) as response, open(
+                rainbow_obj["path"], "wb"
+            ) as file:
                 for chunk in response.iter_content(chunk_size=1024):
                     if chunk:
                         file.write(chunk)
@@ -102,10 +104,3 @@ class Solutions:
                 path_img = os.path.join(_prefix, filename)
                 with open(path_img, "rb") as file:
                     yield path_img, self.solution(file.read(), **kwargs)
-
-
-if __name__ == "__main__":
-    rr = r"E:\_GithubProjects\Sources\hcaptcha-challenger"
-    sd = Solutions("cool")
-    for path_, resp in sd.solution_dev(rr):
-        input(f"{path_=} {resp=}")
