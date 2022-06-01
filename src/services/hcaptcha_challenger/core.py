@@ -203,7 +203,7 @@ class ArmorCaptcha:
         """模型卸载"""
         label = self.label_alias.get(self.label)
         if label in ["aeroplane"]:
-            return yolo.YOLOWithAugmentation(dir_model, onnx_prefix)
+            return yolo.YOLOAirplane(dir_model, onnx_prefix, path_rainbow=PATH_RAINBOW)
         if label in ["seaplane"]:
             return resnet.ResNetSeaplane(dir_model)
         if label in ["elephants drawn with leaves"]:

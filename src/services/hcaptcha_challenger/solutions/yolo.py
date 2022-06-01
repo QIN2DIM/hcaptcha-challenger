@@ -4,6 +4,7 @@
 # Github     : https://github.com/QIN2DIM
 # Description:
 import os
+import time
 
 import cv2
 import numpy as np
@@ -195,7 +196,7 @@ class YOLO:
         return img
 
 
-class YOLOWithAugmentation(YOLO):
+class YOLOAirplane(YOLO):
     """YOLO model with data augmentation"""
 
     def __init__(self, dir_model: str = None, onnx_prefix: str = "yolov5s6", path_rainbow=None):
@@ -208,7 +209,8 @@ class YOLOWithAugmentation(YOLO):
         return cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 21)
 
     def solution(self, img_stream: bytes, label: str, **kwargs) -> bool:
-        match_output = self.ks.match_rainbow(img_stream, rainbow_key=label)
+        match_output = self.ks.match_rainbow(img_stream, rainbow_key="airplane")
         if match_output is not None:
+            time.sleep(0.17)
             return match_output
-        return super(YOLOWithAugmentation, self).solution(img_stream, label, **kwargs)
+        return super().solution(img_stream, label, **kwargs)
