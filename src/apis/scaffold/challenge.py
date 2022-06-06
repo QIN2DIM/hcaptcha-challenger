@@ -22,8 +22,6 @@ def runner(
     onnx_prefix: Optional[str] = None,
 ):
     """Human-Machine Challenge Demonstration | Top Interface"""
-    logger.info("Starting demo project...")
-
     # Instantiating Challenger Components
     challenger = ArmorCaptcha(dir_workspace=DIR_CHALLENGE, lang=lang, debug=True)
     challenger_utils = ArmorUtils()
@@ -41,6 +39,7 @@ def runner(
                 # If the `checkbox` does not load in 5s, your network is in a bad state.
                 if not challenger_utils.face_the_checkbox(ctx):
                     break
+
                 start = time.time()
 
                 # Enter iframe-checkbox --> Process hcaptcha checkbox --> Exit iframe-checkbox
@@ -61,10 +60,11 @@ def runner(
             # there's no need to refresh the page!
             except ChallengePassed:
                 ctx.refresh()
+                logger.success(f"PASS[{i + 1}|5]".center(28, "="))
             except WebDriverException as err:
                 logger.exception(err)
     finally:
-        print("[EXIT] Press any key to exit...")
+        # print("[EXIT] Press any key to exit...")
 
         ctx.quit()
 

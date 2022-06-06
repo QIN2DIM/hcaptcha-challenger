@@ -3,6 +3,7 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
+import logging
 import os
 import sys
 from typing import Optional
@@ -87,17 +88,22 @@ def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None
 
     # - Use chromedriver cache to improve application startup speed
     # - Requirement: undetected-chromedriver >= 3.1.5.post2
+    logging.getLogger("WDM").setLevel(logging.NOTSET)
     driver_executable_path = ChromeDriverManager().install()
     version_main = get_browser_version_from_os(ChromeType.GOOGLE).split(".")[0]
 
     logger.debug("🎮 Activate challenger context")
     try:
         return uc.Chrome(
-            options=options, headless=silence, driver_executable_path=driver_executable_path
+            options=options,
+            headless=silence,
+            use_subprocess=True,
+            driver_executable_path=driver_executable_path
         )
     except WebDriverException:
         return uc.Chrome(
             options=options,
             headless=silence,
+            use_subprocess=True,
             version_main=int(version_main) if version_main.isdigit() else None,
         )
