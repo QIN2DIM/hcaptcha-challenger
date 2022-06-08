@@ -202,8 +202,8 @@ class ArmorCaptcha:
     def switch_solution(self, dir_model, onnx_prefix):
         """模型卸载"""
         label = self.label_alias.get(self.label)
-        if label in ["aeroplane"]:
-            return yolo.YOLOAirplane(dir_model, onnx_prefix, path_rainbow=PATH_RAINBOW)
+        if label in ["train", "aeroplane"]:  # how dare you
+            return yolo.YOLOWithAugmentation(label, dir_model, onnx_prefix, path_rainbow=PATH_RAINBOW)
         if label in ["seaplane"]:
             return resnet.ResNetSeaplane(dir_model)
         if label in ["elephants drawn with leaves"]:

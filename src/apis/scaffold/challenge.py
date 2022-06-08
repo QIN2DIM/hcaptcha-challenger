@@ -52,6 +52,7 @@ def runner(
                     logger.success(f"PASS[{i + 1}|5]".center(28, "="))
                 elif resp == challenger.CHALLENGE_RETRY:
                     ctx.refresh()
+                    logger.error(f"RETRY[{i + 1}|5]".center(28, "="))
 
             # Do not capture the `ChallengeReset` signal in the outermost layer.
             # In the demo project, we wanted the human challenge to pop up, not pass after processing the checkbox.

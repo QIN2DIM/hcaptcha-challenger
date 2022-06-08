@@ -196,12 +196,10 @@ class YOLO:
         return img
 
 
-class YOLOAirplane(YOLO):
-    """YOLO model with data augmentation"""
-
-    def __init__(self, dir_model: str = None, onnx_prefix: str = "yolov5s6", path_rainbow=None):
+class YOLOWithAugmentation(YOLO):
+    def __init__(self, rainbow_key: str, dir_model: str = None, onnx_prefix: str = "yolov5s6", path_rainbow=None):
         super().__init__(dir_model, onnx_prefix)
-
+        self.rainbow_key = rainbow_key
         self.ks = Solutions(name=self.flag, path_rainbow=path_rainbow)
 
     def preprocessing(self, img_stream: bytes) -> np.ndarray:
@@ -209,7 +207,7 @@ class YOLOAirplane(YOLO):
         return cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 21)
 
     def solution(self, img_stream: bytes, label: str, **kwargs) -> bool:
-        match_output = self.ks.match_rainbow(img_stream, rainbow_key="airplane")
+        match_output = self.ks.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
         if match_output is not None:
             time.sleep(0.17)
             return match_output

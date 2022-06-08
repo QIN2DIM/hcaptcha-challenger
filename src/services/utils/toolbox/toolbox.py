@@ -97,13 +97,13 @@ def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None
         return uc.Chrome(
             options=options,
             headless=silence,
-            use_subprocess=True,
+            # use_subprocess=True,
             driver_executable_path=driver_executable_path
         )
     except WebDriverException:
         return uc.Chrome(
             options=options,
             headless=silence,
-            use_subprocess=True,
+            # use_subprocess=True,
             version_main=int(version_main) if version_main.isdigit() else None,
         )
