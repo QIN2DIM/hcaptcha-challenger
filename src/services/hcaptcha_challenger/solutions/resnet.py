@@ -13,6 +13,7 @@ import numpy as np
 from scipy.cluster.vq import kmeans2
 
 from .kernel import Solutions
+from .kernel import ChallengeStyle
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -47,6 +48,10 @@ class ResNetFactory(Solutions):
     def classifier(self, img_stream, feature_filters: Union[Callable, List[Callable]] = None):
         img_arr = np.frombuffer(img_stream, np.uint8)
         img = cv2.imdecode(img_arr, flags=1)
+
+        # fixme: dup-code
+        if img.shape[0] == ChallengeStyle.WATERMARK:
+            img = cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 21)
 
         if feature_filters is not None:
             if not isinstance(feature_filters, list):

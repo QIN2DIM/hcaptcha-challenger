@@ -202,8 +202,6 @@ class ArmorCaptcha:
     def switch_solution(self, dir_model, onnx_prefix):
         """模型卸载"""
         label = self.label_alias.get(self.label)
-        if label in ["train", "aeroplane"]:  # how dare you
-            return yolo.YOLOWithAugmentation(label, dir_model, onnx_prefix, path_rainbow=PATH_RAINBOW)
         if label in ["seaplane"]:
             return resnet.ResNetSeaplane(dir_model)
         if label in ["elephants drawn with leaves"]:
@@ -216,7 +214,7 @@ class ArmorCaptcha:
             return sk_recognition.RightPlaneRecognition(path_rainbow=PATH_RAINBOW)
         if label in ["horses drawn with flowers"]:
             return resnet.HorsesDrawnWithFlowers(dir_model, path_rainbow=PATH_RAINBOW)
-        return yolo.YOLO(dir_model, onnx_prefix)
+        return yolo.YOLOWithAugmentation(label, dir_model, onnx_prefix, path_rainbow=PATH_RAINBOW)
 
     def mark_samples(self, ctx: Chrome):
         """

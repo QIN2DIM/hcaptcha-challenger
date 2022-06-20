@@ -11,6 +11,12 @@ import requests
 import yaml
 
 
+class ChallengeStyle:
+    WATERMARK = 100
+    GENERAL = 128
+    GAN = 144
+
+
 class Solutions:
     def __init__(self, name: str, path_rainbow: str = None):
         self.path_rainbow = "rainbow.yaml" if path_rainbow is None else path_rainbow

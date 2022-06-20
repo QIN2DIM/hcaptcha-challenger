@@ -9,6 +9,7 @@ import time
 import cv2
 import numpy as np
 
+from .kernel import ChallengeStyle
 from .kernel import Solutions
 
 
@@ -113,9 +114,6 @@ class YOLO:
             "toothbrush",
         ]
 
-        # Vatican Pattern
-        # self.solution_dev = Solutions.solution_dev
-
     def download_model(self):
         """Download YOLOv5(ONNX) model"""
         Solutions.download_model_(
@@ -197,14 +195,22 @@ class YOLO:
 
 
 class YOLOWithAugmentation(YOLO):
-    def __init__(self, rainbow_key: str, dir_model: str = None, onnx_prefix: str = "yolov5s6", path_rainbow=None):
+    def __init__(
+        self,
+        rainbow_key: str,
+        dir_model: str = None,
+        onnx_prefix: str = "yolov5s6",
+        path_rainbow=None,
+    ):
         super().__init__(dir_model, onnx_prefix)
         self.rainbow_key = rainbow_key
         self.ks = Solutions(name=self.flag, path_rainbow=path_rainbow)
 
     def preprocessing(self, img_stream: bytes) -> np.ndarray:
         img = super().preprocessing(img_stream)
-        return cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 21)
+        if img.shape[0] == ChallengeStyle.WATERMARK:
+            return cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 21)
+        return img
 
     def solution(self, img_stream: bytes, label: str, **kwargs) -> bool:
         match_output = self.ks.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
