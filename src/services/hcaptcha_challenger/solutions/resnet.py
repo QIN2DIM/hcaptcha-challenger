@@ -12,8 +12,8 @@ import cv2
 import numpy as np
 from scipy.cluster.vq import kmeans2
 
-from .kernel import Solutions
 from .kernel import ChallengeStyle
+from .kernel import Solutions
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -45,7 +45,14 @@ class ResNetFactory(Solutions):
             model_name=self.onnx_model["name"],
         )
 
-    def classifier(self, img_stream, feature_filters: Union[Callable, List[Callable]] = None):
+    def classifier(
+        self, img_stream, rainbow_key, feature_filters: Union[Callable, List[Callable]] = None
+    ):
+        match_output = self.match_rainbow(img_stream, rainbow_key)
+        if match_output is not None:
+            time.sleep(0.3)
+            return match_output
+
         img_arr = np.frombuffer(img_stream, np.uint8)
         img = cv2.imdecode(img_arr, flags=1)
 
@@ -84,11 +91,12 @@ class ResNetSeaplane(ResNetFactory):
 
     def __init__(self, dir_model: str, path_rainbow=None):
         _onnx_prefix = "seaplane"
+        self.rainbow_key = _onnx_prefix
         super().__init__(_onnx_prefix, f"{_onnx_prefix}(resnet)_model", dir_model, path_rainbow)
 
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
-        return self.classifier(img_stream, feature_filters=None)
+        return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
 
 
 class ElephantsDrawnWithLeaves(ResNetFactory):
@@ -120,11 +128,9 @@ class ElephantsDrawnWithLeaves(ResNetFactory):
 
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
-        match_output = self.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
-        if match_output is not None:
-            time.sleep(0.3)
-            return match_output
-        return self.classifier(img_stream, feature_filters=self.is_drawn_with_leaves)
+        return self.classifier(
+            img_stream, self.rainbow_key, feature_filters=self.is_drawn_with_leaves
+        )
 
 
 class HorsesDrawnWithFlowers(ResNetFactory):

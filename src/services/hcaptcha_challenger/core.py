@@ -333,6 +333,10 @@ class ArmorCaptcha:
                 except WebDriverException as err:
                     self.log("Failed to click on element", alias=alias, err=err)
 
+        # Check result of the challenge.
+        # os.makedirs("challenge_result", exist_ok=True)
+        # ctx.save_screenshot(f"challenge_result/{time.time()}.png")
+
         # {{< SUBMIT ANSWER >}}
         try:
             WebDriverWait(ctx, 35, ignored_exceptions=ElementClickInterceptedException).until(
