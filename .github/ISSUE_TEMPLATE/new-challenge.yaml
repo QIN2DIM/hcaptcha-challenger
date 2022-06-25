@@ -1,0 +1,40 @@
+name: New Challenge
+description: Discover new hCaptcha image classification challenges.
+title: "[Challenge] "
+labels: "\U0001F525 challenge"
+body:
+  - type: input
+    attributes:
+      label: Prompt[en]
+      description: Copy the complete English challenge prompt.
+      placeholder: For ex. Please click each image containing a motorbus
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: New types of challenge
+      options: 
+        - New prompt (for ex. Please select all the 45th President of the US)
+        - New approach (for ex. image watermark)
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Sitekey
+      description: Copy the sitekey in the iframe element, skip it if you don't know it.
+      value: "https://accounts.hcaptcha.com/demo?sitekey="
+    validations: 
+      required: false
+  - type: input
+    attributes: 
+      label: Sitelink
+      description: Copy the link to the site where the challenge popped up.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: screenshot of the challenge
+      description: The screenshot should contain the prompt message and all the pictures of the challenge.
+      placeholder: Fill in the image hosting link or upload the image directly
+    validations:
+      required: true
