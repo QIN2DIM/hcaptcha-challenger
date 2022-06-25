@@ -16,6 +16,7 @@ body:
       options: 
         - New prompt (for ex. Please select all the 45th President of the US)
         - New approach (for ex. image watermark)
+        - Other
     validations:
       required: true
   - type: input
@@ -33,7 +34,7 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: screenshot of the challenge
+      label: Screenshot of the challenge
       description: The screenshot should contain the prompt message and all the pictures of the challenge.
       placeholder: Fill in the image hosting link or upload the image directly
     validations:
