@@ -28,8 +28,9 @@ def runner(
 
     # Instantiating the Challenger Drive
     ctx = get_challenge_ctx(silence=silence, lang=lang)
+    _round = 10
     try:
-        for i in range(5):
+        for i in range(_round):
             try:
                 # Read the hCaptcha challenge test site
                 ctx.get(sample_site)
@@ -49,10 +50,10 @@ def runner(
                 resp = challenger.anti_hcaptcha(ctx, dir_model=DIR_MODEL, onnx_prefix=onnx_prefix)
                 if resp == challenger.CHALLENGE_SUCCESS:
                     challenger.log(f"End of demo - total: {round(time.time() - start, 2)}s")
-                    logger.success(f"PASS[{i + 1}|5]".center(28, "="))
+                    logger.success(f"PASS[{i + 1}|{_round}]".center(28, "="))
                 elif resp == challenger.CHALLENGE_RETRY:
                     ctx.refresh()
-                    logger.error(f"RETRY[{i + 1}|5]".center(28, "="))
+                    logger.error(f"RETRY[{i + 1}|{_round}]".center(28, "="))
 
             # Do not capture the `ChallengeReset` signal in the outermost layer.
             # In the demo project, we wanted the human challenge to pop up, not pass after processing the checkbox.
@@ -61,7 +62,7 @@ def runner(
             # there's no need to refresh the page!
             except ChallengePassed:
                 ctx.refresh()
-                logger.success(f"PASS[{i + 1}|5]".center(28, "="))
+                logger.success(f"PASS[{i + 1}|{_round}]".center(28, "="))
             except WebDriverException as err:
                 logger.exception(err)
     finally:

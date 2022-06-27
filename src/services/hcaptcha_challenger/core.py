@@ -34,6 +34,7 @@ class ArmorCaptcha:
 
     label_alias = {
         "zh": {
+            "汽车": "car",
             "水上飞机": "seaplane",
             "自行车": "bicycle",
             "火车": "train",
@@ -51,6 +52,7 @@ class ArmorCaptcha:
             "请选择所有用树叶画的大象": "elephants drawn with leaves",
         },
         "en": {
+            "car": "car",
             "seaplane": "seaplane",
             "ѕeaplane": "seaplane",
             "airplane": "aeroplane",
