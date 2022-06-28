@@ -79,12 +79,16 @@ class Solutions:
         return None
 
     @staticmethod
-    def download_model_(dir_model, path_model, model_src, model_name):
+    def download_model_(
+        dir_model, path_model, model_src, model_name, upgrade: Optional[bool] = None
+    ):
         """Download the de-stylized binary classification model"""
-        if os.path.exists(path_model):
+        upgrade = bool(upgrade)
+
+        os.makedirs(dir_model, exist_ok=True)
+
+        if os.path.exists(path_model) and not upgrade:
             return
-        if not os.path.exists(dir_model):
-            os.mkdir(dir_model)
 
         if not model_src.lower().startswith("http"):
             raise ValueError from None

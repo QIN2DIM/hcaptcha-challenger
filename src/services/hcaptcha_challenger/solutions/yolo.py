@@ -140,6 +140,7 @@ class YOLO:
             path_model=self.onnx_model["path"],
             model_src=self.onnx_model["src"],
             model_name=self.onnx_model["name"],
+            upgrade=False,
         )
 
     def detect_common_objects(self, img: np.ndarray, confidence=0.4, nms_thresh=0.4):

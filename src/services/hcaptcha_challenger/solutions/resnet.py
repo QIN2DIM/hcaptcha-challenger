@@ -6,7 +6,7 @@
 import os
 import time
 import warnings
-from typing import List, Callable, Union
+from typing import List, Callable, Union, Optional
 
 import cv2
 import numpy as np
@@ -36,13 +36,14 @@ class ResNetFactory(Solutions):
             "src": f"https://github.com/QIN2DIM/hcaptcha-challenger/releases/download/model/{_onnx_prefix}.onnx",
         }
 
-    def download_model(self):
+    def download_model(self, upgrade: Optional[bool] = None):
         """Download the ResNet ONNX classification model"""
         Solutions.download_model_(
             dir_model=self.dir_model,
             path_model=self.onnx_model["path"],
             model_src=self.onnx_model["src"],
             model_name=self.onnx_model["name"],
+            upgrade=upgrade,
         )
 
     def classifier(

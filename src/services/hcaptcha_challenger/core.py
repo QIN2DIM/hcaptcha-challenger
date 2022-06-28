@@ -296,7 +296,7 @@ class ArmorCaptcha:
 
         self.runtime_workspace = workspace_
 
-    def challenge(self, ctx: Chrome, model):
+    def challenge(self, ctx: Chrome, model, save_challenge_result: Optional[bool] = None):
         """
         图像分类，元素点击，答案提交
 
@@ -336,10 +336,11 @@ class ArmorCaptcha:
                     self.log("Failed to click on element", alias=alias, err=err)
 
         # Check result of the challenge.
-        _result_prefix = "database/challenge_result"
-        _filename = f"{_result_prefix}/{int(time.time())}.{self.label_alias[self.label]}.png"
-        os.makedirs(_result_prefix, exist_ok=True)
-        ctx.save_screenshot(_filename)
+        if save_challenge_result:
+            _filename = f"{int(time.time())}.{model.flag}.{self.label_alias[self.label]}.png"
+            _out_path = os.path.join("database", "challenge_result", _filename)
+            os.makedirs(os.path.dirname(_out_path), exist_ok=True)
+            ctx.save_screenshot(_out_path)
 
         # {{< SUBMIT ANSWER >}}
         try:
@@ -450,7 +451,9 @@ class ArmorCaptcha:
                 # [👻] 回到主线剧情
                 ctx.switch_to.default_content()
 
-    def anti_hcaptcha(self, ctx: Chrome, dir_model, onnx_prefix) -> Union[bool, str]:
+    def anti_hcaptcha(
+        self, ctx: Chrome, dir_model, onnx_prefix, save_challenge_result: Optional[bool] = False
+    ) -> Union[bool, str]:
         """
         Handle hcaptcha challenge
 
@@ -476,6 +479,7 @@ class ArmorCaptcha:
         and Privacy Workshops (SPW), 2021, pp. 422-431, doi: 10.1109/SPW53761.2021.00061.
 
         > ps:该篇文章中的部分内容已过时，如今的 hcaptcha challenge 远没有作者说的那么容易应付。
+        :param save_challenge_result:
         :param ctx:
         :param dir_model:
         :param onnx_prefix:
@@ -508,7 +512,7 @@ class ArmorCaptcha:
                 model = self.switch_solution(dir_model, onnx_prefix)
 
                 # [👻] 識別|點擊|提交
-                self.challenge(ctx, model=model)
+                self.challenge(ctx, model, save_challenge_result)
 
                 # [👻] 輪詢控制臺響應
                 result, message = self.challenge_success(ctx)

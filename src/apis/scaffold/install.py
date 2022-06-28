@@ -19,25 +19,29 @@ from services.hcaptcha_challenger import (
 from services.settings import DIR_MODEL, logger, PATH_RAINBOW
 
 
-def _download_model(onnx_prefix: Optional[str] = None):
+def _download_model(onnx_prefix: Optional[str] = None, upgrade: Optional[bool] = None):
     """Pull models"""
-    logger.debug("Downloading YOLOv5(ONNX) object detection model...")
+    # logger.debug("Downloading YOLOv5(ONNX) object detection model...")
 
     YOLO(dir_model=DIR_MODEL, onnx_prefix=onnx_prefix).download_model()
-    ElephantsDrawnWithLeaves(dir_model=DIR_MODEL).download_model()
-    ResNetSeaplane(dir_model=DIR_MODEL).download_model()
+    ElephantsDrawnWithLeaves(dir_model=DIR_MODEL).download_model(upgrade)
+    ResNetSeaplane(dir_model=DIR_MODEL).download_model(upgrade)
+
+
+def download_yolo_model(onnx_prefix):
+    YOLO(dir_model=DIR_MODEL, onnx_prefix=onnx_prefix).download_model()
 
 
 def _download_rainbow():
     """Update rainbow table"""
-    logger.debug("Downloading Rainbow Table...")
+    # logger.debug("Downloading Rainbow Table...")
 
     SKRecognition().sync_rainbow(path_rainbow=PATH_RAINBOW, convert=True)
 
 
 def _download_driver():
     """下载浏览器驱动"""
-    logger.debug("Detecting google-chrome...")
+    # logger.debug("Detecting google-chrome...")
 
     # 检测环境变量 `google-chrome`
     browser_version = get_browser_version_from_os(ChromeType.GOOGLE)
@@ -61,8 +65,8 @@ def _download_driver():
     logger.info("Re-execute the `install` scaffolding command after the installation is complete.")
 
 
-def run(model: Optional[str] = None):
+def run(model: Optional[str] = None, upgrade: Optional[bool] = None):
     """下载项目运行所需的各项依赖"""
-    _download_model(onnx_prefix=model)
+    _download_model(onnx_prefix=model, upgrade=upgrade)
     _download_driver()
     _download_rainbow()

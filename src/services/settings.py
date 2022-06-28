@@ -8,7 +8,7 @@ from os.path import join, dirname
 
 from services.utils import ToolBox
 
-_HCAPTCHA_DEMO_API = "https://accounts.hcaptcha.com/demo?sitekey={}"
+HCAPTCHA_DEMO_API = "https://accounts.hcaptcha.com/demo?sitekey={}"
 _SITE_KEYS = {
     "epic": "91e4137f-95af-4bc9-97af-cdcedce21c8c",
     "hcaptcha": "00000000-0000-0000-0000-000000000000",
@@ -20,13 +20,13 @@ _SITE_KEYS = {
 # https://www.wappalyzer.com/technologies/security/hcaptcha/
 HCAPTCHA_DEMO_SITES = [
     # [√] label: Tags follow point-in-time changes
-    _HCAPTCHA_DEMO_API.format(_SITE_KEYS["publisher"]),
+    HCAPTCHA_DEMO_API.format(_SITE_KEYS["publisher"]),
     # [√] label: `vertical river`
-    _HCAPTCHA_DEMO_API.format(_SITE_KEYS["oracle"]),
+    HCAPTCHA_DEMO_API.format(_SITE_KEYS["oracle"]),
     # [x] label: `airplane in the sky flying left`
-    _HCAPTCHA_DEMO_API.format(_SITE_KEYS["discord"]),
+    HCAPTCHA_DEMO_API.format(_SITE_KEYS["discord"]),
     # [√] label: hcaptcha-challenger
-    _HCAPTCHA_DEMO_API.format(_SITE_KEYS["hcaptcha"]),
+    HCAPTCHA_DEMO_API.format(_SITE_KEYS["hcaptcha"]),
 ]
 
 # ---------------------------------------------------

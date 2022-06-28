@@ -6,7 +6,7 @@
 from typing import Optional
 
 from apis.scaffold import install, challenge
-from services.settings import HCAPTCHA_DEMO_SITES, _SITE_KEYS, _HCAPTCHA_DEMO_API
+from services.settings import HCAPTCHA_DEMO_SITES, _SITE_KEYS, HCAPTCHA_DEMO_API
 
 
 class Scaffold:
@@ -19,9 +19,9 @@ class Scaffold:
             Scaffold.challenge_language = lang
 
     @staticmethod
-    def install(model: Optional[str] = None):
-        """Download Project Dependencies"""
-        install.run(model=model)
+    def install(model: Optional[str] = None, upgrade: Optional[bool] = True):
+        """Download Project Dependencies and upgrade all pluggable ONNX models"""
+        install.run(model=model, upgrade=upgrade)
 
     @staticmethod
     def test():
@@ -30,7 +30,11 @@ class Scaffold:
 
     @staticmethod
     def demo(
-        silence: Optional[bool] = False, model: Optional[str] = None, target: Optional[str] = None
+        silence: Optional[bool] = False,
+        model: Optional[str] = None,
+        target: Optional[str] = None,
+        sitekey: Optional[str] = None,
+        screenshot: Optional[bool] = False,
     ):
         """
         Dueling with hCAPTCHA challenge using YOLOv5.
@@ -40,29 +44,31 @@ class Scaffold:
         or: python main.py demo --model=yolov5n6     |
         or: python main.py demo --target=discord     |
         or: python main.py demo --lang=en            |
+        or: python main.py demo --sitekey=[UUID]     |
         ---------------------------------------------------
+        :param screenshot: save screenshot of the challenge result to ./database/challenge_result/
+        :param sitekey: customize the challenge theme via sitekey
         :param silence: Default False. Whether to silence the browser window.
         :param model: Default "yolov5s6". within [yolov5n6 yolov5s6 yolov5m6]
         :param target: Default None. Designate `Challenge Source`. See the global value SITE_KEYS.
         :return:
         """
+
+        # Generate challenge topics
         if _SITE_KEYS.get(target):
-            sample_site = _HCAPTCHA_DEMO_API.format(_SITE_KEYS[target])
+            sample_site = HCAPTCHA_DEMO_API.format(_SITE_KEYS[target])
         else:
             sample_site = HCAPTCHA_DEMO_SITES[0]
+        if sitekey is not None:
+            sample_site = HCAPTCHA_DEMO_API.format(sitekey.strip())
+
+        # Pre-download the missing YOLO model
+        install.download_yolo_model(onnx_prefix=model)
 
         challenge.runner(
-            sample_site, lang=Scaffold.challenge_language, silence=silence, onnx_prefix=model
+            sample_site,
+            lang=Scaffold.challenge_language,
+            silence=silence,
+            onnx_prefix=model,
+            save_challenge_result=screenshot,
         )
-
-    @staticmethod
-    def demo_v2(silence: Optional[bool] = False):
-        """Processing hCAPTCHA challenges using Image-Segmentation"""
-        # label: vertical river
-        challenge.runner(HCAPTCHA_DEMO_SITES[1], lang=Scaffold.challenge_language, silence=silence)
-
-    @staticmethod
-    def demo_v3(silence: Optional[bool] = False):
-        """Processing hCAPTCHA challenges using Image-Segmentation"""
-        # label: airplane in the sky flying left
-        challenge.runner(HCAPTCHA_DEMO_SITES[2], lang=Scaffold.challenge_language, silence=silence)
