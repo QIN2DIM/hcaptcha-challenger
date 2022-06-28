@@ -16,14 +16,33 @@ from .kernel import Solutions
 class YOLO:
     """YOLO model for image classification"""
 
-    def __init__(self, dir_model: str = None, onnx_prefix: str = "yolov5s6"):
+    def __init__(self, dir_model: str = None, onnx_prefix: str = None):
         self.dir_model = "./model" if dir_model is None else dir_model
+
+        # Select default onnx model.
         self.onnx_prefix = (
-            "yolov5s6" if onnx_prefix not in ["yolov5m6", "yolov5s6", "yolov5n6"] else onnx_prefix
+            "yolov5s6"
+            if onnx_prefix
+            not in [
+                # Reference - Ultralytics YOLOv5 https://github.com/ultralytics/yolov5
+                "yolov5m6",
+                "yolov5s6",
+                "yolov5n6",
+                # Reference - MT-YOLOv6 https://github.com/meituan/YOLOv6
+                "yolov6n",
+                "yolov6s",
+                "yolov6t",
+                # "yolov7"  # Vision Transformer
+            ]
+            else onnx_prefix
         )
 
+        self.name = f"YOLOv5{self.onnx_prefix[-2:]}"
+        if self.onnx_prefix.startswith("yolov6"):
+            self.name = f"MT-YOLOv6{self.onnx_prefix[-1]}"
+
         self.onnx_model = {
-            "name": f"{self.onnx_prefix}(onnx)_model",
+            "name": f"{self.name}(onnx)_model",
             "path": os.path.join(self.dir_model, f"{self.onnx_prefix}.onnx"),
             "src": f"https://github.com/QIN2DIM/hcaptcha-challenger/releases/download/model/{self.onnx_prefix}.onnx",
         }
@@ -35,8 +54,8 @@ class YOLO:
             "person",
             "bicycle",
             "car",
-            "motorbike",
-            "aeroplane",
+            "motorcycle",
+            "airplane",
             "bus",
             "train",
             "truck",
@@ -89,12 +108,12 @@ class YOLO:
             "donut",
             "cake",
             "chair",
-            "sofa",
-            "pottedplant",
+            "couch",
+            "potted plant",
             "bed",
-            "diningtable",
+            "dining table",
             "toilet",
-            "tvmonitor",
+            "tv",
             "laptop",
             "mouse",
             "remote",

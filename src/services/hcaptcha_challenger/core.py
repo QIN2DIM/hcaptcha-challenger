@@ -42,10 +42,10 @@ class ArmorCaptcha:
             "公交车": "bus",
             "巴土": "bus",
             "巴士": "bus",
-            "飞机": "aeroplane",
+            "飞机": "airplane",
             "ー条船": "boat",
             "船": "boat",
-            "摩托车": "motorbike",
+            "摩托车": "motorcycle",
             "垂直河流": "vertical river",
             "天空中向左飞行的飞机": "airplane in the sky flying left",
             "请选择天空中所有向右飞行的飞机": "airplanes in the sky that are flying to the right",
@@ -55,15 +55,15 @@ class ArmorCaptcha:
             "car": "car",
             "seaplane": "seaplane",
             "ѕeaplane": "seaplane",
-            "airplane": "aeroplane",
-            "аirplane": "aeroplane",
+            "airplane": "airplane",
+            "аirplane": "airplane",
             "motorbus": "bus",
             "mοtorbus": "bus",
             "bus": "bus",
             "truck": "truck",
             "truсk": "truck",
-            "motorcycle": "motorbike",
-            "mοtorcycle": "motorbike",
+            "motorcycle": "motorcycle",
+            "mοtorcycle": "motorcycle",
             "boat": "boat",
             "bicycle": "bicycle",
             "train": "train",
@@ -336,8 +336,10 @@ class ArmorCaptcha:
                     self.log("Failed to click on element", alias=alias, err=err)
 
         # Check result of the challenge.
-        # os.makedirs("challenge_result", exist_ok=True)
-        # ctx.save_screenshot(f"challenge_result/{time.time()}.png")
+        _result_prefix = "database/challenge_result"
+        _filename = f"{_result_prefix}/{int(time.time())}.{self.label_alias[self.label]}.png"
+        os.makedirs(_result_prefix, exist_ok=True)
+        ctx.save_screenshot(_filename)
 
         # {{< SUBMIT ANSWER >}}
         try:
