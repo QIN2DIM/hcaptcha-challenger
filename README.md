@@ -23,7 +23,7 @@ Just implement some interfaces to make `AI vs AI` possible.
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.8+
 - google-chrome
 
 ## Reference
@@ -31,3 +31,4 @@ Just implement some interfaces to make `AI vs AI` possible.
 - hCaptcha challenge template site [@maximedrn](https://github.com/maximedrn/hcaptcha-solver-python-selenium)
 - [ultralytics/yolov5: YOLOv5 🚀 ](https://github.com/ultralytics/yolov5)
 - [ultrafunkamsterdam/undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
+- [meituan/YOLOv6](https://github.com/meituan/YOLOv6)
