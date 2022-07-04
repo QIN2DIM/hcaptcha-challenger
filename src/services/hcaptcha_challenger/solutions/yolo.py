@@ -205,8 +205,13 @@ class YOLO:
         confidence = kwargs.get("confidence", 0.4)
         nms_thresh = kwargs.get("nms_thresh", 0.4)
         img = self.preprocessing(img_stream)
-        labels = self.detect_common_objects(img, confidence, nms_thresh)
-        return bool(label in labels)
+        try:
+            labels = self.detect_common_objects(img, confidence, nms_thresh)
+            return bool(label in labels)
+        # patch for `ValueError: attempt to get argmax of an empty sequence.`
+        # at code `class_id=np.argmax(scores)`
+        except ValueError:
+            return False
 
     def preprocessing(self, img_stream: bytes) -> np.ndarray:
         np_array = np.frombuffer(img_stream, np.uint8)

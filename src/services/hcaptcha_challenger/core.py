@@ -249,44 +249,51 @@ class ArmorCaptcha:
 
     def download_images(self):
         """
-        下载挑战图片
+        Download Challenge Image
 
-        ### hcaptcha 设有挑战时长的限制
+        ### hcaptcha has a challenge duration limit
 
-          如果一段时间内没有操作页面元素，<iframe> 框体就会消失，之前获取的 Element Locator 将过时。
-          需要借助一些现代化的方法尽可能地缩短 `获取数据集` 的耗时。
+        If the page element is not manipulated for a period of time,
+        the <iframe> box will disappear and the previously acquired Element Locator will be out of date.
+        Need to use some modern methods to shorten the time of `getting the dataset` as much as possible.
 
-        ### 解决方案
+        ### Solution
 
-        1. 使用基于协程的方法拉取图片到本地，最佳实践（本方法）。拉取效率比遍历下载提升至少 10 倍。
-        2. 截屏切割，有一定的编码难度。直接截取目标区域的九张图片，使用工具函数切割后识别。需要自己编织定位器索引。
+        1. Coroutine Downloader
+          Use the coroutine-based method to pull the image to the local, the best practice (this method).
+          In the case of poor network, pull efficiency is at least 10 times faster than traversal download.
+
+        2. Screen cut
+          There is some difficulty in coding.
+          Directly intercept nine pictures of the target area, and use the tool function to cut and identify them.
+          Need to weave the locator index yourself.
 
         :return:
         """
 
         class ImageDownloader(AshFramework):
-            """协程助推器 提高挑战图片的下载效率"""
+            """Coroutine Booster - Improve the download efficiency of challenge images"""
 
             async def control_driver(self, context, session=None):
                 path_challenge_img, url = context
 
-                # 下载挑战图片
+                # Download Challenge Image
                 async with session.get(url) as response:
                     with open(path_challenge_img, "wb") as file:
                         file.write(await response.read())
 
-        # 初始化挑战图片下载目录
+        # Initialize the challenge image download directory
         workspace_ = self._init_workspace()
 
-        # 初始化数据容器
+        # Initialize the data container
         docker_ = []
         for alias_, url_ in self.alias2url.items():
             path_challenge_img_ = os.path.join(workspace_, f"{alias_}.png")
             self.alias2path.update({alias_: path_challenge_img_})
             docker_.append((path_challenge_img_, url_))
 
-        # 初始化图片下载器
-        self.log(message="Download the challenge image")
+        # Initialize the coroutine-based image downloader
+        self.log(message="Download challenge images")
         if sys.platform.startswith("win") or "cygwin" in sys.platform:
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
             asyncio.run(ImageDownloader(docker=docker_).subvert(workers="fast"))

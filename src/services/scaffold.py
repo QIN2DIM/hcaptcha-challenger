@@ -49,7 +49,7 @@ class Scaffold:
         :param screenshot: save screenshot of the challenge result to ./database/challenge_result/
         :param sitekey: customize the challenge theme via sitekey
         :param silence: Default False. Whether to silence the browser window.
-        :param model: Default "yolov5s6". within [yolov5n6 yolov5s6 yolov5m6]
+        :param model: Default "yolov5s6". within [yolov5n6 yolov5s6 yolov5m6 yolov6n yolov6t yolov6s]
         :param target: Default None. Designate `Challenge Source`. See the global value SITE_KEYS.
         :return:
         """
