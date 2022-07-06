@@ -73,13 +73,11 @@ def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None
     options = uc.ChromeOptions()
     options.add_argument("--log-level=3")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-blink-features=AutomationControlled")
 
     # - Restrict the language of hCaptcha label
     # - Environment variables are valid only in the current process
     # and do not affect other processes in the operating system
-    os.environ["LANGUAGE"] = "zh" if lang is None else lang
+    os.environ["LANGUAGE"] = "zh_CN" if lang is None else lang
     options.add_argument(f"--lang={os.getenv('LANGUAGE')}")
 
     if silence is True:
@@ -97,13 +95,11 @@ def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None
         return uc.Chrome(
             options=options,
             headless=silence,
-            # use_subprocess=True,
             driver_executable_path=driver_executable_path,
         )
     except WebDriverException:
         return uc.Chrome(
             options=options,
             headless=silence,
-            # use_subprocess=True,
             version_main=int(version_main) if version_main.isdigit() else None,
         )
