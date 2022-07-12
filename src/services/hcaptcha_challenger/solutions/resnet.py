@@ -92,11 +92,10 @@ class ResNetDomesticCat(ResNetFactory):
 
     def __init__(self, dir_model: str, path_rainbow=None):
         _onnx_prefix = "domestic_cat"
-        self.rainbow_key = _onnx_prefix
+        self.rainbow_key = _onnx_prefix.replace("_", " ")
         super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
 
     def solution(self, img_stream, **kwargs) -> bool:
-        """Implementation process of solution"""
         return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
 
 
@@ -109,7 +108,6 @@ class ResNetSeaplane(ResNetFactory):
         super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
 
     def solution(self, img_stream, **kwargs) -> bool:
-        """Implementation process of solution"""
         return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
 
 
@@ -118,7 +116,7 @@ class ElephantsDrawnWithLeaves(ResNetFactory):
 
     def __init__(self, dir_model, path_rainbow=None):
         _onnx_prefix = "elephants_drawn_with_leaves"
-        self.rainbow_key = _onnx_prefix
+        self.rainbow_key = _onnx_prefix.replace("_", " ")
         super().__init__(
             _onnx_prefix, f"{_onnx_prefix}(de-stylized)_model", dir_model, path_rainbow
         )
@@ -141,7 +139,6 @@ class ElephantsDrawnWithLeaves(ResNetFactory):
         return False
 
     def solution(self, img_stream, **kwargs) -> bool:
-        """Implementation process of solution"""
         return self.classifier(
             img_stream, self.rainbow_key, feature_filters=self.is_drawn_with_leaves
         )
@@ -152,7 +149,7 @@ class HorsesDrawnWithFlowers(ResNetFactory):
 
     def __init__(self, dir_model, path_rainbow=None):
         _onnx_prefix = "horses_drawn_with_flowers"
-        self.rainbow_key = _onnx_prefix
+        self.rainbow_key = _onnx_prefix.replace("_", " ")
         super().__init__(
             _onnx_prefix, f"{_onnx_prefix}(de-stylized)_model", dir_model, path_rainbow
         )
