@@ -87,13 +87,26 @@ class ResNetFactory(Solutions):
         """Implementation process of solution"""
 
 
+class ResNetDomesticCat(ResNetFactory):
+    """Handle challenge 「domestic cat」"""
+
+    def __init__(self, dir_model: str, path_rainbow=None):
+        _onnx_prefix = "domestic_cat"
+        self.rainbow_key = _onnx_prefix
+        super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
+
+    def solution(self, img_stream, **kwargs) -> bool:
+        """Implementation process of solution"""
+        return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
+
+
 class ResNetSeaplane(ResNetFactory):
     """Handle challenge 「seaplane」"""
 
     def __init__(self, dir_model: str, path_rainbow=None):
         _onnx_prefix = "seaplane"
         self.rainbow_key = _onnx_prefix
-        super().__init__(_onnx_prefix, f"{_onnx_prefix}(resnet)_model", dir_model, path_rainbow)
+        super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
 
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""

@@ -6,6 +6,7 @@
 from .core import ArmorCaptcha, ArmorUtils
 from .solutions.resnet import ElephantsDrawnWithLeaves
 from .solutions.resnet import ResNetSeaplane
+from .solutions.resnet import ResNetDomesticCat
 from .solutions.sk_recognition import SKRecognition
 from .solutions.yolo import YOLO
 
@@ -16,4 +17,5 @@ __all__ = [
     "ArmorUtils",
     "ElephantsDrawnWithLeaves",
     "ResNetSeaplane",
+    "ResNetDomesticCat",
 ]

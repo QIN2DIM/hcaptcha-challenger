@@ -93,9 +93,7 @@ def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None
     logger.debug("🎮 Activate challenger context")
     try:
         return uc.Chrome(
-            options=options,
-            headless=silence,
-            driver_executable_path=driver_executable_path,
+            options=options, headless=silence, driver_executable_path=driver_executable_path
         )
     except WebDriverException:
         return uc.Chrome(

@@ -34,6 +34,7 @@ class ArmorCaptcha:
 
     label_alias = {
         "zh": {
+            "家猫": "domestic cat",
             "汽车": "car",
             "水上飞机": "seaplane",
             "自行车": "bicycle",
@@ -74,6 +75,8 @@ class ArmorCaptcha:
             "Please select all airplanes in the sky that are flying to the right": "airplanes in the sky that are flying to the right",
             "Please select all the elephants drawn with lеaves": "elephants drawn with leaves",
             "Please select all the elephants drawn with leaves": "elephants drawn with leaves",
+            "domestic cat": "domestic cat",
+            "domestic сat": "domestic cat",
         },
     }
 
@@ -204,6 +207,8 @@ class ArmorCaptcha:
     def switch_solution(self, dir_model, onnx_prefix):
         """模型卸载"""
         label = self.label_alias.get(self.label)
+        if label in ["domestic cat"]:
+            return resnet.ResNetDomesticCat(dir_model, path_rainbow=PATH_RAINBOW)
         if label in ["seaplane"]:
             return resnet.ResNetSeaplane(dir_model)
         if label in ["elephants drawn with leaves"]:

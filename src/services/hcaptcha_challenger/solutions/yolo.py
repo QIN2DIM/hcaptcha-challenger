@@ -42,7 +42,7 @@ class YOLO:
             self.name = f"MT-YOLOv6{self.onnx_prefix[-1]}"
 
         self.onnx_model = {
-            "name": f"{self.name}(onnx)_model",
+            "name": f"{self.name}(ONNX)_model",
             "path": os.path.join(self.dir_model, f"{self.onnx_prefix}.onnx"),
             "src": f"https://github.com/QIN2DIM/hcaptcha-challenger/releases/download/model/{self.onnx_prefix}.onnx",
         }
