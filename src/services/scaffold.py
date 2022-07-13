@@ -64,6 +64,8 @@ class Scaffold:
 
         # Pre-download the missing YOLO model
         install.download_yolo_model(onnx_prefix=model)
+        # Pre-check the Pluggable ONNX model
+        install.refresh_pluggable_onnx_model(upgrade=True)
 
         challenge.runner(
             sample_site,

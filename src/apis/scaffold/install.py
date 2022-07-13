@@ -3,6 +3,8 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
+import hashlib
+import os
 import sys
 import webbrowser
 from typing import Optional
@@ -16,24 +18,12 @@ from services.hcaptcha_challenger import (
     ElephantsDrawnWithLeaves,
     ResNetSeaplane,
     ResNetDomesticCat,
+    ResNetBedroom,
 )
 from services.settings import DIR_MODEL, logger, PATH_RAINBOW
 
 
-def _download_model(onnx_prefix: Optional[str] = None, upgrade: Optional[bool] = None):
-    """Pull models"""
-    YOLO(dir_model=DIR_MODEL, onnx_prefix=onnx_prefix).download_model()
-
-    # Patch pluggable ONNX models
-    for resnet_model in [ResNetDomesticCat, ResNetSeaplane, ElephantsDrawnWithLeaves]:
-        resnet_model(dir_model=DIR_MODEL).download_model(upgrade)
-
-
-def _download_rainbow():
-    SKRecognition().sync_rainbow(path_rainbow=PATH_RAINBOW, convert=True)
-
-
-def _download_driver():
+def download_driver():
     # Detect environment variable `google-chrome`.
     browser_version = get_browser_version_from_os(ChromeType.GOOGLE)
     if browser_version != "UNKNOWN":
@@ -60,8 +50,27 @@ def download_yolo_model(onnx_prefix):
     YOLO(dir_model=DIR_MODEL, onnx_prefix=onnx_prefix).download_model()
 
 
+def refresh_pluggable_onnx_model(upgrade: Optional[bool] = None):
+    def need_to_refresh():
+        _flag = "253fa44d6747e5068326a64fce1cf3aeba0bc28fed457c7f2fc140b1587c61fc"
+        if not os.path.exists(PATH_RAINBOW):
+            return True
+        with open(PATH_RAINBOW, "rb") as file:
+            return hashlib.sha256(file.read()).hexdigest() != _flag
+
+    if need_to_refresh():
+        SKRecognition().sync_rainbow(path_rainbow=PATH_RAINBOW, convert=True)
+        for resnet_model in [
+            ResNetDomesticCat,
+            ResNetBedroom,
+            ResNetSeaplane,
+            ElephantsDrawnWithLeaves,
+        ]:
+            resnet_model(dir_model=DIR_MODEL).download_model(upgrade)
+
+
 def run(model: Optional[str] = None, upgrade: Optional[bool] = None):
     """下载项目运行所需的各项依赖"""
-    _download_model(onnx_prefix=model, upgrade=upgrade)
-    _download_driver()
-    _download_rainbow()
+    download_yolo_model(onnx_prefix=model)
+    refresh_pluggable_onnx_model(upgrade=upgrade)
+    download_driver()

@@ -34,9 +34,6 @@ class ArmorCaptcha:
 
     label_alias = {
         "zh": {
-            "家猫": "domestic cat",
-            "汽车": "car",
-            "水上飞机": "seaplane",
             "自行车": "bicycle",
             "火车": "train",
             "卡车": "truck",
@@ -51,11 +48,12 @@ class ArmorCaptcha:
             "天空中向左飞行的飞机": "airplane in the sky flying left",
             "请选择天空中所有向右飞行的飞机": "airplanes in the sky that are flying to the right",
             "请选择所有用树叶画的大象": "elephants drawn with leaves",
+            "水上飞机": "seaplane",
+            "汽车": "car",
+            "家猫": "domestic cat",
+            "卧室": "bedroom",
         },
         "en": {
-            "car": "car",
-            "seaplane": "seaplane",
-            "ѕeaplane": "seaplane",
             "airplane": "airplane",
             "аirplane": "airplane",
             "motorbus": "bus",
@@ -75,8 +73,13 @@ class ArmorCaptcha:
             "Please select all airplanes in the sky that are flying to the right": "airplanes in the sky that are flying to the right",
             "Please select all the elephants drawn with lеaves": "elephants drawn with leaves",
             "Please select all the elephants drawn with leaves": "elephants drawn with leaves",
+            "seaplane": "seaplane",
+            "ѕeaplane": "seaplane",
+            "car": "car",
             "domestic cat": "domestic cat",
             "domestic сat": "domestic cat",
+            "bedroom": "bedroom",
+            "bеdroom": "bedroom",
         },
     }
 
@@ -209,6 +212,8 @@ class ArmorCaptcha:
         label = self.label_alias.get(self.label)
         if label in ["domestic cat"]:
             return resnet.ResNetDomesticCat(dir_model, path_rainbow=PATH_RAINBOW)
+        if label in ["bedroom"]:
+            return resnet.ResNetBedroom(dir_model, path_rainbow=PATH_RAINBOW)
         if label in ["seaplane"]:
             return resnet.ResNetSeaplane(dir_model)
         if label in ["elephants drawn with leaves"]:
@@ -298,13 +303,14 @@ class ArmorCaptcha:
             docker_.append((path_challenge_img_, url_))
 
         # Initialize the coroutine-based image downloader
-        self.log(message="Download challenge images")
+        start = time.time()
         if sys.platform.startswith("win") or "cygwin" in sys.platform:
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
             asyncio.run(ImageDownloader(docker=docker_).subvert(workers="fast"))
         else:
             loop = asyncio.get_event_loop()
             loop.run_until_complete(ImageDownloader(docker=docker_).subvert(workers="fast"))
+        self.log(message="Download challenge images", timeit=f"{round(time.time() - start, 2)}s")
 
         self.runtime_workspace = workspace_
 

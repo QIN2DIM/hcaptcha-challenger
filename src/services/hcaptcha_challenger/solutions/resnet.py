@@ -18,6 +18,13 @@ from .kernel import Solutions
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
+class PluggableONNXModel:
+    ONNX_MODEL_BEDROOM = "bedroom"
+    ONNX_MODEL_DOMESTIC_CAT = "domestic_cat"
+    ONNX_MODEL_SEAPLANE = "seaplane"
+    ONNX_MODEL_ELEPHANTS = "elephants_drawn_with_leaves"
+
+
 class ResNetFactory(Solutions):
     def __init__(self, _onnx_prefix, _name, _dir_model: str, path_rainbow=None):
         """
@@ -85,6 +92,18 @@ class ResNetFactory(Solutions):
 
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
+
+
+class ResNetBedroom(ResNetFactory):
+    """Handle challenge 「bedroom」"""
+
+    def __init__(self, dir_model: str, path_rainbow=None):
+        _onnx_prefix = "bedroom"
+        self.rainbow_key = _onnx_prefix
+        super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
+
+    def solution(self, img_stream, **kwargs) -> bool:
+        return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
 
 
 class ResNetDomesticCat(ResNetFactory):
