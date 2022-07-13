@@ -131,7 +131,7 @@ class ArmorCaptcha:
     def _init_workspace(self):
         """初始化工作目录，存放缓存的挑战图片"""
         _prefix = (
-            f"{int(time.time())}" + f"_{self.label_alias.get(self.label, '')}" if self.label else ""
+            f"{time.time()}" + f"_{self.label_alias.get(self.label, '')}" if self.label else ""
         )
         _workspace = os.path.join(self.dir_workspace, _prefix)
         if not os.path.exists(_workspace):
