@@ -28,6 +28,7 @@ Just implement some interfaces to make `AI vs AI` possible.
 
 ## Reference
 
+- [beiyuouo/hcaptcha-model-factory 🏗](https://github.com/beiyuouo/hcaptcha-model-factory)
 - hCaptcha challenge template site [@maximedrn](https://github.com/maximedrn/hcaptcha-solver-python-selenium)
 - [ultralytics/yolov5: YOLOv5 🚀 ](https://github.com/ultralytics/yolov5)
 - [ultrafunkamsterdam/undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)

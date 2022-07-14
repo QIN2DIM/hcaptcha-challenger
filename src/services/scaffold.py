@@ -20,7 +20,7 @@ class Scaffold:
 
     @staticmethod
     def install(model: Optional[str] = None, upgrade: Optional[bool] = True):
-        """Download Project Dependencies and upgrade all pluggable ONNX models"""
+        """Download Project Dependencies and upgrade all pluggable ONNX model"""
         install.run(model=model, upgrade=upgrade)
 
     @staticmethod

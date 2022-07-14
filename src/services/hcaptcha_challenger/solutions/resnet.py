@@ -23,6 +23,8 @@ class PluggableONNXModel:
     ONNX_MODEL_DOMESTIC_CAT = "domestic_cat"
     ONNX_MODEL_SEAPLANE = "seaplane"
     ONNX_MODEL_ELEPHANTS = "elephants_drawn_with_leaves"
+    ONNX_MODEL_BRIDGE = "bridge"
+    ONNX_MODEL_LION = "lion"
 
 
 class ResNetFactory(Solutions):
@@ -92,6 +94,33 @@ class ResNetFactory(Solutions):
 
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
+
+
+# fixme: dup code
+
+
+class ResNetBridge(ResNetFactory):
+    """Handle challenge 「bridge」"""
+
+    def __init__(self, dir_model: str, path_rainbow=None):
+        _onnx_prefix = "bridge"
+        self.rainbow_key = _onnx_prefix
+        super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
+
+    def solution(self, img_stream, **kwargs) -> bool:
+        return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
+
+
+class ResNetLion(ResNetFactory):
+    """Handle challenge 「lion」"""
+
+    def __init__(self, dir_model: str, path_rainbow=None):
+        _onnx_prefix = "lion"
+        self.rainbow_key = _onnx_prefix
+        super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
+
+    def solution(self, img_stream, **kwargs) -> bool:
+        return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
 
 
 class ResNetBedroom(ResNetFactory):

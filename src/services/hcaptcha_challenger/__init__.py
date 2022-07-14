@@ -8,6 +8,8 @@ from .solutions.resnet import ElephantsDrawnWithLeaves
 from .solutions.resnet import ResNetBedroom
 from .solutions.resnet import ResNetDomesticCat
 from .solutions.resnet import ResNetSeaplane
+from .solutions.resnet import ResNetBridge
+from .solutions.resnet import ResNetLion
 from .solutions.sk_recognition import SKRecognition
 from .solutions.yolo import YOLO
 
@@ -20,4 +22,6 @@ __all__ = [
     "ResNetSeaplane",
     "ResNetDomesticCat",
     "ResNetBedroom",
+    "ResNetBridge",
+    "ResNetLion",
 ]

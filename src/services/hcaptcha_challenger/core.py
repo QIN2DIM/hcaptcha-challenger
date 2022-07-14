@@ -42,6 +42,7 @@ class ArmorCaptcha:
             "巴士": "bus",
             "飞机": "airplane",
             "ー条船": "boat",
+            "一条船": "boat",
             "船": "boat",
             "摩托车": "motorcycle",
             "垂直河流": "vertical river",
@@ -52,6 +53,8 @@ class ArmorCaptcha:
             "汽车": "car",
             "家猫": "domestic cat",
             "卧室": "bedroom",
+            "桥梁": "bridge",
+            "狮子": "lion",
         },
         "en": {
             "airplane": "airplane",
@@ -80,6 +83,10 @@ class ArmorCaptcha:
             "domestic сat": "domestic cat",
             "bedroom": "bedroom",
             "bеdroom": "bedroom",
+            "lion": "lion",
+            "lіon": "lion",
+            "brіdge": "bridge",
+            "bridge": "bridge",
         },
     }
 
@@ -210,6 +217,10 @@ class ArmorCaptcha:
     def switch_solution(self, dir_model, onnx_prefix):
         """模型卸载"""
         label = self.label_alias.get(self.label)
+        if label in ["lion"]:
+            return resnet.ResNetLion(dir_model, path_rainbow=PATH_RAINBOW)
+        if label in ["bridge"]:
+            return resnet.ResNetBridge(dir_model, path_rainbow=PATH_RAINBOW)
         if label in ["domestic cat"]:
             return resnet.ResNetDomesticCat(dir_model, path_rainbow=PATH_RAINBOW)
         if label in ["bedroom"]:
@@ -235,7 +246,6 @@ class ArmorCaptcha:
         :param ctx:
         :return:
         """
-        # self.log(message="Get challenge image links and element locators")
 
         # 等待图片加载完成
         WebDriverWait(ctx, 10, ignored_exceptions=ElementNotVisibleException).until(
@@ -331,7 +341,6 @@ class ArmorCaptcha:
 
         :return:
         """
-        # self.log(message="Start the challenge")
 
         # {{< IMAGE CLASSIFICATION >}}
         ta = []
