@@ -77,6 +77,6 @@ class AshFramework:
         task_list = []
         async with aiohttp.ClientSession() as session:
             for _ in range(workers):
-                task = self.launcher(session=session)
+                task = asyncio.create_task(self.launcher(session=session))
                 task_list.append(task)
             await asyncio.wait(task_list)

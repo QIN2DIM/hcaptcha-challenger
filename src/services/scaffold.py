@@ -5,7 +5,7 @@
 # Description:
 from typing import Optional
 
-from apis.scaffold import install, challenge
+from apis.scaffold import install, challenge, app, motion
 from services.settings import HCAPTCHA_DEMO_SITES, _SITE_KEYS, HCAPTCHA_DEMO_API
 
 
@@ -46,7 +46,8 @@ class Scaffold:
         or: python main.py demo --lang=en            |
         or: python main.py demo --sitekey=[UUID]     |
         ---------------------------------------------------
-        :param screenshot: save screenshot of the challenge result to ./database/challenge_result/
+        :param screenshot: save screenshot of the challenge result to ./database/temp_cache/captcha_screenshot/
+          FILENAME: ChallengeLabelName.png
         :param sitekey: customize the challenge theme via sitekey
         :param silence: Default False. Whether to silence the browser window.
         :param model: Default "yolov5s6". within [yolov5n6 yolov5s6 yolov5m6 yolov6n yolov6t yolov6s]
@@ -62,15 +63,21 @@ class Scaffold:
         if sitekey is not None:
             sample_site = HCAPTCHA_DEMO_API.format(sitekey.strip())
 
-        # Pre-download the missing YOLO model
-        install.download_yolo_model(onnx_prefix=model)
         # Pre-check the Pluggable ONNX model
-        install.refresh_pluggable_onnx_model(upgrade=True)
+        # install.refresh_pluggable_onnx_model(upgrade=True)
 
         challenge.runner(
             sample_site,
             lang=Scaffold.challenge_language,
             silence=silence,
             onnx_prefix=model,
-            save_challenge_result=screenshot,
+            screenshot=screenshot,
         )
+
+    @staticmethod
+    def tracker():
+        app.run(debug=True, access_log=True)
+
+    @staticmethod
+    def motion():
+        motion.train_motion("http://127.0.0.1:8000")

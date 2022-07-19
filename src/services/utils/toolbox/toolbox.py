@@ -54,6 +54,18 @@ class ToolBox:
             )
         return logger
 
+    @staticmethod
+    def runtime_report(action_name: str, motive: str = "RUN", message: str = "", **params) -> str:
+        """格式化输出"""
+        flag_ = f">> {motive} [{action_name}]"
+        if message != "":
+            flag_ += f" {message}"
+        if params:
+            flag_ += " - "
+            flag_ += " ".join([f"{i[0]}={i[1]}" for i in params.items()])
+
+        return flag_
+
 
 def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None):
     """

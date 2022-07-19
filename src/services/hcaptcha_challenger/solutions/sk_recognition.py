@@ -88,7 +88,6 @@ class VerticalRiverRecognition(SKRecognition):
         """Implementation process of solution"""
         match_output = self.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
         if match_output is not None:
-            time.sleep(0.03)
             return match_output
 
         img_arr = np.frombuffer(img_stream, np.uint8)
@@ -126,7 +125,6 @@ class LeftPlaneRecognition(SKRecognition):
         """Implementation process of solution"""
         match_output = self.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
         if match_output is not None:
-            time.sleep(0.3)
             return match_output
 
         img_arr = np.frombuffer(img_stream, np.uint8)
@@ -164,7 +162,6 @@ class RightPlaneRecognition(SKRecognition):
     def solution(self, img_stream: bytes, **kwargs) -> bool:
         match_output = self.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
         if match_output is not None:
-            time.sleep(0.2)
             return match_output
 
         img_arr = np.frombuffer(img_stream, np.uint8)

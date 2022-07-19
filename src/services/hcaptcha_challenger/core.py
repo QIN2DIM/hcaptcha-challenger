@@ -1,5 +1,6 @@
 import asyncio
 import os
+import random
 import re
 import sys
 import time
@@ -11,18 +12,21 @@ from selenium.common.exceptions import (
     ElementClickInterceptedException,
     WebDriverException,
     TimeoutException,
+    NoSuchElementException,
+    StaleElementReferenceException,
 )
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
 
 from services.settings import logger, PATH_RAINBOW
-from services.utils import AshFramework
+from services.utils import AshFramework, ToolBox
 from .exceptions import (
     LabelNotFoundException,
     ChallengePassed,
-    ChallengeTimeout,
     AssertTimeout,
     ChallengeLangException,
 )
@@ -55,39 +59,44 @@ class ArmorCaptcha:
             "卧室": "bedroom",
             "桥梁": "bridge",
             "狮子": "lion",
+            "客厅": "living room",
+            # "一匹马": "horse",
+            # "微笑狗":"smiling dog",
         },
         "en": {
             "airplane": "airplane",
-            "аirplane": "airplane",
             "motorbus": "bus",
-            "mοtorbus": "bus",
             "bus": "bus",
             "truck": "truck",
-            "truсk": "truck",
             "motorcycle": "motorcycle",
-            "mοtorcycle": "motorcycle",
             "boat": "boat",
             "bicycle": "bicycle",
             "train": "train",
-            "trаin": "train",
             "vertical river": "vertical river",
             "airplane in the sky flying left": "airplane in the sky flying left",
-            "Please select all airplanes in the sky that are flying to the rіght": "airplanes in the sky that are flying to the right",
             "Please select all airplanes in the sky that are flying to the right": "airplanes in the sky that are flying to the right",
-            "Please select all the elephants drawn with lеaves": "elephants drawn with leaves",
             "Please select all the elephants drawn with leaves": "elephants drawn with leaves",
             "seaplane": "seaplane",
-            "ѕeaplane": "seaplane",
             "car": "car",
             "domestic cat": "domestic cat",
-            "domestic сat": "domestic cat",
             "bedroom": "bedroom",
-            "bеdroom": "bedroom",
             "lion": "lion",
-            "lіon": "lion",
-            "brіdge": "bridge",
             "bridge": "bridge",
+            "living room": "living room",
+            # "horse": "horse",
+            # "smiling dog": "smiling dog"
         },
+    }
+    BAD_CODE = {
+        "а": "a",
+        "е": "e",
+        "e": "e",
+        "i": "i",
+        "і": "i",
+        "ο": "o",
+        "с": "c",
+        "ԁ": "d",
+        "ѕ": "s",
     }
 
     HOOK_CHALLENGE = "//iframe[contains(@title,'content')]"
@@ -105,7 +114,15 @@ class ArmorCaptcha:
     # <backcall> (New Challenge) Types of challenges not yet scheduled
     CHALLENGE_BACKCALL = "backcall"
 
-    def __init__(self, dir_workspace: str = None, lang: Optional[str] = "zh", debug=False):
+    def __init__(
+        self,
+        dir_workspace: str = None,
+        lang: Optional[str] = "zh",
+        dir_model: str = None,
+        onnx_prefix: str = None,
+        screenshot: Optional[bool] = False,
+        debug=False,
+    ):
         if not isinstance(lang, str) or not self.label_alias.get(lang):
             raise ChallengeLangException(
                 f"Challenge language [{lang}] not yet supported."
@@ -114,10 +131,14 @@ class ArmorCaptcha:
 
         self.action_name = "ArmorCaptcha"
         self.debug = debug
+        self.dir_model = dir_model
+        self.onnx_prefix = onnx_prefix
+        self.screenshot = screenshot
 
         # 存储挑战图片的目录
         self.runtime_workspace = ""
-
+        # 挑战截图存储路径
+        self.path_screenshot = ""
         # 博大精深！
         self.lang = lang
         self.label_alias: dict = self.label_alias[lang]
@@ -130,10 +151,17 @@ class ArmorCaptcha:
         self.alias2path = {}
         # 图像标签
         self.label = ""
+        self.prompt = ""
         # 运行缓存
         self.dir_workspace = dir_workspace if dir_workspace else "."
 
         self.threat = 0
+
+        # pluggable_onnx_model
+        self.pluggable_onnx_model: dict = resnet.PluggableONNXModel().overload(
+            dir_model=self.dir_model, path_rainbow=PATH_RAINBOW
+        )
+        self.yolo_model = yolo.YOLO(self.dir_model, self.onnx_prefix)
 
     def _init_workspace(self):
         """初始化工作目录，存放缓存的挑战图片"""
@@ -144,6 +172,40 @@ class ArmorCaptcha:
         if not os.path.exists(_workspace):
             os.mkdir(_workspace)
         return _workspace
+
+    def captcha_screenshot(self, ctx, name_screenshot: str = None):
+        """
+        保存挑战截图，需要在 get_label 之后执行
+
+        :param name_screenshot: filename of the Challenge image
+        :param ctx: Webdriver 或 Element
+        :return:
+        """
+        _suffix = self.label_alias.get(self.label, self.label)
+        _filename = (
+            f"{int(time.time())}.{_suffix}.png" if name_screenshot is None else name_screenshot
+        )
+        _out_dir = os.path.join(os.path.dirname(self.dir_workspace), "captcha_screenshot")
+        _out_path = os.path.join(_out_dir, _filename)
+        os.makedirs(_out_dir, exist_ok=True)
+
+        # FullWindow screenshot or FocusElement screenshot
+        try:
+            ctx.screenshot(_out_path)
+        except AttributeError:
+            ctx.save_screenshot(_out_path)
+        except Exception as err:
+            logger.exception(
+                ToolBox.runtime_report(
+                    motive="SCREENSHOT",
+                    action_name=self.action_name,
+                    message="挑战截图保存失败，错误的参数类型",
+                    type=type(ctx),
+                    err=err,
+                )
+            )
+        finally:
+            return _out_path
 
     def log(self, message: str, **params) -> None:
         """格式化日志信息"""
@@ -162,18 +224,6 @@ class ArmorCaptcha:
             EC.frame_to_be_available_and_switch_to_it((By.XPATH, self.HOOK_CHALLENGE))
         )
 
-    def split_prompt_message(self, prompt_message: str) -> str:
-        """根据指定的语种在提示信息中分离挑战标签"""
-        labels_mirror = {
-            "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1]
-            if "包含" in prompt_message
-            else prompt_message,
-            "en": re.split(r"containing a", prompt_message)[-1][1:].strip()
-            if "containing" in prompt_message
-            else prompt_message,
-        }
-        return labels_mirror[self.lang]
-
     def get_label(self, ctx: Chrome):
         """
         获取人机挑战需要识别的图片类型（标签）
@@ -181,63 +231,104 @@ class ArmorCaptcha:
         :param ctx:
         :return:
         """
-        # Necessary.
-        time.sleep(0.5)
 
-        try:
-            label_obj = WebDriverWait(ctx, 5, ignored_exceptions=ElementNotVisibleException).until(
-                EC.presence_of_element_located((By.XPATH, "//h2[@class='prompt-text']"))
-            )
-        except TimeoutException:
-            raise ChallengePassed("人机挑战意外通过")
+        def split_prompt_message(prompt_message: str) -> str:
+            """根据指定的语种在提示信息中分离挑战标签"""
+            labels_mirror = {
+                "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1]
+                if "包含" in prompt_message
+                else prompt_message,
+                "en": re.split(r"containing a", prompt_message)[-1][1:].strip()
+                if "containing" in prompt_message
+                else prompt_message,
+            }
+            return labels_mirror[self.lang]
 
-        try:
-            _label = self.split_prompt_message(prompt_message=label_obj.text)
-        except (AttributeError, IndexError):
-            raise LabelNotFoundException("获取到异常的标签对象。")
+        def label_cleaning(raw_label: str) -> str:
+            """清洗误码 | 将不规则 UNICODE 字符替换成正常的英文字符"""
+            clean_label = raw_label
+            for c in self.BAD_CODE:
+                clean_label = clean_label.replace(c, self.BAD_CODE[c])
+            return clean_label
+
+        # Scan and determine the type of challenge.
+        for _ in range(3):
+            try:
+                label_obj = WebDriverWait(
+                    ctx, 5, ignored_exceptions=ElementNotVisibleException
+                ).until(EC.presence_of_element_located((By.XPATH, "//h2[@class='prompt-text']")))
+            except TimeoutException:
+                raise ChallengePassed("Man-machine challenge unexpectedly passed")
+            else:
+                self.prompt = label_obj.text
+                if self.prompt:
+                    break
+                time.sleep(1)
+                continue
+        # Skip the `draw challenge`
         else:
-            self.label = _label
-            if self.label_alias.get(self.label):
-                self.log(message="Get label", label=f"「{self.label}」")
-
-    def tactical_retreat(self) -> Optional[str]:
-        """模型存在泛化死角，遇到指定标签时主动进入下一轮挑战，节约时间"""
-        retreat_labels = []
-
-        pending_label = self.label_alias.get(self.label)
-
-        if not pending_label:
-            self.log(message="Types of challenges not yet scheduled", prompt=f"「{self.label}」")
+            fn = f"{int(time.time())}.image_label_area_select.png"
+            self.log(
+                message="Pass challenge",
+                challenge="image_label_area_select",
+                site_link=ctx.current_url,
+                screenshot=self.captcha_screenshot(ctx, fn),
+            )
             return self.CHALLENGE_BACKCALL
-        if pending_label in retreat_labels:
-            self.log(message="Avoiding the unmanageable challenge", label=f"「{self.label}」")
-            return self.CHALLENGE_REFRESH
-        return self.CHALLENGE_CONTINUE
 
-    def switch_solution(self, dir_model, onnx_prefix):
+        # Continue the `click challenge`
+        try:
+            _label = split_prompt_message(prompt_message=self.prompt)
+        except (AttributeError, IndexError):
+            raise LabelNotFoundException("Get the exception label object")
+        else:
+            self.label = label_cleaning(_label)
+            self.log(message="Get label", label=f"「{self.label}」")
+
+    def tactical_retreat(self, ctx) -> Optional[str]:
+        """模型存在泛化死角，遇到指定标签时主动进入下一轮挑战，节约时间"""
+        if self.label_alias.get(self.label):
+            return self.CHALLENGE_CONTINUE
+
+        # 保存挑战截图 | 返回截图存储路径
+        try:
+            challenge_container = ctx.find_element(By.XPATH, "//body[@class='no-selection']")
+            self.path_screenshot = self.captcha_screenshot(challenge_container)
+        except NoSuchElementException:
+            pass
+        except WebDriverException as err:
+            logger.exception(err)
+        finally:
+            q = self.label.replace(" ", "+")
+            logger.warning(
+                ToolBox.runtime_report(
+                    motive="ALERT",
+                    action_name=self.action_name,
+                    message="Types of challenges not yet scheduled",
+                    label=f"「{self.label}」",
+                    prompt=f"「{self.prompt}」",
+                    screenshot=self.path_screenshot,
+                    site_link=ctx.current_url,
+                    issues=f"https://github.com/QIN2DIM/hcaptcha-challenger/issues?q={q}",
+                )
+            )
+            return self.CHALLENGE_BACKCALL
+
+    def switch_solution(self):
         """模型卸载"""
-        label = self.label_alias.get(self.label)
-        if label in ["lion"]:
-            return resnet.ResNetLion(dir_model, path_rainbow=PATH_RAINBOW)
-        if label in ["bridge"]:
-            return resnet.ResNetBridge(dir_model, path_rainbow=PATH_RAINBOW)
-        if label in ["domestic cat"]:
-            return resnet.ResNetDomesticCat(dir_model, path_rainbow=PATH_RAINBOW)
-        if label in ["bedroom"]:
-            return resnet.ResNetBedroom(dir_model, path_rainbow=PATH_RAINBOW)
-        if label in ["seaplane"]:
-            return resnet.ResNetSeaplane(dir_model)
-        if label in ["elephants drawn with leaves"]:
-            return resnet.ElephantsDrawnWithLeaves(dir_model, path_rainbow=PATH_RAINBOW)
-        if label in ["vertical river"]:
-            return sk_recognition.VerticalRiverRecognition(path_rainbow=PATH_RAINBOW)
-        if label in ["airplane in the sky flying left"]:
-            return sk_recognition.LeftPlaneRecognition(path_rainbow=PATH_RAINBOW)
-        if label in ["airplanes in the sky that are flying to the right"]:
-            return sk_recognition.RightPlaneRecognition(path_rainbow=PATH_RAINBOW)
-        if label in ["horses drawn with flowers"]:
-            return resnet.HorsesDrawnWithFlowers(dir_model, path_rainbow=PATH_RAINBOW)
-        return yolo.YOLOWithAugmentation(label, dir_model, onnx_prefix, path_rainbow=PATH_RAINBOW)
+        sk_solution = {
+            "vertical river": sk_recognition.VerticalRiverRecognition,
+            "airplane in the sky flying left": sk_recognition.LeftPlaneRecognition,
+            "airplanes in the sky that are flying to the right": sk_recognition.RightPlaneRecognition,
+        }
+
+        label_alias = self.label_alias.get(self.label)
+
+        if self.pluggable_onnx_model.get(label_alias):
+            return self.pluggable_onnx_model[label_alias]
+        if sk_solution.get(label_alias):
+            return sk_solution[label_alias](PATH_RAINBOW)
+        return self.yolo_model
 
     def mark_samples(self, ctx: Chrome):
         """
@@ -324,7 +415,7 @@ class ArmorCaptcha:
 
         self.runtime_workspace = workspace_
 
-    def challenge(self, ctx: Chrome, model, save_challenge_result: Optional[bool] = None):
+    def challenge(self, ctx: Chrome, model):
         """
         图像分类，元素点击，答案提交
 
@@ -342,43 +433,50 @@ class ArmorCaptcha:
         :return:
         """
 
-        # {{< IMAGE CLASSIFICATION >}}
         ta = []
-        for alias, img_filepath in self.alias2path.items():
-            # 读取二进制数据编织成模型可接受的类型
-            with open(img_filepath, "rb") as file:
+        keys = list(self.alias2path.keys())
+        random.shuffle(keys)
+        action = ActionChains(ctx)
+
+        # {{< IMAGE CLASSIFICATION >}}
+        for alias in keys:
+            # Read binary data weave into types acceptable to the model
+            with open(self.alias2path[alias], "rb") as file:
                 data = file.read()
 
-            # 获取识别结果
+            # Get detection results
             t0 = time.time()
             result = model.solution(img_stream=data, label=self.label_alias[self.label])
             ta.append(time.time() - t0)
 
-            # 模型会根据置信度给出图片中的多个目标，只要命中一个就算通过
+            # Pass: Hit at least one object
+            action.move_to_element(self.alias2locator[alias])
             if result:
-                # 选中标签元素
                 try:
-                    self.alias2locator[alias].click()
+                    action.pause(0.1)
+                    action.click()
+                except StaleElementReferenceException:
+                    self.log("Try to click on element", alias=alias)
                 except WebDriverException as err:
-                    self.log("Failed to click on element", alias=alias, err=err)
+                    logger.warning(err)
+
+        action.perform()
+        action.reset_actions()
 
         # Check result of the challenge.
-        if save_challenge_result:
+        if self.screenshot:
             _filename = f"{int(time.time())}.{model.flag}.{self.label_alias[self.label]}.png"
-            _out_path = os.path.join("database", "challenge_result", _filename)
-            os.makedirs(os.path.dirname(_out_path), exist_ok=True)
-            ctx.save_screenshot(_out_path)
+            self.captcha_screenshot(ctx, name_screenshot=_filename)
 
         # {{< SUBMIT ANSWER >}}
         try:
             WebDriverWait(ctx, 35, ignored_exceptions=ElementClickInterceptedException).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[@class='button-submit button']"))
             ).click()
+        except ElementClickInterceptedException:
+            pass
         except WebDriverException as err:
-            raise ChallengeTimeout(
-                "CPU computing power is insufficient "
-                "to complete the challenge within the time limit"
-            ) from err
+            logger.exception(err)
 
         self.log(message=f"Submit the challenge - {model.flag}: {round(sum(ta), 2)}s")
 
@@ -437,19 +535,17 @@ class ArmorCaptcha:
             except TimeoutException:
                 pass
 
-        # Necessary.
-        time.sleep(2)
+        for _ in range(3):
+            # Pop prompt "Please try again".
+            if is_flagged_flow():
+                return self.CHALLENGE_RETRY, "重置挑战"
 
-        # Pop prompt "Please try again".
-        if is_flagged_flow():
-            return self.CHALLENGE_RETRY, "重置挑战"
+            if is_challenge_image_clickable():
+                return self.CHALLENGE_CONTINUE, "继续挑战"
 
-        if is_challenge_image_clickable():
-            return self.CHALLENGE_CONTINUE, "继续挑战"
-
-        # Work only at the demo site.
-        if is_successful_at_the_demo_site():
-            return self.CHALLENGE_SUCCESS, "退火成功"
+            # Work only at the demo site.
+            if is_successful_at_the_demo_site():
+                return self.CHALLENGE_SUCCESS, "退火成功"
 
         # TODO > Here you need to insert a piece of business code
         #  based on your project to determine if the challenge passes
@@ -478,9 +574,7 @@ class ArmorCaptcha:
                 # [👻] 回到主线剧情
                 ctx.switch_to.default_content()
 
-    def anti_hcaptcha(
-        self, ctx: Chrome, dir_model, onnx_prefix, save_challenge_result: Optional[bool] = False
-    ) -> Union[bool, str]:
+    def anti_hcaptcha(self, ctx: Chrome) -> Union[bool, str]:
         """
         Handle hcaptcha challenge
 
@@ -506,10 +600,7 @@ class ArmorCaptcha:
         and Privacy Workshops (SPW), 2021, pp. 422-431, doi: 10.1109/SPW53761.2021.00061.
 
         > ps:该篇文章中的部分内容已过时，如今的 hcaptcha challenge 远没有作者说的那么容易应付。
-        :param save_challenge_result:
         :param ctx:
-        :param dir_model:
-        :param onnx_prefix:
         :return:
         """
 
@@ -520,7 +611,9 @@ class ArmorCaptcha:
                 self.switch_to_challenge_frame(ctx)
 
                 # [👻] 獲取挑戰標簽
-                self.get_label(ctx)
+                if drop := self.get_label(ctx) in [self.CHALLENGE_BACKCALL]:
+                    ctx.switch_to.default_content()
+                    return drop
 
                 # [👻] 編排定位器索引
                 self.mark_samples(ctx)
@@ -529,26 +622,24 @@ class ArmorCaptcha:
                 self.download_images()
 
                 # [👻] 滤除无法处理的挑战类别
-                drop = self.tactical_retreat()
-                if drop in [self.CHALLENGE_BACKCALL, self.CHALLENGE_REFRESH]:
+                if drop := self.tactical_retreat(ctx) in [self.CHALLENGE_BACKCALL]:
                     ctx.switch_to.default_content()
                     return drop
 
                 # [👻] 注册解决方案
                 # 根据挑战类型自动匹配不同的模型
-                model = self.switch_solution(dir_model, onnx_prefix)
+                solution = self.switch_solution()
 
                 # [👻] 識別|點擊|提交
-                self.challenge(ctx, model, save_challenge_result)
+                self.challenge(ctx, solution)
 
                 # [👻] 輪詢控制臺響應
-                result, message = self.challenge_success(ctx)
-                ctx.switch_to.default_content()
-
+                result, _ = self.challenge_success(ctx)
                 self.log("Get response", desc=result)
+
+                ctx.switch_to.default_content()
                 if result in [self.CHALLENGE_SUCCESS, self.CHALLENGE_CRASH, self.CHALLENGE_RETRY]:
                     return result
-                time.sleep(1)
 
         except (WebDriverException,) as err:
             logger.exception(err)

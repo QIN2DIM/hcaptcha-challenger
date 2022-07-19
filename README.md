@@ -1,6 +1,6 @@
 <div align="center">
     <h1> hCaptcha Challenger</h1>
-    <p>🚀 Gracefully face hCaptcha challenge with Yolov5(ONNX) embedded solution.</p>
+    <p>🚀 Gracefully face hCaptcha challenge with YOLOv6(ONNX) embedded solution.</p>
     <img src="https://img.shields.io/static/v1?message=reference&color=blue&style=for-the-badge&logo=micropython&label=python">
     <img src="https://img.shields.io/github/license/QIN2DIM/hcaptcha-challenger?style=for-the-badge">
     <a href="https://github.com/QIN2DIM/hcaptcha-challenger/releases"><img src="https://img.shields.io/github/downloads/qin2dim/hcaptcha-challenger/total?style=for-the-badge"></a>
@@ -29,7 +29,7 @@ Just implement some interfaces to make `AI vs AI` possible.
 ## Reference
 
 - [beiyuouo/hcaptcha-model-factory 🏗](https://github.com/beiyuouo/hcaptcha-model-factory)
-- hCaptcha challenge template site [@maximedrn](https://github.com/maximedrn/hcaptcha-solver-python-selenium)
+- [meituan/YOLOv6](https://github.com/meituan/YOLOv6)
 - [ultralytics/yolov5: YOLOv5 🚀 ](https://github.com/ultralytics/yolov5)
 - [ultrafunkamsterdam/undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
-- [meituan/YOLOv6](https://github.com/meituan/YOLOv6)
+- hCaptcha challenge template site [@maximedrn](https://github.com/maximedrn/hcaptcha-solver-python-selenium)

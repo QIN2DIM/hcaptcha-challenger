@@ -12,15 +12,7 @@ from typing import Optional
 from webdriver_manager.chrome import ChromeType
 from webdriver_manager.core.utils import get_browser_version_from_os
 
-from services.hcaptcha_challenger import (
-    YOLO,
-    SKRecognition,
-    ResNetSeaplane,
-    ResNetDomesticCat,
-    ResNetBedroom,
-    ResNetBridge,
-    ResNetLion,
-)
+from services.hcaptcha_challenger import YOLO, SKRecognition, PluggableONNXModel
 from services.settings import DIR_MODEL, logger, PATH_RAINBOW
 
 
@@ -53,7 +45,7 @@ def download_yolo_model(onnx_prefix):
 
 def refresh_pluggable_onnx_model(upgrade: Optional[bool] = None):
     def need_to_refresh():
-        _flag = "734b700810311e1ace4a3610b9cf48a0217dd3c2c6183ea7ac5d2bcd51e3507e"
+        _flag = "f737c44ee3c79a87bf4c612e96c4f208a5a2fd5923d46b9fbbabda814efdbb25"
         if not os.path.exists(PATH_RAINBOW):
             return True
         with open(PATH_RAINBOW, "rb") as file:
@@ -61,15 +53,7 @@ def refresh_pluggable_onnx_model(upgrade: Optional[bool] = None):
 
     if need_to_refresh():
         SKRecognition().sync_rainbow(path_rainbow=PATH_RAINBOW, convert=True)
-        for resnet_model in [
-            ResNetBridge,
-            ResNetLion,
-            ResNetDomesticCat,
-            ResNetBedroom,
-            ResNetSeaplane,
-            # ElephantsDrawnWithLeaves,
-        ]:
-            resnet_model(dir_model=DIR_MODEL).download_model(upgrade)
+        PluggableONNXModel().summon(dir_model=DIR_MODEL, upgrade=upgrade)
 
 
 def run(model: Optional[str] = None, upgrade: Optional[bool] = None):

@@ -4,7 +4,6 @@
 # Github     : https://github.com/beiyuouo
 # Description:
 import os
-import time
 import warnings
 from typing import List, Callable, Union, Optional
 
@@ -18,13 +17,22 @@ from .kernel import Solutions
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-class PluggableONNXModel:
-    ONNX_MODEL_BEDROOM = "bedroom"
-    ONNX_MODEL_DOMESTIC_CAT = "domestic_cat"
-    ONNX_MODEL_SEAPLANE = "seaplane"
-    ONNX_MODEL_ELEPHANTS = "elephants_drawn_with_leaves"
-    ONNX_MODEL_BRIDGE = "bridge"
-    ONNX_MODEL_LION = "lion"
+class _Fingers:
+    elephants_drawn_with_leaves = "elephants drawn with leaves"
+    horses_drawn_with_flowers = "horses drawn with flowers"
+    seaplane = "seaplane"
+    domestic_cat = "domestic cat"
+    bedroom = "bedroom"
+    bridge = "bridge"
+    lion = "lion"
+    horse_with_white_legs = "horse with white legs"
+    lion_yawning_with_open_mouth = "lion yawning with open mouth"
+    lion_with_closed_eyes = "lion with closed eyes"
+    elephant_with_long_tusk = "elephant with long tusk"
+    parrot_bird_with_eyes_open = "parrot bird with eyes open"
+    horse = "horse"
+    living_room = "living room"
+    smiling_dog = "smiling dog"
 
 
 class ResNetFactory(Solutions):
@@ -45,6 +53,9 @@ class ResNetFactory(Solutions):
             "src": f"https://github.com/QIN2DIM/hcaptcha-challenger/releases/download/model/{_onnx_prefix}.onnx",
         }
 
+        self.download_model()
+        self.net = cv2.dnn.readNetFromONNX(self.onnx_model["path"])
+
     def download_model(self, upgrade: Optional[bool] = None):
         """Download the ResNet ONNX classification model"""
         Solutions.download_model_(
@@ -60,7 +71,6 @@ class ResNetFactory(Solutions):
     ):
         match_output = self.match_rainbow(img_stream, rainbow_key)
         if match_output is not None:
-            time.sleep(0.3)
             return match_output
 
         img_arr = np.frombuffer(img_stream, np.uint8)
@@ -77,16 +87,11 @@ class ResNetFactory(Solutions):
                 if not tnt(img):
                     return False
 
-        self.download_model()
-
         img = cv2.resize(img, (64, 64))
         blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (64, 64), (0, 0, 0), swapRB=True, crop=False)
 
-        net = cv2.dnn.readNetFromONNX(self.onnx_model["path"])
-
-        net.setInput(blob)
-
-        out = net.forward()
+        self.net.setInput(blob)
+        out = self.net.forward()
 
         if not np.argmax(out, axis=1)[0]:
             return True
@@ -96,63 +101,9 @@ class ResNetFactory(Solutions):
         """Implementation process of solution"""
 
 
-# fixme: dup code
-
-
-class ResNetBridge(ResNetFactory):
-    """Handle challenge 「bridge」"""
-
-    def __init__(self, dir_model: str, path_rainbow=None):
-        _onnx_prefix = "bridge"
-        self.rainbow_key = _onnx_prefix
-        super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
-
-    def solution(self, img_stream, **kwargs) -> bool:
-        return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
-
-
-class ResNetLion(ResNetFactory):
-    """Handle challenge 「lion」"""
-
-    def __init__(self, dir_model: str, path_rainbow=None):
-        _onnx_prefix = "lion"
-        self.rainbow_key = _onnx_prefix
-        super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
-
-    def solution(self, img_stream, **kwargs) -> bool:
-        return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
-
-
-class ResNetBedroom(ResNetFactory):
-    """Handle challenge 「bedroom」"""
-
-    def __init__(self, dir_model: str, path_rainbow=None):
-        _onnx_prefix = "bedroom"
-        self.rainbow_key = _onnx_prefix
-        super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
-
-    def solution(self, img_stream, **kwargs) -> bool:
-        return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
-
-
-class ResNetDomesticCat(ResNetFactory):
-    """Handle challenge 「domestic cat」"""
-
-    def __init__(self, dir_model: str, path_rainbow=None):
-        _onnx_prefix = "domestic_cat"
-        self.rainbow_key = _onnx_prefix.replace("_", " ")
-        super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
-
-    def solution(self, img_stream, **kwargs) -> bool:
-        return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
-
-
-class ResNetSeaplane(ResNetFactory):
-    """Handle challenge 「seaplane」"""
-
-    def __init__(self, dir_model: str, path_rainbow=None):
-        _onnx_prefix = "seaplane"
-        self.rainbow_key = _onnx_prefix
+class FingersOfTheGolderOrder(ResNetFactory):
+    def __init__(self, rainbow_key: str, _onnx_prefix: str, dir_model: str, path_rainbow=None):
+        self.rainbow_key = rainbow_key
         super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
 
     def solution(self, img_stream, **kwargs) -> bool:
@@ -204,3 +155,77 @@ class HorsesDrawnWithFlowers(ResNetFactory):
 
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
+
+
+class PluggableONNXModel:
+    def __init__(self):
+        # registered service
+        self.fingers = [
+            _Fingers.seaplane,
+            _Fingers.domestic_cat,
+            _Fingers.bedroom,
+            _Fingers.bridge,
+            _Fingers.lion,
+            _Fingers.living_room,
+        ]
+        self.talismans = {
+            # _Fingers.elephants_drawn_with_leaves: ElephantsDrawnWithLeaves,
+            # _Fingers.horses_drawn_with_flowers: HorsesDrawnWithFlowers,
+        }
+
+    def summon(self, dir_model, path_rainbow=None, upgrade: Optional[bool] = None):
+        for finger in self.fingers:
+            model = FingersOfTheGolderOrder(
+                finger, finger.replace(" ", "_"), dir_model, path_rainbow
+            )
+            model.download_model(upgrade)
+        for model in self.talismans.values():
+            model(dir_model=dir_model).download_model(upgrade)
+
+    def overload(self, dir_model, path_rainbow=None) -> Optional[dict]:
+        pluggable_onnx_model = {}
+        for i, finger in enumerate(self.fingers):
+            onnx_prefix = finger.replace(" ", "_")
+            print(
+                f"OVERLOAD [PluggableONNXModel] - progress=[{i + 1}/{len(self.fingers)}] finger={onnx_prefix} "
+            )
+            model = FingersOfTheGolderOrder(finger, onnx_prefix, dir_model, path_rainbow)
+            pluggable_onnx_model[finger] = model
+        for i, model in enumerate(self.talismans):
+            print(
+                f"OVERLOAD [PluggableONNXModel] - progress=[{i + 1}/{len(self.talismans)}] finger={model}"
+            )
+            pluggable_onnx_model[model] = self.talismans[model]
+        return pluggable_onnx_model
+
+    def black_knife(self, label_alias: str, dir_model, path_rainbow: Optional[str] = None):
+        """
+        Use to summon the spirit of Black Knife Tiche.
+
+        :param label_alias:
+        :param dir_model:
+        :param path_rainbow:
+        :return:
+        """
+
+        label_alias = label_alias.strip()
+
+        # 1.Return to standard paradigm model
+        if label_alias in self.fingers:
+            return FingersOfTheGolderOrder(
+                rainbow_key=label_alias,
+                _onnx_prefix=label_alias.replace(" ", "_"),
+                dir_model=dir_model,
+                path_rainbow=path_rainbow,
+            )
+
+        # 2.Returns a heterogeneous model that needs to be preprocessed
+        if self.talismans.get(label_alias):
+            return self.talismans[label_alias](dir_model=dir_model, path_rainbow=path_rainbow)
+
+    def mimic_tear(self):
+        """
+        This spirit takes the form of the summoner to fight alongside them,
+        but its mimicry does not extend to imitating the summoner's will.
+        :return:
+        """

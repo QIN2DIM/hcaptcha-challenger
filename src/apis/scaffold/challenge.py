@@ -4,6 +4,7 @@
 # Github     : https://github.com/QIN2DIM
 # Description:
 import time
+import warnings
 from typing import Optional
 
 from selenium.common.exceptions import WebDriverException
@@ -13,6 +14,8 @@ from services.hcaptcha_challenger.exceptions import ChallengePassed
 from services.settings import logger, HCAPTCHA_DEMO_SITES, DIR_MODEL, DIR_CHALLENGE
 from services.utils import get_challenge_ctx
 
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 
 @logger.catch()
 def runner(
@@ -20,11 +23,18 @@ def runner(
     lang: Optional[str] = "zh",
     silence: Optional[bool] = False,
     onnx_prefix: Optional[str] = None,
-    save_challenge_result: Optional[bool] = False,
+    screenshot: Optional[bool] = False,
 ):
     """Human-Machine Challenge Demonstration | Top Interface"""
     # Instantiating Challenger Components
-    challenger = ArmorCaptcha(dir_workspace=DIR_CHALLENGE, lang=lang, debug=True)
+    challenger = ArmorCaptcha(
+        dir_workspace=DIR_CHALLENGE,
+        lang=lang,
+        debug=True,
+        dir_model=DIR_MODEL,
+        onnx_prefix=onnx_prefix,
+        screenshot=screenshot,
+    )
     challenger_utils = ArmorUtils()
 
     # Instantiating the Challenger Drive
@@ -48,12 +58,7 @@ def runner(
                 challenger.anti_checkbox(ctx)
 
                 # Enter iframe-content --> process hcaptcha challenge --> exit iframe-content
-                resp = challenger.anti_hcaptcha(
-                    ctx,
-                    dir_model=DIR_MODEL,
-                    onnx_prefix=onnx_prefix,
-                    save_challenge_result=save_challenge_result,
-                )
+                resp = challenger.anti_hcaptcha(ctx)
                 if resp == challenger.CHALLENGE_SUCCESS:
                     challenger.log(f"End of demo - total: {round(time.time() - start, 2)}s")
                     logger.success(f"PASS[{i + 1}|{_round}]".center(28, "="))
