@@ -76,7 +76,7 @@ class Scaffold:
 
     @staticmethod
     def tracker():
-        app.run(debug=True, access_log=True)
+        app.run(debug=True, access_log=False)
 
     @staticmethod
     def motion():
