@@ -60,8 +60,9 @@ class ArmorCaptcha:
             "桥梁": "bridge",
             "狮子": "lion",
             "客厅": "living room",
-            # "一匹马": "horse",
+            "一匹马": "horse",
             # "微笑狗":"smiling dog",
+            # "长颈鹿": "giraffe",
         },
         "en": {
             "airplane": "airplane",
@@ -83,8 +84,9 @@ class ArmorCaptcha:
             "lion": "lion",
             "bridge": "bridge",
             "living room": "living room",
-            # "horse": "horse",
+            "horse": "horse",
             # "smiling dog": "smiling dog"
+            # "giraffe": "giraffe",
         },
     }
     BAD_CODE = {

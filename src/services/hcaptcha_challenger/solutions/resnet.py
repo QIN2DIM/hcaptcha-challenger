@@ -18,21 +18,22 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class _Fingers:
-    elephants_drawn_with_leaves = "elephants drawn with leaves"
-    horses_drawn_with_flowers = "horses drawn with flowers"
-    seaplane = "seaplane"
-    domestic_cat = "domestic cat"
-    bedroom = "bedroom"
-    bridge = "bridge"
-    lion = "lion"
-    horse_with_white_legs = "horse with white legs"
-    lion_yawning_with_open_mouth = "lion yawning with open mouth"
-    lion_with_closed_eyes = "lion with closed eyes"
-    elephant_with_long_tusk = "elephant with long tusk"
-    parrot_bird_with_eyes_open = "parrot bird with eyes open"
-    horse = "horse"
-    living_room = "living room"
-    smiling_dog = "smiling dog"
+    ELEPHANTS_DRAWN_WITH_LEAVES = "elephants drawn with leaves"
+    HORSES_DRAWN_WITH_FLOWERS = "horses drawn with flowers"
+    SEAPLANE = "seaplane"
+    DOMESTIC_CAT = "domestic cat"
+    BEDROOM = "bedroom"
+    BRIDGE = "bridge"
+    LION = "lion"
+    HORSE_WITH_WHITE_LEGS = "horse with white legs"
+    LION_YAWNING_WITH_OPEN_MOUTH = "lion yawning with open mouth"
+    LION_WITH_CLOSED_EYES = "lion with closed eyes"
+    ELEPHANT_WITH_LONG_TUSK = "elephant with long tusk"
+    PARROT_BIRD_WITH_EYES_OPEN = "parrot bird with eyes open"
+    HORSE = "horse"
+    LIVING_ROOM = "living room"
+    SMILING_DOG = "smiling dog"
+    GIRAFFE = "giraffe"
 
 
 class ResNetFactory(Solutions):
@@ -161,12 +162,13 @@ class PluggableONNXModel:
     def __init__(self):
         # registered service
         self.fingers = [
-            _Fingers.seaplane,
-            _Fingers.domestic_cat,
-            _Fingers.bedroom,
-            _Fingers.bridge,
-            _Fingers.lion,
-            _Fingers.living_room,
+            _Fingers.SEAPLANE,
+            _Fingers.DOMESTIC_CAT,
+            _Fingers.BEDROOM,
+            _Fingers.BRIDGE,
+            _Fingers.LION,
+            _Fingers.LIVING_ROOM,
+            _Fingers.HORSE,
         ]
         self.talismans = {
             # _Fingers.elephants_drawn_with_leaves: ElephantsDrawnWithLeaves,
