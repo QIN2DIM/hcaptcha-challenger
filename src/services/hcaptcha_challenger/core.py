@@ -443,25 +443,22 @@ class ArmorCaptcha:
             # Read binary data weave into types acceptable to the model
             with open(self.alias2path[alias], "rb") as file:
                 data = file.read()
-
             # Get detection results
             t0 = time.time()
             result = model.solution(img_stream=data, label=self.label_alias[self.label])
             ta.append(time.time() - t0)
-
             # Pass: Hit at least one object
-            action.move_to_element(self.alias2locator[alias])
             if result:
-                try:
-                    action.pause(0.1)
-                    action.click()
-                except StaleElementReferenceException:
-                    self.log("Try to click on element", alias=alias)
-                except WebDriverException as err:
-                    logger.warning(err)
-
-        action.perform()
-        action.reset_actions()
+                action.move_to_element(self.alias2locator[alias])
+                action.click()
+        try:
+            action.perform()
+        except StaleElementReferenceException:
+            pass
+        except WebDriverException as err:
+            logger.warning(err)
+        finally:
+            action.reset_actions()
 
         # Check result of the challenge.
         if self.screenshot:
