@@ -1,0 +1,38 @@
+# Pluggable ONNX model
+# onnx_prefix:
+#   zh: ["zh_prompt_label"]
+#   en: ["en_prompt_label"]
+label_alias:
+  seaplane:
+    zh: ["水上飞机"]
+    en: ["seaplane"]
+  domestic_cat:
+    zh: ["家猫"]
+    en: ["domestic cat"]
+  bedroom:
+    zh: ["卧室"]
+    en: ["bedroom"]
+  bridge:
+    zh: ["桥梁"]
+    en: ["bridge"]
+  lion:
+    zh: ["狮子"]
+    en: ["lion"]
+  living_room:
+    zh: ["客厅"]
+    en: ["living room"]
+  horse:
+    zh: ["一匹马"]
+    en: ["horse"]
+  conference_room:
+    zh: ["会议室"]
+    en: ["conference room"]
+#  smiling_dog:
+#    zh: ["微笑狗"]
+#    en: ["smiling dog"]
+#  giraffe:
+#    zh: ["长颈鹿"]
+#    en: ["giraffe"]
+#  elephants_drawn_with_leaves:
+#    zh: ["请选择所有用树叶画的大象"]
+#    en: ["elephants drawn with leaves"]

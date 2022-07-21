@@ -69,14 +69,12 @@ class ToolBox:
 
 def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None):
     """
-    Challenger drive for handling human-machine challenges
+    Challenger drive for handling human-machine challenges.
 
     :param silence: Control headless browser
-
-    :param lang: Restrict the language of hCatpcha label.
-    See https://github.com/QIN2DIM/hcaptcha-challenger/issues/13
-
-    :return:
+    :param lang: Restrict the language of hCAPTCHA label.
+      See https://github.com/QIN2DIM/hcaptcha-challenger/issues/13
+    :rtype: uc.Chrome
     """
     # Control headless browser
     silence = True if silence is None or "linux" in sys.platform else silence

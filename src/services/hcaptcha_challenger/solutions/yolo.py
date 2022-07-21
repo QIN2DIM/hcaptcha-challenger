@@ -132,7 +132,6 @@ class YOLO:
         self.flag = self.onnx_model["name"]
 
         self.download_model()
-        print(f"OVERLOAD [YOLO] - finger={self.flag}")
         self.net = cv2.dnn.readNetFromONNX(self.onnx_model["path"])
 
     def download_model(self):

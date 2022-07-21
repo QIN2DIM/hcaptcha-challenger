@@ -18,6 +18,8 @@ class ChallengeStyle:
 
 
 class Solutions:
+    RAINBOW_TABLE = {}
+
     def __init__(self, name: str, path_rainbow: str = None):
         self.path_rainbow = "rainbow.yaml" if path_rainbow is None else path_rainbow
         self.flag = name
@@ -53,14 +55,15 @@ class Solutions:
         :param path_rainbow:
         :return:
         """
-        _rainbow_table = {}
+        if Solutions.RAINBOW_TABLE:
+            return Solutions.RAINBOW_TABLE
 
         if os.path.exists(path_rainbow):
             with open(path_rainbow, "r", encoding="utf8") as file:
                 stream = yaml.safe_load(file)
-            _rainbow_table = stream if isinstance(stream, dict) else {}
+            Solutions.RAINBOW_TABLE = stream if isinstance(stream, dict) else {}
 
-        return _rainbow_table
+        return Solutions.RAINBOW_TABLE
 
     def match_rainbow(self, img_stream: bytes, rainbow_key: str) -> Optional[bool]:
         """

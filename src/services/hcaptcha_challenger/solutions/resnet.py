@@ -5,36 +5,18 @@
 # Description:
 import os
 import warnings
-from typing import List, Callable, Union, Optional
+from os import PathLike
+from typing import List, Callable, Union, Optional, Dict
 
 import cv2
 import numpy as np
+import yaml
 from scipy.cluster.vq import kmeans2
 
 from .kernel import ChallengeStyle
 from .kernel import Solutions
 
 warnings.filterwarnings("ignore", category=UserWarning)
-
-
-class _Fingers:
-    ELEPHANTS_DRAWN_WITH_LEAVES = "elephants drawn with leaves"
-    HORSES_DRAWN_WITH_FLOWERS = "horses drawn with flowers"
-    SEAPLANE = "seaplane"
-    DOMESTIC_CAT = "domestic cat"
-    BEDROOM = "bedroom"
-    BRIDGE = "bridge"
-    LION = "lion"
-    HORSE_WITH_WHITE_LEGS = "horse with white legs"
-    LION_YAWNING_WITH_OPEN_MOUTH = "lion yawning with open mouth"
-    LION_WITH_CLOSED_EYES = "lion with closed eyes"
-    ELEPHANT_WITH_LONG_TUSK = "elephant with long tusk"
-    PARROT_BIRD_WITH_EYES_OPEN = "parrot bird with eyes open"
-    HORSE = "horse"
-    LIVING_ROOM = "living room"
-    CONFERENCE_ROOM = "conference room"
-    SMILING_DOG = "smiling dog"
-    GIRAFFE = "giraffe"
 
 
 class ResNetFactory(Solutions):
@@ -104,9 +86,11 @@ class ResNetFactory(Solutions):
 
 
 class FingersOfTheGolderOrder(ResNetFactory):
-    def __init__(self, rainbow_key: str, _onnx_prefix: str, dir_model: str, path_rainbow=None):
-        self.rainbow_key = rainbow_key
-        super().__init__(_onnx_prefix, f"{_onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
+    """Res Net model factory, used to produce abstract model call interface."""
+
+    def __init__(self, onnx_prefix: str, dir_model: str, path_rainbow=None):
+        self.rainbow_key = onnx_prefix
+        super().__init__(onnx_prefix, f"{onnx_prefix}(ResNet)_model", dir_model, path_rainbow)
 
     def solution(self, img_stream, **kwargs) -> bool:
         return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
@@ -159,77 +143,82 @@ class HorsesDrawnWithFlowers(ResNetFactory):
         """Implementation process of solution"""
 
 
-class PluggableONNXModel:
-    def __init__(self):
-        # registered service
-        self.fingers = [
-            _Fingers.SEAPLANE,
-            _Fingers.DOMESTIC_CAT,
-            _Fingers.BEDROOM,
-            _Fingers.BRIDGE,
-            _Fingers.LION,
-            _Fingers.LIVING_ROOM,
-            _Fingers.HORSE,
-            _Fingers.CONFERENCE_ROOM,
-        ]
-        self.talismans = {
-            # _Fingers.elephants_drawn_with_leaves: ElephantsDrawnWithLeaves,
-            # _Fingers.horses_drawn_with_flowers: HorsesDrawnWithFlowers,
+class PluggableONNXModels:
+    """
+    Manage pluggable models. Provides high-level interfaces
+    such as model download, model cache, and model scheduling.
+    """
+
+    def __init__(self, path_objects_yaml: str):
+        self.fingers = []
+        self.label_alias = {i: {} for i in ["zh", "en"]}
+        self._register(path_objects_yaml)
+
+    def _register(self, path_objects_yaml):
+        """
+        Register pluggable ONNX models from `objects.yaml`.
+
+        :type path_objects_yaml: str
+        :rtype: List[str]
+        :rtype: None
+        """
+        if not path_objects_yaml or not os.path.exists(path_objects_yaml):
+            return
+
+        with open(path_objects_yaml, "r", encoding="utf8") as file:
+            data: Dict[str, dict] = yaml.safe_load(file.read())
+
+        label_to_i18ndict = data.get("label_alias", {})
+        if not label_to_i18ndict:
+            return
+
+        for model_label, i18n_to_raw_labels in label_to_i18ndict.items():
+            self.fingers.append(model_label)
+            for lang, prompt_labels in i18n_to_raw_labels.items():
+                for prompt_label in prompt_labels:
+                    self.label_alias[lang].update({prompt_label.strip(): model_label})
+
+    def summon(self, dir_model, path_rainbow=None, upgrade=None):
+        """
+        Download ONNX models from upstream repositories,
+        skipping installed model files by default.
+
+        :type dir_model: str
+        :type path_rainbow: str | None
+        :type upgrade: bool | None
+        :rtype: None
+        """
+        for finger in self.fingers:
+            FingersOfTheGolderOrder(finger, dir_model, path_rainbow).download_model(upgrade)
+
+    def overload(self, dir_model, path_rainbow=None):
+        """
+        Load the ONNX model into memory.
+        Executed before the task starts.
+
+        :type dir_model: str
+        :type path_rainbow: str | None
+        :rtype: Dict[str, FingersOfTheGolderOrder]
+        """
+        return {
+            finger: FingersOfTheGolderOrder(finger, dir_model, path_rainbow)
+            for finger in self.fingers
         }
 
-    def summon(self, dir_model, path_rainbow=None, upgrade: Optional[bool] = None):
-        for finger in self.fingers:
-            model = FingersOfTheGolderOrder(
-                finger, finger.replace(" ", "_"), dir_model, path_rainbow
-            )
-            model.download_model(upgrade)
-        for model in self.talismans.values():
-            model(dir_model=dir_model).download_model(upgrade)
-
-    def overload(self, dir_model, path_rainbow=None) -> Optional[dict]:
-        pluggable_onnx_model = {}
-        for i, finger in enumerate(self.fingers):
-            onnx_prefix = finger.replace(" ", "_")
-            print(
-                f"OVERLOAD [PluggableONNXModel] - progress=[{i + 1}/{len(self.fingers)}] finger={onnx_prefix} "
-            )
-            model = FingersOfTheGolderOrder(finger, onnx_prefix, dir_model, path_rainbow)
-            pluggable_onnx_model[finger] = model
-        for i, model in enumerate(self.talismans):
-            print(
-                f"OVERLOAD [PluggableONNXModel] - progress=[{i + 1}/{len(self.talismans)}] finger={model}"
-            )
-            pluggable_onnx_model[model] = self.talismans[model]
-        return pluggable_onnx_model
-
-    def black_knife(self, label_alias: str, dir_model, path_rainbow: Optional[str] = None):
+    def black_knife(self, label_alias, dir_model, path_rainbow=None):
         """
         Use to summon the spirit of Black Knife Tiche.
 
-        :param label_alias:
-        :param dir_model:
-        :param path_rainbow:
-        :return:
+        :type label_alias: str
+        :type dir_model: PathLike[str]
+        :type path_rainbow: PathLike[str] | None
+        :rtype: None
         """
-
-        label_alias = label_alias.strip()
-
-        # 1.Return to standard paradigm model
-        if label_alias in self.fingers:
-            return FingersOfTheGolderOrder(
-                rainbow_key=label_alias,
-                _onnx_prefix=label_alias.replace(" ", "_"),
-                dir_model=dir_model,
-                path_rainbow=path_rainbow,
-            )
-
-        # 2.Returns a heterogeneous model that needs to be preprocessed
-        if self.talismans.get(label_alias):
-            return self.talismans[label_alias](dir_model=dir_model, path_rainbow=path_rainbow)
 
     def mimic_tear(self):
         """
         This spirit takes the form of the summoner to fight alongside them,
         but its mimicry does not extend to imitating the summoner's will.
-        :return:
+
+        :rtype: None
         """

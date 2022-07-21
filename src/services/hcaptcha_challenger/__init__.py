@@ -4,8 +4,8 @@
 # Github     : https://github.com/QIN2DIM
 # Description:
 from .core import ArmorCaptcha, ArmorUtils
-from .solutions.resnet import PluggableONNXModel
+from .solutions.resnet import PluggableONNXModels
 from .solutions.sk_recognition import SKRecognition
 from .solutions.yolo import YOLO
 
-__all__ = ["SKRecognition", "YOLO", "ArmorCaptcha", "ArmorUtils", "PluggableONNXModel"]
+__all__ = ["SKRecognition", "YOLO", "ArmorCaptcha", "ArmorUtils", "PluggableONNXModels"]

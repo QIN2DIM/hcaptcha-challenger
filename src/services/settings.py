@@ -41,7 +41,7 @@ PROJECT_DATABASE = join(PROJECT_ROOT, "database")
 # The storage directory of the YOLO object detection model
 DIR_MODEL = join(PROJECT_ROOT, "model")
 
-PATH_RAINBOW = join(DIR_MODEL, "rainbow.yaml")
+PATH_RAINBOW_YAML = join(DIR_MODEL, "rainbow.yaml")
 
 # Run cache directory
 DIR_TEMP_CACHE = join(PROJECT_DATABASE, "temp_cache")
@@ -51,6 +51,9 @@ DIR_CHALLENGE = join(DIR_TEMP_CACHE, "_challenge")
 
 # Service log directory
 DIR_LOG = join(PROJECT_DATABASE, "logs")
+
+# Settings of pluggable ONNX models
+PATH_OBJECTS_YAML = join(PROJECT_ROOT, "objects.yaml")
 # ---------------------------------------------------
 # [√]Server log configuration
 # ---------------------------------------------------
@@ -59,5 +62,4 @@ logger = ToolBox.init_log(error=join(DIR_LOG, "error.log"), runtime=join(DIR_LOG
 # [√]Path completion
 # ---------------------------------------------------
 for _pending in [PROJECT_DATABASE, DIR_MODEL, DIR_TEMP_CACHE, DIR_CHALLENGE, DIR_LOG]:
-    if not os.path.exists(_pending):
-        os.mkdir(_pending)
+    os.makedirs(_pending, exist_ok=True)

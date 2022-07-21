@@ -15,14 +15,13 @@ from selenium.common.exceptions import (
     NoSuchElementException,
     StaleElementReferenceException,
 )
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
-
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
 
-from services.settings import logger, PATH_RAINBOW
+from services.settings import logger
 from services.utils import AshFramework, ToolBox
 from .exceptions import (
     LabelNotFoundException,
@@ -52,18 +51,7 @@ class ArmorCaptcha:
             "垂直河流": "vertical river",
             "天空中向左飞行的飞机": "airplane in the sky flying left",
             "请选择天空中所有向右飞行的飞机": "airplanes in the sky that are flying to the right",
-            "请选择所有用树叶画的大象": "elephants drawn with leaves",
-            "水上飞机": "seaplane",
             "汽车": "car",
-            "家猫": "domestic cat",
-            "卧室": "bedroom",
-            "桥梁": "bridge",
-            "狮子": "lion",
-            "客厅": "living room",
-            "一匹马": "horse",
-            "会议室": "conference room",
-            # "微笑狗":"smiling dog",
-            # "长颈鹿": "giraffe",
         },
         "en": {
             "airplane": "airplane",
@@ -77,20 +65,10 @@ class ArmorCaptcha:
             "vertical river": "vertical river",
             "airplane in the sky flying left": "airplane in the sky flying left",
             "Please select all airplanes in the sky that are flying to the right": "airplanes in the sky that are flying to the right",
-            "Please select all the elephants drawn with leaves": "elephants drawn with leaves",
-            "seaplane": "seaplane",
             "car": "car",
-            "domestic cat": "domestic cat",
-            "bedroom": "bedroom",
-            "lion": "lion",
-            "bridge": "bridge",
-            "living room": "living room",
-            "horse": "horse",
-            "conference room": "conference room",
-            # "smiling dog": "smiling dog"
-            # "giraffe": "giraffe",
         },
     }
+
     BAD_CODE = {
         "а": "a",
         "е": "e",
@@ -126,6 +104,8 @@ class ArmorCaptcha:
         onnx_prefix: str = None,
         screenshot: Optional[bool] = False,
         debug=False,
+        path_objects_yaml: Optional[str] = None,
+        path_rainbow_yaml: Optional[str] = None,
     ):
         if not isinstance(lang, str) or not self.label_alias.get(lang):
             raise ChallengeLangException(
@@ -138,6 +118,8 @@ class ArmorCaptcha:
         self.dir_model = dir_model
         self.onnx_prefix = onnx_prefix
         self.screenshot = screenshot
+        self.path_objects_yaml = path_objects_yaml
+        self.path_rainbow_yaml = path_rainbow_yaml
 
         # 存储挑战图片的目录
         self.runtime_workspace = ""
@@ -161,9 +143,11 @@ class ArmorCaptcha:
 
         self.threat = 0
 
-        # pluggable_onnx_model
-        self.pluggable_onnx_model: dict = resnet.PluggableONNXModel().overload(
-            dir_model=self.dir_model, path_rainbow=PATH_RAINBOW
+        # Automatic registration
+        self.pom_handler = resnet.PluggableONNXModels(self.path_objects_yaml)
+        self.label_alias.update(self.pom_handler.label_alias[lang])
+        self.pluggable_onnx_models = self.pom_handler.overload(
+            self.dir_model, path_rainbow=self.path_rainbow_yaml
         )
         self.yolo_model = yolo.YOLO(self.dir_model, self.onnx_prefix)
 
@@ -319,7 +303,7 @@ class ArmorCaptcha:
             return self.CHALLENGE_BACKCALL
 
     def switch_solution(self):
-        """模型卸载"""
+        """Optimizing solutions based on different challenge labels"""
         sk_solution = {
             "vertical river": sk_recognition.VerticalRiverRecognition,
             "airplane in the sky flying left": sk_recognition.LeftPlaneRecognition,
@@ -328,25 +312,40 @@ class ArmorCaptcha:
 
         label_alias = self.label_alias.get(self.label)
 
-        if self.pluggable_onnx_model.get(label_alias):
-            return self.pluggable_onnx_model[label_alias]
+        # Select ResNet ONNX model
+        if self.pluggable_onnx_models.get(label_alias):
+            return self.pluggable_onnx_models[label_alias]
+        # Select SK-Image method
         if sk_solution.get(label_alias):
-            return sk_solution[label_alias](PATH_RAINBOW)
+            return sk_solution[label_alias](self.path_rainbow_yaml)
+        # Select YOLO ONNX model
         return self.yolo_model
 
     def mark_samples(self, ctx: Chrome):
         """
-        获取每个挑战图片的下载链接以及网页元素位置
+        Get the download link and locator of each challenge image
 
         :param ctx:
         :return:
         """
-
         # 等待图片加载完成
-        WebDriverWait(ctx, 10, ignored_exceptions=ElementNotVisibleException).until(
-            EC.presence_of_all_elements_located((By.XPATH, "//div[@class='task-image']"))
-        )
-        time.sleep(1)
+        try:
+            WebDriverWait(ctx, 5, ignored_exceptions=ElementNotVisibleException).until(
+                EC.presence_of_all_elements_located((By.XPATH, "//div[@class='task-image']"))
+            )
+        except TimeoutException:
+            try:
+                ctx.switch_to.default_content()
+                WebDriverWait(ctx, 1, 0.1).until(
+                    EC.visibility_of_element_located(
+                        (By.XPATH, "//div[contains(@class,'hcaptcha-success')]")
+                    )
+                )
+                return self.CHALLENGE_SUCCESS
+            except WebDriverException:
+                return self.CHALLENGE_CONTINUE
+
+        time.sleep(0.3)
 
         # DOM 定位元素
         samples = ctx.find_elements(By.XPATH, "//div[@class='task-image']")
@@ -536,6 +535,8 @@ class ArmorCaptcha:
             except TimeoutException:
                 pass
 
+        time.sleep(0.2)
+
         for _ in range(3):
             # Pop prompt "Please try again".
             if is_flagged_flow():
@@ -617,7 +618,12 @@ class ArmorCaptcha:
                     return drop
 
                 # [👻] 編排定位器索引
-                self.mark_samples(ctx)
+                if drop := self.mark_samples(ctx) in [
+                    self.CHALLENGE_SUCCESS,
+                    self.CHALLENGE_CONTINUE,
+                ]:
+                    ctx.switch_to.default_content()
+                    return drop
 
                 # [👻] 拉取挑戰圖片
                 self.download_images()

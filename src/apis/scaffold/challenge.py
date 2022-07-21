@@ -11,7 +11,14 @@ from selenium.common.exceptions import WebDriverException
 
 from services.hcaptcha_challenger import ArmorCaptcha, ArmorUtils
 from services.hcaptcha_challenger.exceptions import ChallengePassed
-from services.settings import logger, HCAPTCHA_DEMO_SITES, DIR_MODEL, DIR_CHALLENGE
+from services.settings import (
+    logger,
+    HCAPTCHA_DEMO_SITES,
+    DIR_MODEL,
+    DIR_CHALLENGE,
+    PATH_OBJECTS_YAML,
+    PATH_RAINBOW_YAML,
+)
 from services.utils import get_challenge_ctx
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -26,6 +33,7 @@ def runner(
     screenshot: Optional[bool] = False,
 ):
     """Human-Machine Challenge Demonstration | Top Interface"""
+
     # Instantiating Challenger Components
     challenger = ArmorCaptcha(
         dir_workspace=DIR_CHALLENGE,
@@ -34,6 +42,8 @@ def runner(
         dir_model=DIR_MODEL,
         onnx_prefix=onnx_prefix,
         screenshot=screenshot,
+        path_objects_yaml=PATH_OBJECTS_YAML,
+        path_rainbow_yaml=PATH_RAINBOW_YAML,
     )
     challenger_utils = ArmorUtils()
 

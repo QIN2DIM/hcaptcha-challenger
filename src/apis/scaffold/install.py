@@ -12,8 +12,8 @@ from typing import Optional
 from webdriver_manager.chrome import ChromeType
 from webdriver_manager.core.utils import get_browser_version_from_os
 
-from services.hcaptcha_challenger import YOLO, SKRecognition, PluggableONNXModel
-from services.settings import DIR_MODEL, logger, PATH_RAINBOW
+from services.hcaptcha_challenger import YOLO, SKRecognition, PluggableONNXModels
+from services.settings import DIR_MODEL, logger, PATH_RAINBOW_YAML, PATH_OBJECTS_YAML
 
 
 def download_driver():
@@ -45,15 +45,15 @@ def download_yolo_model(onnx_prefix):
 
 def refresh_pluggable_onnx_model(upgrade: Optional[bool] = None):
     def need_to_refresh():
-        _flag = "26c6d93e325955866a7dcc7fcd652a4e81e88f1e13a314f9cf0c663e636530b3"
-        if not os.path.exists(PATH_RAINBOW):
+        _flag = "6c6d5d5bb156ec13faca8b9b3d06a5983c5235641e1c39c35c82610b0420a9cd"
+        if not os.path.exists(PATH_RAINBOW_YAML):
             return True
-        with open(PATH_RAINBOW, "rb") as file:
+        with open(PATH_RAINBOW_YAML, "rb") as file:
             return hashlib.sha256(file.read()).hexdigest() != _flag
 
     if need_to_refresh():
-        SKRecognition().sync_rainbow(path_rainbow=PATH_RAINBOW, convert=True)
-        PluggableONNXModel().summon(dir_model=DIR_MODEL, upgrade=upgrade)
+        SKRecognition().sync_rainbow(path_rainbow=PATH_RAINBOW_YAML, convert=True)
+        PluggableONNXModels(PATH_OBJECTS_YAML).summon(dir_model=DIR_MODEL, upgrade=upgrade)
 
 
 def run(model: Optional[str] = None, upgrade: Optional[bool] = None):
