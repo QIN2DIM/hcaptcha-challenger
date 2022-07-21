@@ -61,6 +61,7 @@ class ArmorCaptcha:
             "狮子": "lion",
             "客厅": "living room",
             "一匹马": "horse",
+            "会议室": "conference room",
             # "微笑狗":"smiling dog",
             # "长颈鹿": "giraffe",
         },
@@ -85,6 +86,7 @@ class ArmorCaptcha:
             "bridge": "bridge",
             "living room": "living room",
             "horse": "horse",
+            "conference room": "conference room",
             # "smiling dog": "smiling dog"
             # "giraffe": "giraffe",
         },

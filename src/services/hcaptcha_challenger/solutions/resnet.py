@@ -32,6 +32,7 @@ class _Fingers:
     PARROT_BIRD_WITH_EYES_OPEN = "parrot bird with eyes open"
     HORSE = "horse"
     LIVING_ROOM = "living room"
+    CONFERENCE_ROOM = "conference room"
     SMILING_DOG = "smiling dog"
     GIRAFFE = "giraffe"
 
@@ -169,6 +170,7 @@ class PluggableONNXModel:
             _Fingers.LION,
             _Fingers.LIVING_ROOM,
             _Fingers.HORSE,
+            _Fingers.CONFERENCE_ROOM,
         ]
         self.talismans = {
             # _Fingers.elephants_drawn_with_leaves: ElephantsDrawnWithLeaves,
