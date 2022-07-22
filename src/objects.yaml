@@ -30,6 +30,9 @@ label_alias:
   smiling_dog:
     zh: ["微笑狗"]
     en: ["smiling dog"]
+  dog:
+    zh: ["狗"]
+    en: ["ԁog"]
 #  giraffe:
 #    zh: ["长颈鹿"]
 #    en: ["giraffe"]
