@@ -27,9 +27,9 @@ label_alias:
   conference_room:
     zh: ["会议室"]
     en: ["conference room"]
-#  smiling_dog:
-#    zh: ["微笑狗"]
-#    en: ["smiling dog"]
+  smiling_dog:
+    zh: ["微笑狗"]
+    en: ["smiling dog"]
 #  giraffe:
 #    zh: ["长颈鹿"]
 #    en: ["giraffe"]
