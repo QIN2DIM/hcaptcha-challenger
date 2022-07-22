@@ -79,6 +79,7 @@ class ArmorCaptcha:
         "с": "c",
         "ԁ": "d",
         "ѕ": "s",
+        "һ": "h",
     }
 
     HOOK_CHALLENGE = "//iframe[contains(@title,'content')]"
