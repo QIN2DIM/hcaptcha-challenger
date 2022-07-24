@@ -52,6 +52,7 @@ class ArmorCaptcha:
             "天空中向左飞行的飞机": "airplane in the sky flying left",
             "请选择天空中所有向右飞行的飞机": "airplanes in the sky that are flying to the right",
             "汽车": "car",
+            "大象": "elephant",
         },
         "en": {
             "airplane": "airplane",
@@ -66,6 +67,7 @@ class ArmorCaptcha:
             "airplane in the sky flying left": "airplane in the sky flying left",
             "Please select all airplanes in the sky that are flying to the right": "airplanes in the sky that are flying to the right",
             "car": "car",
+            "elephant": "elephant",
         },
     }
 
