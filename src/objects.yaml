@@ -33,6 +33,9 @@ label_alias:
   dog:
     zh: ["狗"]
     en: ["ԁog"]
+  horse_made_of_clouds:
+    zh: ["一匹由云制成的马"]
+    en: ["horse made of clouds"]
 #  giraffe:
 #    zh: ["长颈鹿"]
 #    en: ["giraffe"]
