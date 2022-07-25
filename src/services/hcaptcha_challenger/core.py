@@ -41,10 +41,8 @@ class ArmorCaptcha:
             "火车": "train",
             "卡车": "truck",
             "公交车": "bus",
-            "巴土": "bus",
             "巴士": "bus",
             "飞机": "airplane",
-            "ー条船": "boat",
             "一条船": "boat",
             "船": "boat",
             "摩托车": "motorcycle",
@@ -82,6 +80,8 @@ class ArmorCaptcha:
         "ԁ": "d",
         "ѕ": "s",
         "һ": "h",
+        "ー": "一",
+        "土": "士",
     }
 
     HOOK_CHALLENGE = "//iframe[contains(@title,'content')]"
