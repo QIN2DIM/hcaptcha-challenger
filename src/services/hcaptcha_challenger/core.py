@@ -51,6 +51,7 @@ class ArmorCaptcha:
             "请选择天空中所有向右飞行的飞机": "airplanes in the sky that are flying to the right",
             "汽车": "car",
             "大象": "elephant",
+            "鹦鹉": "bird",
         },
         "en": {
             "airplane": "airplane",
@@ -66,6 +67,7 @@ class ArmorCaptcha:
             "Please select all airplanes in the sky that are flying to the right": "airplanes in the sky that are flying to the right",
             "car": "car",
             "elephant": "elephant",
+            "parrot": "bird",
         },
     }
 
@@ -441,8 +443,7 @@ class ArmorCaptcha:
 
         ta = []
         keys = list(self.alias2path.keys())
-        random.shuffle(keys)
-        action = ActionChains(ctx)
+        action = ActionChains(ctx, duration=300)
 
         # {{< IMAGE CLASSIFICATION >}}
         for alias in keys:
