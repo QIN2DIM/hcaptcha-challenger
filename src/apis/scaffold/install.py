@@ -45,7 +45,7 @@ def download_yolo_model(onnx_prefix):
 
 def refresh_pluggable_onnx_model(upgrade: Optional[bool] = None):
     def need_to_refresh():
-        _flag = "0a01bd1619e6cbc217262a5b60b6695e479913536e756cb9c3da65b6d7de9f6e"
+        _flag = "fe33283fa11be372a9e24c49bc86b844c1a60833073eac811787f1b16b5b6ea0"
         if not os.path.exists(PATH_RAINBOW_YAML):
             return True
         with open(PATH_RAINBOW_YAML, "rb") as file:

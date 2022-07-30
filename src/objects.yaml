@@ -39,9 +39,9 @@ label_alias:
   elephant_made_of_clouds:
     zh: ["由云制成的大象"]
     en: ["elephant made of clouds"]
-#  giraffe:
-#    zh: ["长颈鹿"]
-#    en: ["giraffe"]
+  giraffe:
+    zh: ["长颈鹿"]
+    en: ["giraffe"]
 #  elephants_drawn_with_leaves:
 #    zh: ["请选择所有用树叶画的大象"]
 #    en: ["elephants drawn with leaves"]
