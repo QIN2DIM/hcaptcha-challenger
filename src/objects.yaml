@@ -42,6 +42,15 @@ label_alias:
   giraffe:
     zh: ["长颈鹿"]
     en: ["giraffe"]
+  parrot:
+    zh: ["鹦鹉"]
+    en: ["parrot"]
+#  dog_with_a_collar_on_its_neck:
+#    zh: ["一条脖子上有项圈的狗"]
+#    en: ["dog with a collar on its neck"]
+#  dog_without_a_collar:
+#    zh: ["一条没有项圈的狗"]
+#    en: ["dog without a collar"]
 #  elephants_drawn_with_leaves:
 #    zh: ["请选择所有用树叶画的大象"]
 #    en: ["elephants drawn with leaves"]
