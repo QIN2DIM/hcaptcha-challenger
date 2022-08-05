@@ -51,6 +51,7 @@ class ArmorCaptcha:
             "汽车": "car",
             "大象": "elephant",
             "鸟": "bird",
+            "狗": "dog",
         },
         "en": {
             "airplane": "airplane",
@@ -67,6 +68,7 @@ class ArmorCaptcha:
             "car": "car",
             "elephant": "elephant",
             "bird": "bird",
+            "dog": "dog",
         },
     }
 
@@ -230,7 +232,7 @@ class ArmorCaptcha:
                 "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1]
                 if "包含" in prompt_message
                 else prompt_message,
-                "en": re.split(r"containing a", prompt_message)[-1][1:].strip()
+                "en": re.split(r"containing a", prompt_message)[-1][1:].strip().replace(".", "")
                 if "containing" in prompt_message
                 else prompt_message,
             }

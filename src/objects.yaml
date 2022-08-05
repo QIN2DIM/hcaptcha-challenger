@@ -30,9 +30,9 @@ label_alias:
   smiling_dog:
     zh: ["微笑狗"]
     en: ["smiling dog"]
-  dog:
-    zh: ["狗"]
-    en: ["dog"]
+#  dog:
+#    zh: ["狗"]
+#    en: ["dog"]
   horse_made_of_clouds:
     zh: ["一匹由云制成的马"]
     en: ["horse made of clouds"]
