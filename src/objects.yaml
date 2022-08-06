@@ -30,9 +30,6 @@ label_alias:
   smiling_dog:
     zh: ["微笑狗"]
     en: ["smiling dog"]
-#  dog:
-#    zh: ["狗"]
-#    en: ["dog"]
   horse_made_of_clouds:
     zh: ["一匹由云制成的马"]
     en: ["horse made of clouds"]
@@ -45,6 +42,9 @@ label_alias:
   parrot:
     zh: ["鹦鹉"]
     en: ["parrot"]
+  lion_with_mane_on_its_neck:
+    zh: ["一只脖子上有鬃毛的狮子"]
+    en: ["lion with mane on its neck"]
 #  dog_with_a_collar_on_its_neck:
 #    zh: ["一条脖子上有项圈的狗"]
 #    en: ["dog with a collar on its neck"]
@@ -54,3 +54,6 @@ label_alias:
 #  elephants_drawn_with_leaves:
 #    zh: ["请选择所有用树叶画的大象"]
 #    en: ["elephants drawn with leaves"]
+#  dog:
+#    zh: ["狗"]
+#    en: ["dog"]
