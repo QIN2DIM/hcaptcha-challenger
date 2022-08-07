@@ -10,4 +10,4 @@ numpy==1.21.5
 requests~=2.27.1
 pyyaml~=6.0
 sanic~=22.6.0
-scipy~=1.7.3
+scipy~=1.8.1
