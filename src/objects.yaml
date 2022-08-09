@@ -45,9 +45,12 @@ label_alias:
   lion_with_mane_on_its_neck:
     zh: ["一只脖子上有鬃毛的狮子"]
     en: ["lion with mane on its neck"]
+  lion_with_open_eyes:
+    zh: ["睁开眼睛的狮子"]
+    en: ["lion with open eyes"]
 #  dog_with_a_collar_on_its_neck:
-#    zh: ["一条脖子上有项圈的狗"]
-#    en: ["dog with a collar on its neck"]
+#   zh: ["一条脖子上有项圈的狗"]
+#   en: ["dog with a collar on its neck"]
 #  dog_without_a_collar:
 #    zh: ["一条没有项圈的狗"]
 #    en: ["dog without a collar"]
