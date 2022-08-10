@@ -14,7 +14,6 @@ from selenium.common.exceptions import (
     NoSuchElementException,
     StaleElementReferenceException,
 )
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -103,15 +102,15 @@ class ArmorCaptcha:
     CHALLENGE_BACKCALL = "backcall"
 
     def __init__(
-        self,
-        dir_workspace: str = None,
-        lang: Optional[str] = "zh",
-        dir_model: str = None,
-        onnx_prefix: str = None,
-        screenshot: Optional[bool] = False,
-        debug=False,
-        path_objects_yaml: Optional[str] = None,
-        path_rainbow_yaml: Optional[str] = None,
+            self,
+            dir_workspace: str = None,
+            lang: Optional[str] = "zh",
+            dir_model: str = None,
+            onnx_prefix: str = None,
+            screenshot: Optional[bool] = False,
+            debug=False,
+            path_objects_yaml: Optional[str] = None,
+            path_rainbow_yaml: Optional[str] = None,
     ):
         if not isinstance(lang, str) or not self.label_alias.get(lang):
             raise ChallengeLangException(
@@ -443,11 +442,8 @@ class ArmorCaptcha:
         """
 
         ta = []
-        keys = list(self.alias2path.keys())
-        action = ActionChains(ctx, duration=300)
-
         # {{< IMAGE CLASSIFICATION >}}
-        for alias in keys:
+        for alias in self.alias2path.keys():
             # Read binary data weave into types acceptable to the model
             with open(self.alias2path[alias], "rb") as file:
                 data = file.read()
@@ -457,16 +453,12 @@ class ArmorCaptcha:
             ta.append(time.time() - t0)
             # Pass: Hit at least one object
             if result:
-                action.move_to_element(self.alias2locator[alias])
-                action.click()
-        try:
-            action.perform()
-        except StaleElementReferenceException:
-            pass
-        except WebDriverException as err:
-            logger.warning(err)
-        finally:
-            action.reset_actions()
+                try:
+                    self.alias2locator[alias].click()
+                except StaleElementReferenceException:
+                    pass
+                except WebDriverException as err:
+                    logger.warning(err)
 
         # Check result of the challenge.
         if self.screenshot:
