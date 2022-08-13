@@ -96,7 +96,7 @@ class FingersOfTheGolderOrder(ResNetFactory):
         return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
 
 
-class ElephantsDrawnWithLeaves(ResNetFactory):
+class _ElephantsDrawnWithLeaves(ResNetFactory):
     """Handle challenge 「Please select all the elephants drawn with leaves」"""
 
     def __init__(self, dir_model, path_rainbow=None):
@@ -129,7 +129,7 @@ class ElephantsDrawnWithLeaves(ResNetFactory):
         )
 
 
-class HorsesDrawnWithFlowers(ResNetFactory):
+class _HorsesDrawnWithFlowers(ResNetFactory):
     """Handle challenge「Please select all the horses drawn with flowers」"""
 
     def __init__(self, dir_model, path_rainbow=None):

@@ -51,6 +51,7 @@ class ArmorCaptcha:
             "大象": "elephant",
             "鸟": "bird",
             "狗": "dog",
+            "犬科动物": "dog"
         },
         "en": {
             "airplane": "airplane",
@@ -68,6 +69,7 @@ class ArmorCaptcha:
             "elephant": "elephant",
             "bird": "bird",
             "dog": "dog",
+            "canine": "dog"
         },
     }
 

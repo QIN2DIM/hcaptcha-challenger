@@ -43,8 +43,8 @@ label_alias:
     zh: ["鹦鹉"]
     en: ["parrot"]
   lion_with_mane_on_its_neck:
-    zh: ["一只脖子上有鬃毛的狮子"]
-    en: ["lion with mane on its neck"]
+    zh: ["一只脖子上有鬃毛的狮子", "雄狮"]
+    en: ["lion with mane on its neck", "male lion"]
   lion_with_open_eyes:
     zh: ["睁开眼睛的狮子"]
     en: ["lion with open eyes"]
@@ -57,6 +57,3 @@ label_alias:
 #  elephants_drawn_with_leaves:
 #    zh: ["请选择所有用树叶画的大象"]
 #    en: ["elephants drawn with leaves"]
-#  dog:
-#    zh: ["狗"]
-#    en: ["dog"]
