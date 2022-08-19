@@ -48,6 +48,9 @@ label_alias:
   lion_with_open_eyes:
     zh: ["睁开眼睛的狮子"]
     en: ["lion with open eyes"]
+  lion_with_closed_eyes:
+    zh: ["I dont know chinese"]
+    en: ["lion with closed eyes"]
 #  dog_with_a_collar_on_its_neck:
 #   zh: ["一条脖子上有项圈的狗"]
 #   en: ["dog with a collar on its neck"]
