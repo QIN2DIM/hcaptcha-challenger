@@ -467,10 +467,6 @@ class ArmorCaptcha:
             WebDriverWait(ctx, 15, ignored_exceptions=ElementClickInterceptedException).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[@class='button-submit button']"))
             ).click()
-            WebDriverWait(ctx, 15).until(
-                EC.element_to_be_clickable((By.XPATH, "//div[@class='button-submit button']"))
-            )
-            print("下一個")
         except ElementClickInterceptedException:
             pass
         except WebDriverException as err:
