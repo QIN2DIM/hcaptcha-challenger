@@ -127,6 +127,7 @@ class YOLO:
         """Download YOLOv5(ONNX) model"""
         self.modelhub.pull_model()
 
+    @property
     def fn2net(self):
         return self.modelhub.fn2net
 
