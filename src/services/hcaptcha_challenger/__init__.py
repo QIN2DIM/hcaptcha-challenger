@@ -5,7 +5,7 @@
 # Description:
 from .core import ArmorCaptcha, ArmorUtils
 from .solutions.resnet import PluggableONNXModels
-from .solutions.sk_recognition import SKRecognition
 from .solutions.yolo import YOLO
+from .solutions.kernel import Rainbow
 
-__all__ = ["SKRecognition", "YOLO", "ArmorCaptcha", "ArmorUtils", "PluggableONNXModels"]
+__all__ = ["YOLO", "ArmorCaptcha", "ArmorUtils", "PluggableONNXModels", "Rainbow"]

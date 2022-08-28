@@ -41,7 +41,8 @@ PROJECT_DATABASE = join(PROJECT_ROOT, "database")
 # The storage directory of the YOLO object detection model
 DIR_MODEL = join(PROJECT_ROOT, "model")
 
-PATH_RAINBOW_YAML = join(DIR_MODEL, "rainbow.yaml")
+# Static cache of ModelHub
+DIR_ASSETS = join(DIR_MODEL, "_assets")
 
 # Run cache directory
 DIR_TEMP_CACHE = join(PROJECT_DATABASE, "temp_cache")
@@ -61,5 +62,5 @@ logger = ToolBox.init_log(error=join(DIR_LOG, "error.log"), runtime=join(DIR_LOG
 # ---------------------------------------------------
 # [√]Path completion
 # ---------------------------------------------------
-for _pending in [PROJECT_DATABASE, DIR_MODEL, DIR_TEMP_CACHE, DIR_CHALLENGE, DIR_LOG]:
+for _pending in [PROJECT_DATABASE, DIR_MODEL, DIR_TEMP_CACHE, DIR_CHALLENGE, DIR_LOG, DIR_ASSETS]:
     os.makedirs(_pending, exist_ok=True)

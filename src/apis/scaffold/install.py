@@ -3,8 +3,6 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
-import hashlib
-import os
 import sys
 import webbrowser
 from typing import Optional
@@ -12,8 +10,8 @@ from typing import Optional
 from webdriver_manager.chrome import ChromeType
 from webdriver_manager.core.utils import get_browser_version_from_os
 
-from services.hcaptcha_challenger import YOLO, SKRecognition, PluggableONNXModels
-from services.settings import DIR_MODEL, logger, PATH_RAINBOW_YAML, PATH_OBJECTS_YAML
+from services.hcaptcha_challenger import PluggableONNXModels, Rainbow, YOLO
+from services.settings import DIR_MODEL, logger, PATH_OBJECTS_YAML, DIR_ASSETS
 
 
 def download_driver():
@@ -39,25 +37,16 @@ def download_driver():
     logger.info("Re-execute the `install` scaffolding command after the installation is complete.")
 
 
-def download_yolo_model(onnx_prefix):
-    YOLO(dir_model=DIR_MODEL, onnx_prefix=onnx_prefix).download_model()
-
-
-def refresh_pluggable_onnx_model(upgrade: Optional[bool] = None):
-    def need_to_refresh():
-        _flag = "5ba2edb8fdd1350ff3a8731bc71c313998ba70a32d58178a218545e54d2701cf"
-        if not os.path.exists(PATH_RAINBOW_YAML):
-            return True
-        with open(PATH_RAINBOW_YAML, "rb") as file:
-            return hashlib.sha256(file.read()).hexdigest() != _flag
-
-    if need_to_refresh():
-        SKRecognition().sync_rainbow(path_rainbow=PATH_RAINBOW_YAML, convert=True)
-        PluggableONNXModels(PATH_OBJECTS_YAML).summon(dir_model=DIR_MODEL, upgrade=upgrade)
-
-
-def run(model: Optional[str] = None, upgrade: Optional[bool] = None):
+def do(yolo_onnx_prefix: Optional[str] = None, upgrade: Optional[bool] = False):
     """下载项目运行所需的各项依赖"""
     download_driver()
-    download_yolo_model(onnx_prefix=model)
-    refresh_pluggable_onnx_model(upgrade=upgrade)
+
+    # PULL rainbow table
+    Rainbow(DIR_ASSETS).sync()
+
+    # PULL YOLO ONNX Model by the prefix flag
+    YOLO(DIR_MODEL, yolo_onnx_prefix).pull_model()
+
+    # PULL ResNet ONNX Model(s) by objects.yaml
+    if upgrade is True:
+        PluggableONNXModels(PATH_OBJECTS_YAML).summon(DIR_MODEL)

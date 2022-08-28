@@ -12,12 +12,8 @@ from skimage import feature
 from skimage.future import graph
 from skimage.segmentation import slic
 
-from .kernel import Solutions
 
-
-class SKRecognition(Solutions):
-    def __init__(self, path_rainbow: Optional[str] = None):
-        super().__init__("skimage_model", path_rainbow)
+class SKRecognition:
 
     @staticmethod
     def _weight_mean_color(graph_, src: int, dst: int, n: int):  # noqa
@@ -77,19 +73,15 @@ class SKRecognition(Solutions):
         raise NotImplementedError
 
 
-class VerticalRiverRecognition(SKRecognition):
+class _VerticalRiverRecognition(SKRecognition):
     """A fast solution for identifying vertical rivers"""
 
-    def __init__(self, path_rainbow: Optional[str] = None):
-        super().__init__(path_rainbow=path_rainbow)
+    def __init__(self, on_rainbow: Optional[str] = None):
+        super().__init__(on_rainbow=on_rainbow)
         self.rainbow_key = "vertical river"
 
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
-        match_output = self.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
-        if match_output is not None:
-            return match_output
-
         img_arr = np.frombuffer(img_stream, np.uint8)
         img = cv2.imdecode(img_arr, flags=1)
 
@@ -112,21 +104,17 @@ class VerticalRiverRecognition(SKRecognition):
         return len(np.unique(labels2[-1])) >= 3
 
 
-class LeftPlaneRecognition(SKRecognition):
+class _LeftPlaneRecognition(SKRecognition):
     """A fast solution for identifying `airplane in the sky flying left`"""
 
-    def __init__(self, path_rainbow: Optional[str] = None):
-        super().__init__(path_rainbow=path_rainbow)
+    def __init__(self, on_rainbow: Optional[str] = None):
+        super().__init__(on_rainbow=on_rainbow)
         self.sky_threshold = 1800
         self.left_threshold = 30
         self.rainbow_key = "airplane in the sky flying left"
 
     def solution(self, img_stream: bytes, **kwargs) -> bool:
         """Implementation process of solution"""
-        match_output = self.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
-        if match_output is not None:
-            return match_output
-
         img_arr = np.frombuffer(img_stream, np.uint8)
         img = cv2.imdecode(img_arr, flags=1)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -152,18 +140,14 @@ class LeftPlaneRecognition(SKRecognition):
         return True
 
 
-class RightPlaneRecognition(SKRecognition):
-    def __init__(self, path_rainbow: Optional[str] = None):
-        super().__init__(path_rainbow=path_rainbow)
+class _RightPlaneRecognition(SKRecognition):
+    def __init__(self, on_rainbow: Optional[str] = None):
+        super().__init__(on_rainbow=on_rainbow)
         self.sky_threshold = 1800
         self.left_threshold = 30
         self.rainbow_key = "airplanes in the sky that are flying to the right"
 
     def solution(self, img_stream: bytes, **kwargs) -> bool:
-        match_output = self.match_rainbow(img_stream, rainbow_key=self.rainbow_key)
-        if match_output is not None:
-            return match_output
-
         img_arr = np.frombuffer(img_stream, np.uint8)
         img = cv2.imdecode(img_arr, flags=1)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

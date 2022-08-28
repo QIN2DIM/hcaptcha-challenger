@@ -1,11 +1,12 @@
 import asyncio
 import os
+import random
 import re
 import sys
 import time
-import urllib.request
 from typing import Optional, Union, Tuple
-
+from urllib.request import getproxies
+from urllib.parse import quote
 from selenium.common.exceptions import (
     ElementNotVisibleException,
     ElementClickInterceptedException,
@@ -27,7 +28,7 @@ from .exceptions import (
     AssertTimeout,
     ChallengeLangException,
 )
-from .solutions import sk_recognition, resnet, yolo
+from .solutions import resnet, yolo
 
 
 class ArmorCaptcha:
@@ -51,7 +52,9 @@ class ArmorCaptcha:
             "大象": "elephant",
             "鸟": "bird",
             "狗": "dog",
-            "犬科动物": "dog"
+            "犬科动物": "dog",
+            "一匹马": "horse",
+            "长颈鹿": "giraffe",
         },
         "en": {
             "airplane": "airplane",
@@ -69,7 +72,9 @@ class ArmorCaptcha:
             "elephant": "elephant",
             "bird": "bird",
             "dog": "dog",
-            "canine": "dog"
+            "canine": "dog",
+            "horse": "horse",
+            "giraffe": "giraffe",
         },
     }
 
@@ -104,15 +109,15 @@ class ArmorCaptcha:
     CHALLENGE_BACKCALL = "backcall"
 
     def __init__(
-            self,
-            dir_workspace: str = None,
-            lang: Optional[str] = "zh",
-            dir_model: str = None,
-            onnx_prefix: str = None,
-            screenshot: Optional[bool] = False,
-            debug=False,
-            path_objects_yaml: Optional[str] = None,
-            path_rainbow_yaml: Optional[str] = None,
+        self,
+        dir_workspace: str = None,
+        lang: Optional[str] = "zh",
+        dir_model: str = None,
+        onnx_prefix: str = None,
+        screenshot: Optional[bool] = False,
+        debug=False,
+        path_objects_yaml: Optional[str] = None,
+        on_rainbow: Optional[bool] = None,
     ):
         if not isinstance(lang, str) or not self.label_alias.get(lang):
             raise ChallengeLangException(
@@ -126,7 +131,7 @@ class ArmorCaptcha:
         self.onnx_prefix = onnx_prefix
         self.screenshot = screenshot
         self.path_objects_yaml = path_objects_yaml
-        self.path_rainbow_yaml = path_rainbow_yaml
+        self.on_rainbow = on_rainbow
 
         # 存储挑战图片的目录
         self.runtime_workspace = ""
@@ -153,9 +158,7 @@ class ArmorCaptcha:
         # Automatic registration
         self.pom_handler = resnet.PluggableONNXModels(self.path_objects_yaml)
         self.label_alias.update(self.pom_handler.label_alias[lang])
-        self.pluggable_onnx_models = self.pom_handler.overload(
-            self.dir_model, path_rainbow=self.path_rainbow_yaml
-        )
+        self.pluggable_onnx_models = self.pom_handler.overload(self.dir_model, self.on_rainbow)
         self.yolo_model = yolo.YOLO(self.dir_model, self.onnx_prefix)
 
     def _init_workspace(self):
@@ -230,7 +233,7 @@ class ArmorCaptcha:
         def split_prompt_message(prompt_message: str) -> str:
             """根据指定的语种在提示信息中分离挑战标签"""
             labels_mirror = {
-                "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1]
+                "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1].replace("的每", "")
                 if "包含" in prompt_message
                 else prompt_message,
                 "en": re.split(r"containing a", prompt_message)[-1][1:].strip().replace(".", "")
@@ -294,7 +297,7 @@ class ArmorCaptcha:
         except WebDriverException as err:
             logger.exception(err)
         finally:
-            q = self.label.replace(" ", "+")
+            q = quote(self.label, "utf8")
             logger.warning(
                 ToolBox.runtime_report(
                     motive="ALERT",
@@ -311,21 +314,11 @@ class ArmorCaptcha:
 
     def switch_solution(self):
         """Optimizing solutions based on different challenge labels"""
-        sk_solution = {
-            "vertical river": sk_recognition.VerticalRiverRecognition,
-            "airplane in the sky flying left": sk_recognition.LeftPlaneRecognition,
-            "airplanes in the sky that are flying to the right": sk_recognition.RightPlaneRecognition,
-        }
-
         label_alias = self.label_alias.get(self.label)
 
-        # Select ResNet ONNX model
+        # Select ONNX model - ResNet | YOLO
         if self.pluggable_onnx_models.get(label_alias):
             return self.pluggable_onnx_models[label_alias]
-        # Select SK-Image method
-        if sk_solution.get(label_alias):
-            return sk_solution[label_alias](self.path_rainbow_yaml)
-        # Select YOLO ONNX model
         return self.yolo_model
 
     def mark_samples(self, ctx: Chrome):
@@ -381,8 +374,8 @@ class ArmorCaptcha:
         ### Solution
 
         1. Coroutine Downloader
-          Use the coroutine-based method to pull the image to the local, the best practice (this method).
-          In the case of poor network, pull efficiency is at least 10 times faster than traversal download.
+          Use the coroutine-based method to _pull the image to the local, the best practice (this method).
+          In the case of poor network, _pull efficiency is at least 10 times faster than traversal download.
 
         2. Screen cut
           There is some difficulty in coding.
@@ -445,7 +438,7 @@ class ArmorCaptcha:
 
         ta = []
         # {{< IMAGE CLASSIFICATION >}}
-        for alias in self.alias2path.keys():
+        for alias in self.alias2path:
             # Read binary data weave into types acceptable to the model
             with open(self.alias2path[alias], "rb") as file:
                 data = file.read()
@@ -456,6 +449,8 @@ class ArmorCaptcha:
             # Pass: Hit at least one object
             if result:
                 try:
+                    # Doubtful operation
+                    time.sleep(random.uniform(0.2, 0.3))
                     self.alias2locator[alias].click()
                 except StaleElementReferenceException:
                     pass
@@ -469,9 +464,13 @@ class ArmorCaptcha:
 
         # {{< SUBMIT ANSWER >}}
         try:
-            WebDriverWait(ctx, 35, ignored_exceptions=ElementClickInterceptedException).until(
+            WebDriverWait(ctx, 15, ignored_exceptions=ElementClickInterceptedException).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[@class='button-submit button']"))
             ).click()
+            WebDriverWait(ctx, 15).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[@class='button-submit button']"))
+            )
+            print("下一個")
         except ElementClickInterceptedException:
             pass
         except WebDriverException as err:
@@ -515,8 +514,8 @@ class ArmorCaptcha:
                     EC.visibility_of_element_located((By.XPATH, "//div[@class='error-text']"))
                 )
                 self.threat += 1
-                if urllib.request.getproxies() and self.threat > 1:
-                    logger.warning("Your proxy IP may have been flagged.")
+                if getproxies() and self.threat > 4:
+                    logger.warning(f"Your proxy IP may have been flagged - proxies={getproxies()}")
                 return True
             except TimeoutException:
                 return False
@@ -534,7 +533,7 @@ class ArmorCaptcha:
             except TimeoutException:
                 pass
 
-        time.sleep(0.2)
+        time.sleep(1)
 
         for _ in range(3):
             # Pop prompt "Please try again".

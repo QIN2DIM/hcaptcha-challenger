@@ -12,16 +12,16 @@ from services.settings import HCAPTCHA_DEMO_SITES, _SITE_KEYS, HCAPTCHA_DEMO_API
 class Scaffold:
     """System scaffolding Top-level interface commands"""
 
-    challenge_language = "zh"
+    CHALLENGE_LANGUAGE = "zh"
 
     def __init__(self, lang: Optional[str] = None):
         if lang is not None:
-            Scaffold.challenge_language = lang
+            Scaffold.CHALLENGE_LANGUAGE = lang
 
     @staticmethod
-    def install(model: Optional[str] = None, upgrade: Optional[bool] = True):
+    def install(model: Optional[str] = None, upgrade: Optional[bool] = False):
         """Download Project Dependencies and upgrade all pluggable ONNX model"""
-        install.run(model=model, upgrade=upgrade)
+        install.do(yolo_onnx_prefix=model, upgrade=upgrade)
 
     @staticmethod
     def test():
@@ -68,7 +68,7 @@ class Scaffold:
 
         challenge.runner(
             sample_site,
-            lang=Scaffold.challenge_language,
+            lang=Scaffold.CHALLENGE_LANGUAGE,
             silence=silence,
             onnx_prefix=model,
             screenshot=screenshot,

@@ -17,7 +17,6 @@ from services.settings import (
     DIR_MODEL,
     DIR_CHALLENGE,
     PATH_OBJECTS_YAML,
-    PATH_RAINBOW_YAML,
 )
 from services.utils import get_challenge_ctx
 
@@ -43,7 +42,7 @@ def runner(
         onnx_prefix=onnx_prefix,
         screenshot=screenshot,
         path_objects_yaml=PATH_OBJECTS_YAML,
-        path_rainbow_yaml=PATH_RAINBOW_YAML,
+        on_rainbow=True,
     )
     challenger_utils = ArmorUtils()
 

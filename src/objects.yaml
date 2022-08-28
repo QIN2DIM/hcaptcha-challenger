@@ -4,59 +4,65 @@
 #   en: ["en_prompt_label"]
 label_alias:
   seaplane:
-    zh: ["水上飞机"]
-    en: ["seaplane"]
-  domestic_cat:
-    zh: ["家猫"]
-    en: ["domestic cat"]
+    zh: [ "水上飞机" ]
+    en: [ "seaplane" ]
   bedroom:
-    zh: ["卧室"]
-    en: ["bedroom"]
+    zh: [ "卧室" ]
+    en: [ "bedroom" ]
   bridge:
-    zh: ["桥梁"]
-    en: ["bridge"]
-  lion:
-    zh: ["狮子"]
-    en: ["lion"]
+    zh: [ "桥梁" ]
+    en: [ "bridge" ]
+  domestic_cat:
+    zh: [ "家猫", "猫" ]
+    en: [ "domestic cat", "cat" ]
   living_room:
-    zh: ["客厅"]
-    en: ["living room"]
-  horse:
-    zh: ["一匹马"]
-    en: ["horse"]
+    zh: [ "客厅" ]
+    en: [ "living room" ]
   conference_room:
-    zh: ["会议室"]
-    en: ["conference room"]
-  smiling_dog:
-    zh: ["微笑狗"]
-    en: ["smiling dog"]
-  horse_made_of_clouds:
-    zh: ["一匹由云制成的马"]
-    en: ["horse made of clouds"]
+    zh: [ "会议室" ]
+    en: [ "conference room" ]
   elephant_made_of_clouds:
-    zh: ["由云制成的大象"]
-    en: ["elephant made of clouds"]
-  giraffe:
-    zh: ["长颈鹿"]
-    en: ["giraffe"]
+    zh: [ "由云制成的大象" ]
+    en: [ "elephant made of clouds" ]
   parrot:
-    zh: ["鹦鹉"]
-    en: ["parrot"]
+    zh: [ "鹦鹉" ]
+    en: [ "parrot" ]
+
+  lion:
+    zh: [ "狮子" ]
+    en: [ "lion" ]
   lion_with_mane_on_its_neck:
-    zh: ["一只脖子上有鬃毛的狮子", "雄狮"]
-    en: ["lion with mane on its neck", "male lion"]
+    zh: [ "一只脖子上有鬃毛的狮子", "雄狮" ]
+    en: [ "lion with mane on its neck", "male lion" ]
   lion_with_open_eyes:
-    zh: ["睁开眼睛的狮子"]
-    en: ["lion with open eyes"]
+    zh: [ "睁开眼睛的狮子" ]
+    en: [ "lion with open eyes" ]
   lion_with_closed_eyes:
-    zh: ["一只闭着眼睛的狮子"]
-    en: ["lion with closed eyes"]
-#  dog_with_a_collar_on_its_neck:
-#   zh: ["一条脖子上有项圈的狗"]
-#   en: ["dog with a collar on its neck"]
-#  dog_without_a_collar:
-#    zh: ["一条没有项圈的狗"]
-#    en: ["dog without a collar"]
-#  elephants_drawn_with_leaves:
-#    zh: ["请选择所有用树叶画的大象"]
-#    en: ["elephants drawn with leaves"]
+    zh: [ "一只闭着眼睛的狮子" ]
+    en: [ "lion with closed eyes" ]
+  lion_with_an_open_mouth:
+    zh: [ "张开嘴的狮子" ]
+    en: [ "lion with an open mouth" ]
+  lion_with_a_closed_mouth:
+    zh: [ "一只闭着嘴的狮子" ]
+    en: [ "lion with a closed mouth" ]
+  female_lion:
+    zh: [ "雌狮" ]
+    en: [ "female lion" ]
+
+  horse_made_of_clouds:
+    zh: [ "一匹由云制成的马" ]
+    en: [ "horse made of clouds" ]
+  horse_facing_to_the_left:
+    zh: [ "朝左马" ]
+    en: [ "horse facing to the left" ]
+  horse_facing_to_the_right:
+    zh: [ "面向右侧的马" ]
+    en: [ "horse facing to the right" ]
+
+  smiling_dog:
+    zh: [ "微笑狗" ]
+    en: [ "smiling dog" ]
+  dog_with_a_collar_on_its_neck:
+    zh: [ "一条脖子上有项圈的狗" ]
+    en: [ "dog with a collar on its neck" ]

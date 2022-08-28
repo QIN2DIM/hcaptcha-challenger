@@ -3,13 +3,12 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
-import os
 
 import cv2
 import numpy as np
 
 from .kernel import ChallengeStyle
-from .kernel import Solutions
+from .kernel import ModelHub
 
 
 class YOLO:
@@ -98,11 +97,8 @@ class YOLO:
         "toothbrush",
     ]
 
-    def __init__(self, dir_model: str = None, onnx_prefix: str = None):
-        self.dir_model = "./model" if dir_model is None else dir_model
-
-        # Select default onnx model.
-        self.onnx_prefix = (
+    def __init__(self, dir_model: str, onnx_prefix: str = None):
+        onnx_prefix = (
             "yolov5s6"
             if onnx_prefix
             not in [
@@ -119,30 +115,20 @@ class YOLO:
             else onnx_prefix
         )
 
-        self.name = f"YOLOv5{self.onnx_prefix[-2:]}"
-        if self.onnx_prefix.startswith("yolov6"):
-            self.name = f"MT-YOLOv6{self.onnx_prefix[-1]}"
+        name = f"YOLOv5{onnx_prefix[-2:]}"
+        if onnx_prefix.startswith("yolov6"):
+            name = f"MT-YOLOv6{onnx_prefix[-1]}"
 
-        self.onnx_model = {
-            "name": f"{self.name}(ONNX)_model",
-            "path": os.path.join(self.dir_model, f"{self.onnx_prefix}.onnx"),
-            "src": f"https://github.com/QIN2DIM/hcaptcha-challenger/releases/download/model/{self.onnx_prefix}.onnx",
-        }
+        self.modelhub = ModelHub(onnx_prefix, f"{name}(ONNX)_model", dir_model)
+        self.modelhub.register_model()
+        self.flag = self.modelhub.flag
 
-        self.flag = self.onnx_model["name"]
-
-        self.download_model()
-        self.net = cv2.dnn.readNetFromONNX(self.onnx_model["path"])
-
-    def download_model(self):
+    def pull_model(self):
         """Download YOLOv5(ONNX) model"""
-        Solutions.download_model_(
-            dir_model=self.dir_model,
-            path_model=self.onnx_model["path"],
-            model_src=self.onnx_model["src"],
-            model_name=self.onnx_model["name"],
-            upgrade=False,
-        )
+        self.modelhub.pull_model()
+
+    def fn2net(self):
+        return self.modelhub.fn2net
 
     def detect_common_objects(self, img: np.ndarray, confidence=0.4, nms_thresh=0.4):
         """
@@ -163,8 +149,9 @@ class YOLO:
 
         blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (128, 128), (0, 0, 0), swapRB=True, crop=False)
 
-        self.net.setInput(blob)
-        outs = self.net.forward()
+        net = self.modelhub.match_net()
+        net.setInput(blob)
+        outs = net.forward()
 
         for out in outs:
             for detection in out:
