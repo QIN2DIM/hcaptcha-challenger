@@ -14,7 +14,6 @@ from skimage.segmentation import slic
 
 
 class SKRecognition:
-
     @staticmethod
     def _weight_mean_color(graph_, src: int, dst: int, n: int):  # noqa
         """Callback to handle merging nodes by recomputing mean color.

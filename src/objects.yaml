@@ -59,6 +59,9 @@ label_alias:
   horse_facing_to_the_right:
     zh: [ "面向右侧的马" ]
     en: [ "horse facing to the right" ]
+  horse_with_white_legs:
+    zh: [ "白腿马" ]
+    en: [ "horse with white legs" ]
 
   smiling_dog:
     zh: [ "微笑狗" ]
@@ -66,3 +69,23 @@ label_alias:
   dog_with_a_collar_on_its_neck:
     zh: [ "一条脖子上有项圈的狗" ]
     en: [ "dog with a collar on its neck" ]
+
+  kitten:
+    zh: [ "小猫", "一只小猫" ]
+    en: [ "kitten", "baby cat" ]
+  adult_cat:
+    zh: [ "成年猫" ]
+    en: [ "adult cat" ]
+  cat_with_long_hair:
+    zh: [ "长毛猫", "厚毛猫" ]
+    en: [ "cat with long hair", "cat with thick fur" ]
+  cat_with_short_hair:
+    zh: [ "短毛猫" ]
+    en: [ "cat with short hair" ]
+
+  bird_flying:
+    zh: [ "一只飞翔的鸟" ]
+    en: [ "bird flying" ]
+  broken_glass_bottle:
+    zh: ["破碎玻璃瓶"]
+    en: ["broken glass bottle"]
