@@ -5,8 +5,9 @@ import re
 import sys
 import time
 from typing import Optional, Union, Tuple
-from urllib.request import getproxies
 from urllib.parse import quote
+from urllib.request import getproxies
+
 from selenium.common.exceptions import (
     ElementNotVisibleException,
     ElementClickInterceptedException,
@@ -285,11 +286,15 @@ class ArmorCaptcha:
             self.log(message="Get label", label=f"「{self.label}」")
 
     def tactical_retreat(self, ctx) -> Optional[str]:
-        """模型存在泛化死角，遇到指定标签时主动进入下一轮挑战，节约时间"""
+        """
+        「blacklist mode」 skip unchoreographed challenges
+        :param ctx:
+        :return: the screenshot storage path
+        """
         if self.label_alias.get(self.label):
             return self.CHALLENGE_CONTINUE
 
-        # 保存挑战截图 | 返回截图存储路径
+        # Save a screenshot of the challenge
         try:
             challenge_container = ctx.find_element(By.XPATH, "//body[@class='no-selection']")
             self.path_screenshot = self.captcha_screenshot(challenge_container)
@@ -643,7 +648,7 @@ class ArmorCaptcha:
                 if result in [self.CHALLENGE_SUCCESS, self.CHALLENGE_CRASH, self.CHALLENGE_RETRY]:
                     return result
 
-        except (WebDriverException,) as err:
+        except WebDriverException as err:
             logger.exception(err)
             ctx.switch_to.default_content()
             return self.CHALLENGE_CRASH

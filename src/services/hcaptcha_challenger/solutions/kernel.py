@@ -70,8 +70,8 @@ class Assets:
 
     _fn2assets = {}
 
-    # 緩存有效期：72h
-    CACHE_CONTROL = 259200
+    # 緩存有效期：24h
+    CACHE_CONTROL = 86400
 
     def __init__(self, fn: str, dir_assets: str = None):
         self.fn = fn
@@ -133,6 +133,10 @@ class Assets:
 
     def _get_asset(self, key: str, oncall_default: Any):
         return self._fn2assets.get(self.fn, {}).get(key, oncall_default)
+
+    @property
+    def dir_assets(self):
+        return self._dir_assets
 
     def get_node_id(self) -> Optional[str]:
         return self._get_asset(self.NAME_ASSET_NODE_ID, "")
