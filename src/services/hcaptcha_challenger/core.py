@@ -91,6 +91,7 @@ class ArmorCaptcha:
         "ѕ": "s",
         "һ": "h",
         "у": "y",
+        "р": "p",
         "ー": "一",
         "土": "士",
     }
@@ -111,15 +112,15 @@ class ArmorCaptcha:
     CHALLENGE_BACKCALL = "backcall"
 
     def __init__(
-        self,
-        dir_workspace: str = None,
-        lang: Optional[str] = "zh",
-        dir_model: str = None,
-        onnx_prefix: str = None,
-        screenshot: Optional[bool] = False,
-        debug=False,
-        path_objects_yaml: Optional[str] = None,
-        on_rainbow: Optional[bool] = None,
+            self,
+            dir_workspace: str = None,
+            lang: Optional[str] = "zh",
+            dir_model: str = None,
+            onnx_prefix: str = None,
+            screenshot: Optional[bool] = False,
+            debug=False,
+            path_objects_yaml: Optional[str] = None,
+            on_rainbow: Optional[bool] = None,
     ):
         if not isinstance(lang, str) or not self.label_alias.get(lang):
             raise ChallengeLangException(
