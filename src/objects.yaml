@@ -89,3 +89,6 @@ label_alias:
   broken_glass_bottle:
     zh: ["破碎玻璃瓶"]
     en: ["broken glass bottle"]
+  porcelain_teacup:
+    zh: ["类似瓷器设"]
+    en: ["teacup with similar porcelain design pattern"]
