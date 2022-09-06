@@ -3,12 +3,12 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
+import csv
 import os.path
 import time
 from datetime import datetime
 from typing import Optional
 
-import yaml
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.chrome.service import Service
@@ -65,18 +65,31 @@ class MotionData:
             if not mouse_track:
                 return
             for p in mouse_track.split(","):
-                x = [float(xi) for xi in p.split(":")]
+                x = [int(xi.split(".")[0]) for xi in p.split(":")]
                 self.sequential_queue[x[0]] = [x[1], x[2]]
 
     def _offload(self):
         endpoint = (
             str(datetime.utcnow()).replace("-", "").replace(":", "").replace(" ", "").split(".")[0]
         )
-        fn = os.path.join(self.dir_log, "motion_data", f"{endpoint}.yaml")
-        os.makedirs(os.path.dirname(fn), exist_ok=True)
 
-        with open(fn, "w", encoding="utf8") as file:
-            yaml.dump(self.sequential_queue, file, Dumper=yaml.SafeDumper)
+        # Record track
+        fn = os.path.join(self.dir_log, "motion_data", f"{endpoint}.csv")
+        os.makedirs(os.path.dirname(fn), exist_ok=True)
+        with open(fn, "w", encoding="utf8", newline="") as file:
+            writer = csv.writer(file)
+            for xp, yp in self.sequential_queue.values():
+                writer.writerow([xp, yp])
+
+        # Record offset
+        fn_offset = os.path.join(os.path.dirname(fn), f"{endpoint}.offset.csv")
+        with open(fn_offset, "w", encoding="utf8", newline="") as file:
+            writer = csv.writer(file)
+            timeline = list(self.sequential_queue)[200:-200]
+            for i in range(len(timeline) - 1):
+                x1, y1 = self.sequential_queue[timeline[i]]
+                x2, y2 = self.sequential_queue[timeline[i + 1]]
+                writer.writerow([x2 - x1, y2 - y1])
 
         logger.success(
             ToolBox.runtime_report(
