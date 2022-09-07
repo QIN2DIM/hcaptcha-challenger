@@ -105,3 +105,6 @@ label_alias:
   dog_shaped_cookie:
     zh: ["狗形饼干"]
     en: ["dog-shaped cookie"]
+  cat_shaped_cookie:
+    zh: ["猫形饼干"]
+    en: ["cat-shaped cookie"]
