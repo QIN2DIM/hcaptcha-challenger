@@ -8,6 +8,8 @@ import json
 import os
 import shutil
 import time
+import typing
+from os.path import dirname, join
 from typing import Optional, Dict, List, Any
 from urllib.request import getproxies
 
@@ -51,17 +53,20 @@ class Memory:
         self._fn2memory[self.fn] = new_node_id
 
         if not old_node_id:
-            memory_name = os.path.join(self._dir_memory, f"{self.fn}.{new_node_id}")
+            memory_name = join(self._dir_memory, f"{self.fn}.{new_node_id}")
             with open(memory_name, "w", encoding="utf8") as file:
                 file.write(memory_name)
         else:
-            memory_src = os.path.join(self._dir_memory, f"{self.fn}.{old_node_id}")
-            memory_dst = os.path.join(self._dir_memory, f"{self.fn}.{new_node_id}")
+            memory_src = join(self._dir_memory, f"{self.fn}.{old_node_id}")
+            memory_dst = join(self._dir_memory, f"{self.fn}.{new_node_id}")
             shutil.move(memory_src, memory_dst)
 
 
 class Assets:
     GITHUB_RELEASE_API = "https://api.github.com/repos/qin2dim/hcaptcha-challenger/releases"
+    URL_REMOTE_OBJECTS = (
+        "https://raw.githubusercontent.com/QIN2DIM/hcaptcha-challenger/main/src/objects.yaml"
+    )
     NAME_ASSETS = "assets"
     NAME_ASSET_NAME = "name"
     NAME_ASSET_SIZE = "size"
@@ -89,7 +94,7 @@ class Assets:
         if len(assets) >= 1:
             asset_name = assets[-1]
             if int(asset_name) + self.CACHE_CONTROL > int(time.time()):
-                recoded_name = os.path.join(self._dir_assets, asset_name)
+                recoded_name = join(self._dir_assets, asset_name)
                 try:
                     with open(recoded_name, "r", encoding="utf8") as file:
                         self._fn2assets = json.load(file)
@@ -100,10 +105,10 @@ class Assets:
         """仅在 Assets._pull 网络请求发起后实现，用于更新本地缓存的内容及时间戳"""
         os.makedirs(self._dir_assets, exist_ok=True)
         for asset_fn in os.listdir(self._dir_assets):
-            asset_src = os.path.join(self._dir_assets, asset_fn)
-            asset_dst = os.path.join(self._dir_assets, f"_{asset_fn}")
+            asset_src = join(self._dir_assets, asset_fn)
+            asset_dst = join(self._dir_assets, f"_{asset_fn}")
             shutil.move(asset_src, asset_dst)
-        recoded_name = os.path.join(self._dir_assets, str(int(time.time())))
+        recoded_name = join(self._dir_assets, str(int(time.time())))
         with open(recoded_name, "w", encoding="utf8") as file:
             json.dump(self._fn2assets, file)
 
@@ -134,6 +139,9 @@ class Assets:
     def _get_asset(self, key: str, oncall_default: Any):
         return self._fn2assets.get(self.fn, {}).get(key, oncall_default)
 
+    def sync(self, force: typing.Optional[bool] = None, **kwargs):
+        raise NotImplementedError
+
     @property
     def dir_assets(self):
         return self._dir_assets
@@ -148,12 +156,22 @@ class Assets:
         return self._get_asset(self.NAME_ASSET_SIZE, 0)
 
 
+class PluggableObjects(Assets):
+    def __init__(self, dir_assets: str):
+        super().__init__(fn="objects.yaml", dir_assets=dir_assets)
+        self.path_objects = join(dirname(dirname(dir_assets)), self.fn)
+
+    def sync(self, force: typing.Optional[bool] = None, **kwargs):
+        url = self.URL_REMOTE_OBJECTS
+        _request_asset(url, self.path_objects, self.fn)
+
+
 class Rainbow(Assets):
     _table = {}
 
     def __init__(self, dir_assets: str):
         super().__init__(fn="rainbow.yaml", dir_assets=dir_assets)
-        self.path_rainbow = os.path.join(os.path.dirname(dir_assets), self.fn)
+        self.path_rainbow = join(dirname(dir_assets), self.fn)
 
         self._build()
 
@@ -161,7 +179,7 @@ class Rainbow(Assets):
         if self._table:
             return self._table
 
-        os.makedirs(os.path.dirname(self.path_rainbow), exist_ok=True)
+        os.makedirs(dirname(self.path_rainbow), exist_ok=True)
         if os.path.exists(self.path_rainbow):
             with open(self.path_rainbow, "r", encoding="utf8") as file:
                 stream = yaml.safe_load(file)
@@ -185,12 +203,15 @@ class Rainbow(Assets):
             pass
         return None
 
-    def sync(self):
+    def sync(self, force: typing.Optional[bool] = None, **kwargs):
         url = self.get_download_url()
 
         # Check for extreme cases
         if not isinstance(url, str) or not url.startswith("https:"):
             return
+
+        if force is True:
+            os.remove(self.path_rainbow)
 
         # 1. local > static_remote
         #   - rainbow: 玩家手動下載了最新版本文件（本地 _assets 靜態緩存過期）
@@ -204,8 +225,11 @@ class Rainbow(Assets):
             not os.path.exists(self.path_rainbow)
             or os.path.getsize(self.path_rainbow) != self.get_size()
         ):
+            # 更新 Assets 本地缓存
             self._pull(skip_preload=True)
+            # 更新 Rainbow 本地缓存
             _request_asset(url, self.path_rainbow, self.fn)
+            # 刷新 Rainbow 运行缓存
             self._build()
 
 
@@ -224,12 +248,12 @@ class ModelHub:
         self.net = None
         self.flag = name
         self.fn = f"{onnx_prefix}.onnx" if not onnx_prefix.endswith(".onnx") else onnx_prefix
-        self.path_model = os.path.join(dir_model, self.fn)
+        self.path_model = join(dir_model, self.fn)
 
-        self.memory = Memory(fn=self.fn, dir_memory=os.path.join(dir_model, "_memory"))
-        self.assets = Assets(fn=self.fn, dir_assets=os.path.join(dir_model, "_assets"))
+        self.memory = Memory(fn=self.fn, dir_memory=join(dir_model, "_memory"))
+        self.assets = Assets(fn=self.fn, dir_assets=join(dir_model, "_assets"))
         if on_rainbow:
-            self.rainbow = Rainbow(dir_assets=os.path.join(dir_model, "_assets"))
+            self.rainbow = Rainbow(dir_assets=join(dir_model, "_assets"))
 
     @logger.catch()
     def pull_model(self, fn: str = None, path_model: str = None):
@@ -315,14 +339,20 @@ class ModelHub:
             for filename in files:
                 if not filename.endswith(_suffix):
                     continue
-                path_img = os.path.join(_prefix, filename)
+                path_img = join(_prefix, filename)
                 with open(path_img, "rb") as file:
                     yield path_img, self.solution(file.read(), **kwargs)
 
 
 def _request_asset(asset_download_url: str, asset_path: str, fn_tag: str):
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.27"
+    }
     logger.debug(f"Downloading {fn_tag} from {asset_download_url}")
-    with requests.get(asset_download_url, stream=True, proxies=getproxies()) as response:
+    with requests.get(
+        asset_download_url, headers=headers, stream=True, proxies=getproxies()
+    ) as response:
         with open(asset_path, "wb") as file:
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:

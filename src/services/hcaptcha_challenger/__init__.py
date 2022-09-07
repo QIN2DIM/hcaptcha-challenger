@@ -6,6 +6,13 @@
 from .core import ArmorCaptcha, ArmorUtils
 from .solutions.resnet import PluggableONNXModels
 from .solutions.yolo import YOLO
-from .solutions.kernel import Rainbow
+from .solutions.kernel import Rainbow, PluggableObjects
 
-__all__ = ["YOLO", "ArmorCaptcha", "ArmorUtils", "PluggableONNXModels", "Rainbow"]
+__all__ = [
+    "YOLO",
+    "ArmorCaptcha",
+    "ArmorUtils",
+    "PluggableONNXModels",
+    "Rainbow",
+    "PluggableObjects",
+]

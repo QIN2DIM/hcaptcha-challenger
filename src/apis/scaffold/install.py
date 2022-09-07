@@ -3,7 +3,6 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
-import os
 import shutil
 import sys
 import webbrowser
@@ -12,7 +11,7 @@ from typing import Optional
 from webdriver_manager.chrome import ChromeType
 from webdriver_manager.core.utils import get_browser_version_from_os
 
-from services.hcaptcha_challenger import Rainbow, YOLO
+from services.hcaptcha_challenger import Rainbow, YOLO, PluggableObjects
 from services.settings import DIR_MODEL, logger, DIR_ASSETS
 
 
@@ -41,16 +40,14 @@ def download_driver():
 
 def do(yolo_onnx_prefix: Optional[str] = None, upgrade: Optional[bool] = False):
     """下载项目运行所需的各项依赖"""
+    dir_assets = DIR_ASSETS
+
     download_driver()
 
-    r = Rainbow(DIR_ASSETS)
-
     if upgrade is True:
-        shutil.rmtree(DIR_ASSETS, ignore_errors=True)
-        os.remove(r.path_rainbow)
-
-    # PULL rainbow table
-    r.sync()
+        shutil.rmtree(dir_assets, ignore_errors=True)
+    Rainbow(dir_assets).sync(force=upgrade)
+    PluggableObjects(dir_assets).sync(force=upgrade)
 
     # PULL YOLO ONNX Model by the prefix flag
     YOLO(DIR_MODEL, yolo_onnx_prefix).pull_model()
