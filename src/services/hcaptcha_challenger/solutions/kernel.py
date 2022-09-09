@@ -350,10 +350,10 @@ def _request_asset(asset_download_url: str, asset_path: str, fn_tag: str):
         "Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.27"
     }
     logger.debug(f"Downloading {fn_tag} from {asset_download_url}")
-    with requests.get(
+
+    with open(asset_path, "wb") as file, requests.get(
         asset_download_url, headers=headers, stream=True, proxies=getproxies()
     ) as response:
-        with open(asset_path, "wb") as file:
-            for chunk in response.iter_content(chunk_size=1024):
-                if chunk:
-                    file.write(chunk)
+        for chunk in response.iter_content(chunk_size=1024):
+            if chunk:
+                file.write(chunk)

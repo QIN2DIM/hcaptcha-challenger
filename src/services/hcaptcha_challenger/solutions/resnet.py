@@ -50,13 +50,11 @@ class ResNetFactory(ModelHub):
         # 使用延迟反射机制确保分布式网络的两端一致性
         net = self.match_net()
         if net is None:
-            _err_prompt = """
+            _err_prompt = f"""
             The remote network does not exist or the local cache has expired.
-            1. Check objects.yaml for typos | model={};
-            2. Restart the program after deleting the local cache | dir={};
-            """.format(
-                self.fn, self.assets.dir_assets
-            )
+            1. Check objects.yaml for typos | model={self.fn};
+            2. Restart the program after deleting the local cache | dir={self.assets.dir_assets};
+            """
             raise ResourceWarning(_err_prompt)
         net.setInput(blob)
         out = net.forward()

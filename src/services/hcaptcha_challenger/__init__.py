@@ -4,9 +4,9 @@
 # Github     : https://github.com/QIN2DIM
 # Description:
 from .core import ArmorCaptcha, ArmorUtils
+from .solutions.kernel import Rainbow, PluggableObjects
 from .solutions.resnet import PluggableONNXModels
 from .solutions.yolo import YOLO
-from .solutions.kernel import Rainbow, PluggableObjects
 
 __all__ = [
     "YOLO",

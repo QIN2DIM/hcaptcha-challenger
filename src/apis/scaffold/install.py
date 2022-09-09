@@ -45,6 +45,7 @@ def do(yolo_onnx_prefix: Optional[str] = None, upgrade: Optional[bool] = False):
     download_driver()
 
     if upgrade is True:
+        logger.debug(f"Reloading the local cache of Assets {dir_assets}")
         shutil.rmtree(dir_assets, ignore_errors=True)
     Rainbow(dir_assets).sync(force=upgrade)
     PluggableObjects(dir_assets).sync(force=upgrade)
