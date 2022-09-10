@@ -32,35 +32,39 @@ HCAPTCHA_DEMO_SITES = [
 # ---------------------------------------------------
 # [√]Lock the project directory
 # ---------------------------------------------------
-# Source root directory
-PROJECT_ROOT = dirname(dirname(__file__))
+# hcaptcha-challenger
+#  ├── database
+#  │   ├── logs
+#  │   ├── motion_data
+#  │   └── temp_cache
+#  │       ├── _challenge
+#  │       └── captcha_screenshot
+#  ├── model
+#  │   ├── _assets
+#  │   ├── _memory
+#  │   └── rainbow.yaml
+#  └── src
+#      └── objects.yaml
+# ---------------------------------------------------
+PROJECT_SRC = dirname(dirname(__file__))
 
-# File database directory
-PROJECT_DATABASE = join(PROJECT_ROOT, "database")
-
-# The storage directory of the YOLO object detection model
-DIR_MODEL = join(PROJECT_ROOT, "model")
-
-# Static cache of ModelHub
-DIR_ASSETS = join(DIR_MODEL, "_assets")
-
-# Run cache directory
-DIR_TEMP_CACHE = join(PROJECT_DATABASE, "temp_cache")
-
-# Directory for challenge images
+DIR_DATABASE = join(dirname(PROJECT_SRC), "database")
+DIR_LOG = join(DIR_DATABASE, "logs")
+DIR_TEMP_CACHE = join(DIR_DATABASE, "temp_cache")
 DIR_CHALLENGE = join(DIR_TEMP_CACHE, "_challenge")
 
-# Service log directory
-DIR_LOG = join(PROJECT_DATABASE, "logs")
+DIR_MODEL = join(dirname(PROJECT_SRC), "model")
+DIR_ASSETS = join(DIR_MODEL, "_assets")
 
-# Settings of pluggable ONNX models
-PATH_OBJECTS_YAML = join(PROJECT_ROOT, "objects.yaml")
+PATH_OBJECTS_YAML = join(PROJECT_SRC, "objects.yaml")
+
 # ---------------------------------------------------
 # [√]Server log configuration
 # ---------------------------------------------------
 logger = ToolBox.init_log(error=join(DIR_LOG, "error.log"), runtime=join(DIR_LOG, "runtime.log"))
+
 # ---------------------------------------------------
 # [√]Path completion
 # ---------------------------------------------------
-for _pending in [PROJECT_DATABASE, DIR_MODEL, DIR_TEMP_CACHE, DIR_CHALLENGE, DIR_LOG, DIR_ASSETS]:
+for _pending in (DIR_CHALLENGE, DIR_ASSETS):
     os.makedirs(_pending, exist_ok=True)

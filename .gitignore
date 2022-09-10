@@ -128,8 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea
-src/database
-src/model
+database/
+model/
 tests/
 docs-src/
 .pypirc

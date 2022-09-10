@@ -351,6 +351,8 @@ def _request_asset(asset_download_url: str, asset_path: str, fn_tag: str):
     }
     logger.debug(f"Downloading {fn_tag} from {asset_download_url}")
 
+    # FIXME: Audit required: External control of file name or path
+    # PTC-W6004
     with open(asset_path, "wb") as file, requests.get(
         asset_download_url, headers=headers, stream=True, proxies=getproxies()
     ) as response:

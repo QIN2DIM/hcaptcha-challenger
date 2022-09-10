@@ -4,9 +4,9 @@
 # Github     : https://github.com/QIN2DIM
 # Description:
 from services.motion_data.offload import MotionData
-from services.settings import PROJECT_DATABASE
+from services.settings import DIR_DATABASE
 
 
 def train_motion(test_site: str):
-    with MotionData(PROJECT_DATABASE) as motion:
+    with MotionData(DIR_DATABASE) as motion:
         motion.mimic(test_site)

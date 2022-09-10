@@ -221,7 +221,7 @@ class ArmorCaptcha:
         logger.debug(flag_)
 
     def switch_to_challenge_frame(self, ctx: Chrome):
-        WebDriverWait(ctx, 15, ignored_exceptions=ElementNotVisibleException).until(
+        WebDriverWait(ctx, 15, ignored_exceptions=(ElementNotVisibleException,)).until(
             EC.frame_to_be_available_and_switch_to_it((By.XPATH, self.HOOK_CHALLENGE))
         )
 
@@ -256,7 +256,7 @@ class ArmorCaptcha:
         for _ in range(3):
             try:
                 label_obj = WebDriverWait(
-                    ctx, 5, ignored_exceptions=ElementNotVisibleException
+                    ctx, 5, ignored_exceptions=(ElementNotVisibleException,)
                 ).until(EC.presence_of_element_located((By.XPATH, "//h2[@class='prompt-text']")))
             except TimeoutException:
                 raise ChallengePassed("Man-machine challenge unexpectedly passed")
@@ -337,7 +337,7 @@ class ArmorCaptcha:
         """
         # 等待图片加载完成
         try:
-            WebDriverWait(ctx, 5, ignored_exceptions=ElementNotVisibleException).until(
+            WebDriverWait(ctx, 5, ignored_exceptions=(ElementNotVisibleException,)).until(
                 EC.presence_of_all_elements_located((By.XPATH, "//div[@class='task-image']"))
             )
         except TimeoutException:
@@ -471,7 +471,7 @@ class ArmorCaptcha:
 
         # {{< SUBMIT ANSWER >}}
         try:
-            WebDriverWait(ctx, 15, ignored_exceptions=ElementClickInterceptedException).until(
+            WebDriverWait(ctx, 15, ignored_exceptions=(ElementClickInterceptedException,)).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[@class='button-submit button']"))
             ).click()
         except ElementClickInterceptedException:
@@ -562,7 +562,7 @@ class ArmorCaptcha:
         for _ in range(8):
             try:
                 # [👻] 进入复选框
-                WebDriverWait(ctx, 2, ignored_exceptions=ElementNotVisibleException).until(
+                WebDriverWait(ctx, 2, ignored_exceptions=(ElementNotVisibleException,)).until(
                     EC.frame_to_be_available_and_switch_to_it(
                         (By.XPATH, "//iframe[contains(@title,'checkbox')]")
                     )
@@ -689,7 +689,7 @@ class ArmorUtils:
     def fall_in_captcha_runtime(ctx: Chrome) -> Optional[bool]:
         """捕获隐藏在周免游戏订单中的人机挑战"""
         try:
-            WebDriverWait(ctx, 5, ignored_exceptions=WebDriverException).until(
+            WebDriverWait(ctx, 5, ignored_exceptions=(WebDriverException,)).until(
                 EC.presence_of_element_located((By.XPATH, "//iframe[contains(@title,'content')]"))
             )
             return True
@@ -700,7 +700,7 @@ class ArmorUtils:
     def face_the_checkbox(ctx: Chrome) -> Optional[bool]:
         """遇见 hCaptcha checkbox"""
         try:
-            WebDriverWait(ctx, 8, ignored_exceptions=WebDriverException).until(
+            WebDriverWait(ctx, 8, ignored_exceptions=(WebDriverException,)).until(
                 EC.presence_of_element_located((By.XPATH, "//iframe[contains(@title,'checkbox')]"))
             )
             return True
