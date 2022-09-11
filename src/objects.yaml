@@ -114,3 +114,6 @@ label_alias:
   flower_in_a_vase:
     zh: ["花瓶中的花"]
     en: ["flower in a vase"]
+  plant_hanging_from_the_ceiling:
+    zh: ["悬挂在天花板上的植物"]
+    en: ["plant hanging from the ceiling"]
