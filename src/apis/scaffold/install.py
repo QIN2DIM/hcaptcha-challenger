@@ -48,7 +48,7 @@ def do(yolo_onnx_prefix: Optional[str] = None, upgrade: Optional[bool] = False):
         logger.debug(f"Reloading the local cache of Assets {dir_assets}")
         shutil.rmtree(dir_assets, ignore_errors=True)
     Rainbow(dir_assets).sync(force=upgrade)
-    PluggableObjects(dir_assets).sync(force=upgrade)
+    PluggableObjects(dir_assets).sync()
 
     # PULL YOLO ONNX Model by the prefix flag
     YOLO(DIR_MODEL, yolo_onnx_prefix).pull_model()

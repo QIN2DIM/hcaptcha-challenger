@@ -64,9 +64,7 @@ class Memory:
 
 class Assets:
     GITHUB_RELEASE_API = "https://api.github.com/repos/qin2dim/hcaptcha-challenger/releases"
-    URL_REMOTE_OBJECTS = (
-        "https://raw.githubusercontent.com/QIN2DIM/hcaptcha-challenger/main/src/objects.yaml"
-    )
+
     NAME_ASSETS = "assets"
     NAME_ASSET_NAME = "name"
     NAME_ASSET_SIZE = "size"
@@ -156,14 +154,21 @@ class Assets:
         return self._get_asset(self.NAME_ASSET_SIZE, 0)
 
 
-class PluggableObjects(Assets):
-    def __init__(self, dir_assets: str):
-        super().__init__(fn="objects.yaml", dir_assets=dir_assets)
-        self.path_objects = join(dirname(dirname(dir_assets)), self.fn)
+class PluggableObjects:
+    URL_REMOTE_OBJECTS = (
+        "https://raw.githubusercontent.com/QIN2DIM/hcaptcha-challenger/main/src/objects.yaml"
+    )
 
-    def sync(self, force: typing.Optional[bool] = None, **kwargs):
-        url = self.URL_REMOTE_OBJECTS
-        _request_asset(url, self.path_objects, self.fn)
+    DEFAULT_FILENAME = "objects.yaml"
+
+    def __init__(self, path_objects: str):
+        self.path_objects = path_objects
+        if not os.path.isfile(self.path_objects):
+            self.path_objects = self.DEFAULT_FILENAME
+        self.fn = os.path.basename(self.path_objects)
+
+    def sync(self):
+        _request_asset(self.URL_REMOTE_OBJECTS, self.path_objects, self.fn)
 
 
 class Rainbow(Assets):

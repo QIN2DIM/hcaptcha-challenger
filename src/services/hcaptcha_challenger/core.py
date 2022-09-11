@@ -517,7 +517,7 @@ class ArmorCaptcha:
                     EC.visibility_of_element_located((By.XPATH, "//div[@class='error-text']"))
                 )
                 self.threat += 1
-                if getproxies() and self.threat > 4:
+                if getproxies() and self.threat > 3:
                     logger.warning(f"Your proxy IP may have been flagged - proxies={getproxies()}")
                 return True
             except TimeoutException:
