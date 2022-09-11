@@ -63,8 +63,8 @@ label_alias:
     zh: [ "白腿马" ]
     en: [ "horse with white legs" ]
   horse_walking_or_running:
-    zh: ["马在行走或奔跑"]
-    en: ["horse walking or running"]
+    zh: [ "马在行走或奔跑","马步行或奔跑" ]
+    en: [ "horse walking or running" ]
 
   smiling_dog:
     zh: [ "微笑狗" ]
@@ -90,30 +90,30 @@ label_alias:
     zh: [ "一只飞翔的鸟" ]
     en: [ "bird flying" ]
   bird_on_a_branch:
-    zh: ["树枝上的鸟"]
-    en: ["bird on a branch"]
+    zh: [ "树枝上的鸟" ]
+    en: [ "bird on a branch" ]
   broken_glass_bottle:
-    zh: ["破碎玻璃瓶"]
-    en: ["broken glass bottle"]
+    zh: [ "破碎玻璃瓶" ]
+    en: [ "broken glass bottle" ]
   whole_glass_bottle:
-    zh: ["整个玻璃瓶"]
-    en: ["whole glass bottle"]
+    zh: [ "整个玻璃瓶" ]
+    en: [ "whole glass bottle" ]
   porcelain_teacup:
-    zh: ["类似瓷器设"]
-    en: ["teacup with similar porcelain design pattern"]
+    zh: [ "类似瓷器设" ]
+    en: [ "teacup with similar porcelain design pattern" ]
 
   fish_jumping_over_the_water:
-    zh: ["鱼跃过水面"]
-    en: ["fish jumping over the water"]
+    zh: [ "鱼跃过水面" ]
+    en: [ "fish jumping over the water" ]
   dog_shaped_cookie:
-    zh: ["狗形饼干"]
-    en: ["dog-shaped cookie"]
+    zh: [ "狗形饼干" ]
+    en: [ "dog-shaped cookie" ]
   cat_shaped_cookie:
-    zh: ["猫形饼干"]
-    en: ["cat-shaped cookie"]
+    zh: [ "猫形饼干" ]
+    en: [ "cat-shaped cookie" ]
   flower_in_a_vase:
-    zh: ["花瓶中的花"]
-    en: ["flower in a vase"]
+    zh: [ "花瓶中的花" ]
+    en: [ "flower in a vase" ]
   plant_hanging_from_the_ceiling:
-    zh: ["悬挂在天花板上的植物"]
-    en: ["plant hanging from the ceiling"]
+    zh: [ "悬挂在天花板上的植物" ]
+    en: [ "plant hanging from the ceiling" ]
