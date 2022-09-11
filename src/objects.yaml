@@ -62,6 +62,9 @@ label_alias:
   horse_with_white_legs:
     zh: [ "白腿马" ]
     en: [ "horse with white legs" ]
+  horse_walking_or_running:
+    zh: ["马在行走或奔跑"]
+    en: ["horse walking or running"]
 
   smiling_dog:
     zh: [ "微笑狗" ]
@@ -108,3 +111,6 @@ label_alias:
   cat_shaped_cookie:
     zh: ["猫形饼干"]
     en: ["cat-shaped cookie"]
+  flower_in_a_vase:
+    zh: ["花瓶中的花"]
+    en: ["flower in a vase"]
