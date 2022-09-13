@@ -92,6 +92,7 @@ label_alias:
   bird_on_a_branch:
     zh: [ "树枝上的鸟" ]
     en: [ "bird on a branch" ]
+
   broken_glass_bottle:
     zh: [ "破碎玻璃瓶" ]
     en: [ "broken glass bottle" ]
@@ -105,15 +106,23 @@ label_alias:
   fish_jumping_over_the_water:
     zh: [ "鱼跃过水面" ]
     en: [ "fish jumping over the water" ]
+  fish_underwater:
+    zh: [ "水下鱼" ]
+    en: [ "fish underwater" ]
+
   dog_shaped_cookie:
     zh: [ "狗形饼干" ]
     en: [ "dog-shaped cookie" ]
   cat_shaped_cookie:
     zh: [ "猫形饼干" ]
     en: [ "cat-shaped cookie" ]
+
   flower_in_a_vase:
     zh: [ "花瓶中的花" ]
     en: [ "flower in a vase" ]
   plant_hanging_from_the_ceiling:
     zh: [ "悬挂在天花板上的植物" ]
     en: [ "plant hanging from the ceiling" ]
+  plant_on_the_table:
+    zh: [ "植物在桌上" ]
+    en: [ "plant on the table" ]
