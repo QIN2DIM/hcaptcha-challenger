@@ -131,5 +131,8 @@ label_alias:
     en: [ "dead and dried plant in the pot" ]
 
   toy_rabbit:
-    zh: ["玩具兔子"]
-    en: ["toy rabbit"]
+    zh: [ "玩具兔子" ]
+    en: [ "toy rabbit" ]
+  rabbit_in_the_grass:
+    zh: [ "兔子" ]
+    en: [ "rabbit in the grass" ]

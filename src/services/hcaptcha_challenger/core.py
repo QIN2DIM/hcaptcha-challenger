@@ -4,6 +4,7 @@ import random
 import re
 import sys
 import time
+import typing
 from typing import Optional, Union, Tuple
 from urllib.parse import quote
 from urllib.request import getproxies
@@ -395,11 +396,13 @@ class ArmorCaptcha:
         class ImageDownloader(AshFramework):
             """Coroutine Booster - Improve the download efficiency of challenge images"""
 
+            http_proxy: typing.Optional[str] = getproxies().get("http")
+
             async def control_driver(self, context, session=None):
                 path_challenge_img, url = context
 
                 # Download Challenge Image
-                async with session.get(url) as response:
+                async with session.get(url, proxy=self.http_proxy) as response:
                     with open(path_challenge_img, "wb") as file:
                         file.write(await response.read())
 

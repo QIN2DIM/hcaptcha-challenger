@@ -28,6 +28,8 @@ class ChallengeStyle:
 class Memory:
     _fn2memory = {}
 
+    ASSET_TOKEN = "RA_kw"
+
     def __init__(self, fn: str, dir_memory: str = None):
         self.fn = fn
         self._dir_memory = "model/_memory" if dir_memory is None else dir_memory
@@ -42,7 +44,8 @@ class Memory:
                 fn = memory_name.split(".")[0]
                 fn = fn if fn.endswith(".onnx") else f"{fn}.onnx"
                 node_id = memory_name.split(".")[-1]
-                self._fn2memory[fn] = node_id
+                if node_id.startswith(self.ASSET_TOKEN):
+                    self._fn2memory[fn] = node_id
         return self._fn2memory
 
     def get_node_id(self) -> Optional[str]:
@@ -60,6 +63,23 @@ class Memory:
             memory_src = join(self._dir_memory, f"{self.fn}.{old_node_id}")
             memory_dst = join(self._dir_memory, f"{self.fn}.{new_node_id}")
             shutil.move(memory_src, memory_dst)
+
+    def is_outdated(self, remote_node_id: str) -> typing.Optional[bool]:
+        """延迟反射的诊断步骤，保持分布式网络的两端一致性"""
+        local_node_id = self.get_node_id()
+
+        # Invalid judgment
+        if (
+            not local_node_id
+            or not remote_node_id
+            or not isinstance(remote_node_id, str)
+            or not remote_node_id.startswith(self.ASSET_TOKEN)
+        ):
+            return
+
+        if local_node_id != remote_node_id:
+            return True
+        return False
 
 
 class Assets:
@@ -112,6 +132,8 @@ class Assets:
 
     def _pull(self, skip_preload: bool = False) -> Optional[Dict[str, dict]]:
         def request_assets():
+            logger.debug(f"Pulling AssetsObject from {self.GITHUB_RELEASE_API}")
+
             try:
                 session = requests.session()
                 resp = session.get(self.GITHUB_RELEASE_API, proxies=getproxies(), timeout=3)
@@ -278,7 +300,6 @@ class ModelHub:
         fn = self.fn if fn is None else fn
         path_model = self.path_model if path_model is None else path_model
 
-        local_node_id = self.memory.get_node_id()
         asset_node_id = self.assets.get_node_id()
         asset_download_url = self.assets.get_download_url()
         asset_size = self.assets.get_size()
@@ -295,7 +316,7 @@ class ModelHub:
         if (
             not os.path.exists(path_model)
             or os.path.getsize(path_model) != asset_size
-            or local_node_id != asset_node_id
+            or self.memory.is_outdated(remote_node_id=asset_node_id)
         ):
             _request_asset(asset_download_url, path_model, fn)
             self.memory.dump(new_node_id=asset_node_id)
@@ -303,7 +324,10 @@ class ModelHub:
     @logger.catch()
     def register_model(self) -> Optional[bool]:
         """Load and register an existing model"""
-        if os.path.exists(self.path_model):
+        # Update AssetsObject local cache
+        if os.path.exists(self.path_model) and not self.memory.is_outdated(
+            self.assets.get_node_id()
+        ):
             self.net = cv2.dnn.readNetFromONNX(self.path_model)
             self._fn2net[self.fn] = self.net
             return True
@@ -312,14 +336,14 @@ class ModelHub:
     def match_net(self):
         """
         PluggableONNXModel 对象实例化时：
-        - 自动读取并注册 objects.yaml 中注明的且已存在指定目录的模型对象。
+        - 自动读取并注册 objects.yaml 中注明的且已存在指定目录的模型对象，
         - 然而，objects.yaml 中表达的标签组所对应的模型文件不一定都已存在。
-        - 所以，初始化时不包含新的网络请求。
+        - 初始化时不包含新的网络请求，即，不在初始化阶段下载缺失模型。
 
         match_net 模型被动拉取：
         - 在挑战进行时被动下载缺失的用于处理特定二分类任务的 ONNX 模型。
         - 匹配的模型会被自动下载、注册并返回。
-        - 匹配基于 self.net 实现，也即不在 objects.yaml 名单中的模型不会被下载
+        - 不在 objects.yaml 名单中的模型不会被下载
         :return:
         """
         if not self.net:
@@ -356,8 +380,8 @@ def _request_asset(asset_download_url: str, asset_path: str, fn_tag: str):
     }
     logger.debug(f"Downloading {fn_tag} from {asset_download_url}")
 
-    # FIXME: Audit required: External control of file name or path
-    # PTC-W6004
+    # FIXME: PTC-W6004
+    #  Audit required: External control of file name or path
     with open(asset_path, "wb") as file, requests.get(
         asset_download_url, headers=headers, stream=True, proxies=getproxies()
     ) as response:
