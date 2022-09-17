@@ -136,3 +136,6 @@ label_alias:
   rabbit_in_the_grass:
     zh: [ "兔子" ]
     en: [ "rabbit in the grass" ]
+  turtle:
+    zh: [ "海龟" ]
+    en: [ "turtle" ]
