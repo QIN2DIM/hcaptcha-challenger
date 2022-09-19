@@ -135,7 +135,7 @@ label_alias:
     en: [ "toy rabbit" ]
   rabbit_in_the_grass:
     zh: [ "兔子" ]
-    en: [ "rabbit in the grass" ]
+    en: [ "rabbit in the grass", "rabbit" ]
   turtle:
     zh: [ "海龟" ]
     en: [ "turtle" ]
