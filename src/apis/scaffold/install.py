@@ -11,7 +11,7 @@ from typing import Optional
 from webdriver_manager.chrome import ChromeType
 from webdriver_manager.core.utils import get_browser_version_from_os
 
-from services.hcaptcha_challenger import Rainbow, YOLO, PluggableObjects
+from services.hcaptcha_challenger import YOLO, PluggableObjects
 from services.settings import DIR_MODEL, logger, DIR_ASSETS
 
 
@@ -38,6 +38,12 @@ def download_driver():
     logger.info("Re-execute the `install` scaffolding command after the installation is complete.")
 
 
+def pull_rainbow():
+    from services.hcaptcha_challenger import Rainbow
+
+    Rainbow(dir_assets=DIR_ASSETS).sync(force=True)
+
+
 def do(yolo_onnx_prefix: Optional[str] = None, upgrade: Optional[bool] = False):
     """下载项目运行所需的各项依赖"""
     dir_assets = DIR_ASSETS
@@ -47,7 +53,6 @@ def do(yolo_onnx_prefix: Optional[str] = None, upgrade: Optional[bool] = False):
     if upgrade is True:
         logger.debug(f"Reloading the local cache of Assets {dir_assets}")
         shutil.rmtree(dir_assets, ignore_errors=True)
-    Rainbow(dir_assets).sync(force=upgrade)
     PluggableObjects(dir_assets).sync()
 
     # PULL YOLO ONNX Model by the prefix flag

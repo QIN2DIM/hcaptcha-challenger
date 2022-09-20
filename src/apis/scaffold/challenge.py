@@ -42,13 +42,13 @@ def runner(
         onnx_prefix=onnx_prefix,
         screenshot=screenshot,
         path_objects_yaml=PATH_OBJECTS_YAML,
-        on_rainbow=True,
+        on_rainbow=False,  # Deprecated outdated features
     )
     challenger_utils = ArmorUtils()
 
     # Instantiating the Challenger Drive
     ctx = get_challenge_ctx(silence=silence, lang=lang)
-    _round = 5
+    _round = 10
     try:
         for i in range(_round):
             try:
