@@ -151,3 +151,6 @@ label_alias:
   toy_turtle:
     zh: [ "玩具乌龟" ]
     en: [ "toy turtle" ]
+  turtle_in_the_grass:
+    zh: [ ]
+    en: ["turtle in the grass"]
