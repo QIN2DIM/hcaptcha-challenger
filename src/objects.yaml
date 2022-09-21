@@ -137,7 +137,7 @@ label_alias:
     zh: [ ] # hook to rabbit
     en: [ "rabbit in the grass" ]
   rabbit:
-    zh: [ "兔子在水中游泳" , "兔子"]
+    zh: [ "兔子在水中游泳" , "兔子" ]
     en: [ "rabbit swimming in water", "rabbit" ]
   turtle:
     zh: [ "海龟" ]
@@ -145,3 +145,6 @@ label_alias:
   turtle_under_the_water:
     zh: [ "水下乌龟" ]
     en: [ "turtle under the water" ]
+  toy_turtle:
+    zh: [ "玩具乌龟" ]
+    en: [ "toy turtle" ]
