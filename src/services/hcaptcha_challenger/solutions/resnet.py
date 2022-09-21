@@ -4,6 +4,7 @@
 # Github     : https://github.com/beiyuouo
 # Description:
 import os
+import typing
 import warnings
 from typing import List, Callable, Union, Dict
 
@@ -18,22 +19,14 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class ResNetFactory(ModelHub):
-    def __init__(self, _onnx_prefix, _name, _dir_model: str, on_rainbow: bool = None):
-        super().__init__(_onnx_prefix, _name, _dir_model, on_rainbow)
+    def __init__(self, _onnx_prefix, _name, _dir_model: str):
+        super().__init__(_onnx_prefix, _name, _dir_model)
         self.register_model()
 
-    def classifier(
-        self, img_stream, rainbow_key, feature_filters: Union[Callable, List[Callable]] = None
-    ):
-        if hasattr(self, "rainbow"):
-            matched = self.rainbow.match(img_stream, rainbow_key)
-            if matched is not None:
-                return matched
-
+    def classifier(self, img_stream, feature_filters: Union[Callable, List[Callable]] = None):
         img_arr = np.frombuffer(img_stream, np.uint8)
         img = cv2.imdecode(img_arr, flags=1)
 
-        # fixme: dup-code
         if img.shape[0] == ChallengeStyle.WATERMARK:
             img = cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 21)
 
@@ -55,7 +48,7 @@ class ResNetFactory(ModelHub):
             1. Check objects.yaml for typos | model={self.fn};
             2. Restart the program after deleting the local cache | dir={self.assets.dir_assets};
             """
-            raise ResourceWarning(_err_prompt)
+            raise ResourceWarning(_err_prompt)  # maybe mercy
         net.setInput(blob)
         out = net.forward()
         if not np.argmax(out, axis=1)[0]:
@@ -64,17 +57,7 @@ class ResNetFactory(ModelHub):
 
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
-
-
-class FingersOfTheGoldenOrder(ResNetFactory):
-    """ResNet model factory, used to produce abstract model call interface."""
-
-    def __init__(self, onnx_prefix: str, dir_model: str, on_rainbow=None):
-        self.rainbow_key = onnx_prefix
-        super().__init__(onnx_prefix, f"{onnx_prefix}(ResNet)_model", dir_model, on_rainbow)
-
-    def solution(self, img_stream, **kwargs) -> bool:
-        return self.classifier(img_stream, self.rainbow_key, feature_filters=None)
+        return self.classifier(img_stream, feature_filters=None)
 
 
 class PluggableONNXModels:
@@ -83,7 +66,8 @@ class PluggableONNXModels:
     such as model download, model cache, and model scheduling.
     """
 
-    def __init__(self, path_objects_yaml: str):
+    def __init__(self, path_objects_yaml: str, dir_model: str):
+        self.dir_model = dir_model
         self.fingers = []
         self.label_alias = {i: {} for i in ["zh", "en"]}
         self._register(path_objects_yaml)
@@ -100,7 +84,7 @@ class PluggableONNXModels:
             return
 
         with open(path_objects_yaml, "r", encoding="utf8") as file:
-            data: Dict[str, dict] = yaml.safe_load(file.read())
+            data: typing.Dict[str, dict] = yaml.safe_load(file.read())
 
         label_to_i18ndict = data.get("label_alias", {})
         if not label_to_i18ndict:
@@ -112,27 +96,31 @@ class PluggableONNXModels:
                 for prompt_label in prompt_labels:
                     self.label_alias[lang].update({prompt_label.strip(): model_label})
 
-    def summon(self, dir_model):
+    def summon(self):
         """
         Download ONNX models from upstream repositories,
         skipping installed model files by default.
 
-        :type dir_model: str
         :rtype: None
         """
         for finger in self.fingers:
-            FingersOfTheGoldenOrder(finger, dir_model, on_rainbow=None).pull_model()
+            new_tarnished(finger, self.dir_model).pull_model()
 
-    def overload(self, dir_model, on_rainbow=None):
+    def overload(self) -> typing.Dict[str, ModelHub]:
         """
         Load the ONNX model into memory.
         Executed before the task starts.
 
-        :type dir_model: str
-        :type on_rainbow: bool | None
-        :rtype: Dict[str, FingersOfTheGoldenOrder]
+        :rtype: Dict[str, ModelHub]
         """
-        return {
-            finger: FingersOfTheGoldenOrder(finger, dir_model, on_rainbow)
-            for finger in self.fingers
-        }
+        return {finger: new_tarnished(finger, self.dir_model) for finger in self.fingers}
+
+    def lazy_loading(self, model_label: str):
+        return new_tarnished(onnx_prefix=model_label, dir_model=self.dir_model)
+
+
+def new_tarnished(onnx_prefix: str, dir_model: str) -> ModelHub:
+    """ResNet model factory, used to produce abstract model call interface."""
+    return ResNetFactory(
+        _onnx_prefix=onnx_prefix, _name=f"{onnx_prefix}(ResNet)_model", _dir_model=dir_model
+    )

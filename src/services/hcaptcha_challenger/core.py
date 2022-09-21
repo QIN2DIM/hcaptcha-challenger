@@ -33,7 +33,7 @@ from .exceptions import (
 from .solutions import resnet, yolo
 
 
-class ArmorCaptcha:
+class HolyChallenger:
     """hCAPTCHA challenge drive control"""
 
     label_alias = {
@@ -114,14 +114,14 @@ class ArmorCaptcha:
 
     def __init__(
         self,
-        dir_workspace: str = None,
-        lang: Optional[str] = "zh",
-        dir_model: str = None,
-        onnx_prefix: str = None,
-        screenshot: Optional[bool] = False,
-        debug=False,
-        path_objects_yaml: Optional[str] = None,
-        on_rainbow: Optional[bool] = None,
+        dir_workspace: typing.Optional[str] = None,
+        lang: typing.Optional[str] = "zh",
+        dir_model: typing.Optional[str] = None,
+        onnx_prefix: typing.Optional[str] = None,
+        screenshot: typing.Optional[bool] = False,
+        debug: typing.Optional[bool] = False,
+        path_objects_yaml: typing.Optional[str] = None,
+        lazy_loading: typing.Optional[bool] = False,
     ):
         if not isinstance(lang, str) or not self.label_alias.get(lang):
             raise ChallengeLangException(
@@ -135,7 +135,7 @@ class ArmorCaptcha:
         self.onnx_prefix = onnx_prefix
         self.screenshot = screenshot
         self.path_objects_yaml = path_objects_yaml
-        self.on_rainbow = on_rainbow
+        self.lazy_loading = bool(lazy_loading)
 
         # 存储挑战图片的目录
         self.runtime_workspace = ""
@@ -160,10 +160,18 @@ class ArmorCaptcha:
         self.threat = 0
 
         # Automatic registration
-        self.pom_handler = resnet.PluggableONNXModels(self.path_objects_yaml)
+        self.pluggable_onnx_models = {}
+        self.pom_handler = resnet.PluggableONNXModels(
+            self.path_objects_yaml, dir_model=self.dir_model
+        )
         self.label_alias.update(self.pom_handler.label_alias[lang])
-        self.pluggable_onnx_models = self.pom_handler.overload(self.dir_model, self.on_rainbow)
+        if not self.lazy_loading:
+            self.pluggable_onnx_models = self.pom_handler.overload()
         self.yolo_model = yolo.YOLO(self.dir_model, self.onnx_prefix)
+
+    @property
+    def utils(self):
+        return ArmorUtils
 
     def _init_workspace(self):
         """初始化工作目录，存放缓存的挑战图片"""
@@ -324,6 +332,12 @@ class ArmorCaptcha:
         """Optimizing solutions based on different challenge labels"""
         label_alias = self.label_alias.get(self.label)
 
+        # Models cold-load
+        if self.lazy_loading and not self.pluggable_onnx_models.get(label_alias):
+            self.log("lazy-loading", sign=label_alias)
+            tarnished = self.pom_handler.lazy_loading(label_alias)
+            self.pluggable_onnx_models[label_alias] = tarnished
+
         # Select ONNX model - ResNet | YOLO
         if self.pluggable_onnx_models.get(label_alias):
             return self.pluggable_onnx_models[label_alias]
@@ -459,7 +473,8 @@ class ArmorCaptcha:
             # Pass: Hit at least one object
             if result:
                 try:
-                    # Doubtful operation
+                    # Add a short sleep so that the user
+                    # can see the prediction results of the model
                     time.sleep(random.uniform(0.2, 0.3))
                     self.alias2locator[alias].click()
                 except StaleElementReferenceException:
