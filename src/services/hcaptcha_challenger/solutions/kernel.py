@@ -93,8 +93,8 @@ class Assets:
 
     _fn2assets = {}
 
-    # 緩存有效期：24h
-    CACHE_CONTROL = 86400
+    # Cache validity period: 2h
+    CACHE_CONTROL = 7200
 
     def __init__(self, fn: str, dir_assets: str = None):
         self.fn = fn
@@ -194,6 +194,8 @@ class PluggableObjects:
 
 
 class Rainbow(Assets):
+    """Deprecated Obsolete Features, it will be removed in the future."""
+
     _table = {}
 
     def __init__(self, dir_assets: str):
@@ -263,12 +265,11 @@ class Rainbow(Assets):
 class ModelHub:
     _fn2net = {}
 
-    def __init__(self, onnx_prefix: str, name: str, dir_model: str, on_rainbow: bool = None):
+    def __init__(self, onnx_prefix: str, name: str, dir_model: str):
         """
         :param onnx_prefix: 模型文件名，不含有 ext
         :param name: 日志打印显示的标记
         :param dir_model: 模型所在的本地目录
-        :param on_rainbow:  彩虹表撞衫模式，可选。
         """
         self._dir_model = "model" if dir_model is None else dir_model
 
@@ -279,8 +280,6 @@ class ModelHub:
 
         self.memory = Memory(fn=self.fn, dir_memory=join(dir_model, "_memory"))
         self.assets = Assets(fn=self.fn, dir_assets=join(dir_model, "_assets"))
-        if on_rainbow:
-            self.rainbow = Rainbow(dir_assets=join(dir_model, "_assets"))
 
     @logger.catch()
     def pull_model(self, fn: str = None, path_model: str = None):
@@ -344,6 +343,8 @@ class ModelHub:
         - 在挑战进行时被动下载缺失的用于处理特定二分类任务的 ONNX 模型。
         - 匹配的模型会被自动下载、注册并返回。
         - 不在 objects.yaml 名单中的模型不会被下载
+
+        升级的模型不支持热加载，需要重启程序才能读入，但新插入的模型可直接使用。
         :return:
         """
         if not self.net:
@@ -359,18 +360,6 @@ class ModelHub:
     def solution(self, img_stream, **kwargs) -> bool:
         """Implementation process of solution"""
         raise NotImplementedError
-
-    def solution_dev(self, src_dir: str, **kwargs):
-        if not os.path.exists(src_dir):
-            return
-        _suffix = ".png"
-        for _prefix, _, files in os.walk(src_dir):
-            for filename in files:
-                if not filename.endswith(_suffix):
-                    continue
-                path_img = join(_prefix, filename)
-                with open(path_img, "rb") as file:
-                    yield path_img, self.solution(file.read(), **kwargs)
 
 
 def _request_asset(asset_download_url: str, asset_path: str, fn_tag: str):
