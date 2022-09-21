@@ -76,9 +76,7 @@ def runner(
             start = time.time()
             try:
                 if (resp := _motion(sample_site, ctx=ctx, challenger=challenger)) is None:
-                    """
-                    unknownMistake
-                    """
+                    logger.warning("UnknownMistake")
                 elif resp == challenger.CHALLENGE_SUCCESS:
                     challenger.log(f"End of demo - total: {round(time.time() - start, 2)}s")
                     logger.success(f"PASS[{i + 1}|{_round}]".center(28, "="))
