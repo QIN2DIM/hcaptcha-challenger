@@ -6,7 +6,6 @@
 import os
 import typing
 import warnings
-from typing import List, Callable, Union, Dict
 
 import cv2
 import numpy as np
@@ -23,7 +22,11 @@ class ResNetFactory(ModelHub):
         super().__init__(_onnx_prefix, _name, _dir_model)
         self.register_model()
 
-    def classifier(self, img_stream, feature_filters: Union[Callable, List[Callable]] = None):
+    def classifier(
+        self,
+        img_stream,
+        feature_filters: typing.Union[typing.Callable, typing.List[typing.Callable]] = None,
+    ):
         img_arr = np.frombuffer(img_stream, np.uint8)
         img = cv2.imdecode(img_arr, flags=1)
 

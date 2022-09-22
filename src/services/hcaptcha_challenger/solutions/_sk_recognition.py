@@ -56,7 +56,7 @@ class SKRecognition:
         graph_.nodes[dst]["total color"] += graph_.nodes[src]["total color"]
         graph_.nodes[dst]["pixel count"] += graph_.nodes[src]["pixel count"]
         graph_.nodes[dst]["mean color"] = (
-            graph_.nodes[dst]["total color"] / graph_.nodes[dst]["pixel count"]
+                graph_.nodes[dst]["total color"] / graph_.nodes[dst]["pixel count"]
         )
 
     @staticmethod
@@ -128,8 +128,8 @@ class _LeftPlaneRecognition(SKRecognition):
         min_x = np.min(np.nonzero(edges1), axis=1)[1]
         max_x = np.max(np.nonzero(edges1), axis=1)[1]
 
-        left_nonzero = np.count_nonzero(edges1[:, min_x : min(max_x, min_x + self.left_threshold)])
-        right_nonzero = np.count_nonzero(edges1[:, max(min_x, max_x - self.left_threshold) : max_x])
+        left_nonzero = np.count_nonzero(edges1[:, min_x: min(max_x, min_x + self.left_threshold)])
+        right_nonzero = np.count_nonzero(edges1[:, max(min_x, max_x - self.left_threshold): max_x])
 
         # Flying towards the right
         if left_nonzero > right_nonzero:
@@ -161,8 +161,8 @@ class _RightPlaneRecognition(SKRecognition):
         min_x = np.min(np.nonzero(edges1), axis=1)[1]
         max_x = np.max(np.nonzero(edges1), axis=1)[1]
 
-        left_nonzero = np.count_nonzero(edges1[:, min_x : min(max_x, min_x + self.left_threshold)])
-        right_nonzero = np.count_nonzero(edges1[:, max(min_x, max_x - self.left_threshold) : max_x])
+        left_nonzero = np.count_nonzero(edges1[:, min_x: min(max_x, min_x + self.left_threshold)])
+        right_nonzero = np.count_nonzero(edges1[:, max(min_x, max_x - self.left_threshold): max_x])
 
         # Flying towards the left
         if left_nonzero < right_nonzero:

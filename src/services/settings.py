@@ -42,8 +42,9 @@ HCAPTCHA_DEMO_SITES = [
 #  ├── model
 #  │   ├── _assets
 #  │   ├── _memory
-#  │   └── rainbow.yaml
+#  │   └── rainbow.yaml[DEPRECATED]
 #  └── src
+#      ├── main.py
 #      └── objects.yaml
 # ---------------------------------------------------
 PROJECT_SRC = dirname(dirname(__file__))

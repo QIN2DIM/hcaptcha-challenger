@@ -5,14 +5,15 @@
 # Description:
 import shutil
 import sys
+import typing
 import webbrowser
-from typing import Optional
 
+from loguru import logger
 from webdriver_manager.chrome import ChromeType
 from webdriver_manager.core.utils import get_browser_version_from_os
 
 from services.hcaptcha_challenger import YOLO, PluggableObjects
-from services.settings import DIR_MODEL, logger, DIR_ASSETS
+from services.settings import DIR_MODEL, DIR_ASSETS
 
 
 def download_driver():
@@ -38,13 +39,7 @@ def download_driver():
     logger.info("Re-execute the `install` scaffolding command after the installation is complete.")
 
 
-def pull_rainbow():
-    from services.hcaptcha_challenger import Rainbow
-
-    Rainbow(dir_assets=DIR_ASSETS).sync(force=True)
-
-
-def do(yolo_onnx_prefix: Optional[str] = None, upgrade: Optional[bool] = False):
+def do(yolo_onnx_prefix: typing.Optional[str] = None, upgrade: typing.Optional[bool] = False):
     """下载项目运行所需的各项依赖"""
     dir_assets = DIR_ASSETS
 

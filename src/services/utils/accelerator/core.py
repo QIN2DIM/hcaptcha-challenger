@@ -4,7 +4,7 @@
 # Github     : https://github.com/QIN2DIM
 # Description:
 import asyncio
-from typing import Optional, List, Union
+import typing
 
 import aiohttp
 
@@ -12,7 +12,7 @@ import aiohttp
 class AshFramework:
     """轻量化的协程控件"""
 
-    def __init__(self, docker: Optional[List] = None):
+    def __init__(self, docker: typing.Optional[typing.List] = None):
         # 任务容器：queue
         self.worker, self.done = asyncio.Queue(), asyncio.Queue()
         # 任务容器
@@ -35,7 +35,7 @@ class AshFramework:
                 self.worker.put_nowait(task)
         self.max_queue_size = self.worker.qsize()
 
-    def offload(self) -> Optional[List]:
+    def offload(self) -> typing.Optional[typing.List]:
         """缓存卸载"""
         crash = []
         while not self.done.empty():
@@ -52,7 +52,7 @@ class AshFramework:
             context = self.worker.get_nowait()
             await self.control_driver(context, session=session)
 
-    async def subvert(self, workers: Union[str, int]):
+    async def subvert(self, workers: typing.Union[str, int]):
         """
         框架接口
 
