@@ -116,7 +116,6 @@ class HolyChallenger:
         screenshot: typing.Optional[bool] = False,
         debug: typing.Optional[bool] = False,
         path_objects_yaml: typing.Optional[str] = None,
-        lazy_loading: typing.Optional[bool] = False,
     ):
         if not isinstance(lang, str) or not self.label_alias.get(lang):
             raise ChallengeLangException(
@@ -130,7 +129,6 @@ class HolyChallenger:
         self.onnx_prefix = onnx_prefix
         self.screenshot = screenshot
         self.path_objects_yaml = path_objects_yaml
-        self.lazy_loading = bool(lazy_loading)
 
         # 存储挑战图片的目录
         self.runtime_workspace = ""
@@ -155,14 +153,10 @@ class HolyChallenger:
         self.threat = 0
 
         # Automatic registration
-        self.pluggable_onnx_models = {}
         self.pom_handler = resnet.PluggableONNXModels(
-            self.path_objects_yaml, dir_model=self.dir_model
+            path_objects_yaml=self.path_objects_yaml, dir_model=self.dir_model, lang=self.lang
         )
-        self.label_alias.update(self.pom_handler.label_alias[lang])
-        if not self.lazy_loading:
-            self.pluggable_onnx_models = self.pom_handler.overload()
-        self.yolo_model = yolo.YOLO(self.dir_model, self.onnx_prefix)
+        self.label_alias.update(self.pom_handler.label_alias)
 
     @property
     def utils(self):
@@ -237,14 +231,15 @@ class HolyChallenger:
         :return:
         """
 
-        def split_prompt_message(prompt_message: str) -> str:
+        def split_prompt_message(prompt_message: str, lang: str) -> str:
             """Detach label from challenge prompt"""
-            if self.lang.startswith("zh"):
+            if lang.startswith("zh"):
                 if "的每" in prompt_message:
-                    return re.split(r"[点击 的每]", prompt_message)[2]
+                    res = re.split(r"[击 的每]", prompt_message)[1]
+                    return res[2:] if res.startswith("包含") else res
                 if "包含" in prompt_message:
                     return re.split(r"[包含 图片]", prompt_message)[2][:-1]
-            elif self.lang.startswith("en"):
+            elif lang.startswith("en"):
                 prompt_message = prompt_message.replace(".", "").lower()
                 if "containing" in prompt_message:
                     return re.split(r"containing a", prompt_message)[-1][1:].strip()
@@ -286,7 +281,7 @@ class HolyChallenger:
 
         # Continue the `click challenge`
         try:
-            _label = split_prompt_message(prompt_message=self.prompt)
+            _label = split_prompt_message(prompt_message=self.prompt, lang=self.lang)
         except (AttributeError, IndexError):
             raise LabelNotFoundException("Get the exception label object")
         else:
@@ -330,16 +325,11 @@ class HolyChallenger:
         """Optimizing solutions based on different challenge labels"""
         label_alias = self.label_alias.get(self.label)
 
-        # Models cold-load
-        if self.lazy_loading and not self.pluggable_onnx_models.get(label_alias):
-            self.log("lazy-loading", sign=label_alias)
-            tarnished = self.pom_handler.lazy_loading(label_alias)
-            self.pluggable_onnx_models[label_alias] = tarnished
-
-        # Select ONNX model - ResNet | YOLO
-        if self.pluggable_onnx_models.get(label_alias):
-            return self.pluggable_onnx_models[label_alias]
-        return self.yolo_model
+        # Load ONNX model - ResNet | YOLO
+        if label_alias not in self.pom_handler.fingers:
+            self.log("lazy-loading", sign="YOLO", match=label_alias)
+            return yolo.YOLO(self.dir_model, self.onnx_prefix)
+        return self.pom_handler.lazy_loading(label_alias)
 
     def mark_samples(self, ctx: Chrome):
         """
@@ -473,7 +463,7 @@ class HolyChallenger:
                 try:
                     # Add a short sleep so that the user
                     # can see the prediction results of the model
-                    time.sleep(random.uniform(0.2, 0.3))
+                    time.sleep(random.uniform(0.3, 0.6))
                     self.alias2locator[alias].click()
                 except StaleElementReferenceException:
                     pass
@@ -662,6 +652,7 @@ class HolyChallenger:
                 self.log("Get response", desc=result)
 
                 ctx.switch_to.default_content()
+                solution.offload()
                 if result in [self.CHALLENGE_SUCCESS, self.CHALLENGE_CRASH, self.CHALLENGE_RETRY]:
                     return result
 
