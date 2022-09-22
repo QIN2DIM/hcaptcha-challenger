@@ -238,19 +238,22 @@ class HolyChallenger:
         """
 
         def split_prompt_message(prompt_message: str) -> str:
-            """根据指定的语种在提示信息中分离挑战标签"""
-            labels_mirror = {
-                "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1].replace("的每", "")
-                if "包含" in prompt_message
-                else prompt_message,
-                "en": re.split(r"containing a", prompt_message)[-1][1:].strip().replace(".", "")
-                if "containing" in prompt_message
-                else prompt_message,
-            }
-            return labels_mirror[self.lang]
+            """Detach label from challenge prompt"""
+            if self.lang.startswith("zh"):
+                if "的每" in prompt_message:
+                    return re.split(r"[点击 的每]", prompt_message)[2]
+                if "包含" in prompt_message:
+                    return re.split(r"[包含 图片]", prompt_message)[2][:-1]
+            elif self.lang.startswith("en"):
+                prompt_message = prompt_message.replace(".", "")
+                if "containing" in prompt_message:
+                    return re.split(r"containing a", prompt_message)[-1][1:].strip()
+                if "select all" in prompt_message:
+                    return re.split(r"all (.*) images", prompt_message)[1].strip()
+            return prompt_message
 
         def label_cleaning(raw_label: str) -> str:
-            """清洗误码 | 将不规则 UNICODE 字符替换成正常的英文字符"""
+            """cleaning errors-unicode"""
             clean_label = raw_label
             for c in self.BAD_CODE:
                 clean_label = clean_label.replace(c, self.BAD_CODE[c])
