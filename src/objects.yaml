@@ -124,7 +124,7 @@ label_alias:
     zh: [ "悬挂在天花板上的植物" ]
     en: [ "plant hanging from the ceiling" ]
   plant_on_the_table:
-    zh: [ "植物" ]
+    zh: [ "植物" , "桌子上包含植物"]
     en: [ "plant on the table" ]
   dead_and_dried_plant_in_the_pot:
     zh: [ "花盆中枯死和干燥植物" ]
@@ -134,7 +134,7 @@ label_alias:
     zh: [ "玩具兔子" ]
     en: [ "toy rabbit" ]
   rabbit_in_the_grass:
-    zh: [ ] # hook to rabbit
+    zh: [ "草丛中包含兔子" ]
     en: [ "rabbit in the grass" ]
   rabbit:
     zh: [ "兔子" ]
@@ -152,5 +152,5 @@ label_alias:
     zh: [ "玩具乌龟" ]
     en: [ "toy turtle" ]
   turtle_in_the_grass:
-    zh: [ ]
+    zh: [ "草丛中包含乌龟" ]
     en: [ "turtle in the grass" ]
