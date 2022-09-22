@@ -245,7 +245,7 @@ class HolyChallenger:
                 if "包含" in prompt_message:
                     return re.split(r"[包含 图片]", prompt_message)[2][:-1]
             elif self.lang.startswith("en"):
-                prompt_message = prompt_message.replace(".", "")
+                prompt_message = prompt_message.replace(".", "").lower()
                 if "containing" in prompt_message:
                     return re.split(r"containing a", prompt_message)[-1][1:].strip()
                 if "select all" in prompt_message:
