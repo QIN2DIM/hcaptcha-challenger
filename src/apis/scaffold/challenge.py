@@ -54,7 +54,7 @@ def runner(
     onnx_prefix: typing.Optional[str] = None,
     screenshot: typing.Optional[bool] = False,
     lazy_loading: typing.Optional[bool] = None,
-    _round: typing.Optional[int] = 10,
+    repeat: typing.Optional[int] = 10,
 ):
     """Human-Machine Challenge Demonstration | Top Interface"""
 
@@ -72,19 +72,19 @@ def runner(
 
     # Instantiating the Challenger Drive
     with get_challenge_ctx(silence=silence, lang=lang) as ctx:
-        for i in range(_round):
+        for i in range(repeat):
             start = time.time()
             try:
                 if (resp := _motion(sample_site, ctx=ctx, challenger=challenger)) is None:
                     logger.warning("UnknownMistake")
                 elif resp == challenger.CHALLENGE_SUCCESS:
                     challenger.log(f"End of demo - total: {round(time.time() - start, 2)}s")
-                    logger.success(f"PASS[{i + 1}|{_round}]".center(28, "="))
+                    logger.success(f"PASS[{i + 1}|{repeat}]".center(28, "="))
                 elif resp == challenger.CHALLENGE_RETRY:
                     ctx.refresh()
-                    logger.error(f"RETRY[{i + 1}|{_round}]".center(28, "="))
+                    logger.error(f"RETRY[{i + 1}|{repeat}]".center(28, "="))
             except ChallengePassed:
                 ctx.refresh()
-                logger.success(f"PASS[{i + 1}|{_round}]".center(28, "="))
+                logger.success(f"PASS[{i + 1}|{repeat}]".center(28, "="))
             except WebDriverException as err:
                 logger.warning(err)

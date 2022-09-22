@@ -7,15 +7,14 @@ import csv
 import os.path
 import time
 from datetime import datetime
-from typing import Optional
 
+from loguru import logger
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
-from services.settings import logger
 from services.utils import ToolBox
 
 
@@ -54,9 +53,8 @@ class MotionData:
 
     def _overload(self, ctx):
         try:
-            mouse_track: Optional[str] = ctx.find_element(
-                By.CLASS_NAME, "track-coordinate-list"
-            ).text
+            mouse_track_obj = ctx.find_element(By.CLASS_NAME, "track-coordinate-list")
+            mouse_track = mouse_track_obj.text
         except (WebDriverException, AttributeError):
             logger.warning("Failed to record mouse track")
         except Exception as err:

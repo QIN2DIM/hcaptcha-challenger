@@ -39,6 +39,7 @@ class Scaffold:
         sitekey: typing.Optional[str] = None,
         screenshot: typing.Optional[bool] = False,
         memory_optimized: typing.Optional[bool] = True,
+        repeat: typing.Optional[int] = 5,
     ):
         """
         Dueling with hCAPTCHA challenge using YOLOv5.
@@ -51,6 +52,7 @@ class Scaffold:
         or: python main.py demo --sitekey=[UUID]
         ——————————————————————————————————————————————————————————————————
 
+        :param repeat: Default 5. Number of times to repeat the presentation.
         :param memory_optimized: Default True. Pluggable models lazy loading.
             IF True, When you encounter a challenge for the first time, cache the corresponding model.
             ELSE, Preload all registered local models.
@@ -64,7 +66,6 @@ class Scaffold:
         :param target: Default None. Designate `Challenge Source`. See the global value SITE_KEYS.
         :return:
         """
-
         # Generate challenge topics
         if _SITE_KEYS.get(target):
             sample_site = HCAPTCHA_DEMO_API.format(_SITE_KEYS[target])
@@ -80,6 +81,7 @@ class Scaffold:
             onnx_prefix=model,
             screenshot=screenshot,
             lazy_loading=memory_optimized,
+            repeat=repeat,
         )
 
     @staticmethod

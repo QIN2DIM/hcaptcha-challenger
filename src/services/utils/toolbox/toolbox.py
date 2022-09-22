@@ -6,7 +6,7 @@
 import logging
 import os
 import sys
-from typing import Optional
+import typing
 
 import undetected_chromedriver as uc
 from loguru import logger
@@ -67,7 +67,7 @@ class ToolBox:
         return flag_
 
 
-def get_challenge_ctx(silence: Optional[bool] = None, lang: Optional[str] = None):
+def get_challenge_ctx(silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None):
     """
     Challenger drive for handling human-machine challenges.
 

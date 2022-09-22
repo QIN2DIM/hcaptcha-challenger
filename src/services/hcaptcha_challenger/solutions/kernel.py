@@ -3,19 +3,16 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
-import hashlib
 import json
 import os
 import shutil
 import time
 import typing
-from os.path import dirname, join
-from typing import Optional, Dict, List, Any
+from os.path import join
 from urllib.request import getproxies
 
 import cv2
 import requests
-import yaml
 from loguru import logger
 
 
@@ -36,7 +33,7 @@ class Memory:
 
         self._build()
 
-    def _build(self) -> Optional[Dict[str, str]]:
+    def _build(self) -> typing.Optional[typing.Dict[str, str]]:
         """:return filename to nodeId"""
         if not self._fn2memory:
             os.makedirs(self._dir_memory, exist_ok=True)
@@ -48,7 +45,7 @@ class Memory:
                     self._fn2memory[fn] = node_id
         return self._fn2memory
 
-    def get_node_id(self) -> Optional[str]:
+    def get_node_id(self) -> typing.Optional[str]:
         return self._fn2memory.get(self.fn, "")
 
     def dump(self, new_node_id: str):
@@ -130,7 +127,7 @@ class Assets:
         with open(recoded_name, "w", encoding="utf8") as file:
             json.dump(self._fn2assets, file)
 
-    def _pull(self, skip_preload: bool = False) -> Optional[Dict[str, dict]]:
+    def _pull(self, skip_preload: bool = False) -> typing.Optional[typing.Dict[str, dict]]:
         def request_assets():
             logger.debug(f"Pulling AssetsObject from {self.GITHUB_RELEASE_API}")
 
@@ -144,7 +141,7 @@ class Assets:
                 logger.error(err)
             else:
                 if isinstance(data, dict):
-                    assets: List[dict] = data.get(self.NAME_ASSETS, [])
+                    assets: typing.List[dict] = data.get(self.NAME_ASSETS, [])
                     for asset in assets:
                         self._fn2assets[asset[self.NAME_ASSET_NAME]] = asset
             finally:
@@ -156,7 +153,7 @@ class Assets:
             request_assets()
         return self._fn2assets
 
-    def _get_asset(self, key: str, oncall_default: Any):
+    def _get_asset(self, key: str, oncall_default: typing.Any):
         return self._fn2assets.get(self.fn, {}).get(key, oncall_default)
 
     def sync(self, force: typing.Optional[bool] = None, **kwargs):
@@ -166,13 +163,13 @@ class Assets:
     def dir_assets(self):
         return self._dir_assets
 
-    def get_node_id(self) -> Optional[str]:
+    def get_node_id(self) -> typing.Optional[str]:
         return self._get_asset(self.NAME_ASSET_NODE_ID, "")
 
-    def get_download_url(self) -> Optional[str]:
+    def get_download_url(self) -> typing.Optional[str]:
         return self._get_asset(self.NAME_ASSET_DOWNLOAD_URL, "")
 
-    def get_size(self) -> Optional[int]:
+    def get_size(self) -> typing.Optional[int]:
         return self._get_asset(self.NAME_ASSET_SIZE, 0)
 
 
@@ -191,75 +188,6 @@ class PluggableObjects:
 
     def sync(self):
         _request_asset(self.URL_REMOTE_OBJECTS, self.path_objects, self.fn)
-
-
-class Rainbow(Assets):
-    """Deprecated Obsolete Features, it will be removed in the future."""
-
-    _table = {}
-
-    def __init__(self, dir_assets: str):
-        super().__init__(fn="rainbow.yaml", dir_assets=dir_assets)
-        self.path_rainbow = join(dirname(dir_assets), self.fn)
-
-        self._build()
-
-    def _build(self) -> Dict[str, str]:
-        if self._table:
-            return self._table
-
-        os.makedirs(dirname(self.path_rainbow), exist_ok=True)
-        if os.path.exists(self.path_rainbow):
-            with open(self.path_rainbow, "r", encoding="utf8") as file:
-                stream = yaml.safe_load(file)
-            self._table.update(stream)
-
-        return self._table
-
-    def match(self, img_stream: bytes, rainbow_key: str) -> Optional[bool]:
-        """
-
-        :param img_stream:
-        :param rainbow_key:
-        :return:
-        """
-        try:
-            if self._table[rainbow_key]["yes"].get(hashlib.md5(img_stream).hexdigest()):
-                return True
-            if self._table[rainbow_key]["bad"].get(hashlib.md5(img_stream).hexdigest()):
-                return False
-        except KeyError:
-            pass
-        return None
-
-    def sync(self, force: typing.Optional[bool] = None, **kwargs):
-        url = self.get_download_url()
-
-        # Check for extreme cases
-        if not isinstance(url, str) or not url.startswith("https:"):
-            return
-
-        if force is True:
-            os.remove(self.path_rainbow)
-
-        # 1. local > static_remote
-        #   - rainbow: 玩家手動下載了最新版本文件（本地 _assets 靜態緩存過期）
-        #   - rainbow: 基於某個版本的文件做了改動導致的 size 不匹配
-        # 2. local < static_remote
-        #   - rainbow: 本地 rainbow 未改動但落後於最新版本
-        #   - rainbow: 基於某個版本的文件做了刪改導致的 size 不匹配
-        # 3. local NotFounded
-        #   - rainbow: 本地緩存尚未構建，建議拉取
-        if (
-            not os.path.exists(self.path_rainbow)
-            or os.path.getsize(self.path_rainbow) != self.get_size()
-        ):
-            # 更新 Assets 本地缓存
-            self._pull(skip_preload=True)
-            # 更新 Rainbow 本地缓存
-            _request_asset(url, self.path_rainbow, self.fn)
-            # 刷新 Rainbow 运行缓存
-            self._build()
 
 
 class ModelHub:
@@ -321,7 +249,7 @@ class ModelHub:
             self.memory.dump(new_node_id=asset_node_id)
 
     @logger.catch()
-    def register_model(self) -> Optional[bool]:
+    def register_model(self) -> typing.Optional[bool]:
         """Load and register an existing model"""
         # Update AssetsObject local cache
         if os.path.exists(self.path_model) and not self.memory.is_outdated(

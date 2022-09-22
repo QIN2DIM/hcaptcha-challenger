@@ -5,10 +5,10 @@ import re
 import sys
 import time
 import typing
-from typing import Optional, Union, Tuple
 from urllib.parse import quote
 from urllib.request import getproxies
 
+from loguru import logger
 from selenium.common.exceptions import (
     ElementNotVisibleException,
     ElementClickInterceptedException,
@@ -16,20 +16,15 @@ from selenium.common.exceptions import (
     TimeoutException,
     NoSuchElementException,
     StaleElementReferenceException,
+    ElementNotInteractableException,
 )
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
 
-from services.settings import logger
 from services.utils import AshFramework, ToolBox
-from .exceptions import (
-    LabelNotFoundException,
-    ChallengePassed,
-    AssertTimeout,
-    ChallengeLangException,
-)
+from .exceptions import LabelNotFoundException, ChallengePassed, ChallengeLangException
 from .solutions import resnet, yolo
 
 
@@ -295,7 +290,7 @@ class HolyChallenger:
             self.label = label_cleaning(_label)
             self.log(message="Get label", label=f"「{self.label}」")
 
-    def tactical_retreat(self, ctx) -> Optional[str]:
+    def tactical_retreat(self, ctx) -> typing.Optional[str]:
         """
         「blacklist mode」 skip unchoreographed challenges
         :param ctx:
@@ -499,7 +494,7 @@ class HolyChallenger:
 
         self.log(message=f"Submit the challenge - {model.flag}: {round(sum(ta), 2)}s")
 
-    def challenge_success(self, ctx: Chrome) -> Tuple[str, str]:
+    def challenge_success(self, ctx: Chrome) -> typing.Tuple[str, str]:
         """
         判断挑战是否成功的复杂逻辑
 
@@ -595,7 +590,7 @@ class HolyChallenger:
                 # [👻] 回到主线剧情
                 ctx.switch_to.default_content()
 
-    def anti_hcaptcha(self, ctx: Chrome) -> Union[bool, str]:
+    def anti_hcaptcha(self, ctx: Chrome) -> typing.Union[bool, str]:
         """
         Handle hcaptcha challenge
 
@@ -675,48 +670,7 @@ class HolyChallenger:
 
 class ArmorUtils:
     @staticmethod
-    def fall_in_captcha_login(ctx: Chrome) -> Optional[bool]:
-        """
-        判断在登录时是否遇到人机挑战
-
-        :param ctx:
-        :return: True：已进入人机验证页面，False：跳转到个人主页
-        """
-        threshold_timeout = 35
-        start = time.time()
-        flag_ = ctx.current_url
-        while True:
-            if ctx.current_url != flag_:
-                return False
-
-            if time.time() - start > threshold_timeout:
-                raise AssertTimeout("任务超时：判断是否陷入人机验证")
-
-            try:
-                ctx.switch_to.frame(
-                    ctx.find_element(By.XPATH, "//iframe[contains(@title,'content')]")
-                )
-                ctx.find_element(By.XPATH, "//div[@class='prompt-text']")
-                return True
-            except WebDriverException:
-                pass
-            finally:
-                ctx.switch_to.default_content()
-
-    @staticmethod
-    def fall_in_captcha_runtime(ctx: Chrome) -> Optional[bool]:
-        """捕获隐藏在周免游戏订单中的人机挑战"""
-        try:
-            WebDriverWait(ctx, 5, ignored_exceptions=(WebDriverException,)).until(
-                EC.presence_of_element_located((By.XPATH, "//iframe[contains(@title,'content')]"))
-            )
-            return True
-        except TimeoutException:
-            return False
-
-    @staticmethod
-    def face_the_checkbox(ctx: Chrome) -> Optional[bool]:
-        """遇见 hCaptcha checkbox"""
+    def face_the_checkbox(ctx: Chrome) -> typing.Optional[bool]:
         try:
             WebDriverWait(ctx, 8, ignored_exceptions=(WebDriverException,)).until(
                 EC.presence_of_element_located((By.XPATH, "//iframe[contains(@title,'checkbox')]"))
@@ -724,3 +678,15 @@ class ArmorUtils:
             return True
         except TimeoutException:
             return False
+
+    @staticmethod
+    def get_hcaptcha_response(ctx: Chrome) -> typing.Optional[str]:
+        return ctx.execute_script("return hcaptcha.getResponse()")
+
+    @staticmethod
+    def refresh(ctx: Chrome) -> typing.Optional[bool]:
+        try:
+            ctx.find_element(By.XPATH, "//div[@class='refresh button']").click()
+        except (NoSuchElementException, ElementNotInteractableException):
+            return False
+        return True

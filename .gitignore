@@ -133,3 +133,4 @@ model/
 tests/
 docs-src/
 .pypirc
+src/services/hcaptcha_challenger/solutions/_sk_recognition.py

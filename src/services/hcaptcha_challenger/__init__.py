@@ -4,15 +4,8 @@
 # Github     : https://github.com/QIN2DIM
 # Description:
 from .core import HolyChallenger, ArmorUtils
-from .solutions.kernel import Rainbow, PluggableObjects
+from .solutions.kernel import PluggableObjects
 from .solutions.resnet import PluggableONNXModels
 from .solutions.yolo import YOLO
 
-__all__ = [
-    "YOLO",
-    "HolyChallenger",
-    "ArmorUtils",
-    "PluggableONNXModels",
-    "Rainbow",
-    "PluggableObjects",
-]
+__all__ = ["YOLO", "HolyChallenger", "ArmorUtils", "PluggableONNXModels", "PluggableObjects"]
