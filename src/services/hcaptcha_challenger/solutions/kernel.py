@@ -260,6 +260,10 @@ class ModelHub:
             return True
         return False
 
+    def offload(self):
+        if self.fn in self._fn2net:
+            self._fn2net.pop(self.fn)
+
     def match_net(self):
         """
         PluggableONNXModel 对象实例化时：

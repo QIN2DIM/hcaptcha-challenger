@@ -53,7 +53,6 @@ def runner(
     silence: typing.Optional[bool] = False,
     onnx_prefix: typing.Optional[str] = None,
     screenshot: typing.Optional[bool] = False,
-    lazy_loading: typing.Optional[bool] = None,
     repeat: typing.Optional[int] = 10,
 ):
     """Human-Machine Challenge Demonstration | Top Interface"""
@@ -65,7 +64,6 @@ def runner(
         path_objects_yaml=PATH_OBJECTS_YAML,
         onnx_prefix=onnx_prefix,
         screenshot=screenshot,
-        lazy_loading=lazy_loading,
         lang=lang,
         debug=True,
     )

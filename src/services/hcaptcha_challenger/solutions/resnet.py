@@ -69,11 +69,20 @@ class PluggableONNXModels:
     such as model download, model cache, and model scheduling.
     """
 
-    def __init__(self, path_objects_yaml: str, dir_model: str):
+    def __init__(self, path_objects_yaml: str, dir_model: str, lang: typing.Optional[str] = "en"):
         self.dir_model = dir_model
-        self.fingers = []
-        self.label_alias = {i: {} for i in ["zh", "en"]}
+        self.lang = lang
+        self._fingers = []
+        self._label_alias = {i: {} for i in ["zh", "en"]}
         self._register(path_objects_yaml)
+
+    @property
+    def label_alias(self) -> typing.Dict[str, str]:
+        return self._label_alias.get(self.lang)
+
+    @property
+    def fingers(self) -> typing.List[str]:
+        return self._fingers
 
     def _register(self, path_objects_yaml):
         """
@@ -94,10 +103,10 @@ class PluggableONNXModels:
             return
 
         for model_label, i18n_to_raw_labels in label_to_i18ndict.items():
-            self.fingers.append(model_label)
+            self._fingers.append(model_label)
             for lang, prompt_labels in i18n_to_raw_labels.items():
                 for prompt_label in prompt_labels:
-                    self.label_alias[lang].update({prompt_label.strip(): model_label})
+                    self._label_alias[lang].update({prompt_label.strip(): model_label})
 
     def summon(self):
         """
@@ -106,7 +115,7 @@ class PluggableONNXModels:
 
         :rtype: None
         """
-        for finger in self.fingers:
+        for finger in self._fingers:
             new_tarnished(finger, self.dir_model).pull_model()
 
     def overload(self) -> typing.Dict[str, ModelHub]:
@@ -116,9 +125,9 @@ class PluggableONNXModels:
 
         :rtype: Dict[str, ModelHub]
         """
-        return {finger: new_tarnished(finger, self.dir_model) for finger in self.fingers}
+        return {finger: new_tarnished(finger, self.dir_model) for finger in self._fingers}
 
-    def lazy_loading(self, model_label: str):
+    def lazy_loading(self, model_label: str) -> typing.Optional[ModelHub]:
         return new_tarnished(onnx_prefix=model_label, dir_model=self.dir_model)
 
 

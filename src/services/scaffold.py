@@ -38,7 +38,6 @@ class Scaffold:
         target: typing.Optional[str] = None,
         sitekey: typing.Optional[str] = None,
         screenshot: typing.Optional[bool] = False,
-        memory_optimized: typing.Optional[bool] = True,
         repeat: typing.Optional[int] = 5,
     ):
         """
@@ -53,9 +52,6 @@ class Scaffold:
         ——————————————————————————————————————————————————————————————————
 
         :param repeat: Default 5. Number of times to repeat the presentation.
-        :param memory_optimized: Default True. Pluggable models lazy loading.
-            IF True, When you encounter a challenge for the first time, cache the corresponding model.
-            ELSE, Preload all registered local models.
         :param screenshot: Default False. Save screenshot of the challenge result.
             PATH: database/temp_cache/captcha_screenshot/
             FILENAME: ChallengeLabelName.png
@@ -80,7 +76,6 @@ class Scaffold:
             silence=silence,
             onnx_prefix=model,
             screenshot=screenshot,
-            lazy_loading=memory_optimized,
             repeat=repeat,
         )
 

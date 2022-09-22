@@ -130,6 +130,9 @@ class YOLO:
     def fn2net(self):
         return self.modelhub.fn2net
 
+    def offload(self):
+        self.modelhub.offload()
+
     def detect_common_objects(self, img: np.ndarray, confidence=0.4, nms_thresh=0.4):
         """
         Object Detection
