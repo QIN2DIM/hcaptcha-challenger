@@ -154,3 +154,12 @@ label_alias:
   turtle_in_the_grass:
     zh: [ "草丛中包含乌龟" ]
     en: [ "turtle in the grass" ]
+  duck:
+    zh: ["鸭子"]
+    en: ["duck"]
+  house_covered_in_snow:
+    zh: [ "被雪覆盖的房子" ]
+    en: ["house covered in snow"]
+  toy_house:
+    zh: ["玩具屋"]
+    en: ["toy house"]
