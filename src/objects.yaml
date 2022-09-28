@@ -169,3 +169,6 @@ label_alias:
   house:
     zh: [ "房子" ]
     en: [ "house" ]
+  cactus:
+    zh: ["仙人掌"]
+    en: ["cactus"]
