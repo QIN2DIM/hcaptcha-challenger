@@ -175,3 +175,10 @@ label_alias:
   penguin_surrounded_by_flowers:
     zh: [ "被鲜花包围的企鹅" , "被鲜" ]
     en: [ "penguin surrounded by flowers" ]
+  penguin:
+    zh: [ "企鹅" ]
+    en: [ "penguin" ]
+  penguin_behind_rocks:
+    zh: [ "岩石后面企鹅" ]
+    en: [ "penguin behind rocks" ]
+    
