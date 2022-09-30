@@ -172,3 +172,6 @@ label_alias:
   cactus:
     zh: ["仙人掌"]
     en: ["cactus"]
+  penguin_surrounded_by_flowers:
+    zh: [ "被鲜花包围的企鹅" , "被鲜" ]
+    en: ["penguin surrounded by flowers"]

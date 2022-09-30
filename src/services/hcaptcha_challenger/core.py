@@ -238,7 +238,7 @@ class HolyChallenger:
                     res = re.split(r"[击 的每]", prompt_message)[1]
                     return res[2:] if res.startswith("包含") else res
                 if "包含" in prompt_message:
-                    return re.split(r"[包含 图片]", prompt_message)[2][:-1]
+                    return re.split(r"(包含)|(的图片)", prompt_message)[3]
             elif lang.startswith("en"):
                 prompt_message = prompt_message.replace(".", "").lower()
                 if "containing" in prompt_message:
