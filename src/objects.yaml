@@ -100,7 +100,7 @@ label_alias:
     zh: [ "整个玻璃瓶" ]
     en: [ "whole glass bottle" ]
   porcelain_teacup:
-    zh: [ "类似瓷器设" ]
+    zh: [ "类似瓷器设" , "类似瓷器设计图案的茶杯" ]
     en: [ "teacup with similar porcelain design pattern" ]
 
   fish_jumping_over_the_water:
@@ -181,4 +181,3 @@ label_alias:
   penguin_behind_rocks:
     zh: [ "岩石后面企鹅" ]
     en: [ "penguin behind rocks" ]
-    
