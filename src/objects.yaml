@@ -182,5 +182,11 @@ label_alias:
     zh: [ "岩石后面企鹅" ]
     en: [ "penguin behind rocks" ]
   house_in_the_beach:
-    zh: [ ]
+    zh: [ "海滩上的房子" ]
     en: [ "house in the beach" ]
+  penguin_on_ice:
+    zh: [ "冰上企鹅" ]
+    en: [ "penguin on ice" ]
+  cactus_in_the_sand:
+    zh: [ "沙滩上的仙人掌" ]
+    en: [ "cactus in the sand" ]
