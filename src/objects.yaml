@@ -182,14 +182,23 @@ label_alias:
     zh: [ "岩石后面企鹅" ]
     en: [ "penguin behind rocks" ]
   house_in_the_beach:
-    zh: [ "海滩上的房子" ]
+    zh: [ "海滩上的房子","海滩房屋" ]
     en: [ "house in the beach" ]
   penguin_on_ice:
     zh: [ "冰上企鹅" ]
     en: [ "penguin on ice" ]
   cactus_in_the_sand:
-    zh: [ "沙滩上的仙人掌" ]
+    zh: [ "沙滩上的仙人掌", "沙中仙人掌" ]
     en: [ "cactus in the sand" ]
   cactus_in_a_pot:
     zh: [ "盆中仙人掌" ]
     en: [ "cactus in a pot" ]
+  bee_flying_near_a_flower:
+    zh: [ "蜜蜂在花朵附近飞翔" ]
+    en: [ "bee flying near a flower" ]
+  hat:
+    zh: [ "人们通常戴在头上的物品", "人们通常戴在头上" ]
+    en: [ "item that a person normally wears on their head" ]
+  dangerous_sea:
+    zh: [ "危险海" ] # wait for hook
+    en: [ "dangerous sea" ]
