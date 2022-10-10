@@ -200,5 +200,8 @@ label_alias:
     zh: [ "人们通常戴在头上的物品", "人们通常戴在头上" ]
     en: [ "item that a person normally wears on their head" ]
   dangerous_sea:
-    zh: [ "危险海" ] # wait for hook
+    zh: [ "危险海域" ]
     en: [ "dangerous sea" ]
+  hot_food:
+    zh: [ "热食" ]
+    en: [ "hot food" ]
