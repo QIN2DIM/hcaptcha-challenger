@@ -199,9 +199,19 @@ label_alias:
   hat:
     zh: [ "人们通常戴在头上的物品", "人们通常戴在头上" ]
     en: [ "item that a person normally wears on their head" ]
+  shoes:
+    zh: [ "人们通常穿在脚上的物品" ] # await
+    en: [ "item that a person normally wears on their feet" ]
+  belt:
+    zh: [ "人们通常穿在腰上的物品" ] # await
+    en: [ "item that a person usually wear on their waist" ] # await
   dangerous_sea:
     zh: [ "危险海域" ]
     en: [ "dangerous sea" ]
+  calm_sea:
+    zh: [ "平静海域","平静的大海" ] # await
+    en: [ "calm sea" ]
   hot_food:
-    zh: [ "热食" ]
+    zh: [ "热食" ] # await
     en: [ "hot food" ]
+
