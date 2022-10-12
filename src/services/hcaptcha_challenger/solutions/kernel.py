@@ -17,7 +17,7 @@ from loguru import logger
 
 
 class ChallengeStyle:
-    WATERMARK = 100
+    WATERMARK = 112  # 100
     GENERAL = 128
     GAN = 144
 

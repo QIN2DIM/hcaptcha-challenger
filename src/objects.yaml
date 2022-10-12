@@ -200,7 +200,7 @@ label_alias:
     zh: [ "人们通常戴在头上的物品", "人们通常戴在头上" ]
     en: [ "item that a person normally wears on their head" ]
   shoes:
-    zh: [ "人们通常穿在脚上的物品" ] # await
+    zh: [ "人们通常脚上穿着的物品" ]
     en: [ "item that a person normally wears on their feet" ]
   belt:
     zh: [ "人们通常穿在腰上的物品" ] # await
