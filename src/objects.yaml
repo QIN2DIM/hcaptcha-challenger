@@ -203,7 +203,7 @@ label_alias:
     zh: [ "人们通常脚上穿着的物品" ]
     en: [ "item that a person normally wears on their feet" ]
   belt:
-    zh: [ "人们通常穿在裤子上的物品" ] # await
+    zh: [ "人们通常穿在裤子上的物品" ]
     en: [ "item that a person normally wears on their pants" ]
   dangerous_sea:
     zh: [ "危险海域" ]
@@ -214,4 +214,7 @@ label_alias:
   hot_food:
     zh: [ "热食" ] # await
     en: [ "hot food" ]
+  cold_drink:
+    zh: [ "冷饮","玻璃加冰" ] # await
+    en: [ "cold drink", "glass with ice" ]
 
