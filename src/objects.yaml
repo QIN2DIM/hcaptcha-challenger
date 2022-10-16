@@ -217,4 +217,6 @@ label_alias:
   cold_drink:
     zh: [ "冷饮","玻璃加冰" ] # await
     en: [ "cold drink", "glass with ice" ]
-
+  jellyfish:
+    zh: [ "水母" ]#await
+    en: [ "jellyfish" ]
