@@ -206,10 +206,10 @@ label_alias:
     zh: [ "人们通常穿在裤子上的物品" ]
     en: [ "item that a person normally wears on their pants" ]
   dangerous_sea:
-    zh: [ "危险海域" ]
+    zh: [ "危险海域","危险海洋" ]
     en: [ "dangerous sea" ]
   calm_sea:
-    zh: [ "平静海域","平静的大海" ] # await
+    zh: [ "平静海域","平静海洋" ]
     en: [ "calm sea" ]
   hot_food:
     zh: [ "热食" ] # await
