@@ -220,3 +220,6 @@ label_alias:
   jellyfish:
     zh: [ "水母" ]#await
     en: [ "jellyfish" ]
+  cup_of_coffee:
+    zh: [ "一杯咖啡" ]
+    en: [ "cup_of_coffee" ]
