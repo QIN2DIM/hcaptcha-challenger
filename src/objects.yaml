@@ -90,8 +90,8 @@ label_alias:
     zh: [ "一只飞翔的鸟" ]
     en: [ "bird flying" ]
   bird_on_a_branch:
-    zh: [ "树枝上的鸟" ]
-    en: [ "bird on a branch" ]
+    zh: [ "树枝上的鸟","一只蜂鸟在树枝上" ]
+    en: [ "bird on a branch","hummingbird on a tree branch" ]
 
   broken_glass_bottle:
     zh: [ "破碎玻璃瓶" ]
