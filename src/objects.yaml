@@ -218,8 +218,11 @@ label_alias:
     zh: [ "冷饮","冰杯" ] # await
     en: [ "cold drink", "glass with ice" ]
   jellyfish:
-    zh: [ "水母" ]#await
+    zh: [ "水母" ] #await
     en: [ "jellyfish" ]
+  shark:
+    zh: [ "鲨鱼" ] #await
+    en: [ "shark" ]
   cup_of_coffee:
     zh: [ "一杯咖啡" ]
     en: [ "cup_of_coffee" ]
