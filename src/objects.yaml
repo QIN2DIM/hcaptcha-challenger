@@ -209,7 +209,7 @@ label_alias:
     zh: [ "危险海域","危险海洋" ]
     en: [ "dangerous sea" ]
   calm_sea:
-    zh: [ "平静海域","平静海洋" ]
+    zh: [ "平静海域","平静海洋","平静海面" ]
     en: [ "calm sea" ]
   hot_food:
     zh: [ "热食" ] # await
