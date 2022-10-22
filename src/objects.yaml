@@ -90,7 +90,7 @@ label_alias:
     zh: [ "一只飞翔的鸟" ]
     en: [ "bird flying" ]
   bird_on_a_branch:
-    zh: [ "树枝上的鸟","一只蜂鸟在树枝上" ]
+    zh: [ "树枝上的鸟","一只蜂鸟在树枝上","树枝上包含蜂鸟" ]
     en: [ "bird on a branch","hummingbird on a tree branch" ]
 
   broken_glass_bottle:
@@ -215,14 +215,17 @@ label_alias:
     zh: [ "热食" ] # await
     en: [ "hot food" ]
   cold_drink:
-    zh: [ "冷饮","冰杯" ] # await
+    zh: [ "冷饮","冰杯" ]
     en: [ "cold drink", "glass with ice" ]
   jellyfish:
-    zh: [ "水母" ] #await
+    zh: [ "水母" ]
     en: [ "jellyfish" ]
   shark:
-    zh: [ "鲨鱼" ] #await
+    zh: [ "鲨鱼" ]
     en: [ "shark" ]
+  octopus:
+    zh: [ "章鱼" ]
+    en: [ "octopus" ]
   cup_of_coffee:
     zh: [ "一杯咖啡" ]
     en: [ "cup_of_coffee" ]

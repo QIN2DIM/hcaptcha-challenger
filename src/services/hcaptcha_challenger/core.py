@@ -235,7 +235,7 @@ class HolyChallenger:
         def split_prompt_message(prompt_message: str, lang: str) -> str:
             """Detach label from challenge prompt"""
             if lang.startswith("zh"):
-                if "中包含" in prompt_message:
+                if "中包含" in prompt_message or "上包含" in prompt_message:
                     return re.split(r"击|(的每)", prompt_message)[2]
                 if "的每" in prompt_message:
                     return re.split(r"(包含)|(的每)", prompt_message)[3]
