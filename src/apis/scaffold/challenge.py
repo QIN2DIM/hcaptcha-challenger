@@ -5,31 +5,26 @@
 # Description:
 import time
 import typing
-import warnings
 
 from loguru import logger
-from selenium.common.exceptions import WebDriverException
 
-from services.hcaptcha_challenger import HolyChallenger
-from services.hcaptcha_challenger.exceptions import ChallengePassed
-from services.settings import HCAPTCHA_DEMO_SITES, DIR_MODEL, DIR_CHALLENGE, PATH_OBJECTS_YAML
-from services.utils import get_challenge_ctx
-
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+import hcaptcha_challenger as solver
+from hcaptcha_challenger.exceptions import ChallengePassed
+from services.settings import config
 
 
 @logger.catch()
 def test():
     """Check if the Challenger driver version is compatible"""
-    ctx = get_challenge_ctx(silence=True)
+    ctx = solver.get_challenge_ctx(silence=True)
     try:
-        ctx.get(HCAPTCHA_DEMO_SITES[0])
+        ctx.get(config.HCAPTCHA_DEMO_SITES[0])
     finally:
         ctx.quit()
     logger.success("The adaptation is successful")
 
 
-def _motion(sample_site: str, ctx, challenger: HolyChallenger) -> typing.Optional[str]:
+def _motion(sample_site: str, ctx, challenger: solver.HolyChallenger) -> typing.Optional[str]:
     resp = None
 
     # Read the hCaptcha challenge test site
@@ -58,31 +53,21 @@ def runner(
     """Human-Machine Challenge Demonstration | Top Interface"""
 
     # Instantiating Challenger Components
-    challenger = HolyChallenger(
-        dir_workspace=DIR_CHALLENGE,
-        dir_model=DIR_MODEL,
-        path_objects_yaml=PATH_OBJECTS_YAML,
-        onnx_prefix=onnx_prefix,
-        screenshot=screenshot,
-        lang=lang,
-        debug=True,
+    challenger = solver.new_challenger(
+        screenshot=screenshot, debug=True, lang=lang, onnx_prefix=onnx_prefix or "yolov6n"
     )
-
-    # Instantiating the Challenger Drive
-    with get_challenge_ctx(silence=silence, lang=lang) as ctx:
-        for i in range(repeat):
-            start = time.time()
-            try:
-                if (resp := _motion(sample_site, ctx=ctx, challenger=challenger)) is None:
-                    logger.warning("UnknownMistake")
-                elif resp == challenger.CHALLENGE_SUCCESS:
-                    challenger.log(f"End of demo - total: {round(time.time() - start, 2)}s")
-                    logger.success(f"PASS[{i + 1}|{repeat}]".center(28, "="))
-                elif resp == challenger.CHALLENGE_RETRY:
-                    ctx.refresh()
-                    logger.error(f"RETRY[{i + 1}|{repeat}]".center(28, "="))
-            except ChallengePassed:
-                ctx.refresh()
+    ctx = solver.get_challenge_ctx(silence=silence, lang=lang)
+    for i in range(repeat):
+        start = time.time()
+        try:
+            if (resp := _motion(sample_site, ctx=ctx, challenger=challenger)) is None:
+                logger.warning("UnknownMistake")
+            elif resp == challenger.CHALLENGE_SUCCESS:
+                challenger.log(f"End of demo - total: {round(time.time() - start, 2)}s")
                 logger.success(f"PASS[{i + 1}|{repeat}]".center(28, "="))
-            except WebDriverException as err:
-                logger.warning(err)
+            elif resp == challenger.CHALLENGE_RETRY:
+                ctx.refresh()
+                logger.error(f"RETRY[{i + 1}|{repeat}]".center(28, "="))
+        except ChallengePassed:
+            ctx.refresh()
+            logger.success(f"PASS[{i + 1}|{repeat}]".center(28, "="))

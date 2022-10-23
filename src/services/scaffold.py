@@ -5,8 +5,11 @@
 # Description:
 import typing
 
+from apis.examples import movement, classify
 from apis.scaffold import install, challenge, app, motion
-from services.settings import HCAPTCHA_DEMO_SITES, _SITE_KEYS, HCAPTCHA_DEMO_API
+from services.settings import config
+
+install.do()
 
 
 class Scaffold:
@@ -30,6 +33,14 @@ class Scaffold:
     def test():
         """Test the Challenger drive for fitment"""
         challenge.test()
+
+    @staticmethod
+    def tracker():
+        app.run(debug=True, access_log=False)
+
+    @staticmethod
+    def motion():
+        motion.train_motion("http://127.0.0.1:8000")
 
     @staticmethod
     def demo(
@@ -63,12 +74,12 @@ class Scaffold:
         :return:
         """
         # Generate challenge topics
-        if _SITE_KEYS.get(target):
-            sample_site = HCAPTCHA_DEMO_API.format(_SITE_KEYS[target])
+        if config.SITE_KEYS.get(target):
+            sample_site = config.HCAPTCHA_DEMO_API.format(config.SITE_KEYS[target])
         else:
-            sample_site = HCAPTCHA_DEMO_SITES[0]
+            sample_site = config.HCAPTCHA_DEMO_SITES[0]
         if sitekey is not None:
-            sample_site = HCAPTCHA_DEMO_API.format(sitekey.strip())
+            sample_site = config.HCAPTCHA_DEMO_API.format(sitekey.strip())
 
         challenge.runner(
             sample_site,
@@ -80,9 +91,21 @@ class Scaffold:
         )
 
     @staticmethod
-    def tracker():
-        app.run(debug=True, access_log=False)
+    def demo_bytedance():
+        """
+        signup hcaptcha dashboard
+
+        Usage: python main.py demo-bytedance
+        :return:
+        """
+        movement()
 
     @staticmethod
-    def motion():
-        motion.train_motion("http://127.0.0.1:8000")
+    def demo_classify():
+        """
+        BinaryClassification Task
+
+        Usage: python main.py demo-classify
+        :return:
+        """
+        classify()

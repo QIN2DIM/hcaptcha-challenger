@@ -10,6 +10,15 @@ from .kernel import ChallengeStyle
 from .kernel import ModelHub
 
 
+class Prefix:
+    YOLOv5s6 = "yolov5s6"
+    YOLOv5m6 = "yolov5m6"
+    YOLOv5n6 = "yolov5n6"
+    YOLOv6n = "yolov6n"
+    YOLOv6s = "yolov6s"
+    YOLOv6t = "yolov6t"
+
+
 class YOLO:
     """YOLO model for image classification"""
 
@@ -125,6 +134,7 @@ class YOLO:
     def pull_model(self):
         """Download YOLOv5(ONNX) model"""
         self.modelhub.pull_model()
+        return self
 
     @property
     def fn2net(self):

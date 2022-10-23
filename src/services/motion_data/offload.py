@@ -15,8 +15,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
-from services.utils import ToolBox
-
 
 class MotionData:
     def __init__(self, dir_database: str = None):
@@ -35,12 +33,8 @@ class MotionData:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         logger.debug(
-            ToolBox.runtime_report(
-                motive="QUIT",
-                action_name=self.action_name,
-                message="Turn off tracker",
-                runtime=f"{round(time.time() - self.startpoint, 2)}s",
-            )
+            f">> QUIT [{self.action_name}] Turn off tracker - "
+            f"runtime={round(time.time() - self.startpoint, 2)}s"
         )
 
         try:
@@ -89,14 +83,10 @@ class MotionData:
                 x2, y2 = self.sequential_queue[timeline[i + 1]]
                 writer.writerow([x2 - x1, y2 - y1])
 
-        logger.success(
-            ToolBox.runtime_report(
-                motive="OFFLOAD",
-                action_name=self.action_name,
-                message="Record mouse track",
-                endpoint=endpoint,
-                path=fn,
-            )
+        logger.debug(
+            f">> OFFLOAD [{self.action_name}] Record mouse track - "
+            f"endpoint={endpoint} "
+            f"path={fn}"
         )
 
     def mimic(self, url: str = "http://127.0.0.1:8000"):

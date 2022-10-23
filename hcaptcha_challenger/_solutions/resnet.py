@@ -80,6 +80,9 @@ class PluggableONNXModels:
     def label_alias(self) -> typing.Dict[str, str]:
         return self._label_alias.get(self.lang)
 
+    def get_label_alias(self, lang):
+        return self._label_alias.get(lang)
+
     @property
     def fingers(self) -> typing.List[str]:
         return self._fingers
@@ -97,6 +100,10 @@ class PluggableONNXModels:
 
         with open(path_objects_yaml, "r", encoding="utf8") as file:
             data: typing.Dict[str, dict] = yaml.safe_load(file.read())
+
+        if not data:
+            os.remove(path_objects_yaml)
+            return
 
         label_to_i18ndict = data.get("label_alias", {})
         if not label_to_i18ndict:
