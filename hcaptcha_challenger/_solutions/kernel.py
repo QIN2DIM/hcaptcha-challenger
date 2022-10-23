@@ -9,6 +9,7 @@ import shutil
 import time
 import typing
 from os.path import join
+from urllib.parse import urlparse
 from urllib.request import getproxies
 
 import cv2
@@ -17,7 +18,7 @@ from loguru import logger
 
 
 class ChallengeStyle:
-    WATERMARK = 112  # 100
+    WATERMARK = 144
     GENERAL = 128
     GAN = 144
 
@@ -178,13 +179,10 @@ class PluggableObjects:
         "https://raw.githubusercontent.com/QIN2DIM/hcaptcha-challenger/main/src/objects.yaml"
     )
 
-    DEFAULT_FILENAME = "objects.yaml"
-
     def __init__(self, path_objects: str):
         self.path_objects = path_objects
-        if not os.path.isfile(self.path_objects):
-            self.path_objects = self.DEFAULT_FILENAME
         self.fn = os.path.basename(self.path_objects)
+        os.makedirs(os.path.dirname(self.path_objects), exist_ok=True)
 
     def sync(self):
         _request_asset(self.URL_REMOTE_OBJECTS, self.path_objects, self.fn)
@@ -192,6 +190,9 @@ class PluggableObjects:
 
 class ModelHub:
     _fn2net = {}
+
+    # Reverse proxy
+    CDN_PREFIX = ""
 
     def __init__(self, onnx_prefix: str, name: str, dir_model: str):
         """
@@ -295,17 +296,20 @@ class ModelHub:
 
 
 def _request_asset(asset_download_url: str, asset_path: str, fn_tag: str):
-    headers = {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.27"
+    _params = {
+        "headers": {
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.27"
+        },
+        "stream": True,
+        "proxies": getproxies(),
     }
     logger.debug(f"Downloading {fn_tag} from {asset_download_url}")
-
-    # FIXME: PTC-W6004
-    #  Audit required: External control of file name or path
-    with open(asset_path, "wb") as file, requests.get(
-        asset_download_url, headers=headers, stream=True, proxies=getproxies()
-    ) as response:
+    if isinstance(ModelHub.CDN_PREFIX, str) and ModelHub.CDN_PREFIX.startswith("https://"):
+        parser = urlparse(ModelHub.CDN_PREFIX)
+        scheme, netloc = parser.scheme, parser.netloc
+        asset_download_url = f"{scheme}://{netloc}/{asset_download_url}"
+    with open(asset_path, "wb") as file, requests.get(asset_download_url, **_params) as response:
         for chunk in response.iter_content(chunk_size=1024):
             if chunk:
                 file.write(chunk)

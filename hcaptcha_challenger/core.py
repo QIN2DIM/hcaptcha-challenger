@@ -8,6 +8,7 @@ import typing
 from urllib.parse import quote
 from urllib.request import getproxies
 
+import aiohttp
 from loguru import logger
 from selenium.common.exceptions import (
     ElementNotVisibleException,
@@ -17,21 +18,95 @@ from selenium.common.exceptions import (
     NoSuchElementException,
     StaleElementReferenceException,
     ElementNotInteractableException,
+    InvalidArgumentException,
 )
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
 
-from services.utils import AshFramework, ToolBox
+from ._solutions import resnet, yolo
 from .exceptions import LabelNotFoundException, ChallengePassed, ChallengeLangException
-from .solutions import resnet, yolo
+
+
+class AshFramework:
+    """轻量化的协程控件"""
+
+    def __init__(self, docker: typing.Optional[typing.List] = None):
+        if sys.platform.startswith("win") or "cygwin" in sys.platform:
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        else:
+            asyncio.set_event_loop(asyncio.new_event_loop())
+
+        # 任务容器：queue
+        self.worker, self.done = asyncio.Queue(), asyncio.Queue()
+        # 任务容器
+        self.docker = docker
+        # 任务队列满载时刻长度
+        self.max_queue_size = 0
+
+    def progress(self) -> str:
+        """任务进度"""
+        _progress = self.max_queue_size - self.worker.qsize()
+        return f"{_progress}/{self.max_queue_size}"
+
+    def preload(self):
+        """预处理"""
+
+    def overload(self):
+        """任务重载"""
+        if self.docker:
+            for task in self.docker:
+                self.worker.put_nowait(task)
+        self.max_queue_size = self.worker.qsize()
+
+    def offload(self) -> typing.Optional[typing.List]:
+        """缓存卸载"""
+        crash = []
+        while not self.done.empty():
+            crash.append(self.done.get())
+        return crash
+
+    async def control_driver(self, context, session=None):
+        """需要并发执行的代码片段"""
+        raise NotImplementedError
+
+    async def launcher(self, session=None):
+        """适配接口模式"""
+        while not self.worker.empty():
+            context = self.worker.get_nowait()
+            await self.control_driver(context, session=session)
+
+    async def subvert(self, workers: typing.Union[str, int]):
+        """Framework runtime interface"""
+        # 任务重载
+        self.overload()
+
+        # 弹出空载任务
+        if self.max_queue_size == 0:
+            return
+
+        # 粘性功率
+        workers = self.max_queue_size if workers in ["fast"] else workers
+        workers = workers if workers <= self.max_queue_size else self.max_queue_size
+
+        # 弹性分发
+        task_list = []
+        async with aiohttp.ClientSession() as session:
+            for _ in range(workers):
+                task = asyncio.create_task(self.launcher(session=session))
+                task_list.append(task)
+            await asyncio.wait(task_list)
+
+    def perform(self, workers: typing.Union[str, int] = "fast"):
+        """Start the highest power coroutine task"""
+        asyncio.run(self.subvert(workers))
 
 
 class HolyChallenger:
     """hCAPTCHA challenge drive control"""
 
-    label_alias = {
+    _label_alias = {
         "zh": {
             "自行车": "bicycle",
             "火车": "train",
@@ -118,18 +193,19 @@ class HolyChallenger:
         debug: typing.Optional[bool] = False,
         path_objects_yaml: typing.Optional[str] = None,
     ):
-        if not isinstance(lang, str) or not self.label_alias.get(lang):
+        if not isinstance(lang, str) or not self._label_alias.get(lang):
             raise ChallengeLangException(
-                f"Challenge language [{lang}] not yet supported."
-                f" -lang={list(self.label_alias.keys())}"
+                f">> ALERT [ArmorCaptcha] Challenge language [{lang}] not yet supported - "
+                f"lang={list(self._label_alias.keys())}"
             )
 
         self.action_name = "ArmorCaptcha"
+        self.dir_model = dir_model or os.path.join("datas", "models")
+        self.path_objects_yaml = path_objects_yaml or os.path.join("datas", "objects.yaml")
+        self.dir_workspace = dir_workspace or os.path.join("datas", "temp_cache", "_challenge")
         self.debug = debug
-        self.dir_model = dir_model
         self.onnx_prefix = onnx_prefix
         self.screenshot = screenshot
-        self.path_objects_yaml = path_objects_yaml
 
         # 存储挑战图片的目录
         self.runtime_workspace = ""
@@ -137,7 +213,7 @@ class HolyChallenger:
         self.path_screenshot = ""
         # 博大精深！
         self.lang = lang
-        self.label_alias: dict = self.label_alias[lang]
+        self.label_alias: dict = self._label_alias[lang]
 
         # Store the `element locator` of challenge images {挑战图片1: locator1, ...}
         self.alias2locator = {}
@@ -148,8 +224,6 @@ class HolyChallenger:
         # 图像标签
         self.label = ""
         self.prompt = ""
-        # 运行缓存
-        self.dir_workspace = dir_workspace if dir_workspace else "."
 
         self.threat = 0
 
@@ -163,14 +237,38 @@ class HolyChallenger:
     def utils(self):
         return ArmorUtils
 
+    @staticmethod
+    def split_prompt_message(prompt_message: str, lang: str) -> str:
+        """Detach label from challenge prompt"""
+        if lang.startswith("zh"):
+            if "中包含" in prompt_message or "上包含" in prompt_message:
+                return re.split(r"击|(的每)", prompt_message)[2]
+            if "的每" in prompt_message:
+                return re.split(r"(包含)|(的每)", prompt_message)[3]
+            if "包含" in prompt_message:
+                return re.split(r"(包含)|(的图)", prompt_message)[3]
+        elif lang.startswith("en"):
+            prompt_message = prompt_message.replace(".", "").lower()
+            if "containing" in prompt_message:
+                return re.split(r"containing a", prompt_message)[-1][1:].strip()
+            if "select all" in prompt_message:
+                return re.split(r"all (.*) images", prompt_message)[1].strip()
+        return prompt_message
+
+    def label_cleaning(self, raw_label: str) -> str:
+        """cleaning errors-unicode"""
+        clean_label = raw_label
+        for c in self.BAD_CODE:
+            clean_label = clean_label.replace(c, self.BAD_CODE[c])
+        return clean_label
+
     def _init_workspace(self):
         """初始化工作目录，存放缓存的挑战图片"""
         _prefix = (
             f"{time.time()}" + f"_{self.label_alias.get(self.label, '')}" if self.label else ""
         )
         _workspace = os.path.join(self.dir_workspace, _prefix)
-        if not os.path.exists(_workspace):
-            os.mkdir(_workspace)
+        os.makedirs(_workspace, exist_ok=True)
         return _workspace
 
     def captcha_screenshot(self, ctx, name_screenshot: str = None):
@@ -195,19 +293,13 @@ class HolyChallenger:
         except AttributeError:
             ctx.save_screenshot(_out_path)
         except Exception as err:
-            logger.exception(
-                ToolBox.runtime_report(
-                    motive="SCREENSHOT",
-                    action_name=self.action_name,
-                    message="挑战截图保存失败，错误的参数类型",
-                    type=type(ctx),
-                    err=err,
-                )
-            )
+            logger.exception(err)
         finally:
             return _out_path
 
-    def log(self, message: str, **params) -> None:
+    def log(
+        self, message: str, _reporter: typing.Optional[bool] = False, **params
+    ) -> typing.Optional[str]:
         """格式化日志信息"""
         if not self.debug:
             return
@@ -217,6 +309,8 @@ class HolyChallenger:
         if params:
             flag_ += " - "
             flag_ += " ".join([f"{i[0]}={i[1]}" for i in params.items()])
+        if _reporter is True:
+            return flag_
         logger.debug(flag_)
 
     def switch_to_challenge_frame(self, ctx: Chrome):
@@ -231,30 +325,6 @@ class HolyChallenger:
         :param ctx:
         :return:
         """
-
-        def split_prompt_message(prompt_message: str, lang: str) -> str:
-            """Detach label from challenge prompt"""
-            if lang.startswith("zh"):
-                if "中包含" in prompt_message or "上包含" in prompt_message:
-                    return re.split(r"击|(的每)", prompt_message)[2]
-                if "的每" in prompt_message:
-                    return re.split(r"(包含)|(的每)", prompt_message)[3]
-                if "包含" in prompt_message:
-                    return re.split(r"(包含)|(的图)", prompt_message)[3]
-            elif lang.startswith("en"):
-                prompt_message = prompt_message.replace(".", "").lower()
-                if "containing" in prompt_message:
-                    return re.split(r"containing a", prompt_message)[-1][1:].strip()
-                if "select all" in prompt_message:
-                    return re.split(r"all (.*) images", prompt_message)[1].strip()
-            return prompt_message
-
-        def label_cleaning(raw_label: str) -> str:
-            """cleaning errors-unicode"""
-            clean_label = raw_label
-            for c in self.BAD_CODE:
-                clean_label = clean_label.replace(c, self.BAD_CODE[c])
-            return clean_label
 
         # Scan and determine the type of challenge.
         for _ in range(3):
@@ -283,11 +353,11 @@ class HolyChallenger:
 
         # Continue the `click challenge`
         try:
-            _label = split_prompt_message(prompt_message=self.prompt, lang=self.lang)
+            _label = self.split_prompt_message(prompt_message=self.prompt, lang=self.lang)
         except (AttributeError, IndexError):
             raise LabelNotFoundException("Get the exception label object")
         else:
-            self.label = label_cleaning(_label)
+            self.label = self.label_cleaning(_label)
             self.log(message="Get label", label=f"「{self.label}」")
 
     def tactical_retreat(self, ctx) -> typing.Optional[str]:
@@ -310,16 +380,12 @@ class HolyChallenger:
         finally:
             q = quote(self.label, "utf8")
             logger.warning(
-                ToolBox.runtime_report(
-                    motive="ALERT",
-                    action_name=self.action_name,
-                    message="Types of challenges not yet scheduled",
-                    label=f"「{self.label}」",
-                    prompt=f"「{self.prompt}」",
-                    screenshot=self.path_screenshot,
-                    site_link=ctx.current_url,
-                    issues=f"https://github.com/QIN2DIM/hcaptcha-challenger/issues?q={q}",
-                )
+                f">> ALERT [{self.action_name}] Types of challenges not yet scheduled - "
+                f"label=「{self.label}」 "
+                f"prompt=「{self.prompt}」 "
+                f"screenshot={self.path_screenshot} "
+                f"site_link={ctx.current_url} "
+                f"issues=https://github.com/QIN2DIM/hcaptcha-challenger/issues?q={q}"
             )
             return self.CHALLENGE_BACKCALL
 
@@ -411,26 +477,19 @@ class HolyChallenger:
                         file.write(await response.read())
 
         # Initialize the challenge image download directory
-        workspace_ = self._init_workspace()
+        self.runtime_workspace = self._init_workspace()
 
         # Initialize the data container
         docker_ = []
         for alias_, url_ in self.alias2url.items():
-            path_challenge_img_ = os.path.join(workspace_, f"{alias_}.png")
+            path_challenge_img_ = os.path.join(self.runtime_workspace, f"{alias_}.png")
             self.alias2path.update({alias_: path_challenge_img_})
             docker_.append((path_challenge_img_, url_))
 
         # Initialize the coroutine-based image downloader
         start = time.time()
-        if sys.platform.startswith("win") or "cygwin" in sys.platform:
-            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-            asyncio.run(ImageDownloader(docker=docker_).subvert(workers="fast"))
-        else:
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(ImageDownloader(docker=docker_).subvert(workers="fast"))
+        ImageDownloader(docker_).perform()
         self.log(message="Download challenge images", timeit=f"{round(time.time() - start, 2)}s")
-
-        self.runtime_workspace = workspace_
 
     def challenge(self, ctx: Chrome, model):
         """
@@ -465,7 +524,7 @@ class HolyChallenger:
                 try:
                     # Add a short sleep so that the user
                     # can see the prediction results of the model
-                    time.sleep(random.uniform(0.3, 0.6))
+                    time.sleep(random.uniform(0.2, 0.3))
                     self.alias2locator[alias].click()
                 except StaleElementReferenceException:
                     pass
@@ -512,7 +571,7 @@ class HolyChallenger:
 
         def is_challenge_image_clickable():
             try:
-                WebDriverWait(ctx, 1).until(
+                WebDriverWait(ctx, 1, poll_frequency=0.1).until(
                     EC.presence_of_element_located((By.XPATH, "//div[@class='task-image']"))
                 )
                 return True
@@ -521,7 +580,7 @@ class HolyChallenger:
 
         def is_flagged_flow():
             try:
-                WebDriverWait(ctx, 1, 0.1).until(
+                WebDriverWait(ctx, 1.2, poll_frequency=0.1).until(
                     EC.visibility_of_element_located((By.XPATH, "//div[@class='error-text']"))
                 )
                 self.threat += 1
@@ -531,38 +590,11 @@ class HolyChallenger:
             except TimeoutException:
                 return False
 
-        def is_successful_at_the_demo_site():
-            """//div[contains(@class,'hcaptcha-success')]"""
-            try:
-                ctx.switch_to.default_content()
-                WebDriverWait(ctx, 1, 0.1).until(
-                    EC.visibility_of_element_located(
-                        (By.XPATH, "//div[contains(@class,'hcaptcha-success')]")
-                    )
-                )
-                return True
-            except TimeoutException:
-                pass
-
         time.sleep(1)
-
-        for _ in range(3):
-            # Pop prompt "Please try again".
-            if is_flagged_flow():
-                return self.CHALLENGE_RETRY, "重置挑战"
-
-            if is_challenge_image_clickable():
-                return self.CHALLENGE_CONTINUE, "继续挑战"
-
-            # Work only at the demo site.
-            if is_successful_at_the_demo_site():
-                return self.CHALLENGE_SUCCESS, "退火成功"
-
-        # TODO > Here you need to insert a piece of business code
-        #  based on your project to determine if the challenge passes
-        # 可参考思路有：断言网址变更/页面跳转/DOM刷新/意外弹窗 等
-        # 这些判断都是根据具体的应用场景，具体的页面元素进行编写的
-        # 单独解决 hCaptcha challenge 并不困难，困难的是在业务运行时处理
+        if is_flagged_flow():
+            return self.CHALLENGE_RETRY, "重置挑战"
+        if is_challenge_image_clickable():
+            return self.CHALLENGE_CONTINUE, "继续挑战"
         return self.CHALLENGE_SUCCESS, "退火成功"
 
     def anti_checkbox(self, ctx: Chrome):
@@ -579,7 +611,7 @@ class HolyChallenger:
                 WebDriverWait(ctx, 2).until(EC.element_to_be_clickable((By.ID, "checkbox"))).click()
                 self.log("Handle hCaptcha checkbox")
                 return True
-            except TimeoutException:
+            except (TimeoutException, InvalidArgumentException):
                 pass
             finally:
                 # [👻] 回到主线剧情
@@ -617,6 +649,7 @@ class HolyChallenger:
 
         # [👻] 它來了！
         try:
+            # If it cycles more than twice, your IP has been blacklisted
             for index in range(3):
                 # [👻] 進入挑戰框架
                 self.switch_to_challenge_frame(ctx)
@@ -662,6 +695,55 @@ class HolyChallenger:
             logger.exception(err)
             ctx.switch_to.default_content()
             return self.CHALLENGE_CRASH
+
+    def classify(
+        self, prompt: str, images: typing.List[typing.Union[str, bytes]]
+    ) -> typing.Optional[typing.List[bool]]:
+        """TaskType: HcaptchaClassification"""
+        if not prompt or not isinstance(prompt, str) or not images or not isinstance(images, list):
+            logger.error(
+                f">> ALERT [{self.action_name}] Invalid parameters - "
+                f"prompt=「{self.prompt}」 "
+                f"images=「{images}」"
+            )
+            return
+
+        self.lang = "zh" if re.compile("[\u4e00-\u9fa5]+").search(prompt) else "en"
+        self.label_alias = self._label_alias[self.lang]
+        self.label_alias.update(self.pom_handler.get_label_alias(self.lang))
+        self.prompt = prompt
+        _label = self.split_prompt_message(prompt, lang=self.lang)
+        self.label = self.label_cleaning(_label)
+
+        if self.label not in self.label_alias:
+            logger.error(
+                f">> ALERT [{self.action_name}] Types of challenges not yet scheduled - "
+                f"label=「{self.label}」 "
+                f"prompt=「{self.prompt}」"
+            )
+            return
+
+        model = self.switch_solution()
+        response = []
+        for img in images:
+            try:
+                if isinstance(img, str) and os.path.isfile(img):
+                    with open(img, "rb") as file:
+                        response.append(
+                            model.solution(
+                                img_stream=file.read(), label=self.label_alias[self.label]
+                            )
+                        )
+                elif isinstance(img, bytes):
+                    response.append(
+                        model.solution(img_stream=img, label=self.label_alias[self.label])
+                    )
+                else:
+                    response.append(False)
+            except Exception as err:
+                logger.exception(err)
+                response.append(False)
+        return response
 
 
 class ArmorUtils:
