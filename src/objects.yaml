@@ -229,3 +229,6 @@ label_alias:
   cup_of_coffee:
     zh: [ "一杯咖啡" ]
     en: [ "cup of coffee" ]
+  starfish:
+    zh: [ "海星" ]
+    en: [ "starfish" ]
