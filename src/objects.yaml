@@ -14,7 +14,7 @@ label_alias:
     en: [ "bridge" ]
   domestic_cat:
     zh: [ "家猫", "猫" ]
-    en: [ "domestic cat", "cat" ]
+    en: [ "domestic cat", "cat" ,"Select all cat pictures." ]
   living_room:
     zh: [ "客厅" ]
     en: [ "living room" ]
@@ -232,3 +232,6 @@ label_alias:
   starfish:
     zh: [ "海星" ]
     en: [ "starfish" ]
+  duck_behind_rocks:
+    zh: [ "鸭子在岩石后面","岩石后面鸭子" ]
+    en: [ "duck behind rocks" ]
