@@ -14,7 +14,7 @@ __all__ = ["config"]
 class Config:
     dir_database: str = "datas"
 
-    _HCAPTCHA_DEMO_API = "https://accounts.hcaptcha.com/demo?sitekey={}"
+    HCAPTCHA_DEMO_API = "https://accounts.hcaptcha.com/demo?sitekey={}"
     SITE_KEYS = {
         "epic": "91e4137f-95af-4bc9-97af-cdcedce21c8c",
         "hcaptcha": "a5f74b19-9e45-40e0-b45d-47ff91b7a6c2",
@@ -26,13 +26,13 @@ class Config:
     # https://www.wappalyzer.com/technologies/security/hcaptcha/
     HCAPTCHA_DEMO_SITES = [
         # [√] label: Tags follow point-in-time changes
-        _HCAPTCHA_DEMO_API.format(SITE_KEYS["publisher"]),
+        HCAPTCHA_DEMO_API.format(SITE_KEYS["publisher"]),
         # [√] label: `vertical river`
-        _HCAPTCHA_DEMO_API.format(SITE_KEYS["oracle"]),
+        HCAPTCHA_DEMO_API.format(SITE_KEYS["oracle"]),
         # [x] label: `airplane in the sky flying left`
-        _HCAPTCHA_DEMO_API.format(SITE_KEYS["discord"]),
+        HCAPTCHA_DEMO_API.format(SITE_KEYS["discord"]),
         # [√] label: hcaptcha-challenger
-        _HCAPTCHA_DEMO_API.format(SITE_KEYS["hcaptcha"]),
+        HCAPTCHA_DEMO_API.format(SITE_KEYS["hcaptcha"]),
     ]
 
     def __post_init__(self):

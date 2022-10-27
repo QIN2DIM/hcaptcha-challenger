@@ -235,3 +235,6 @@ label_alias:
   duck_behind_rocks:
     zh: [ "鸭子在岩石后面","岩石后面鸭子" ]
     en: [ "duck behind rocks" ]
+  strawberry_cake:
+    zh: [ "草莓蛋糕" ]
+    en: [ "strawberry cake" ]
