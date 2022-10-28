@@ -238,3 +238,9 @@ label_alias:
   strawberry_cake:
     zh: [ "草莓蛋糕" ]
     en: [ "strawberry cake" ]
+  cupcake:
+    zh: [ "纸杯蛋糕" ]
+    en: [ "cupcake" ]
+  bowl_of_pasta:
+    zh: [ "一碗意大利面" ]
+    en: [ 'bowl of pasta' ]
