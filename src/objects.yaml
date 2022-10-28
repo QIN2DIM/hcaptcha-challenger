@@ -244,3 +244,6 @@ label_alias:
   bowl_of_pasta:
     zh: [ "一碗意大利面" ]
     en: [ 'bowl of pasta' ]
+  carved_pumpkin_with_a_face:
+    zh: [ "带有面部的雕刻南瓜" ]
+    en: [ "carved pumpkin with a face" ]
