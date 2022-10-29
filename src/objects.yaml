@@ -250,3 +250,6 @@ label_alias:
   skeleton_ridding_a_bicycle:
     zh: [ "骑自行车的骷髅" ]
     en: [ "skeleton ridding a bicycle" ]
+  orange_fruit:
+    zh: [ "橙色水果" ]
+    en: [ "orange fruit" ]
