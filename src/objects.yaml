@@ -255,7 +255,10 @@ label_alias:
     en: [ "orange fruit" ]
   drawing_of_a_haunted_house:
     zh: [ "鬼屋的图画" ]  #await
-    en: "drawing of a haunted house"
+    en: [ "drawing of a haunted house" ]
   ghost_riding_a_bicycle:
     zh: [ "骑自行车的鬼魂" ]  #await
     en: [ "ghost riding a bicycle" ]
+  flying_bat:
+    zh: [ "飞行蝙蝠", "一只飞翔的蝙蝠" ] # await
+    en: [ "flying bat" ]
