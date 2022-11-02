@@ -136,9 +136,6 @@ label_alias:
   rabbit_in_the_grass:
     zh: [ "草丛中包含兔子" ]
     en: [ "rabbit in the grass" ]
-  rabbit:
-    zh: [ "兔子" ]
-    en: [ "rabbit" ]
   rabbit_swimming_in_water:
     zh: [ "兔子在水中游泳" ]
     en: [ "rabbit swimming in water" ]
@@ -262,3 +259,9 @@ label_alias:
   flying_bat:
     zh: [ "飞行蝙蝠", "一只飞翔的蝙蝠" ] # await
     en: [ "flying bat" ]
+  rabbit_blur: # rabbit
+    zh: [ "兔子" ]
+    en: [ "rabbit" ]
+#  black_cat_in_a_forest:
+#    zh: [ "森林中的黑猫" ] # await
+#    en: [ "black cat in a forest" ]
