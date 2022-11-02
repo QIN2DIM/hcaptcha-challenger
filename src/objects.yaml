@@ -262,6 +262,6 @@ label_alias:
   rabbit_blur: # rabbit
     zh: [ "兔子" ]
     en: [ "rabbit" ]
-#  black_cat_in_a_forest:
-#    zh: [ "森林中的黑猫" ] # await
-#    en: [ "black cat in a forest" ]
+  black_cat_in_a_forest:
+    zh: [ "森林中的黑猫" ] # await
+    en: [ "black cat in a forest" ]
