@@ -251,7 +251,7 @@ label_alias:
     zh: [ "橙色水果" ]
     en: [ "orange fruit" ]
   drawing_of_a_haunted_house:
-    zh: [ "鬼屋的图画" ]  #await
+    zh: [ "鬼屋的图画","鬼屋图画" ]
     en: [ "drawing of a haunted house" ]
   ghost_riding_a_bicycle:
     zh: [ "骑自行车的鬼魂","鬼骑自行车" ]  #await
@@ -263,8 +263,11 @@ label_alias:
     zh: [ "兔子" ]
     en: [ "rabbit" ]
   black_cat_in_a_forest:
-    zh: [ "森林中的黑猫" ] # await
+    zh: [ "森林中的黑猫" ]
     en: [ "black cat in a forest" ]
   chocolate_cake:
     zh: [ "巧克力蛋糕" ]
     en: [ "chocolate cake" ]
+  oranges_in_a_basket:
+    zh: [ "篮子中的橙子","篮子中橙子" ]
+    en: [ "oranges in a basket", "lease click each image containing oranges in a basket" ]
