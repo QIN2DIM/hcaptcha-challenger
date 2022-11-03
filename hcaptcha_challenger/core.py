@@ -250,7 +250,8 @@ class HolyChallenger:
         elif lang.startswith("en"):
             prompt_message = prompt_message.replace(".", "").lower()
             if "containing" in prompt_message:
-                return re.split(r"containing a", prompt_message)[-1][1:].strip()
+                th = re.split(r"containing", prompt_message)[-1][1:].strip()
+                return th[2:].strip() if th.startswith("a") else th
             if "select all" in prompt_message:
                 return re.split(r"all (.*) images", prompt_message)[1].strip()
         return prompt_message
