@@ -18,7 +18,7 @@ from loguru import logger
 
 
 class ChallengeStyle:
-    WATERMARK = 144
+    WATERMARK = 144  # onTrigger 128x128
     GENERAL = 128
     GAN = 144
 
