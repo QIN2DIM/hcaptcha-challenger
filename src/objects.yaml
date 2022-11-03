@@ -204,7 +204,7 @@ label_alias:
     en: [ "item that a person normally wears on their pants" ]
   dangerous_sea:
     zh: [ "危险海域","危险海洋" ]
-    en: [ "dangerous sea" ]
+    en: [ "dangerous sea", "rough sea" ]
   calm_sea:
     zh: [ "平静海域","平静海洋","平静海面" ]
     en: [ "calm sea" ]
