@@ -265,3 +265,6 @@ label_alias:
   black_cat_in_a_forest:
     zh: [ "森林中的黑猫" ] # await
     en: [ "black cat in a forest" ]
+  chocolate_cake:
+    zh: [ "巧克力蛋糕" ]
+    en: [ "chocolate cake" ]
