@@ -254,7 +254,7 @@ label_alias:
     zh: [ "鬼屋的图画" ]  #await
     en: [ "drawing of a haunted house" ]
   ghost_riding_a_bicycle:
-    zh: [ "骑自行车的鬼魂" ]  #await
+    zh: [ "骑自行车的鬼魂","鬼骑自行车" ]  #await
     en: [ "ghost riding a bicycle" ]
   flying_bat:
     zh: [ "飞行蝙蝠", "一只飞翔的蝙蝠" ] # await
