@@ -28,9 +28,6 @@ label_alias:
     zh: [ "鹦鹉" ]
     en: [ "parrot" ]
 
-  lion:
-    zh: [ "狮子" ]
-    en: [ "lion" ]
   lion_with_mane_on_its_neck:
     zh: [ "一只脖子上有鬃毛的狮子", "雄狮" ]
     en: [ "lion with mane on its neck", "male lion" ]
@@ -271,3 +268,9 @@ label_alias:
   oranges_in_a_basket:
     zh: [ "篮子中的橙子","篮子中橙子" ]
     en: [ "oranges in a basket", "lease click each image containing oranges in a basket" ]
+  horse_mask:
+    zh: [ "一匹马" ]
+    en: [ "horse" ]
+  lion_mask: # lion
+    zh: [ "狮子" ]
+    en: [ "lion" ]
