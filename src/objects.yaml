@@ -274,3 +274,9 @@ label_alias:
   lion_mask: # lion
     zh: [ "狮子" ]
     en: [ "lion" ]
+  lemons_in_a_basket:
+    zh: [ "篮子中柠檬","篮子中的柠檬" ]
+    en: [ "lemons in a basket","lease click each image containing lemons in a basket" ]
+  lemon:
+    zh: [ "柠檬" ]
+    en: [ "lemon" ]
