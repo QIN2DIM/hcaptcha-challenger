@@ -280,3 +280,12 @@ label_alias:
   lemon:
     zh: [ "柠檬" ]
     en: [ "lemon" ]
+  ant:
+    zh: [ "蚂蚁" ]
+    en: [ "ant" ]
+  pancake:
+    zh: [ "煎饼" ]
+    en: [ "pancake" ]
+  icecream:
+    zh: [ "冰淇淋" ]
+    en: [ "ice cream" ]
