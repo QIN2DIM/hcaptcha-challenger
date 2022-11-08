@@ -289,3 +289,6 @@ label_alias:
   icecream:
     zh: [ "冰淇淋" ]
     en: [ "ice cream" ]
+  cake:
+    zh: [ "蛋糕" ]
+    en: [ "cake" ]
