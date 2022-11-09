@@ -200,7 +200,7 @@ label_alias:
     zh: [ "人们通常穿在裤子上的物品" ]
     en: [ "item that a person normally wears on their pants" ]
   dangerous_sea:
-    zh: [ "危险海域","危险海洋" ]
+    zh: [ "危险海域","危险海洋","波涛汹涌的大海" ]
     en: [ "dangerous sea", "rough sea" ]
   calm_sea:
     zh: [ "平静海域","平静海洋","平静海面" ]
