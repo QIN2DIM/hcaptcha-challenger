@@ -290,9 +290,9 @@ label_alias:
     zh: [ "蛋糕" ]
     en: [ "cake" ]
 
-  #  hot_air_balloon:
-  #    zh: [ "热气球" ]
-  #    en: [ "hot air balloon" ]
+  hot_air_balloon:
+    zh: [ "热气球" ]
+    en: [ "hot air balloon" ]
   helicopter:
     zh: [ "直升机" ]
     en: [ "helicopter" ]
