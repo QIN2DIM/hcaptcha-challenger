@@ -293,9 +293,9 @@ label_alias:
   #  hot_air_balloon:
   #    zh: [ "热气球" ]
   #    en: [ "hot air balloon" ]
-  #  helicopter:
-  #    zh: [ "直升机" ]
-  #    en: [ "helicopter" ]
+  helicopter:
+    zh: [ "直升机" ]
+    en: [ "helicopter" ]
 
   #  hedgehog_on_sand:
   #    zh: [ "沙子上的刺猬" ]
