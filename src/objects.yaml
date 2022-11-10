@@ -306,6 +306,6 @@ label_alias:
   dragonfly:
     zh: [ "蜻蜓" ]
     en: [ "dragonfly" ]
-  #  ladybug:
-  #    zh: [ "七星瓢虫","瓢虫" ]
-  #    en: [ "ladybug","ladybug with seven stars" ]
+  ladybug:
+    zh: [ "七星瓢虫","瓢虫" ]
+    en: [ "ladybug","ladybug with seven stars" ]
