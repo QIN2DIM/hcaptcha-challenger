@@ -280,9 +280,6 @@ label_alias:
   lemon:
     zh: [ "柠檬" ]
     en: [ "lemon" ]
-  ant:
-    zh: [ "蚂蚁" ]
-    en: [ "ant" ]
   pancake:
     zh: [ "煎饼" ]
     en: [ "pancake" ]
@@ -292,3 +289,23 @@ label_alias:
   cake:
     zh: [ "蛋糕" ]
     en: [ "cake" ]
+
+  #  hot_air_balloon:
+  #    zh: [ "热气球" ]
+  #    en: [ "hot air balloon" ]
+  #  helicopter:
+  #    zh: [ "直升机" ]
+  #    en: [ "helicopter" ]
+
+  #  hedgehog_on_sand:
+  #    zh: [ "沙子上的刺猬" ]
+  #    en: [ "hedgehog on sand" ]
+  ant:
+    zh: [ "蚂蚁" ]
+    en: [ "ant" ]
+  dragonfly:
+    zh: [ "蜻蜓" ]
+    en: [ "dragonfly" ]
+  #  ladybug:
+  #    zh: [ "七星瓢虫","瓢虫" ]
+  #    en: [ "ladybug","ladybug with seven stars" ]
