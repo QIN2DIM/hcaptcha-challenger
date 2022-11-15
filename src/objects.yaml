@@ -297,9 +297,6 @@ label_alias:
     zh: [ "直升机" ]
     en: [ "helicopter" ]
 
-  #  hedgehog_on_sand:
-  #    zh: [ "沙子上的刺猬" ]
-  #    en: [ "hedgehog on sand" ]
   ant:
     zh: [ "蚂蚁" ]
     en: [ "ant" ]
@@ -315,3 +312,12 @@ label_alias:
   chicken_on_a_tree:
     zh: [ "树上的鸡" ]
     en: [ "chicken on a tree" ]
+  #  hedgehog_on_sand:
+  #    zh: [ "沙子上的刺猬" ]
+  #    en: [ "hedgehog on sand" ]
+  hedgehog_in_a_bowl:
+    zh: [ "碗中刺猬" ] # await
+    en: [ "hedgehog in a bowl" ]
+  squirrel_on_a_tree:
+    zh: [ "树上松鼠" ]
+    en: [ "squirrel on a tree" ]
