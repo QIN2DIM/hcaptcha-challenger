@@ -321,3 +321,6 @@ label_alias:
   squirrel_on_a_tree:
     zh: [ "树上松鼠" ]
     en: [ "squirrel on a tree" ]
+  crab:
+    zh: [ "螃蟹" ]
+    en: [ "crab" ]
