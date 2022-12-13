@@ -324,3 +324,24 @@ label_alias:
   crab:
     zh: [ "螃蟹" ]
     en: [ "crab" ]
+  toy_penguin:
+    zh: [ "玩具企鹅" ]
+    en: [ "toy penguin" ]
+  squirrel:
+    zh: [ "松鼠" ]
+    en: [ "squirrel" ]
+  hedgehog_surrounded_by_flowers:
+    zh: [ "被鲜花包围的刺猬" ]
+    en: [ "hedgehog surrounded by flowers" ]
+  butterfly:
+    zh: [ "蝴蝶" ]
+    en: [ "butterfly" ]
+  apple_on_a_tree:
+    zh: [ "树上苹果" ]
+    en: [ "apple on a tree" ]
+  strawberry_in_a_basket:
+    zh: [ "篮子里的草莓" ]
+    en: [ "strawberry in a basket" ]
+  daisy:
+    zh: [ "雏菊" ]
+    en: [ "daisy" ]
