@@ -345,3 +345,9 @@ label_alias:
   daisy:
     zh: [ "雏菊" ]
     en: [ "daisy" ]
+  hedgehog_in_water:
+    zh: [ "水中刺猬" ]
+    en: [ "hedgehog in water" ]
+  pineapple:
+    zh: [ "菠萝" ]
+    en: [ "pineapple" ]
