@@ -351,3 +351,6 @@ label_alias:
   pineapple:
     zh: [ "菠萝" ]
     en: [ "pineapple" ]
+  panda:
+    zh: [ "熊猫" ]
+    en: [ "panda" ]
