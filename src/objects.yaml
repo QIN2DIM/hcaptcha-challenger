@@ -354,3 +354,6 @@ label_alias:
   panda:
     zh: [ "熊猫" ]
     en: [ "panda" ]
+  dolphin:
+    zh: [ "海豚" ]
+    en: [ "dolphin" ]
