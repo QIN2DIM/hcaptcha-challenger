@@ -15,7 +15,7 @@ install.do()
 class Scaffold:
     """System scaffolding Top-level interface commands"""
 
-    CHALLENGE_LANGUAGE = "zh"
+    CHALLENGE_LANGUAGE = "en"
 
     def __init__(self, lang: typing.Optional[str] = None):
         if lang is not None:
