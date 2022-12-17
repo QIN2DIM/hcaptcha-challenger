@@ -9,6 +9,10 @@ import hcaptcha_challenger as solver
 
 
 def do(yolo_onnx_prefix: typing.Optional[str] = None, upgrade: typing.Optional[bool] = False):
-    """下载项目运行所需的各项依赖"""
+    """Download the dependencies required to run the project."""
     onnx_prefix = yolo_onnx_prefix or solver.Prefix.YOLOv6n
     solver.install(onnx_prefix=onnx_prefix, upgrade=upgrade)
+
+
+if __name__ == '__main__':
+    do(upgrade=True)

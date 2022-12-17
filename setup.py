@@ -24,7 +24,7 @@ setup(
     install_requires=[
         "loguru~=0.6.0",
         "selenium~=4.4.3",
-        "aiohttp~=3.8.1",
+        "aiohttp~=3.8.3",
         "opencv-python~=4.5.5.62",
         "undetected-chromedriver==3.1.5.post4",
         "webdriver-manager==3.8.2",

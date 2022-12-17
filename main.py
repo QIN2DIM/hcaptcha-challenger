@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
-# Time       : 2022/1/16 0:25
+# Time       : 2022/2/15 17:40
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
-# Description:
+# Description: 🚀 Yo Challenger!
 import typing
 
-from apis.examples import movement, classify
-from apis.scaffold import install, challenge, app, motion
-from services.settings import config
+from fire import Fire
 
-install.do()
+from examples import demo_selenium, demo_challenge, demo_install, demo_classify
+from examples.motion import app, motion
+from examples.settings import config
+
+demo_install.do()
 
 
 class Scaffold:
@@ -27,12 +29,12 @@ class Scaffold:
     @staticmethod
     def install(model: typing.Optional[str] = None, upgrade: typing.Optional[bool] = False):
         """Download Project Dependencies and upgrade all pluggable ONNX model"""
-        install.do(yolo_onnx_prefix=model, upgrade=upgrade)
+        demo_install.do(yolo_onnx_prefix=model, upgrade=upgrade)
 
     @staticmethod
     def test():
         """Test the Challenger drive for fitment"""
-        challenge.test()
+        demo_challenge.test()
 
     @staticmethod
     def tracker():
@@ -40,16 +42,16 @@ class Scaffold:
 
     @staticmethod
     def motion():
-        motion.train_motion("http://127.0.0.1:8000")
+        motion.train_motion("http://127.0.0.1:8000", config.dir_database)
 
     @staticmethod
     def demo(
-        silence: typing.Optional[bool] = False,
-        model: typing.Optional[str] = None,
-        target: typing.Optional[str] = None,
-        sitekey: typing.Optional[str] = None,
-        screenshot: typing.Optional[bool] = False,
-        repeat: typing.Optional[int] = 5,
+            silence: typing.Optional[bool] = False,
+            model: typing.Optional[str] = None,
+            target: typing.Optional[str] = None,
+            sitekey: typing.Optional[str] = None,
+            screenshot: typing.Optional[bool] = False,
+            repeat: typing.Optional[int] = 5,
     ):
         """
         Dueling with hCAPTCHA challenge using YOLOv5.
@@ -81,7 +83,7 @@ class Scaffold:
         if sitekey is not None:
             sample_site = config.HCAPTCHA_DEMO_API.format(sitekey.strip())
 
-        challenge.runner(
+        demo_challenge.run(
             sample_site,
             lang=Scaffold.CHALLENGE_LANGUAGE,
             silence=silence,
@@ -98,7 +100,7 @@ class Scaffold:
         Usage: python main.py demo-bytedance
         :return:
         """
-        movement()
+        demo_selenium.bytedance()
 
     @staticmethod
     def demo_classify():
@@ -108,4 +110,8 @@ class Scaffold:
         Usage: python main.py demo-classify
         :return:
         """
-        classify()
+        demo_classify.bytedance()
+
+
+if __name__ == "__main__":
+    Fire(Scaffold)

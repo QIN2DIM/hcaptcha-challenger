@@ -1,19 +1,32 @@
 # -*- coding: utf-8 -*-
-# Time       : 2022/7/20 5:41
+# Time       : 2022/7/20 5:46
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
 import csv
 import os.path
+import os.path
 import time
 from datetime import datetime
 
 from loguru import logger
+from sanic import Sanic, Request
+from sanic.response import html
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
+
+app = Sanic("motion-data")
+
+
+@app.route("/")
+async def test(request: Request):
+    print(request.headers)
+    fp = os.path.join(os.path.dirname(__file__), "motion.html")
+    with open(fp, "rb") as file:
+        return html(file.read())
 
 
 class MotionData:
@@ -101,3 +114,8 @@ class MotionData:
                 self._overload(self.ctx_session)
         except (KeyboardInterrupt, EOFError):
             logger.debug("Received keyboard interrupt signal")
+
+
+def train_motion(test_site: str, dir_database: str):
+    with MotionData(dir_database) as motion:
+        motion.mimic(test_site)

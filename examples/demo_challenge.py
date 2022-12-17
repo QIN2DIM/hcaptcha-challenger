@@ -10,15 +10,14 @@ from loguru import logger
 
 import hcaptcha_challenger as solver
 from hcaptcha_challenger.exceptions import ChallengePassed
-from services.settings import config
 
 
 @logger.catch()
-def test():
+def test(hcaptcha_demo_site: str = "https://accounts.hcaptcha.com/demo"):
     """Check if the Challenger driver version is compatible"""
     ctx = solver.get_challenge_ctx(silence=True)
     try:
-        ctx.get(config.HCAPTCHA_DEMO_SITES[0])
+        ctx.get(hcaptcha_demo_site)
     finally:
         ctx.quit()
     logger.success("The adaptation is successful")
@@ -42,13 +41,13 @@ def _motion(sample_site: str, ctx, challenger: solver.HolyChallenger) -> typing.
 
 
 @logger.catch()
-def runner(
-    sample_site: str,
-    lang: typing.Optional[str] = "zh",
-    silence: typing.Optional[bool] = False,
-    onnx_prefix: typing.Optional[str] = None,
-    screenshot: typing.Optional[bool] = False,
-    repeat: typing.Optional[int] = 10,
+def run(
+        sample_site: str,
+        lang: typing.Optional[str] = "zh",
+        silence: typing.Optional[bool] = False,
+        onnx_prefix: typing.Optional[str] = None,
+        screenshot: typing.Optional[bool] = False,
+        repeat: typing.Optional[int] = 10,
 ):
     """Human-Machine Challenge Demonstration | Top Interface"""
 
@@ -71,3 +70,7 @@ def runner(
         except ChallengePassed:
             ctx.refresh()
             logger.success(f"PASS[{i + 1}|{repeat}]".center(28, "="))
+
+
+if __name__ == '__main__':
+    run()

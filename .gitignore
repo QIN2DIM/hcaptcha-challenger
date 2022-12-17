@@ -134,5 +134,5 @@ tests/
 docs-src/
 .pypirc
 *.dat
-src/datas
-src/apis/examples/datas
+examples/datas
+datas/

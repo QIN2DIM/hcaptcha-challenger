@@ -168,7 +168,7 @@ class HolyChallenger:
         "土": "士",
     }
 
-    HOOK_CHALLENGE = "//iframe[contains(@title,'content')]"
+    HOOK_CHALLENGE = "//iframe[contains(@src,'#frame=challenge')]"
 
     # <success> Challenge Passed by following the expected
     CHALLENGE_SUCCESS = "success"
@@ -525,7 +525,7 @@ class HolyChallenger:
                 try:
                     # Add a short sleep so that the user
                     # can see the prediction results of the model
-                    time.sleep(random.uniform(0.2, 0.3))
+                    # time.sleep(random.uniform(0.02, 0.03))
                     self.alias2locator[alias].click()
                 except StaleElementReferenceException:
                     pass

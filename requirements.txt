@@ -1,6 +1,15 @@
 # python3.10
 # scikit-image~=0.19.2
 
-hcaptcha-challenger
 fire~=0.4.0
 sanic~=22.6.0
+
+loguru~=0.6.0
+selenium~=4.4.3
+aiohttp~=3.8.3
+opencv-python~=4.5.5.62
+undetected-chromedriver==3.1.5.post4
+webdriver-manager==3.8.2
+numpy>=1.21.5
+requests>=2.28.1
+pyyaml~=6.0
