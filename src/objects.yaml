@@ -357,3 +357,6 @@ label_alias:
   dolphin:
     zh: [ "海豚" ]
     en: [ "dolphin" ]
+  tulip:
+    zh: [ "郁金香" ]
+    en: [ "tulip" ]

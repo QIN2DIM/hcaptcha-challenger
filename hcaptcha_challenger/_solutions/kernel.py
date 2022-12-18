@@ -83,10 +83,10 @@ class Memory:
 
         # Invalid judgment
         if (
-                not local_node_id
-                or not remote_node_id
-                or not isinstance(remote_node_id, str)
-                or not remote_node_id.startswith(self.ASSET_TOKEN)
+            not local_node_id
+            or not remote_node_id
+            or not isinstance(remote_node_id, str)
+            or not remote_node_id.startswith(self.ASSET_TOKEN)
         ):
             return
 
@@ -247,17 +247,17 @@ class ModelHub:
 
         # Check for extreme cases
         if (
-                not fn.endswith(".onnx")
-                or not isinstance(asset_download_url, str)
-                or not asset_download_url.startswith("https:")
+            not fn.endswith(".onnx")
+            or not isinstance(asset_download_url, str)
+            or not asset_download_url.startswith("https:")
         ):
             return
 
         # Matching conditions to trigger download tasks
         if (
-                not os.path.exists(path_model)
-                or os.path.getsize(path_model) != asset_size
-                or self.memory.is_outdated(remote_node_id=asset_node_id)
+            not os.path.exists(path_model)
+            or os.path.getsize(path_model) != asset_size
+            or self.memory.is_outdated(remote_node_id=asset_node_id)
         ):
             _request_asset(asset_download_url, path_model, fn)
             self.memory.dump(new_node_id=asset_node_id)
@@ -267,7 +267,7 @@ class ModelHub:
         """Load and register an existing model"""
         # Update AssetsObject local cache
         if os.path.exists(self.path_model) and not self.memory.is_outdated(
-                self.assets.get_node_id()
+            self.assets.get_node_id()
         ):
             self.net = cv2.dnn.readNetFromONNX(self.path_model)
             self._fn2net[self.fn] = self.net
@@ -312,7 +312,7 @@ def _request_asset(asset_download_url: str, asset_path: str, fn_tag: str):
     _params = {
         "headers": {
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.27"
+            "Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.27"
         },
         "stream": True,
         "proxies": getproxies(),

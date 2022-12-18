@@ -14,5 +14,5 @@ def do(yolo_onnx_prefix: typing.Optional[str] = None, upgrade: typing.Optional[b
     solver.install(onnx_prefix=onnx_prefix, upgrade=upgrade)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     do(upgrade=True)

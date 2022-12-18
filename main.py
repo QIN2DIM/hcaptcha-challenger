@@ -46,12 +46,12 @@ class Scaffold:
 
     @staticmethod
     def demo(
-            silence: typing.Optional[bool] = False,
-            model: typing.Optional[str] = None,
-            target: typing.Optional[str] = None,
-            sitekey: typing.Optional[str] = None,
-            screenshot: typing.Optional[bool] = False,
-            repeat: typing.Optional[int] = 5,
+        silence: typing.Optional[bool] = False,
+        model: typing.Optional[str] = None,
+        target: typing.Optional[str] = None,
+        sitekey: typing.Optional[str] = None,
+        screenshot: typing.Optional[bool] = False,
+        repeat: typing.Optional[int] = 5,
     ):
         """
         Dueling with hCAPTCHA challenge using YOLOv5.
