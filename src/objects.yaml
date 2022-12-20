@@ -360,3 +360,6 @@ label_alias:
   tulip:
     zh: [ "郁金香" ]
     en: [ "tulip" ]
+  hedgehog_on_rocks:
+    zh: [ "刺猬在岩石上" ]
+    en: [ "hedgehog on rocks" ]
