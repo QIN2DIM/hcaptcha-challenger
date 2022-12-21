@@ -363,3 +363,9 @@ label_alias:
   hedgehog_on_rocks:
     zh: [ "刺猬在岩石上" ]
     en: [ "hedgehog on rocks" ]
+  sea_otter:
+    zh: [ "海獭" ]
+    en: [ "sea otter" ]
+  rose:
+    zh: [ "玫瑰" ]
+    en: [ "rose" ]
