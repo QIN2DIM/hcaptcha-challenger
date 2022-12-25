@@ -305,7 +305,7 @@ label_alias:
     en: [ "dragonfly" ]
   ladybug:
     zh: [ "七星瓢虫","瓢虫" ]
-    en: [ "ladybug","ladybug with seven stars" ]
+    en: [ "ladybug" ]
   chicken_on_the_beach:
     zh: [ "每张海滩上包含一只鸡的图片","沙滩上的鸡" ]
     en: [ "chicken on the beach" ]
@@ -369,3 +369,9 @@ label_alias:
   rose:
     zh: [ "玫瑰" ]
     en: [ "rose" ]
+  sunflower:
+    zh: [ "向日葵" ]
+    en: [ "sunflower" ]
+  panda_in_a_living_room:
+    zh: [ "熊猫在客厅" ]
+    en: [ "panda in a living room" ]
