@@ -375,3 +375,7 @@ label_alias:
   panda_in_a_living_room:
     zh: [ "熊猫在客厅" ]
     en: [ "panda in a living room" ]
+  residential_house:
+    zh: [ "住宅" ]
+    en: [ "residential house" ]
+
