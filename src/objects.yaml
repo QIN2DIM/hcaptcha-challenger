@@ -378,4 +378,7 @@ label_alias:
   residential_house:
     zh: [ "住宅" ]
     en: [ "residential house" ]
+  tall_building:
+    zh: [ "高层建筑" ]
+    en: [ "tall building" ]
 
