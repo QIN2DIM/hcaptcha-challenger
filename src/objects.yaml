@@ -381,4 +381,7 @@ label_alias:
   tall_building:
     zh: [ "高层建筑" ]
     en: [ "tall building" ]
+  piano:
+    zh: [ "钢琴" ]
+    en: [ "piano" ]
 
