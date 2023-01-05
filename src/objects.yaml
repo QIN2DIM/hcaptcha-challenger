@@ -387,4 +387,9 @@ label_alias:
   cymbal:
     zh: [ "铙钹" ]
     en: [ "cymbal" ]
-
+  red_roses_in_a_garden:
+    zh: [ "花园中红玫瑰" ]
+    en: [ "lease click each image containing red roses in a garden" , "red roses in a garden" ]
+#  desert:
+#    zh: [ "沙漠" ]
+#    en: [ "desert" ]
