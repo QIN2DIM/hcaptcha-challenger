@@ -14,7 +14,7 @@ label_alias:
     en: [ "bridge" ]
   domestic_cat:
     zh: [ "家猫", "猫" ]
-    en: [ "domestic cat", "cat" ,"Select all cat pictures." ]
+    en: [ "domestic cat", "cat", "Select all cat pictures." ]
   living_room:
     zh: [ "客厅" ]
     en: [ "living room" ]
@@ -60,7 +60,7 @@ label_alias:
     zh: [ "白腿马" ]
     en: [ "horse with white legs" ]
   horse_walking_or_running:
-    zh: [ "马在行走或奔跑","马步行或奔跑" ]
+    zh: [ "马在行走或奔跑", "马步行或奔跑" ]
     en: [ "horse walking or running" ]
 
   smiling_dog:
@@ -87,8 +87,8 @@ label_alias:
     zh: [ "一只飞翔的鸟" ]
     en: [ "bird flying" ]
   bird_on_a_branch:
-    zh: [ "树枝上的鸟","一只蜂鸟在树枝上","树枝上包含蜂鸟" ]
-    en: [ "bird on a branch","hummingbird on a tree branch" ]
+    zh: [ "树枝上的鸟", "一只蜂鸟在树枝上", "树枝上包含蜂鸟" ]
+    en: [ "bird on a branch", "hummingbird on a tree branch" ]
 
   broken_glass_bottle:
     zh: [ "破碎玻璃瓶" ]
@@ -97,7 +97,7 @@ label_alias:
     zh: [ "整个玻璃瓶" ]
     en: [ "whole glass bottle" ]
   porcelain_teacup:
-    zh: [ "类似瓷器设" , "类似瓷器设计图案的茶杯" ]
+    zh: [ "类似瓷器设", "类似瓷器设计图案的茶杯" ]
     en: [ "teacup with similar porcelain design pattern" ]
 
   fish_jumping_over_the_water:
@@ -121,7 +121,7 @@ label_alias:
     zh: [ "悬挂在天花板上的植物" ]
     en: [ "plant hanging from the ceiling" ]
   plant_on_the_table:
-    zh: [ "植物" , "桌子上包含植物" ]
+    zh: [ "植物", "桌子上包含植物" ]
     en: [ "plant on the table" ]
   dead_and_dried_plant_in_the_pot:
     zh: [ "花盆中枯死和干燥植物" ]
@@ -158,7 +158,7 @@ label_alias:
     zh: [ "玩具屋" ]
     en: [ "toy house" ]
   duck_in_the_water:
-    zh: [ "水中鸭子" , "水中鸭子的图像" ]
+    zh: [ "水中鸭子", "水中鸭子的图像" ]
     en: [ "duck in the water" ]
   house:
     zh: [ "房子" ]
@@ -167,7 +167,7 @@ label_alias:
     zh: [ "仙人掌" ]
     en: [ "cactus" ]
   penguin_surrounded_by_flowers:
-    zh: [ "被鲜花包围的企鹅" , "被鲜" ]
+    zh: [ "被鲜花包围的企鹅", "被鲜" ]
     en: [ "penguin surrounded by flowers" ]
   penguin:
     zh: [ "企鹅" ]
@@ -176,7 +176,7 @@ label_alias:
     zh: [ "岩石后面企鹅" ]
     en: [ "penguin behind rocks" ]
   house_in_the_beach:
-    zh: [ "海滩上的房子","海滩房屋" ]
+    zh: [ "海滩上的房子", "海滩房屋" ]
     en: [ "house in the beach" ]
   penguin_on_ice:
     zh: [ "冰上企鹅" ]
@@ -200,16 +200,16 @@ label_alias:
     zh: [ "人们通常穿在裤子上的物品" ]
     en: [ "item that a person normally wears on their pants" ]
   dangerous_sea:
-    zh: [ "危险海域","危险海洋","波涛汹涌的大海" ]
+    zh: [ "危险海域", "危险海洋", "波涛汹涌的大海" ]
     en: [ "dangerous sea", "rough sea" ]
   calm_sea:
-    zh: [ "平静海域","平静海洋","平静海面" ]
+    zh: [ "平静海域", "平静海洋", "平静海面" ]
     en: [ "calm sea" ]
   hot_food:
     zh: [ "热食" ] # await
     en: [ "hot food" ]
   cold_drink:
-    zh: [ "冷饮","冰杯" ]
+    zh: [ "冷饮", "冰杯" ]
     en: [ "cold drink", "glass with ice" ]
   jellyfish:
     zh: [ "水母" ]
@@ -227,17 +227,17 @@ label_alias:
     zh: [ "海星" ]
     en: [ "starfish" ]
   duck_behind_rocks:
-    zh: [ "鸭子在岩石后面","岩石后面鸭子" ]
+    zh: [ "鸭子在岩石后面", "岩石后面鸭子" ]
     en: [ "duck behind rocks" ]
   strawberry_cake:
     zh: [ "草莓蛋糕" ]
     en: [ "strawberry cake" ]
   cupcake:
     zh: [ "纸杯蛋糕" ]
-    en: [ "cupcake","curcake","cupsake","subcake" ]
+    en: [ "cupcake", "curcake", "cupsake", "subcake" ]
   bowl_of_pasta:
     zh: [ "一碗意大利面" ]
-    en: [ 'bowl of pasta' ]
+    en: [ "bowl of pasta" ]
   carved_pumpkin_with_a_face:
     zh: [ "带有面部的雕刻南瓜" ]
     en: [ "carved pumpkin with a face" ]
@@ -248,10 +248,10 @@ label_alias:
     zh: [ "橙色水果" ]
     en: [ "orange fruit" ]
   drawing_of_a_haunted_house:
-    zh: [ "鬼屋的图画","鬼屋图画" ]
+    zh: [ "鬼屋的图画", "鬼屋图画" ]
     en: [ "drawing of a haunted house" ]
   ghost_riding_a_bicycle:
-    zh: [ "骑自行车的鬼魂","鬼骑自行车" ]  #await
+    zh: [ "骑自行车的鬼魂", "鬼骑自行车" ] #await
     en: [ "ghost riding a bicycle" ]
   flying_bat:
     zh: [ "飞行蝙蝠", "一只飞翔的蝙蝠" ] # await
@@ -266,8 +266,12 @@ label_alias:
     zh: [ "巧克力蛋糕" ]
     en: [ "chocolate cake" ]
   oranges_in_a_basket:
-    zh: [ "篮子中的橙子","篮子中橙子" ]
-    en: [ "oranges in a basket", "lease click each image containing oranges in a basket" ]
+    zh: [ "篮子中的橙子", "篮子中橙子" ]
+    en:
+      [
+        "oranges in a basket",
+        "lease click each image containing oranges in a basket",
+      ]
   horse_mask:
     zh: [ "一匹马" ]
     en: [ "horse" ]
@@ -275,8 +279,12 @@ label_alias:
     zh: [ "狮子" ]
     en: [ "lion" ]
   lemons_in_a_basket:
-    zh: [ "篮子中柠檬","篮子中的柠檬" ]
-    en: [ "lemons in a basket","lease click each image containing lemons in a basket" ]
+    zh: [ "篮子中柠檬", "篮子中的柠檬" ]
+    en:
+      [
+        "lemons in a basket",
+        "lease click each image containing lemons in a basket",
+      ]
   lemon:
     zh: [ "柠檬" ]
     en: [ "lemon" ]
@@ -304,10 +312,10 @@ label_alias:
     zh: [ "蜻蜓" ]
     en: [ "dragonfly" ]
   ladybug:
-    zh: [ "七星瓢虫","瓢虫" ]
+    zh: [ "七星瓢虫", "瓢虫" ]
     en: [ "ladybug" ]
   chicken_on_the_beach:
-    zh: [ "每张海滩上包含一只鸡的图片","沙滩上的鸡" ]
+    zh: [ "每张海滩上包含一只鸡的图片", "沙滩上的鸡" ]
     en: [ "chicken on the beach" ]
   chicken_on_a_tree:
     zh: [ "树上的鸡" ]
@@ -389,7 +397,14 @@ label_alias:
     en: [ "cymbal" ]
   red_roses_in_a_garden:
     zh: [ "花园中红玫瑰" ]
-    en: [ "lease click each image containing red roses in a garden" , "red roses in a garden" ]
+    en:
+      [
+        "lease click each image containing red roses in a garden",
+        "red roses in a garden",
+      ]
+  panda_in_a_forest:
+    zh: [ "森林中熊猫" ]
+    en: [ "panda in a forest" ]
 #  desert:
 #    zh: [ "沙漠" ]
 #    en: [ "desert" ]
