@@ -4,6 +4,7 @@
 # Github     : https://github.com/QIN2DIM
 # Description: 🚀 Yo Challenger!
 import typing
+import warnings
 
 from fire import Fire
 
@@ -12,6 +13,8 @@ from examples.motion import app, motion
 from examples.settings import config
 
 demo_install.do()
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 class Scaffold:
