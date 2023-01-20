@@ -405,6 +405,6 @@ label_alias:
   panda_in_a_forest:
     zh: [ "森林中熊猫" ]
     en: [ "panda in a forest" ]
-#  desert:
-#    zh: [ "沙漠" ]
-#    en: [ "desert" ]
+  desert:
+    zh: [ "沙漠" ]
+    en: [ "desert" ]
