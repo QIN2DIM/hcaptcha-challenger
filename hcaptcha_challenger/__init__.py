@@ -16,7 +16,7 @@ from ._solutions.yolo import YOLO, Prefix
 from .core import HolyChallenger
 
 __all__ = ["HolyChallenger", "new_challenger", "get_challenge_ctx"]
-__version__ = "0.4.3.0"
+__version__ = "0.4.3.1"
 
 logger = init_log(
     error=os.path.join("datas", "logs", "error.log"),
@@ -56,9 +56,11 @@ def new_challenger(
     lang: typing.Optional[str] = "en",
     screenshot: typing.Optional[bool] = False,
     debug: typing.Optional[bool] = False,
+    slowdown: typing.Optional[bool] = True,
 ) -> HolyChallenger:
     """
 
+    :param slowdown:
     :param dir_workspace:
     :param onnx_prefix:
     :param lang:
@@ -80,6 +82,7 @@ def new_challenger(
         onnx_prefix=onnx_prefix,
         screenshot=screenshot,
         debug=debug,
+        slowdown=slowdown,
     )
 
 

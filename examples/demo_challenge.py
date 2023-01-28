@@ -48,12 +48,17 @@ def run(
     onnx_prefix: typing.Optional[str] = None,
     screenshot: typing.Optional[bool] = False,
     repeat: typing.Optional[int] = 10,
+    slowdown: typing.Optional[bool] = True,
 ):
     """Human-Machine Challenge Demonstration | Top Interface"""
 
     # Instantiating Challenger Components
     challenger = solver.new_challenger(
-        screenshot=screenshot, debug=True, lang=lang, onnx_prefix=onnx_prefix or "yolov6n"
+        screenshot=screenshot,
+        debug=True,
+        lang=lang,
+        onnx_prefix=onnx_prefix or "yolov6n",
+        slowdown=slowdown,
     )
     ctx = solver.get_challenge_ctx(silence=silence, lang=lang)
     for i in range(repeat):
