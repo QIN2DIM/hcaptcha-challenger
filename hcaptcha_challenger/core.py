@@ -1,5 +1,6 @@
 import asyncio
 import os
+import random
 import re
 import sys
 import time
@@ -191,6 +192,7 @@ class HolyChallenger:
         screenshot: typing.Optional[bool] = False,
         debug: typing.Optional[bool] = False,
         path_objects_yaml: typing.Optional[str] = None,
+        slowdown: typing.Optional[bool] = True,
     ):
         if not isinstance(lang, str) or not self._label_alias.get(lang):
             raise ChallengeLangException(
@@ -205,6 +207,7 @@ class HolyChallenger:
         self.debug = debug
         self.onnx_prefix = onnx_prefix
         self.screenshot = screenshot
+        self.slowdown = slowdown
 
         # 存储挑战图片的目录
         self.runtime_workspace = ""
@@ -524,7 +527,8 @@ class HolyChallenger:
                 try:
                     # Add a short sleep so that the user
                     # can see the prediction results of the model
-                    # time.sleep(random.uniform(0.02, 0.03))
+                    if self.slowdown:
+                        time.sleep(random.uniform(0.2, 0.3))
                     self.alias2locator[alias].click()
                 except StaleElementReferenceException:
                     pass

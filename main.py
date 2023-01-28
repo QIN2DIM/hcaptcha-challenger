@@ -55,6 +55,7 @@ class Scaffold:
         sitekey: typing.Optional[str] = None,
         screenshot: typing.Optional[bool] = False,
         repeat: typing.Optional[int] = 5,
+        slowdown: typing.Optional[bool] = True,
     ):
         """
         Dueling with hCAPTCHA challenge using YOLOv5.
@@ -65,8 +66,10 @@ class Scaffold:
         or: python main.py demo --target=discord
         or: python main.py demo --lang=en
         or: python main.py demo --sitekey=[UUID]
+        or: pythoon main.py demo --slowdown=False
         ——————————————————————————————————————————————————————————————————
 
+        :param slowdown: Add a short sleep so that the user can see the prediction results of the model
         :param repeat: Default 5. Number of times to repeat the presentation.
         :param screenshot: Default False. Save screenshot of the challenge result.
             PATH: database/temp_cache/captcha_screenshot/
@@ -93,6 +96,7 @@ class Scaffold:
             onnx_prefix=model,
             screenshot=screenshot,
             repeat=repeat,
+            slowdown=slowdown,
         )
 
     @staticmethod
