@@ -267,11 +267,7 @@ label_alias:
     en: [ "chocolate cake" ]
   oranges_in_a_basket:
     zh: [ "篮子中的橙子", "篮子中橙子" ]
-    en:
-      [
-        "oranges in a basket",
-        "lease click each image containing oranges in a basket",
-      ]
+    en: [ "oranges in a basket","lease click each image containing oranges in a basket" ]
   horse_mask:
     zh: [ "一匹马" ]
     en: [ "horse" ]
@@ -280,11 +276,7 @@ label_alias:
     en: [ "lion" ]
   lemons_in_a_basket:
     zh: [ "篮子中柠檬", "篮子中的柠檬" ]
-    en:
-      [
-        "lemons in a basket",
-        "lease click each image containing lemons in a basket",
-      ]
+    en: [ "lemons in a basket", "lease click each image containing lemons in a basket" ]
   lemon:
     zh: [ "柠檬" ]
     en: [ "lemon" ]
@@ -396,15 +388,14 @@ label_alias:
     zh: [ "铙钹" ]
     en: [ "cymbal" ]
   red_roses_in_a_garden:
-    zh: [ "花园中红玫瑰" ]
-    en:
-      [
-        "lease click each image containing red roses in a garden",
-        "red roses in a garden",
-      ]
+    zh: [ "花园中红玫瑰", "花园中的红玫瑰" ]
+    en: [ "lease click each image containing red roses in a garden", "red roses in a garden" ]
   panda_in_a_forest:
-    zh: [ "森林中熊猫" ]
+    zh: [ "森林中熊猫", "森林中的熊猫" ]
     en: [ "panda in a forest" ]
   desert:
     zh: [ "沙漠" ]
     en: [ "desert" ]
+  sunflowers_in_a_field:
+    zh: [ "田野中向日葵" ]
+    en: [ "sunflowers in a field" ]
