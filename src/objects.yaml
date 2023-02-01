@@ -399,3 +399,6 @@ label_alias:
   sunflowers_in_a_field:
     zh: [ "田野中向日葵" ]
     en: [ "sunflowers in a field" ]
+  mountain:
+    zh: [ "山" ]
+    en: [ "mountain" ]
