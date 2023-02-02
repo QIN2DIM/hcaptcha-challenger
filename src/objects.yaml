@@ -405,9 +405,9 @@ label_alias:
   forest:
     zh: [ "森林" ]
     en: [ "forest" ]
-#  daisy_in_a_pot:
-#    zh: [ "盆中雏菊" ]
-#    en: [ "daisy in a pot" ]
+  daisy_in_a_pot:
+    zh: [ "盆中雏菊" ]
+    en: [ "daisy in a pot" ]
 #  panda_in_a_garden:
 #    zh: [ "花园中熊猫" ]
 #    en: [ "panda in a garden" ]
