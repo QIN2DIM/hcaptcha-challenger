@@ -408,6 +408,9 @@ label_alias:
   daisy_in_a_pot:
     zh: [ "盆中雏菊" ]
     en: [ "daisy in a pot" ]
-#  panda_in_a_garden:
-#    zh: [ "花园中熊猫" ]
-#    en: [ "panda in a garden" ]
+  panda_in_a_garden:
+    zh: [ "花园中熊猫" ]
+    en: [ "panda in a garden" ]
+#  burning_fire_spot:
+#    zh: [""]
+#    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
