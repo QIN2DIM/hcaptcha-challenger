@@ -411,6 +411,9 @@ label_alias:
   panda_in_a_garden:
     zh: [ "花园中熊猫" ]
     en: [ "panda in a garden" ]
+  violin:
+    zh: [ "小提琴" ]
+    en: [ "violin" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
