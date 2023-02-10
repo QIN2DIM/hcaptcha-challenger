@@ -420,6 +420,9 @@ label_alias:
   trumpet:
     zh: [ "喇叭" ]
     en: [ "trumpet" ]
+  pineapple_on_pizza:
+    zh: [ "披萨上菠萝" ]
+    en: [ "pineapple on pizza" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
