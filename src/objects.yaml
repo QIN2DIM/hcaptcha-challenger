@@ -423,6 +423,9 @@ label_alias:
   pineapple_on_pizza:
     zh: [ "披萨上菠萝" ]
     en: [ "pineapple on pizza" ]
+  fried_egg_on_a_bread:
+    zh: [ "面包上煎蛋" ]
+    en: [ "fried egg on a bread" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
