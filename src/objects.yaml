@@ -429,6 +429,9 @@ label_alias:
   tulips_in_a_vase:
     zh: [ "花瓶里的郁金香" ]
     en: [ "tulips in a vase" ]
+  guitar:
+    zh: [ "吉他" ]
+    en: [ "guitar" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
