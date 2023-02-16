@@ -432,6 +432,9 @@ label_alias:
   guitar:
     zh: [ "吉他" ]
     en: [ "guitar" ]
+  panda_in_water:
+    zh: [ "水中的熊猫" ]
+    en: [ "panda in water" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
