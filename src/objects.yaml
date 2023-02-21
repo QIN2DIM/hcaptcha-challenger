@@ -438,6 +438,12 @@ label_alias:
   ocean:
     zh: [ "海洋" ]
     en: [ "ocean" ]
+  hand_watches:
+    zh: [ "手表" ]
+    en: [ "hand watches" ]
+  bear_in_the_water:
+    zh: [ "熊在水里" ]
+    en: [ "bear in the water" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
