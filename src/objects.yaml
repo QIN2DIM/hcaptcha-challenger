@@ -453,6 +453,9 @@ label_alias:
   hamster:
     zh: [ "仓鼠" ]
     en: [ "hamster" ]
+  tractor:
+    zh: [ "拖拉机" ]
+    en: [ "tractor" ]
   panda_wearing_glasses:
     zh: [ "戴眼镜的熊猫" ]
     en: [ "panda wearing glasses" ]
