@@ -447,6 +447,9 @@ label_alias:
   hockey_match:
     zh: [ "曲棍球比赛" ]
     en: [ "hockey match" ]
+  soccer_ball:
+    zh: [ "足球" ]
+    en: [ "soccer_ball" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
