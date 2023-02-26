@@ -462,6 +462,9 @@ label_alias:
   cow_in_its_natural_environment:
     zh: [ "母牛在其自然环境中" ]
     en: [ "cow in its natural environment" ]
+  someone_playing_football:
+    zh: [ "有人踢足球" ]
+    en: [ "someone playing football" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
