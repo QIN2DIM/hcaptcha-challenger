@@ -465,6 +465,9 @@ label_alias:
   someone_playing_football:
     zh: [ "有人踢足球" ]
     en: [ "someone playing football" ]
+  robot:
+    zh: [ "机器人" ]
+    en: [ "robot" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
