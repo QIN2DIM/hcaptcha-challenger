@@ -468,6 +468,9 @@ label_alias:
   robot:
     zh: [ "机器人" ]
     en: [ "robot" ]
+  hallway:
+    zh: [ "门厅" ]
+    en: [ "hallway" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
