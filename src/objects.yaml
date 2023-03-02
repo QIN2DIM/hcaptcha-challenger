@@ -465,6 +465,9 @@ label_alias:
   someone_playing_football:
     zh: [ "有人踢足球" ]
     en: [ "someone playing football" ]
+  someone_playing_soccer:
+    zh: [ "有人踢足球" ]
+    en: [ "someone playing soccer" ]
   robot:
     zh: [ "机器人" ]
     en: [ "robot" ]
