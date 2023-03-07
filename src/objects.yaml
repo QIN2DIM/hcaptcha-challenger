@@ -474,6 +474,12 @@ label_alias:
   hallway:
     zh: [ "门厅" ]
     en: [ "hallway" ]
+  car_tire:
+    zh: [ "汽车轮胎" ]
+    en: [ "car tire" ]
+  very_fast_car:
+    zh: [ "非常快的车" ]
+    en: [ "very fast car" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
