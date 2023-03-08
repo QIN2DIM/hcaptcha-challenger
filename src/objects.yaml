@@ -69,6 +69,9 @@ label_alias:
   dog_with_a_collar_on_its_neck:
     zh: [ "一条脖子上有项圈的狗" ]
     en: [ "dog with a collar on its neck" ]
+  dog_wearing_sunglasses:
+    zh: [ "戴墨镜的狗" ]
+    en: [ "dog wearing sunglasses" ]
 
   kitten:
     zh: [ "小猫", "一只小猫" ]
@@ -480,6 +483,9 @@ label_alias:
   very_fast_car:
     zh: [ "非常快的车" ]
     en: [ "very fast car" ]
+  dog_t_shirt:
+    zh: [ "狗T恤" ]
+    en: [ "dog t-shirt" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
