@@ -486,6 +486,12 @@ label_alias:
   dog_t_shirt:
     zh: [ "狗T恤" ]
     en: [ "dog t-shirt" ]
+  bunny:
+    zh: [ "兔子" ]
+    en: [ "bunny" ]
+  bowling_ball:
+    zh: [ "保龄球" ]
+    en: [ "bowling ball" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
