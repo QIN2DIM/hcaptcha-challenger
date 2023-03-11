@@ -492,6 +492,12 @@ label_alias:
   bowling_ball:
     zh: [ "保龄球" ]
     en: [ "bowling ball" ]
+  basketball:
+    zh: [ "篮球" ]
+    en: [ "basketball" ]
+  alarm_clock:
+    zh: [ "闹钟" ]
+    en: [ "alarm clock" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
