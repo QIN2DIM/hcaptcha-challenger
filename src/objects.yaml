@@ -498,6 +498,9 @@ label_alias:
   alarm_clock:
     zh: [ "闹钟" ]
     en: [ "alarm clock" ]
+  bird_sitting_in_a_tree:
+    zh: [ "坐在树上的鸟" ]
+    en: [ "bird sitting in a tree" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
