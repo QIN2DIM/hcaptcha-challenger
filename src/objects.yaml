@@ -501,6 +501,9 @@ label_alias:
   bird_sitting_in_a_tree:
     zh: [ "坐在树上的鸟" ]
     en: [ "bird sitting in a tree" ]
+  egg_on_a_plate:
+    zh: [ "盘子里的鸡蛋" ]
+    en: [ "egg on a plate" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
