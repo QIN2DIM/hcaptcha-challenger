@@ -504,6 +504,18 @@ label_alias:
   egg_on_a_plate:
     zh: [ "盘子里的鸡蛋" ]
     en: [ "egg on a plate" ]
+  someone_playing_golf:
+    zh: [ "有人打高尔夫球" ]
+    en: [ "someone playing golf" ]
+  someone_playing_hockey:
+    zh: [ "有人打曲棍球" ]
+    en: [ "someone playing hockey" ]
+  steering_wheel:
+    zh: [ "方向盘" ]
+    en: [ "steering wheel" ]
+  sunny_sky:
+    zh: [ "晴空" ]
+    en: [ "sunny sky" ]
 #  burning_fire_spot:
 #    zh: [""]
 #    en: ["burning fire spot like in the examples", "burning fire spot like in the eхamples"]  # contain badcode
