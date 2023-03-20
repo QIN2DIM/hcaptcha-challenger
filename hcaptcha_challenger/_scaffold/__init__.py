@@ -135,7 +135,13 @@ def get_challenge_ctx(
     :rtype: uc.Chrome
     """
     # Control headless browser
-    silence = True if silence is None or "linux" in sys.platform else silence
+    # If on Linux, and no X server is available (`DISPLAY` not set), assume
+    # headless operation
+    silence = (
+        True
+        if silence is None or ("linux" in sys.platform and "DISPLAY" not in os.environ)
+        else silence
+    )
 
     # - Restrict browser startup parameters
     options = uc.ChromeOptions()
