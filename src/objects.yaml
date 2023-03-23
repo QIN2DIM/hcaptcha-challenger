@@ -495,6 +495,9 @@ label_alias:
   basketball:
     zh: [ "篮球" ]
     en: [ "basketball" ]
+  tennis_ball:
+    zh: [ "网球" ]
+    en: [ "tennis ball" ]
   alarm_clock:
     zh: [ "闹钟" ]
     en: [ "alarm clock" ]
@@ -516,3 +519,6 @@ label_alias:
   sunny_sky:
     zh: [ "晴空" ]
     en: [ "sunny sky" ]
+  planet:
+    zh: [ "行星" ]
+    en: [ "planet" ]
