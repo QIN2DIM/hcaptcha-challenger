@@ -486,6 +486,9 @@ label_alias:
   dog_t_shirt:
     zh: [ "狗T恤" ]
     en: [ "dog t-shirt" ]
+  cat_t_shirt:
+    zh: [ "猫T恤" ]
+    en: [ "cat t-shirt" ]
   bunny:
     zh: [ "兔子" ]
     en: [ "bunny" ]
@@ -498,6 +501,9 @@ label_alias:
   tennis_ball:
     zh: [ "网球" ]
     en: [ "tennis ball" ]
+  rugby_ball:
+    zh: [ "橄榄球" ]
+    en: [ "rugby ball" ]
   alarm_clock:
     zh: [ "闹钟" ]
     en: [ "alarm clock" ]
@@ -522,3 +528,4 @@ label_alias:
   planet:
     zh: [ "行星" ]
     en: [ "planet" ]
+  
