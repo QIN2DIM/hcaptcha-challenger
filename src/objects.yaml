@@ -528,4 +528,13 @@ label_alias:
   planet:
     zh: [ "行星" ]
     en: [ "planet" ]
+  baseball_match:
+    zh: [ "棒球比赛" ]
+    en: [ "baseball match" ]
+  cat_wearing_a_pirate_hat:
+    zh: [ "戴着海盗帽的猫" ]
+    en: [ "cat wearing a pirate hat" ]
+  hot_dog:
+    zh: [ "热狗" ]
+    en: [ "hot dog" ]
   
