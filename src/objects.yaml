@@ -537,4 +537,13 @@ label_alias:
   hot_dog:
     zh: [ "热狗" ]
     en: [ "hot dog" ]
+  onions:
+    zh: [ "洋葱" ]
+    en: [ "onions" ]
+  burger:
+    zh: [ "汉堡包" ]
+    en: [ "burger" ]
+  croissant:
+    zh: [ "羊角面包" ]
+    en: [ "croissant" ]
   
