@@ -69,6 +69,9 @@ label_alias:
   dog_with_a_collar_on_its_neck:
     zh: [ "一条脖子上有项圈的狗" ]
     en: [ "dog with a collar on its neck" ]
+  dog_wearing_sunglasses:
+    zh: [ "戴墨镜的狗" ]
+    en: [ "dog wearing sunglasses" ]
 
   kitten:
     zh: [ "小猫", "一只小猫" ]
@@ -267,11 +270,7 @@ label_alias:
     en: [ "chocolate cake" ]
   oranges_in_a_basket:
     zh: [ "篮子中的橙子", "篮子中橙子" ]
-    en:
-      [
-        "oranges in a basket",
-        "lease click each image containing oranges in a basket",
-      ]
+    en: [ "oranges in a basket","lease click each image containing oranges in a basket" ]
   horse_mask:
     zh: [ "一匹马" ]
     en: [ "horse" ]
@@ -280,11 +279,7 @@ label_alias:
     en: [ "lion" ]
   lemons_in_a_basket:
     zh: [ "篮子中柠檬", "篮子中的柠檬" ]
-    en:
-      [
-        "lemons in a basket",
-        "lease click each image containing lemons in a basket",
-      ]
+    en: [ "lemons in a basket", "lease click each image containing lemons in a basket" ]
   lemon:
     zh: [ "柠檬" ]
     en: [ "lemon" ]
@@ -396,15 +391,159 @@ label_alias:
     zh: [ "铙钹" ]
     en: [ "cymbal" ]
   red_roses_in_a_garden:
-    zh: [ "花园中红玫瑰" ]
-    en:
-      [
-        "lease click each image containing red roses in a garden",
-        "red roses in a garden",
-      ]
+    zh: [ "花园中红玫瑰", "花园中的红玫瑰" ]
+    en: [ "lease click each image containing red roses in a garden", "red roses in a garden" ]
   panda_in_a_forest:
-    zh: [ "森林中熊猫" ]
+    zh: [ "森林中熊猫", "森林中的熊猫" ]
     en: [ "panda in a forest" ]
-#  desert:
-#    zh: [ "沙漠" ]
-#    en: [ "desert" ]
+  desert:
+    zh: [ "沙漠" ]
+    en: [ "desert" ]
+  sunflowers_in_a_field:
+    zh: [ "田野中向日葵" ]
+    en: [ "sunflowers in a field" ]
+  mountain:
+    zh: [ "山" ]
+    en: [ "mountain" ]
+  forest:
+    zh: [ "森林" ]
+    en: [ "forest" ]
+  daisy_in_a_pot:
+    zh: [ "盆中雏菊" ]
+    en: [ "daisy in a pot" ]
+  panda_in_a_garden:
+    zh: [ "花园中熊猫" ]
+    en: [ "panda in a garden" ]
+  violin:
+    zh: [ "小提琴" ]
+    en: [ "violin" ]
+  beach:
+    zh: [ "海滩" ]
+    en: [ "beach" ]
+  trumpet:
+    zh: [ "喇叭" ]
+    en: [ "trumpet" ]
+  pineapple_on_pizza:
+    zh: [ "披萨上菠萝" ]
+    en: [ "pineapple on pizza" ]
+  fried_egg_on_a_bread:
+    zh: [ "面包上煎蛋" ]
+    en: [ "fried egg on a bread" ]
+  tulips_in_a_vase:
+    zh: [ "花瓶里的郁金香" ]
+    en: [ "tulips in a vase" ]
+  guitar:
+    zh: [ "吉他" ]
+    en: [ "guitar" ]
+  panda_in_water:
+    zh: [ "水中的熊猫" ]
+    en: [ "panda in water" ]
+  ocean:
+    zh: [ "海洋" ]
+    en: [ "ocean" ]
+  hand_watches:
+    zh: [ "手表" ]
+    en: [ "hand watches" ]
+  bear_in_the_water:
+    zh: [ "熊在水里" ]
+    en: [ "bear in the water" ]
+  hockey_match:
+    zh: [ "曲棍球比赛" ]
+    en: [ "hockey match" ]
+  soccer_ball:
+    zh: [ "足球" ]
+    en: [ "soccer ball" ]
+  hamster:
+    zh: [ "仓鼠" ]
+    en: [ "hamster" ]
+  tractor:
+    zh: [ "拖拉机" ]
+    en: [ "tractor" ]
+  panda_wearing_glasses:
+    zh: [ "戴眼镜的熊猫" ]
+    en: [ "panda wearing glasses" ]
+  cow_in_its_natural_environment:
+    zh: [ "母牛在其自然环境中", "自然环境中的奶牛" ]
+    en: [ "cow in its natural environment" ]
+  someone_playing_football:
+    zh: [ "有人踢足球" ]
+    en: [ "someone playing football" ]
+  someone_playing_soccer:
+    zh: [ "有人踢足球" ]
+    en: [ "someone playing soccer" ]
+  robot:
+    zh: [ "机器人" ]
+    en: [ "robot" ]
+  hallway:
+    zh: [ "门厅" ]
+    en: [ "hallway" ]
+  car_tire:
+    zh: [ "汽车轮胎" ]
+    en: [ "car tire" ]
+  very_fast_car:
+    zh: [ "非常快的车" ]
+    en: [ "very fast car" ]
+  dog_t_shirt:
+    zh: [ "狗T恤" ]
+    en: [ "dog t-shirt" ]
+  cat_t_shirt:
+    zh: [ "猫T恤" ]
+    en: [ "cat t-shirt" ]
+  bunny:
+    zh: [ "兔子" ]
+    en: [ "bunny" ]
+  bowling_ball:
+    zh: [ "保龄球" ]
+    en: [ "bowling ball" ]
+  basketball:
+    zh: [ "篮球" ]
+    en: [ "basketball" ]
+  tennis_ball:
+    zh: [ "网球" ]
+    en: [ "tennis ball" ]
+  rugby_ball:
+    zh: [ "橄榄球" ]
+    en: [ "rugby ball" ]
+  alarm_clock:
+    zh: [ "闹钟" ]
+    en: [ "alarm clock" ]
+  bird_sitting_in_a_tree:
+    zh: [ "坐在树上的鸟" ]
+    en: [ "bird sitting in a tree" ]
+  egg_on_a_plate:
+    zh: [ "盘子里的鸡蛋", "盘子上的鸡蛋" ]
+    en: [ "egg on a plate" ]
+  someone_playing_golf:
+    zh: [ "有人打高尔夫球", "打高尔夫球" ]
+    en: [ "someone playing golf" ]
+  someone_playing_hockey:
+    zh: [ "有人打曲棍球", "打曲棍球" ]
+    en: [ "someone playing hockey" ]
+  steering_wheel:
+    zh: [ "方向盘" ]
+    en: [ "steering wheel" ]
+  sunny_sky:
+    zh: [ "晴空" ]
+    en: [ "sunny sky" ]
+  planet:
+    zh: [ "行星" ]
+    en: [ "planet" ]
+  baseball_match:
+    zh: [ "棒球比赛" ]
+    en: [ "baseball match" ]
+  cat_wearing_a_pirate_hat:
+    zh: [ "戴着海盗帽的猫" ]
+    en: [ "cat wearing a pirate hat" ]
+  hot_dog:
+    zh: [ "热狗" ]
+    en: [ "hot dog" ]
+  onions:
+    zh: [ "洋葱" ]
+    en: [ "onions" ]
+  burger:
+    zh: [ "汉堡包" ]
+    en: [ "burger" ]
+  croissant:
+    zh: [ "羊角面包" ]
+    en: [ "croissant" ]
+  
