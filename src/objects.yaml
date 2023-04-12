@@ -549,3 +549,6 @@ label_alias:
   camera:
     zh: [ "相机" ]
     en: [ "camera" ]
+  kettle:
+    zh: [ "壶" ]
+    en: [ "kettle" ]
