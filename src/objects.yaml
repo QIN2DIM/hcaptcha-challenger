@@ -546,4 +546,9 @@ label_alias:
   croissant:
     zh: [ "羊角面包" ]
     en: [ "croissant" ]
-  
+  camera:
+    zh: [ "相机" ]
+    en: [ "camera" ]
+  kettle:
+    zh: [ "壶" ]
+    en: [ "kettle" ]
