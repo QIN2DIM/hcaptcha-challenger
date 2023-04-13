@@ -552,3 +552,18 @@ label_alias:
   kettle:
     zh: [ "壶" ]
     en: [ "kettle" ]
+  potatoes:
+    zh: [ "土豆" ]
+    en: [ "potatoes" ]
+  donut:
+    zh: [ "油炸圈饼" ]
+    en: [ "donut" ]
+  cabbage:
+    zh: [ "卷心菜" ]
+    en: [ "cabbage" ]
+  headphones:
+    zh: [ "耳机" ]
+    en: [ "headphones" ]
+  vinyl:
+    zh: [ "乙烯基塑料" ]
+    en: [ "vinyl" ]
