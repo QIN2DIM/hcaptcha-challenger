@@ -567,3 +567,6 @@ label_alias:
   vinyl:
     zh: [ "乙烯基塑料" ]
     en: [ "vinyl" ]
+  telescope:
+    zh: [ "望远镜" ]
+    en: [ "telescope " ]
