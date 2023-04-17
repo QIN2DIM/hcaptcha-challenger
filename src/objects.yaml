@@ -570,3 +570,12 @@ label_alias:
   telescope:
     zh: [ "望远镜" ]
     en: [ "telescope " ]
+  freeway:
+    zh: [ "高速公路" ]
+    en: [ "freeway" ]
+  electricity_pylon:
+    zh: [ "电塔" ]
+    en: [ "electricity pylon" ]
+  roast_chicken:
+    zh: [ "烤鸡" ]
+    en: [ "roast chicken" ]
