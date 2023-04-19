@@ -579,3 +579,9 @@ label_alias:
   roast_chicken:
     zh: [ "烤鸡" ]
     en: [ "roast chicken" ]
+  ladder:
+    zh: [ "梯子" ]
+    en: [ "ladder" ]
+  factory_with_chimney:
+    zh: [ "有烟囱的工厂" ]
+    en: [ "factory with chimney" ]
