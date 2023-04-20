@@ -591,6 +591,9 @@ label_alias:
   lighthouse:
     zh: [ "灯塔", "瞭望塔" ]
     en: [ "lighthouse" ]
-#  popcorn:
-#    zh: [ "爆米花" ]
-#    en: [ "popcorn" ]
+  popcorn:
+    zh: [ "爆米花" ]
+    en: [ "popcorn" ]
+#  refrigerator:
+#    zh: [ "冰箱" ]
+#    en: [ "refrigerator" ]
