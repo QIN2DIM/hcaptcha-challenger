@@ -588,6 +588,9 @@ label_alias:
   vinyl:
     zh: [ "乙烯基塑料", "黑胶唱片", "乙烯基" ]
     en: [ "vinyl" ]
+  lighthouse:
+    zh: [ "灯塔", "瞭望塔" ]
+    en: [ "lighthouse" ]
 #  popcorn:
 #    zh: [ "爆米花" ]
 #    en: [ "popcorn" ]
