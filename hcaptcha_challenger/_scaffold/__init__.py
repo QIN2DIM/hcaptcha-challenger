@@ -10,9 +10,9 @@ import sys
 import typing
 import warnings
 
-from undetected_chromedriver import Chrome, ChromeOptions
 from loguru import logger
 from selenium.common.exceptions import WebDriverException
+from undetected_chromedriver import Chrome, ChromeOptions
 from webdriver_manager.chrome import ChromeDriverManager, ChromeType
 from webdriver_manager.core.utils import get_browser_version_from_os
 
@@ -166,8 +166,9 @@ def get_challenge_ctx(
         )
 
 
-def createChromeOptions(silence: typing.Optional[bool] = None,
-                        lang: typing.Optional[str] = None) -> ChromeOptions:
+def createChromeOptions(
+    silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None
+) -> ChromeOptions:
     """
     Create ChromeOptions for undetected_chromedriver.Chrome
 

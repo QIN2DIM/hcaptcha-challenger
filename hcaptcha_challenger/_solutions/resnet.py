@@ -10,6 +10,7 @@ import warnings
 import cv2
 import numpy as np
 import yaml
+from loguru import logger
 
 from .kernel import ChallengeStyle
 from .kernel import ModelHub
@@ -51,7 +52,9 @@ class ResNetFactory(ModelHub):
             1. Check objects.yaml for typos | model={self.fn};
             2. Restart the program after deleting the local cache | dir={self.assets.dir_assets};
             """
-            raise ResourceWarning(_err_prompt)  # maybe mercy
+            logger.warning(_err_prompt)
+            self.assets.sync()
+            return False
         net.setInput(blob)
         out = net.forward()
         if not np.argmax(out, axis=1)[0]:
