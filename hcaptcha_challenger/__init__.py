@@ -9,14 +9,14 @@ import time
 import typing
 from urllib.parse import urlparse
 
-from ._scaffold import init_log, Config, get_challenge_ctx
+from ._scaffold import Config, get_challenge_ctx, init_log
 from ._solutions.kernel import ModelHub
 from ._solutions.kernel import PluggableObjects
-from ._solutions.yolo import YOLO, Prefix
+from ._solutions.yolo import Prefix, YOLO
 from .core import HolyChallenger
 
 __all__ = ["HolyChallenger", "new_challenger", "get_challenge_ctx"]
-__version__ = "0.4.3.2"
+__version__ = "0.4.3.3"
 
 logger = init_log(
     error=os.path.join("datas", "logs", "error.log"),
