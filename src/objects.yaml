@@ -564,9 +564,6 @@ label_alias:
   headphones:
     zh: [ "耳机" ]
     en: [ "headphones" ]
-  vinyl:
-    zh: [ "乙烯基塑料" ]
-    en: [ "vinyl" ]
   telescope:
     zh: [ "望远镜" ]
     en: [ "telescope " ]
@@ -585,3 +582,12 @@ label_alias:
   factory_with_chimney:
     zh: [ "有烟囱的工厂" ]
     en: [ "factory with chimney" ]
+  microwave:
+    zh: [ "微波炉", "微波" ]
+    en: [ "microwave" ]
+  vinyl:
+    zh: [ "乙烯基塑料", "黑胶唱片", "乙烯基" ]
+    en: [ "vinyl" ]
+#  popcorn:
+#    zh: [ "爆米花" ]
+#    en: [ "popcorn" ]
