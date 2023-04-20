@@ -594,6 +594,6 @@ label_alias:
   popcorn:
     zh: [ "爆米花" ]
     en: [ "popcorn" ]
-#  refrigerator:
-#    zh: [ "冰箱" ]
-#    en: [ "refrigerator" ]
+  refrigerator:
+    zh: [ "冰箱" ]
+    en: [ "refrigerator" ]
