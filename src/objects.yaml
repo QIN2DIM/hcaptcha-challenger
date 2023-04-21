@@ -598,5 +598,8 @@ label_alias:
     zh: [ "冰箱" ]
     en: [ "refrigerator" ]
   electric_scooter:
-    zh: ["电动滑板车"]
-    en: ["electric_scooter"]
+    zh: [ "电动滑板车" ]
+    en: [ "electric_scooter" ]
+  hummingbird:
+    zh: [ "蜂鸟" ]
+    en: [ "hummingbird" ]
