@@ -603,3 +603,6 @@ label_alias:
   hummingbird:
     zh: [ "蜂鸟" ]
     en: [ "hummingbird" ]
+  treadmill:
+    zh: [ "跑步机" ]
+    en: [ "treadmill" ]
