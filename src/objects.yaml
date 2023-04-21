@@ -597,3 +597,6 @@ label_alias:
   refrigerator:
     zh: [ "冰箱" ]
     en: [ "refrigerator" ]
+  electric_scooter:
+    zh: ["电动滑板车"]
+    en: ["electric_scooter"]
