@@ -606,3 +606,9 @@ label_alias:
   treadmill:
     zh: [ "跑步机" ]
     en: [ "treadmill" ]
+  smartphone:
+    zh: [ "智能手机" ]
+    en: [ "smartphone" ]
+#  lamp:
+#    zh: [ "灯" ]
+#    en: [ "lamp" ]
