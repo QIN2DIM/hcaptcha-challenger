@@ -609,6 +609,12 @@ label_alias:
   smartphone:
     zh: [ "智能手机" ]
     en: [ "smartphone" ]
-#  lamp:
-#    zh: [ "灯" ]
-#    en: [ "lamp" ]
+  lamp:
+    zh: [ "灯" ]
+    en: [ "lamp" ]
+  console_controller:
+    zh: [ "控制台控制器" ]
+    en: [ "console controller" ]
+  drone:
+    zh: [ "无人机" ]
+    en: [ "drone" ]
