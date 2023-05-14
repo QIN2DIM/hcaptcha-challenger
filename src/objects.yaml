@@ -618,3 +618,15 @@ label_alias:
   drone:
     zh: [ "无人机" ]
     en: [ "drone" ]
+  drum:
+    zh: [ "鼓" ]
+    en: [ "drum" ]
+  computer_keyboard:
+    zh: [ "计算机键盘" ]
+    en: [ "computer keyboard" ]
+  dart_board:
+    zh: [ "飞镖盘" ]
+    en: [ "dart board" ]
+  bicycle:
+    zh: [ "自行车" ]
+    en: [ "bicycle" ]
