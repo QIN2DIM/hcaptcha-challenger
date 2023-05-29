@@ -630,3 +630,27 @@ label_alias:
   bicycle:
     zh: [ "自行车" ]
     en: [ "bicycle" ]
+  knife:
+    zh: [ "刀" ]
+    en: [ "knife" ]
+  typewriter:
+    zh: [ "打字机" ]
+    en: [ "typewriter" ]
+  monitor:
+    zh: [ "监视器" ]
+    en: [ "monitor" ]
+  microscope:
+    zh: [ "显微镜" ]
+    en: [ "microscope" ]
+  trash_bin:
+    zh: [ "垃圾桶" ]
+    en: [ "trash bin" ]
+  hourglass:
+    zh: [ "滴漏" ]
+    en: [ "hourglass" ]
+  dumbbell:
+    zh: [ "哑铃" ]
+    en: [ "dumbbell" ]
+  surfboard:
+    zh: [ "冲浪板" ]
+    en: [ "surfboard" ]
