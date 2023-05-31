@@ -31,7 +31,9 @@ class GitHubUpStream:
     URL_REMOTE_OBJECTS = ""
 
     def __post_init__(self):
-        self.GITHUB_RELEASE_API = f"https://api.github.com/repos/{self.username}/hcaptcha-challenger/releases"
+        self.GITHUB_RELEASE_API = (
+            f"https://api.github.com/repos/{self.username}/hcaptcha-challenger/releases"
+        )
         self.URL_REMOTE_OBJECTS = f"https://raw.githubusercontent.com/{self.username}/hcaptcha-challenger/main/src/objects.yaml"
 
 
@@ -137,43 +139,44 @@ class Assets:
         os.makedirs(self._dir_assets, exist_ok=True)
         for asset_fn in os.listdir(self._dir_assets):
             asset_src = join(self._dir_assets, asset_fn)
-            asset_dst = join(self._dir_assets, f"_{asset_fn}")
+            asset_dst = join(self._dir_assets, f"_{asset_fn.replace('_', '')}")
             shutil.move(asset_src, asset_dst)
         recoded_name = join(self._dir_assets, str(int(time.time())))
         with open(recoded_name, "w", encoding="utf8") as file:
             json.dump(self._fn2assets, file)
 
     def _pull(self, skip_preload: bool = False) -> typing.Optional[typing.Dict[str, dict]]:
-        def request_assets():
-            logger.debug(f"Pulling AssetsObject from {self.GITHUB_RELEASE_API}")
-
-            try:
-                session = requests.session()
-                resp = session.get(self.GITHUB_RELEASE_API, proxies=getproxies(), timeout=3)
-                data = resp.json()[0]
-            except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError) as err:
-                logger.error(err)
-            except (AttributeError, IndexError, KeyError) as err:
-                logger.error(err)
-            else:
-                if isinstance(data, dict):
-                    assets: typing.List[dict] = data.get(self.NAME_ASSETS, [])
-                    for asset in assets:
-                        self._fn2assets[asset[self.NAME_ASSET_NAME]] = asset
-            finally:
-                self._offload()
-
         if not skip_preload:
             self._preload()
         if not self._fn2assets:
-            request_assets()
+            self._request_assets()
         return self._fn2assets
+
+    def _request_assets(self):
+        logger.debug(f"Pulling AssetsObject from {self.GITHUB_RELEASE_API}")
+
+        try:
+            session = requests.session()
+            resp = session.get(self.GITHUB_RELEASE_API, proxies=getproxies(), timeout=3)
+            data = resp.json()[0]
+        except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError) as err:
+            logger.error(err)
+        except (AttributeError, IndexError, KeyError) as err:
+            logger.error(err)
+        else:
+            if isinstance(data, dict):
+                assets: typing.List[dict] = data.get(self.NAME_ASSETS, [])
+                for asset in assets:
+                    self._fn2assets[asset[self.NAME_ASSET_NAME]] = asset
+        finally:
+            self._offload()
 
     def _get_asset(self, key: str, oncall_default: typing.Any):
         return self._fn2assets.get(self.fn, {}).get(key, oncall_default)
 
-    def sync(self, force: typing.Optional[bool] = None, **kwargs):
-        raise NotImplementedError
+    def sync(self):
+        self._fn2assets = {}
+        self._request_assets()
 
     @property
     def dir_assets(self):

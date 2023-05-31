@@ -10,9 +10,9 @@ import sys
 import typing
 import warnings
 
-import undetected_chromedriver as uc
 from loguru import logger
 from selenium.common.exceptions import WebDriverException
+from undetected_chromedriver import Chrome, ChromeOptions
 from webdriver_manager.chrome import ChromeDriverManager, ChromeType
 from webdriver_manager.core.utils import get_browser_version_from_os
 
@@ -132,7 +132,7 @@ def get_challenge_ctx(
     :param silence: Control headless browser
     :param lang: Restrict the language of hCAPTCHA label.
       See https://github.com/QIN2DIM/hcaptcha-challenger/issues/13
-    :rtype: uc.Chrome
+    :rtype: undetected_chromedriver.Chrome
     """
     # Control headless browser
     # If on Linux, and no X server is available (`DISPLAY` not set), assume
@@ -143,8 +143,43 @@ def get_challenge_ctx(
         else silence
     )
 
+    # - Use chromedriver cache to improve application startup speed
+    # - Requirement: undetected-chromedriver >= 3.1.5.post2
+    logging.getLogger("WDM").setLevel(logging.NOTSET)
+    driver_executable_path = ChromeDriverManager().install()
+    version_main = get_browser_version_from_os(ChromeType.GOOGLE).split(".")[0]
+
+    logger.debug("🎮 Activate challenger context")
+    try:
+        return Chrome(
+            options=createChromeOptions(silence, lang),
+            headless=silence,
+            driver_executable_path=driver_executable_path,
+            **kwargs,
+        )
+    except WebDriverException:
+        return Chrome(
+            options=createChromeOptions(silence, lang),
+            headless=silence,
+            version_main=int(version_main) if version_main.isdigit() else None,
+            **kwargs,
+        )
+
+
+def createChromeOptions(
+    silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None
+) -> ChromeOptions:
+    """
+    Create ChromeOptions for undetected_chromedriver.Chrome
+
+    :param silence: Control headless browser
+    :param lang: Restrict the language of hCAPTCHA label.
+
+    :rtype: undetected_chromedriver.ChromeOptions
+    """
+
     # - Restrict browser startup parameters
-    options = uc.ChromeOptions()
+    options = ChromeOptions()
     options.add_argument("--log-level=3")
     options.add_argument("--disable-dev-shm-usage")
 
@@ -158,24 +193,4 @@ def get_challenge_ctx(
         options.add_argument("--disable-gpu")
         options.add_argument("--disable-software-rasterizer")
 
-    # - Use chromedriver cache to improve application startup speed
-    # - Requirement: undetected-chromedriver >= 3.1.5.post2
-    logging.getLogger("WDM").setLevel(logging.NOTSET)
-    driver_executable_path = ChromeDriverManager().install()
-    version_main = get_browser_version_from_os(ChromeType.GOOGLE).split(".")[0]
-
-    logger.debug("🎮 Activate challenger context")
-    try:
-        return uc.Chrome(
-            options=options,
-            headless=silence,
-            driver_executable_path=driver_executable_path,
-            **kwargs,
-        )
-    except WebDriverException:
-        return uc.Chrome(
-            options=options,
-            headless=silence,
-            version_main=int(version_main) if version_main.isdigit() else None,
-            **kwargs,
-        )
+    return options

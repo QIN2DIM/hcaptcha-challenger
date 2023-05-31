@@ -17,7 +17,7 @@ setup(
     maintainer="QIN2DIM, Bingjie Yan",
     maintainer_email="qinse.top@foxmail.com, bj.yan.pa@qq.com",
     description="🥂 Gracefully face hCaptcha challenge with YOLOv6(ONNX) embedded solution.",
-    long_description=open(os.path.join(this_directory, "README.md")).read(),
+    long_description=open(os.path.join(this_directory, "README.md"), encoding="utf8").read(),
     long_description_content_type="text/markdown",
     license="GNU General Public License v3.0",
     url="https://github.com/QIN2DIM/hcaptcha-challenger",
