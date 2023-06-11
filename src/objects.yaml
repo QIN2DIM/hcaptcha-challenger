@@ -654,3 +654,15 @@ label_alias:
   surfboard:
     zh: [ "冲浪板" ]
     en: [ "surfboard" ]
+  papaya:
+    zh: [ "木瓜" ]
+    en: [ "papaya" ]
+  film_reel:
+    zh: [ "电影卷轴" ]
+    en: [ "film reel" ]
+  car:
+    zh: [ "车" ]
+    en: [ "car" ]
+  motor_vehicle:
+    zh: [ "摩托车" ]
+    en: [ "motor vehicle" ]
