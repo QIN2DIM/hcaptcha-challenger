@@ -666,3 +666,6 @@ label_alias:
   motor_vehicle:
     zh: [ "摩托车" ]
     en: [ "motor vehicle" ]
+  animal:
+    zh: [ "动物" ]
+    en: [ "animal" ]
