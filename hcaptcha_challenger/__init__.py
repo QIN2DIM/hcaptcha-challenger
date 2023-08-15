@@ -16,7 +16,7 @@ from ._solutions.yolo import Prefix, YOLO
 from .core import HolyChallenger
 
 __all__ = ["HolyChallenger", "new_challenger", "get_challenge_ctx"]
-__version__ = "0.4.3.3"
+__version__ = "0.4.4"
 
 logger = init_log(
     error=os.path.join("datas", "logs", "error.log"),

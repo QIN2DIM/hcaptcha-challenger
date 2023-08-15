@@ -136,3 +136,4 @@ docs-src/
 *.dat
 examples/datas
 datas/
+compile.py
