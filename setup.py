@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 import hcaptcha_challenger
 
-my_readme = Path(__file__).parent.joinpath("README.md").read_text()
+my_readme = Path(__file__).parent.joinpath("README.md").read_text(encoding="utf8")
 
 # pip install urllib3 -U
 # python setup.py sdist bdist_wheel && python -m twine upload dist/*
@@ -32,14 +32,8 @@ setup(
     extras_require={
         "dev": ["nox", "pytest"],
         "test": ["pytest"],
-        "selenium": [
-            "selenium",
-            "undetected-chromedriver==3.5.2",
-            "webdriver-manager==4.0.0",
-        ],
-        "playwright": [
-            "playwright"
-        ]
+        "selenium": ["selenium", "undetected-chromedriver==3.5.2", "webdriver-manager==4.0.0"],
+        "playwright": ["playwright"],
     },
     python_requires=">=3.8",
     classifiers=[
