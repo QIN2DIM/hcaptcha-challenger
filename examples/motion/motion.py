@@ -8,6 +8,7 @@ import os.path
 import os.path
 import time
 from datetime import datetime
+from pathlib import Path
 
 from loguru import logger
 from sanic import Sanic, Request
@@ -30,9 +31,9 @@ async def test(request: Request):
 
 
 class MotionData:
-    def __init__(self, dir_database: str = None):
+    def __init__(self, temp_dir: Path):
         self.ctx_session = None
-        self.dir_log = "tracker" if dir_database is None else dir_database
+        self.temp_dir = temp_dir
 
         self.action_name = "MotionData"
         self.startpoint = time.time()
@@ -79,7 +80,7 @@ class MotionData:
         )
 
         # Record track
-        fn = os.path.join(self.dir_log, "motion_data", f"{endpoint}.csv")
+        fn = os.path.join(self.temp_dir, "motion_data", f"{endpoint}.csv")
         os.makedirs(os.path.dirname(fn), exist_ok=True)
         with open(fn, "w", encoding="utf8", newline="") as file:
             writer = csv.writer(file)
@@ -116,6 +117,6 @@ class MotionData:
             logger.debug("Received keyboard interrupt signal")
 
 
-def train_motion(test_site: str, dir_database: str):
-    with MotionData(dir_database) as motion:
+def train_motion(test_site: str, temp_dir: Path):
+    with MotionData(temp_dir) as motion:
         motion.mimic(test_site)

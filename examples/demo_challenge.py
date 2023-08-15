@@ -75,7 +75,3 @@ def run(
         except ChallengePassed:
             ctx.refresh()
             logger.success(f"PASS[{i + 1}|{repeat}]".center(28, "="))
-
-
-if __name__ == "__main__":
-    run()

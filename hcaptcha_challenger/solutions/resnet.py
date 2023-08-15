@@ -3,23 +3,26 @@
 # Author     : Bingjie Yan
 # Github     : https://github.com/beiyuouo
 # Description:
+from __future__ import annotations
+
 import os
 import typing
 import warnings
+from pathlib import Path
 
 import cv2
 import numpy as np
 import yaml
 from loguru import logger
 
-from .kernel import ChallengeStyle
-from .kernel import ModelHub
+from hcaptcha_challenger.solutions.kernel import ChallengeStyle
+from hcaptcha_challenger.solutions.kernel import ModelHub
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class ResNetFactory(ModelHub):
-    def __init__(self, _onnx_prefix, _name, _dir_model: str):
+    def __init__(self, _onnx_prefix, _name, _dir_model: Path):
         super().__init__(_onnx_prefix, _name, _dir_model)
         self.register_model()
 
@@ -50,7 +53,7 @@ class ResNetFactory(ModelHub):
             _err_prompt = f"""
             The remote network does not exist or the local cache has expired.
             1. Check objects.yaml for typos | model={self.fn};
-            2. Restart the program after deleting the local cache | dir={self.assets.dir_assets};
+            2. Restart the program after deleting the local cache | dir={self.assets.assets_dir};
             """
             logger.warning(_err_prompt)
             self.assets.sync()
@@ -72,7 +75,7 @@ class PluggableONNXModels:
     such as model download, model cache, and model scheduling.
     """
 
-    def __init__(self, path_objects_yaml: str, dir_model: str, lang: typing.Optional[str] = "en"):
+    def __init__(self, path_objects_yaml: Path, dir_model: Path, lang: str | None = "en"):
         self.dir_model = dir_model
         self.lang = lang
         self._fingers = []
@@ -90,22 +93,21 @@ class PluggableONNXModels:
     def fingers(self) -> typing.List[str]:
         return self._fingers
 
-    def _register(self, path_objects_yaml):
+    def _register(self, objects_path: Path):
         """
         Register pluggable ONNX models from `objects.yaml`.
 
-        :type path_objects_yaml: str
         :rtype: List[str]
         :rtype: None
         """
-        if not path_objects_yaml or not os.path.exists(path_objects_yaml):
+        if not objects_path or not objects_path.exists():
             return
 
-        with open(path_objects_yaml, "r", encoding="utf8") as file:
+        with open(objects_path, "r", encoding="utf8") as file:
             data: typing.Dict[str, dict] = yaml.safe_load(file.read())
 
         if not data:
-            os.remove(path_objects_yaml)
+            os.remove(objects_path)
             return
 
         label_to_i18ndict = data.get("label_alias", {})
@@ -141,7 +143,7 @@ class PluggableONNXModels:
         return new_tarnished(onnx_prefix=model_label, dir_model=self.dir_model)
 
 
-def new_tarnished(onnx_prefix: str, dir_model: str) -> ModelHub:
+def new_tarnished(onnx_prefix: str, dir_model: Path) -> ModelHub:
     """ResNet model factory, used to produce abstract model call interface."""
     return ResNetFactory(
         _onnx_prefix=onnx_prefix, _name=f"{onnx_prefix}(ResNet)_model", _dir_model=dir_model

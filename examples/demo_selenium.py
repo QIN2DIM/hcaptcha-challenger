@@ -3,8 +3,9 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
+from __future__ import annotations
+
 import time
-import typing
 
 from selenium.common.exceptions import (
     ElementNotInteractableException,
@@ -27,7 +28,7 @@ headless = False
 solver.install()
 
 
-def hit_challenge(ctx, challenger: HolyChallenger, retries: int = 10) -> typing.Optional[str]:
+def hit_challenge(ctx, challenger: HolyChallenger, retries: int = 10) -> str | None:
     """
     Use `anti_checkbox()` `anti_hcaptcha()` to be flexible to challenges
     :param ctx:

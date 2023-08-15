@@ -1,10 +1,10 @@
-import os
+from pathlib import Path
 
 from setuptools import setup, find_packages
 
 import hcaptcha_challenger
 
-this_directory = os.path.abspath(os.path.dirname(__file__))
+my_readme = Path(__file__).parent.joinpath("README.md").read_text()
 
 # pip install urllib3 -U
 # python setup.py sdist bdist_wheel && python -m twine upload dist/*
@@ -17,23 +17,30 @@ setup(
     maintainer="QIN2DIM, Bingjie Yan",
     maintainer_email="qinse.top@foxmail.com, bj.yan.pa@qq.com",
     description="🥂 Gracefully face hCaptcha challenge with YOLOv6(ONNX) embedded solution.",
-    long_description=open(os.path.join(this_directory, "README.md"), encoding="utf8").read(),
+    long_description=my_readme,
     long_description_content_type="text/markdown",
     license="GNU General Public License v3.0",
     url="https://github.com/QIN2DIM/hcaptcha-challenger",
     packages=find_packages(include=["hcaptcha_challenger", "hcaptcha_challenger.*", "LICENSE"]),
     install_requires=[
         "loguru>=0.7.0",
-        "selenium>=4.11.2",
-        "aiohttp>=3.8.5",
-        "opencv-python~=4.5.5.62",
-        "undetected-chromedriver==3.5.2",
-        "webdriver-manager==3.8.2",
+        "opencv-python>=4.8.0.76",
         "numpy>=1.21.5",
-        "requests>=2.31.1",
         "pyyaml>=6.0",
+        "httpx",
     ],
-    extras_require={"dev": ["nox", "pytest"], "test": ["pytest"]},
+    extras_require={
+        "dev": ["nox", "pytest"],
+        "test": ["pytest"],
+        "selenium": [
+            "selenium",
+            "undetected-chromedriver==3.5.2",
+            "webdriver-manager==4.0.0",
+        ],
+        "playwright": [
+            "playwright"
+        ]
+    },
     python_requires=">=3.8",
     classifiers=[
         "Topic :: Scientific/Engineering",

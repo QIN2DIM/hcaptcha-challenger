@@ -1,14 +1,19 @@
+from __future__ import annotations
+
 import asyncio
 import os
 import random
 import re
 import sys
 import time
-import typing
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable, Tuple, List, Any
 from urllib.parse import quote
 from urllib.request import getproxies
 
-import aiohttp
+from httpx import AsyncClient
 from loguru import logger
 from selenium.common.exceptions import (
     ElementNotVisibleException,
@@ -25,82 +30,42 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
 
-from ._solutions import resnet, yolo
-from .exceptions import LabelNotFoundException, ChallengePassed, ChallengeLangException
+from hcaptcha_challenger.exceptions import (
+    LabelNotFoundException,
+    ChallengePassed,
+    ChallengeLangException,
+)
+from hcaptcha_challenger.solutions import resnet, yolo
 
 
-class AshFramework:
+@dataclass
+class AshFramework(ABC):
     """轻量化的协程控件"""
 
-    def __init__(self, docker: typing.Optional[typing.List] = None):
+    container: Iterable
+
+    @classmethod
+    def from_container(cls, container):
         if sys.platform.startswith("win") or "cygwin" in sys.platform:
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         else:
             asyncio.set_event_loop(asyncio.new_event_loop())
+        return cls(container=container)
 
-        # 任务容器：queue
-        self.worker, self.done = asyncio.Queue(), asyncio.Queue()
-        # 任务容器
-        self.docker = docker
-        # 任务队列满载时刻长度
-        self.max_queue_size = 0
-
-    def progress(self) -> str:
-        """任务进度"""
-        _progress = self.max_queue_size - self.worker.qsize()
-        return f"{_progress}/{self.max_queue_size}"
-
-    def preload(self):
-        """预处理"""
-
-    def overload(self):
-        """任务重载"""
-        if self.docker:
-            for task in self.docker:
-                self.worker.put_nowait(task)
-        self.max_queue_size = self.worker.qsize()
-
-    def offload(self) -> typing.Optional[typing.List]:
-        """缓存卸载"""
-        crash = []
-        while not self.done.empty():
-            crash.append(self.done.get())
-        return crash
-
-    async def control_driver(self, context, session=None):
+    @abstractmethod
+    async def control_driver(self, context: Any, client: AsyncClient):
         """需要并发执行的代码片段"""
         raise NotImplementedError
 
-    async def launcher(self, session=None):
-        """适配接口模式"""
-        while not self.worker.empty():
-            context = self.worker.get_nowait()
-            await self.control_driver(context, session=session)
-
-    async def subvert(self, workers: typing.Union[str, int]):
-        """Framework runtime interface"""
-        # 任务重载
-        self.overload()
-
-        # 弹出空载任务
-        if self.max_queue_size == 0:
+    async def subvert(self):
+        if not self.container:
             return
+        async with AsyncClient() as client:
+            task_list = [self.control_driver(context, client) for context in self.container]
+            await asyncio.gather(*task_list)
 
-        # 粘性功率
-        workers = self.max_queue_size if workers in ["fast"] else workers
-        workers = workers if workers <= self.max_queue_size else self.max_queue_size
-
-        # 弹性分发
-        task_list = []
-        async with aiohttp.ClientSession() as session:
-            for _ in range(workers):
-                task = asyncio.create_task(self.launcher(session=session))
-                task_list.append(task)
-            await asyncio.wait(task_list)
-
-    def perform(self, workers: typing.Union[str, int] = "fast"):
-        """Start the highest power coroutine task"""
-        asyncio.run(self.subvert(workers))
+    def execute(self):
+        asyncio.run(self.subvert())
 
 
 class HolyChallenger:
@@ -185,14 +150,14 @@ class HolyChallenger:
 
     def __init__(
         self,
-        dir_workspace: typing.Optional[str] = None,
-        lang: typing.Optional[str] = "zh",
-        dir_model: typing.Optional[str] = None,
-        onnx_prefix: typing.Optional[str] = None,
-        screenshot: typing.Optional[bool] = False,
-        debug: typing.Optional[bool] = False,
-        path_objects_yaml: typing.Optional[str] = None,
-        slowdown: typing.Optional[bool] = True,
+        dir_workspace: Path,
+        models_dir: Path,
+        objects_path: Path,
+        lang: str | None = "zh",
+        onnx_prefix: str | None = None,
+        screenshot: bool | None = False,
+        debug: bool | None = False,
+        slowdown: bool | None = True,
     ):
         if not isinstance(lang, str) or not self._label_alias.get(lang):
             raise ChallengeLangException(
@@ -201,9 +166,9 @@ class HolyChallenger:
             )
 
         self.action_name = "ArmorCaptcha"
-        self.dir_model = dir_model or os.path.join("datas", "models")
-        self.path_objects_yaml = path_objects_yaml or os.path.join("datas", "objects.yaml")
-        self.dir_workspace = dir_workspace or os.path.join("datas", "temp_cache", "_challenge")
+        self.models_dir = models_dir
+        self.objects_path = objects_path
+        self.dir_workspace = dir_workspace
         self.debug = debug
         self.onnx_prefix = onnx_prefix
         self.screenshot = screenshot
@@ -231,7 +196,7 @@ class HolyChallenger:
 
         # Automatic registration
         self.pom_handler = resnet.PluggableONNXModels(
-            path_objects_yaml=self.path_objects_yaml, dir_model=self.dir_model, lang=self.lang
+            path_objects_yaml=self.objects_path, dir_model=self.models_dir, lang=self.lang
         )
         self.label_alias.update(self.pom_handler.label_alias)
 
@@ -265,12 +230,12 @@ class HolyChallenger:
             clean_label = clean_label.replace(c, self.BAD_CODE[c])
         return clean_label
 
-    def _init_workspace(self):
+    def _init_workspace(self) -> Path:
         """初始化工作目录，存放缓存的挑战图片"""
         _prefix = (
             f"{time.time()}" + f"_{self.label_alias.get(self.label, '')}" if self.label else ""
         )
-        _workspace = os.path.join(self.dir_workspace, _prefix)
+        _workspace = self.dir_workspace.joinpath(_prefix)
         os.makedirs(_workspace, exist_ok=True)
         return _workspace
 
@@ -286,8 +251,8 @@ class HolyChallenger:
         _filename = (
             f"{int(time.time())}.{_suffix}.png" if name_screenshot is None else name_screenshot
         )
-        _out_dir = os.path.join(os.path.dirname(self.dir_workspace), "captcha_screenshot")
-        _out_path = os.path.join(_out_dir, _filename)
+        _out_dir = self.dir_workspace.parent.joinpath("captcha_screenshot")
+        _out_path = _out_dir.joinpath(_filename)
         os.makedirs(_out_dir, exist_ok=True)
 
         # FullWindow screenshot or FocusElement screenshot
@@ -300,9 +265,7 @@ class HolyChallenger:
         finally:
             return _out_path
 
-    def log(
-        self, message: str, _reporter: typing.Optional[bool] = False, **params
-    ) -> typing.Optional[str]:
+    def log(self, message: str, _reporter: bool | None = False, **params) -> str | None:
         """格式化日志信息"""
         if not self.debug:
             return
@@ -346,8 +309,8 @@ class HolyChallenger:
         # Skip the `draw challenge`
         else:
             fn = f"{int(time.time())}.image_label_area_select.png"
-            self.log(
-                message="Pass challenge",
+            logger.debug(
+                "Pass challenge",
                 challenge="image_label_area_select",
                 site_link=ctx.current_url,
                 screenshot=self.captcha_screenshot(ctx, fn),
@@ -361,9 +324,9 @@ class HolyChallenger:
             raise LabelNotFoundException("Get the exception label object")
         else:
             self.label = self.label_cleaning(_label)
-            self.log(message="Get label", label=f"「{self.label}」")
+            logger.debug("Get label", name=self.label)
 
-    def tactical_retreat(self, ctx) -> typing.Optional[str]:
+    def tactical_retreat(self, ctx) -> str | None:
         """
         「blacklist mode」 skip unchoreographed challenges
         :param ctx:
@@ -383,12 +346,12 @@ class HolyChallenger:
         finally:
             q = quote(self.label, "utf8")
             logger.warning(
-                f">> ALERT [{self.action_name}] Types of challenges not yet scheduled - "
-                f"label=「{self.label}」 "
-                f"prompt=「{self.prompt}」 "
-                f"screenshot={self.path_screenshot} "
-                f"site_link={ctx.current_url} "
-                f"issues=https://github.com/QIN2DIM/hcaptcha-challenger/issues?q={q}"
+                "Types of challenges not yet scheduled",
+                label=self.label,
+                prompt=self.prompt,
+                shot=f"{self.path_screenshot}",
+                site_link=ctx.current_url,
+                issue=f"https://github.com/QIN2DIM/hcaptcha-challenger/issues?q={q}",
             )
             return self.CHALLENGE_BACKCALL
 
@@ -398,8 +361,8 @@ class HolyChallenger:
 
         # Load ONNX model - ResNet | YOLO
         if label_alias not in self.pom_handler.fingers:
-            self.log("lazy-loading", sign="YOLO", match=label_alias)
-            return yolo.YOLO(self.dir_model, self.onnx_prefix)
+            logger.debug("lazy-loading", sign="YOLO", match=label_alias)
+            return yolo.YOLO(self.models_dir, self.onnx_prefix)
         return self.pom_handler.lazy_loading(label_alias)
 
     def mark_samples(self, ctx: Chrome):
@@ -466,18 +429,12 @@ class HolyChallenger:
         :return:
         """
 
+        @dataclass
         class ImageDownloader(AshFramework):
-            """Coroutine Booster - Improve the download efficiency of challenge images"""
-
-            http_proxy: typing.Optional[str] = getproxies().get("http")
-
-            async def control_driver(self, context, session=None):
-                path_challenge_img, url = context
-
-                # Download Challenge Image
-                async with session.get(url, proxy=self.http_proxy) as response:
-                    with open(path_challenge_img, "wb") as file:
-                        file.write(await response.read())
+            async def control_driver(self, context: Any, client: AsyncClient):
+                (img_path, url) = context
+                resp = await client.get(url)
+                img_path.write_bytes(resp.content)
 
         # Initialize the challenge image download directory
         self.runtime_workspace = self._init_workspace()
@@ -485,14 +442,14 @@ class HolyChallenger:
         # Initialize the data container
         docker_ = []
         for alias_, url_ in self.alias2url.items():
-            path_challenge_img_ = os.path.join(self.runtime_workspace, f"{alias_}.png")
-            self.alias2path.update({alias_: path_challenge_img_})
-            docker_.append((path_challenge_img_, url_))
+            challenge_img_path = self.runtime_workspace.joinpath(f"{alias_}.png")
+            self.alias2path.update({alias_: challenge_img_path})
+            docker_.append((challenge_img_path, url_))
 
         # Initialize the coroutine-based image downloader
         start = time.time()
-        ImageDownloader(docker_).perform()
-        self.log(message="Download challenge images", timeit=f"{round(time.time() - start, 2)}s")
+        ImageDownloader(docker_).execute()
+        logger.debug("Download challenge images", timeit=f"{round(time.time() - start, 2)}s")
 
     def challenge(self, ctx: Chrome, model):
         """
@@ -549,10 +506,9 @@ class HolyChallenger:
             pass
         except WebDriverException as err:
             logger.exception(err)
+        logger.debug("Submit challenge", result=f"{model.flag}: {round(sum(ta), 2)}s")
 
-        self.log(message=f"Submit the challenge - {model.flag}: {round(sum(ta), 2)}s")
-
-    def challenge_success(self, ctx: Chrome) -> typing.Tuple[str, str]:
+    def challenge_success(self, ctx: Chrome) -> Tuple[str, str]:
         """
         判断挑战是否成功的复杂逻辑
 
@@ -589,7 +545,7 @@ class HolyChallenger:
                 )
                 self.threat += 1
                 if getproxies() and self.threat > 3:
-                    logger.warning(f"Your proxy IP may have been flagged - proxies={getproxies()}")
+                    logger.warning("Your proxy IP may have been flagged", proxies=getproxies())
                 return True
             except TimeoutException:
                 return False
@@ -613,7 +569,7 @@ class HolyChallenger:
                 )
                 # [👻] 点击复选框
                 WebDriverWait(ctx, 2).until(EC.element_to_be_clickable((By.ID, "checkbox"))).click()
-                self.log("Handle hCaptcha checkbox")
+                logger.debug("Handle hCaptcha checkbox")
                 return True
             except (TimeoutException, InvalidArgumentException):
                 pass
@@ -621,7 +577,7 @@ class HolyChallenger:
                 # [👻] 回到主线剧情
                 ctx.switch_to.default_content()
 
-    def anti_hcaptcha(self, ctx: Chrome) -> typing.Union[bool, str]:
+    def anti_hcaptcha(self, ctx: Chrome) -> bool | str:
         """
         Handle hcaptcha challenge
 
@@ -688,7 +644,7 @@ class HolyChallenger:
 
                 # [👻] 輪詢控制臺響應
                 result, _ = self.challenge_success(ctx)
-                self.log("Get response", desc=result)
+                logger.debug("Get response", desc=result)
 
                 ctx.switch_to.default_content()
                 solution.offload()
@@ -700,15 +656,11 @@ class HolyChallenger:
             ctx.switch_to.default_content()
             return self.CHALLENGE_CRASH
 
-    def classify(
-        self, prompt: str, images: typing.List[typing.Union[str, bytes]]
-    ) -> typing.Optional[typing.List[bool]]:
+    def classify(self, prompt: str, images: List[str | bytes]) -> List[bool] | None:
         """TaskType: HcaptchaClassification"""
         if not prompt or not isinstance(prompt, str) or not images or not isinstance(images, list):
             logger.error(
-                f">> ALERT [{self.action_name}] Invalid parameters - "
-                f"prompt=「{self.prompt}」 "
-                f"images=「{images}」"
+                "Invalid parameters", action=self.action_name, prompt=self.prompt, images=images
             )
             return
 
@@ -721,9 +673,7 @@ class HolyChallenger:
 
         if self.label not in self.label_alias:
             logger.error(
-                f">> ALERT [{self.action_name}] Types of challenges not yet scheduled - "
-                f"label=「{self.label}」 "
-                f"prompt=「{self.prompt}」"
+                "Types of challenges not yet scheduled", label=self.label, prompt=self.prompt
             )
             return
 
@@ -752,7 +702,7 @@ class HolyChallenger:
 
 class ArmorUtils:
     @staticmethod
-    def face_the_checkbox(ctx: Chrome) -> typing.Optional[bool]:
+    def face_the_checkbox(ctx: Chrome) -> bool | None:
         try:
             WebDriverWait(ctx, 8, ignored_exceptions=(WebDriverException,)).until(
                 EC.presence_of_element_located((By.XPATH, "//iframe[contains(@title,'checkbox')]"))
@@ -762,11 +712,11 @@ class ArmorUtils:
             return False
 
     @staticmethod
-    def get_hcaptcha_response(ctx: Chrome) -> typing.Optional[str]:
+    def get_hcaptcha_response(ctx: Chrome) -> str | None:
         return ctx.execute_script("return hcaptcha.getResponse()")
 
     @staticmethod
-    def refresh(ctx: Chrome) -> typing.Optional[bool]:
+    def refresh(ctx: Chrome) -> bool | None:
         try:
             ctx.find_element(By.XPATH, "//div[@class='refresh button']").click()
         except (NoSuchElementException, ElementNotInteractableException):
