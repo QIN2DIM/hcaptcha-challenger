@@ -3,11 +3,13 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
+from pathlib import Path
+
 import cv2
 import numpy as np
 
-from .kernel import ChallengeStyle
-from .kernel import ModelHub
+from hcaptcha_challenger._solutions.kernel import ChallengeStyle
+from hcaptcha_challenger._solutions.kernel import ModelHub
 
 
 class Prefix:
@@ -105,7 +107,7 @@ class YOLO:
         "toothbrush",
     ]
 
-    def __init__(self, dir_model: str, onnx_prefix: str = None):
+    def __init__(self, models_dir: Path, onnx_prefix: str = None):
         onnx_prefix = (
             "yolov5s6"
             if onnx_prefix
@@ -127,7 +129,7 @@ class YOLO:
         if onnx_prefix.startswith("yolov6"):
             name = f"MT-YOLOv6{onnx_prefix[-1]}"
 
-        self.modelhub = ModelHub(onnx_prefix, f"{name}(ONNX)_model", dir_model)
+        self.modelhub = ModelHub(onnx_prefix, f"{name}(ONNX)_model", models_dir)
         self.modelhub.register_model()
         self.flag = self.modelhub.flag
 

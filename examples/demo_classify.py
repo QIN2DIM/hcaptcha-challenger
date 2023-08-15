@@ -15,17 +15,16 @@ solver.install()
 def bytedance():
     # Challenge prompt in Chinese or English
     prompt = "Please click each image containing a horse walking or running."
+
     # Absolute path to the Challenge Images
-    dir_datas = "horse_walking_or_running"
-    images = [
-        open(Path(__file__).parent.joinpath(f"{dir_datas}/{fn}"), "rb").read()
-        for fn in os.listdir(Path(__file__).parent.joinpath(dir_datas))
-    ]
+    label_name = "horse_walking_or_running"
+    label_dir = Path(__file__).parent.joinpath(label_name)
+    images = [label_dir.joinpath(fn).read_bytes() for fn in os.listdir(label_dir)]
 
     challenger = solver.new_challenger()
     if result := challenger.classify(prompt=prompt, images=images):
-        for i, fp in enumerate(os.listdir(Path(__file__).parent.joinpath(dir_datas))):
-            print(result[i], os.path.basename(fp))
+        for i, name in enumerate(os.listdir(label_dir)):
+            print(result[i], name)
 
 
 if __name__ == "__main__":

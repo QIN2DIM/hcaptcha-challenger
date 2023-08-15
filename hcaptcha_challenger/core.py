@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import os
 import random
@@ -5,6 +7,7 @@ import re
 import sys
 import time
 import typing
+from pathlib import Path
 from urllib.parse import quote
 from urllib.request import getproxies
 
@@ -185,14 +188,14 @@ class HolyChallenger:
 
     def __init__(
         self,
-        dir_workspace: typing.Optional[str] = None,
-        lang: typing.Optional[str] = "zh",
-        dir_model: typing.Optional[str] = None,
-        onnx_prefix: typing.Optional[str] = None,
-        screenshot: typing.Optional[bool] = False,
-        debug: typing.Optional[bool] = False,
-        path_objects_yaml: typing.Optional[str] = None,
-        slowdown: typing.Optional[bool] = True,
+        dir_workspace: Path,
+        models_dir: Path,
+        objects_path: Path,
+        lang: str | None = "zh",
+        onnx_prefix: str | None = None,
+        screenshot: bool | None = False,
+        debug: bool | None = False,
+        slowdown: bool | None = True,
     ):
         if not isinstance(lang, str) or not self._label_alias.get(lang):
             raise ChallengeLangException(
@@ -201,9 +204,9 @@ class HolyChallenger:
             )
 
         self.action_name = "ArmorCaptcha"
-        self.dir_model = dir_model or os.path.join("datas", "models")
-        self.path_objects_yaml = path_objects_yaml or os.path.join("datas", "objects.yaml")
-        self.dir_workspace = dir_workspace or os.path.join("datas", "temp_cache", "_challenge")
+        self.models_dir = models_dir
+        self.objects_path = objects_path
+        self.dir_workspace = dir_workspace
         self.debug = debug
         self.onnx_prefix = onnx_prefix
         self.screenshot = screenshot
@@ -231,7 +234,7 @@ class HolyChallenger:
 
         # Automatic registration
         self.pom_handler = resnet.PluggableONNXModels(
-            path_objects_yaml=self.path_objects_yaml, dir_model=self.dir_model, lang=self.lang
+            path_objects_yaml=self.objects_path, dir_model=self.models_dir, lang=self.lang
         )
         self.label_alias.update(self.pom_handler.label_alias)
 
@@ -399,7 +402,7 @@ class HolyChallenger:
         # Load ONNX model - ResNet | YOLO
         if label_alias not in self.pom_handler.fingers:
             self.log("lazy-loading", sign="YOLO", match=label_alias)
-            return yolo.YOLO(self.dir_model, self.onnx_prefix)
+            return yolo.YOLO(self.models_dir, self.onnx_prefix)
         return self.pom_handler.lazy_loading(label_alias)
 
     def mark_samples(self, ctx: Chrome):

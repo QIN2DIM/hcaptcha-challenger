@@ -7,8 +7,6 @@ import os
 from dataclasses import dataclass
 from os.path import join
 
-__all__ = ["config"]
-
 
 @dataclass
 class Config:

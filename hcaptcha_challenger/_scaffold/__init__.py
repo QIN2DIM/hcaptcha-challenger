@@ -21,7 +21,14 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 def init_log(**sink_channel):
     event_logger_format = "<g>{time:YYYY-MM-DD HH:mm:ss}</g> | <lvl>{level}</lvl> - {message}"
-    serialize_format = event_logger_format + "- {extra}"
+    persistent_format = (
+        "<g>{time:YYYY-MM-DD HH:mm:ss}</g> | "
+        "<lvl>{level}</lvl>    | "
+        "<c><u>{name}</u></c>:{function}:{line} | "
+        "{message} - "
+        "{extra}"
+    )
+    serialize_format = event_logger_format + " - {extra}"
     logger.remove()
     logger.add(
         sink=sys.stdout, colorize=True, level="DEBUG", format=serialize_format, diagnose=False
@@ -33,7 +40,7 @@ def init_log(**sink_channel):
             rotation="1 week",
             encoding="utf8",
             diagnose=False,
-            format=serialize_format,
+            format=persistent_format,
         )
     if sink_channel.get("runtime"):
         logger.add(
@@ -43,41 +50,18 @@ def init_log(**sink_channel):
             retention="20 days",
             encoding="utf8",
             diagnose=False,
-            format=serialize_format,
+            format=persistent_format,
         )
     if sink_channel.get("serialize"):
         logger.add(
             sink=sink_channel.get("serialize"),
             level="DEBUG",
-            format=serialize_format,
+            format=persistent_format,
             encoding="utf8",
             diagnose=False,
             serialize=True,
         )
     return logger
-
-
-class Config:
-    HCAPTCHA_DEMO_API = "https://accounts.hcaptcha.com/demo?sitekey={}"
-    SITE_KEYS = {
-        "epic": "91e4137f-95af-4bc9-97af-cdcedce21c8c",
-        "hcaptcha": "a5f74b19-9e45-40e0-b45d-47ff91b7a6c2",
-        "discord": "f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34",
-        "oracle": "d857545c-9806-4f9e-8e9d-327f565aeb46",
-        "publisher": "c86d730b-300a-444c-a8c5-5312e7a93628",
-    }
-
-    # https://www.wappalyzer.com/technologies/security/hcaptcha/
-    HCAPTCHA_DEMO_SITES = [
-        # [√] label: Tags follow point-in-time changes
-        HCAPTCHA_DEMO_API.format(SITE_KEYS["publisher"]),
-        # [√] label: `vertical river`
-        HCAPTCHA_DEMO_API.format(SITE_KEYS["oracle"]),
-        # [x] label: `airplane in the sky flying left`
-        HCAPTCHA_DEMO_API.format(SITE_KEYS["discord"]),
-        # [√] label: hcaptcha-challenger
-        HCAPTCHA_DEMO_API.format(SITE_KEYS["hcaptcha"]),
-    ]
 
 
 class Scaffold:
@@ -98,12 +82,12 @@ class Scaffold:
 
     @staticmethod
     def demo(
-            silence: typing.Optional[bool] = False,
-            model: typing.Optional[str] = None,
-            target: typing.Optional[str] = None,
-            sitekey: typing.Optional[str] = None,
-            screenshot: typing.Optional[bool] = False,
-            repeat: typing.Optional[int] = 5,
+        silence: typing.Optional[bool] = False,
+        model: typing.Optional[str] = None,
+        target: typing.Optional[str] = None,
+        sitekey: typing.Optional[str] = None,
+        screenshot: typing.Optional[bool] = False,
+        repeat: typing.Optional[int] = 5,
     ):
         """
         Dueling with hCAPTCHA challenge using YOLOv5.
@@ -130,7 +114,7 @@ class Scaffold:
 
 
 def get_challenge_ctx(
-        silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None, **kwargs
+    silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None, **kwargs
 ):
     """
     Challenger drive for handling human-machine challenges.
@@ -173,7 +157,7 @@ def get_challenge_ctx(
 
 
 def create_chrome_options(
-        silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None
+    silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None
 ) -> ChromeOptions:
     """
     Create ChromeOptions for undetected_chromedriver.Chrome
