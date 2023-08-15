@@ -33,10 +33,13 @@ setup(
         "dev": ["nox", "pytest"],
         "test": ["pytest"],
         "selenium": [
-            "selenium>=4.11.2",
+            "selenium",
             "undetected-chromedriver==3.5.2",
-            "webdriver-manager==3.8.2",
+            "webdriver-manager==4.0.0",
         ],
+        "playwright": [
+            "playwright"
+        ]
     },
     python_requires=">=3.8",
     classifiers=[
