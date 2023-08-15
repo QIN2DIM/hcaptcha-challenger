@@ -22,7 +22,7 @@ from hcaptcha_challenger.solutions.kernel import PluggableObjects
 from hcaptcha_challenger.solutions.yolo import Prefix, YOLO
 
 __all__ = ["HolyChallenger", "new_challenger", "get_challenge_ctx"]
-__version__ = "0.4.5"
+__version__ = "0.5.0"
 
 
 @dataclass
