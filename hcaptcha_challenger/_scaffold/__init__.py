@@ -19,34 +19,40 @@ from webdriver_manager.core.utils import get_browser_version_from_os
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
-def init_log(**sink_path):
-    """Initialize loguru log information"""
-    event_logger_format = (
-        "<g>{time:YYYY-MM-DD HH:mm:ss}</g> | "
-        "<lvl>{level}</lvl> - "
-        # "<c><u>{name}</u></c> | "
-        "{message}"
-    )
+def init_log(**sink_channel):
+    event_logger_format = "<g>{time:YYYY-MM-DD HH:mm:ss}</g> | <lvl>{level}</lvl> - {message}"
+    serialize_format = event_logger_format + "- {extra}"
     logger.remove()
     logger.add(
-        sink=sys.stdout, colorize=True, level="DEBUG", format=event_logger_format, diagnose=False
+        sink=sys.stdout, colorize=True, level="DEBUG", format=serialize_format, diagnose=False
     )
-    if sink_path.get("error"):
+    if sink_channel.get("error"):
         logger.add(
-            sink=sink_path.get("error"),
+            sink=sink_channel.get("error"),
             level="ERROR",
             rotation="1 week",
             encoding="utf8",
             diagnose=False,
+            format=serialize_format,
         )
-    if sink_path.get("runtime"):
+    if sink_channel.get("runtime"):
         logger.add(
-            sink=sink_path.get("runtime"),
+            sink=sink_channel.get("runtime"),
             level="DEBUG",
             rotation="20 MB",
             retention="20 days",
             encoding="utf8",
             diagnose=False,
+            format=serialize_format,
+        )
+    if sink_channel.get("serialize"):
+        logger.add(
+            sink=sink_channel.get("serialize"),
+            level="DEBUG",
+            format=serialize_format,
+            encoding="utf8",
+            diagnose=False,
+            serialize=True,
         )
     return logger
 
@@ -92,12 +98,12 @@ class Scaffold:
 
     @staticmethod
     def demo(
-        silence: typing.Optional[bool] = False,
-        model: typing.Optional[str] = None,
-        target: typing.Optional[str] = None,
-        sitekey: typing.Optional[str] = None,
-        screenshot: typing.Optional[bool] = False,
-        repeat: typing.Optional[int] = 5,
+            silence: typing.Optional[bool] = False,
+            model: typing.Optional[str] = None,
+            target: typing.Optional[str] = None,
+            sitekey: typing.Optional[str] = None,
+            screenshot: typing.Optional[bool] = False,
+            repeat: typing.Optional[int] = 5,
     ):
         """
         Dueling with hCAPTCHA challenge using YOLOv5.
@@ -124,7 +130,7 @@ class Scaffold:
 
 
 def get_challenge_ctx(
-    silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None, **kwargs
+        silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None, **kwargs
 ):
     """
     Challenger drive for handling human-machine challenges.
@@ -152,22 +158,22 @@ def get_challenge_ctx(
     logger.debug("🎮 Activate challenger context")
     try:
         return Chrome(
-            options=createChromeOptions(silence, lang),
+            options=create_chrome_options(silence, lang),
             headless=silence,
             driver_executable_path=driver_executable_path,
             **kwargs,
         )
     except WebDriverException:
         return Chrome(
-            options=createChromeOptions(silence, lang),
+            options=create_chrome_options(silence, lang),
             headless=silence,
             version_main=int(version_main) if version_main.isdigit() else None,
             **kwargs,
         )
 
 
-def createChromeOptions(
-    silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None
+def create_chrome_options(
+        silence: typing.Optional[bool] = None, lang: typing.Optional[str] = None
 ) -> ChromeOptions:
     """
     Create ChromeOptions for undetected_chromedriver.Chrome
