@@ -24,17 +24,20 @@ setup(
     packages=find_packages(include=["hcaptcha_challenger", "hcaptcha_challenger.*", "LICENSE"]),
     install_requires=[
         "loguru>=0.7.0",
-        "selenium>=4.11.2",
-        "aiohttp>=3.8.5",
         "opencv-python>=4.8.0.76",
-        "undetected-chromedriver==3.5.2",
-        "webdriver-manager==3.8.2",
         "numpy>=1.21.5",
-        "requests>=2.31.1",
         "pyyaml>=6.0",
         "httpx",
     ],
-    extras_require={"dev": ["nox", "pytest"], "test": ["pytest"]},
+    extras_require={
+        "dev": ["nox", "pytest"],
+        "test": ["pytest"],
+        "selenium": [
+            "selenium>=4.11.2",
+            "undetected-chromedriver==3.5.2",
+            "webdriver-manager==3.8.2",
+        ],
+    },
     python_requires=">=3.8",
     classifiers=[
         "Topic :: Scientific/Engineering",

@@ -8,8 +8,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from hcaptcha_challenger._solutions.kernel import ChallengeStyle
-from hcaptcha_challenger._solutions.kernel import ModelHub
+from hcaptcha_challenger.solutions.kernel import ChallengeStyle
+from hcaptcha_challenger.solutions.kernel import ModelHub
 
 
 class Prefix:

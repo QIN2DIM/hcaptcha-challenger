@@ -15,8 +15,8 @@ import numpy as np
 import yaml
 from loguru import logger
 
-from hcaptcha_challenger._solutions.kernel import ChallengeStyle
-from hcaptcha_challenger._solutions.kernel import ModelHub
+from hcaptcha_challenger.solutions.kernel import ChallengeStyle
+from hcaptcha_challenger.solutions.kernel import ModelHub
 
 warnings.filterwarnings("ignore", category=UserWarning)
 

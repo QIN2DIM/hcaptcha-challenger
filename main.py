@@ -10,8 +10,9 @@ from fire import Fire
 
 from examples import demo_selenium, demo_challenge, demo_install, demo_classify
 from examples.motion import app, motion
-from examples.settings import config
+from examples.settings import Config
 
+config = Config()
 demo_install.do()
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -35,7 +36,7 @@ class Scaffold:
         demo_install.do(yolo_onnx_prefix=model, upgrade=upgrade)
 
     @staticmethod
-    def test():
+    def with_selenium():
         """Test the Challenger drive for fitment"""
         demo_challenge.test()
 
@@ -45,7 +46,7 @@ class Scaffold:
 
     @staticmethod
     def motion():
-        motion.train_motion("http://127.0.0.1:8000", config.dir_database)
+        motion.train_motion("http://127.0.0.1:8000", config.motion_temp_dir)
 
     @staticmethod
     def demo(

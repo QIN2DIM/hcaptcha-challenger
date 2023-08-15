@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Time       : 2022/2/15 17:43
 # Author     : QIN2DIM
-# Github     : https://github.com/QIN2DIM
+# GitHub     : https://github.com/QIN2DIM
 # Description:
 from __future__ import annotations
 
@@ -15,10 +15,11 @@ from urllib.parse import urlparse
 from loguru import logger
 
 from hcaptcha_challenger.core import HolyChallenger
-from ._scaffold import get_challenge_ctx, init_log
-from ._solutions.kernel import ModelHub
-from ._solutions.kernel import PluggableObjects
-from ._solutions.yolo import Prefix, YOLO
+from hcaptcha_challenger.utils.agents import get_challenge_ctx
+from hcaptcha_challenger.utils.toolbox import init_log
+from hcaptcha_challenger.solutions.kernel import ModelHub
+from hcaptcha_challenger.solutions.kernel import PluggableObjects
+from hcaptcha_challenger.solutions.yolo import Prefix, YOLO
 
 __all__ = ["HolyChallenger", "new_challenger", "get_challenge_ctx"]
 __version__ = "0.4.5"
@@ -78,14 +79,7 @@ def new_challenger(
     *args,
     **kwargs,
 ) -> HolyChallenger:
-    """
-
-    :param slowdown:
-    :param lang:
-    :param screenshot:
-    :param debug:
-    :return:
-    """
+    """Soon to be deprecated"""
     return HolyChallenger(
         dir_workspace=project.challenge_cache_dir,
         models_dir=project.models_dir,

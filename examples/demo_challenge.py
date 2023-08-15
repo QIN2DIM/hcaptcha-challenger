@@ -42,13 +42,13 @@ def _motion(sample_site: str, ctx, challenger: solver.HolyChallenger) -> typing.
 
 @logger.catch()
 def run(
-        sample_site: str,
-        lang: typing.Optional[str] = "zh",
-        silence: typing.Optional[bool] = False,
-        onnx_prefix: typing.Optional[str] = None,
-        screenshot: typing.Optional[bool] = False,
-        repeat: typing.Optional[int] = 10,
-        slowdown: typing.Optional[bool] = True,
+    sample_site: str,
+    lang: typing.Optional[str] = "zh",
+    silence: typing.Optional[bool] = False,
+    onnx_prefix: typing.Optional[str] = None,
+    screenshot: typing.Optional[bool] = False,
+    repeat: typing.Optional[int] = 10,
+    slowdown: typing.Optional[bool] = True,
 ):
     """Human-Machine Challenge Demonstration | Top Interface"""
 

@@ -13,11 +13,9 @@ import typing
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
-from urllib.request import getproxies
 
 import cv2
 import httpx
-import requests
 from loguru import logger
 
 
@@ -156,10 +154,9 @@ class Assets:
         logger.debug(f"Pulling AssetsObject", url=self.GITHUB_RELEASE_API)
 
         try:
-            session = requests.session()
-            resp = session.get(self.GITHUB_RELEASE_API, proxies=getproxies(), timeout=3)
+            resp = httpx.get(self.GITHUB_RELEASE_API, timeout=3)
             data = resp.json()[0]
-        except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError) as err:
+        except (httpx.ConnectError, json.decoder.JSONDecodeError) as err:
             logger.error(err)
         except (AttributeError, IndexError, KeyError) as err:
             logger.error(err)
@@ -314,8 +311,7 @@ def _request_asset(asset_download_url: str, asset_path: Path, fn_tag: str):
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.203"
     }
-    proxies = getproxies().get("https")
-    with httpx.Client(headers=headers, proxies=proxies, follow_redirects=True) as client:
+    with httpx.Client(headers=headers, follow_redirects=True) as client:
         logger.debug(
             f"Downloading assets", fn_tag=fn_tag, url=asset_download_url, to=str(asset_path)
         )

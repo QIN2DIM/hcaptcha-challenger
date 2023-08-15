@@ -3,14 +3,13 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description:
-import os
 from dataclasses import dataclass
-from os.path import join
+from pathlib import Path
 
 
 @dataclass
 class Config:
-    dir_database: str = "datas"
+    motion_temp_dir: Path = Path(__file__).parent.joinpath("temp")
 
     HCAPTCHA_DEMO_API = "https://accounts.hcaptcha.com/demo?sitekey={}"
     SITE_KEYS = {
@@ -32,10 +31,3 @@ class Config:
         # [√] label: hcaptcha-challenger
         HCAPTCHA_DEMO_API.format(SITE_KEYS["hcaptcha"]),
     ]
-
-    def __post_init__(self):
-        os.makedirs(self.dir_database, exist_ok=True)
-        self.path_objects_yaml = join(self.dir_database, "objects.yaml")
-
-
-config = Config()
