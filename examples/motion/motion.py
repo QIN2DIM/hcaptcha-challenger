@@ -120,3 +120,7 @@ class MotionData:
 def train_motion(test_site: str, temp_dir: Path):
     with MotionData(temp_dir) as motion:
         motion.mimic(test_site)
+
+
+if __name__ == "__main__":
+    train_motion("http://127.0.0.1:8000", temp_dir=Path("temp_dir"))
