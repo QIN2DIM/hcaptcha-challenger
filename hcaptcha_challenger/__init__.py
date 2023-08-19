@@ -14,15 +14,14 @@ from urllib.parse import urlparse
 
 from loguru import logger
 
-from hcaptcha_challenger.core import HolyChallenger
 from hcaptcha_challenger.utils.agents import get_challenge_ctx
 from hcaptcha_challenger.utils.toolbox import init_log
 from hcaptcha_challenger.solutions.kernel import ModelHub
 from hcaptcha_challenger.solutions.kernel import PluggableObjects
 from hcaptcha_challenger.solutions.yolo import Prefix, YOLO
 
-__all__ = ["HolyChallenger", "new_challenger", "get_challenge_ctx"]
-__version__ = "0.5.0"
+__all__ = ["new_challenger", "get_challenge_ctx"]
+__version__ = "0.6.0"
 
 
 @dataclass
@@ -78,7 +77,8 @@ def new_challenger(
     slowdown: bool | None = True,
     *args,
     **kwargs,
-) -> HolyChallenger:
+):
+    from hcaptcha_challenger.core import HolyChallenger
     """Soon to be deprecated"""
     return HolyChallenger(
         dir_workspace=project.challenge_cache_dir,

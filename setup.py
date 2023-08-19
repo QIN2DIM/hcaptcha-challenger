@@ -28,6 +28,9 @@ setup(
         "numpy>=1.21.5",
         "pyyaml>=6.0",
         "httpx",
+        "selenium",
+        "undetected-chromedriver==3.5.2",
+        "webdriver-manager==4.0.0"
     ],
     extras_require={
         "dev": ["nox", "pytest"],

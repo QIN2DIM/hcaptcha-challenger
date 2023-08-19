@@ -40,7 +40,6 @@ from hcaptcha_challenger.solutions import resnet, yolo
 
 @dataclass
 class AshFramework(ABC):
-    """轻量化的协程控件"""
 
     container: Iterable
 
@@ -54,7 +53,6 @@ class AshFramework(ABC):
 
     @abstractmethod
     async def control_driver(self, context: Any, client: AsyncClient):
-        """需要并发执行的代码片段"""
         raise NotImplementedError
 
     async def subvert(self):
