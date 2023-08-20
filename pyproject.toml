@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "hcaptcha-challenger"
+version = "0.6.1"
+description = "🥂 Gracefully face hCaptcha challenge with MoE(ONNX) embedded solution."
+license = "GPL-3.0-or-later"
+authors = ["QIN2DIM <yaoqinse@gmail.com>", "Bingjie Yan <bj.yan.pa@qq.com>"]
+readme = "README.md"
+homepage = "https://github.com/QIN2DIM/hcaptcha-challenger"
+repository = "https://github.com/QIN2DIM/hcaptcha-challenger"
+documentation = "https://github.com/QIN2DIM/hcaptcha-challenger"
+keywords = ["hcaptcha", "hcaptcha-challenger", "hcaptcha-solver"]
+classifiers = [
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+]
+packages = [{ include = "hcaptcha_challenger", format = "sdist" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+loguru = "^0.7.0"
+opencv-python = "^4.8.0.76"
+numpy = "^1.21.5"
+pyyaml = "^6.0"
+httpx = "^0.24.1"
+undetected-chromedriver = { version = "^3.5.2", optional = true }
+webdriver-manager = { version = "^4.0.0", optional = true }
+selenium = { version = "*", optional = true }
+playwright = { version = "*", optional = true }
+
+[tool.poetry.group.test.dependencies]
+pytest = "*"
+black = "*"
+
+[tool.poetry.extras]
+selenium = ["selenium", "undetected-chromedriver", "webdriver-manager"]
+playwright = ["playwright"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
