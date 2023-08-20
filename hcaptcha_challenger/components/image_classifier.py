@@ -13,7 +13,7 @@ from loguru import logger
 
 from hcaptcha_challenger.components.prompt_handler import label_cleaning, split_prompt_message
 from hcaptcha_challenger.onnx.modelhub import ModelHub
-from hcaptcha_challenger.onnx.resnet import ResNetFactory
+from hcaptcha_challenger.onnx.resnet import ResNetControl
 
 
 class Classifier:
@@ -35,7 +35,7 @@ class Classifier:
 
         focus_name = focus_label if focus_label.endswith(".onnx") else f"{focus_label}.onnx"
         net = self.modelhub.match_net(focus_name)
-        control = ResNetFactory.from_pluggable_model(net)
+        control = ResNetControl.from_pluggable_model(net)
 
         for image in images:
             try:

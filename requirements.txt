@@ -1,5 +1,4 @@
 # [python_requires=">=3.8"]
-# scikit-image~=0.19.2
 
 # [install_requires]
 loguru>=0.7.0
@@ -9,13 +8,9 @@ pyyaml>=6.0
 httpx
 
 # [extras_require.selenium]
-selenium>=4.11.2
-undetected-chromedriver==3.5.2
-webdriver-manager==4.0.0
-
-# [extras_require.motion]
-fire~=0.5.0
-sanic~=23.6.0
+# selenium>=4.11.2
+# undetected-chromedriver==3.5.2
+# webdriver-manager==4.0.0
 
 # [extras_require.dev]
 # pytest

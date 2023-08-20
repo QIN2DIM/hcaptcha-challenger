@@ -129,13 +129,11 @@ dmypy.json
 .pyre/
 .idea
 database/
-model/
 tests/
-docs-src/
 .pypirc
 *.dat
-examples/datas
-datas/
+
 compile.py
 hcaptcha_challenger/logs
-**/models/**
+**/models/
+examples/tmp_dir

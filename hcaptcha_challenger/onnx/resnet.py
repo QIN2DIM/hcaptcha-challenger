@@ -17,7 +17,7 @@ from hcaptcha_challenger.onnx.modelhub import ChallengeStyle
 
 
 @dataclass
-class ResNetFactory:
+class ResNetControl:
     net: Net
 
     @classmethod
@@ -34,7 +34,8 @@ class ResNetFactory:
         img = cv2.resize(img, (64, 64))
         blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (64, 64), (0, 0, 0), swapRB=True, crop=False)
 
-        # 使用延迟反射机制确保分布式网络的两端一致性
+        # Use the delayed reflection mechanism
+        # to ensure the consistency of both ends of the distributed network
         if self.net is None:
             logger.warning("The remote network does not exist or the local cache has expired.")
             return False

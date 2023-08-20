@@ -134,21 +134,28 @@ class Assets:
             shutil.rmtree(self._assets_dir, ignore_errors=True)
             self._assets_dir.mkdir(mode=777, parents=True, exist_ok=True)
 
+        assets_paths = [self._assets_dir.joinpath(i) for i in os.listdir(self._assets_dir)]
+        is_outdated = False
+        if assets_paths:
+            resp_path = assets_paths[-1]
+            resp_ctime = datetime.fromtimestamp(resp_path.stat().st_ctime)
+            if resp_ctime + self.cache_lifetime < datetime.now():
+                is_outdated = True
+
         # Request assets index from remote repository
-        logger.debug(f"Pulling Assets index file", url=self.release_url)
-        try:
-            resp = httpx.get(self.release_url, timeout=3)
-            data = resp.json()[0]
-        except (httpx.ConnectError, json.decoder.JSONDecodeError) as err:
-            logger.error(err)
-        except (AttributeError, IndexError, KeyError) as err:
-            logger.error(err)
-        else:
-            if isinstance(data, dict):
+        if upgrade is True or not assets_paths or is_outdated:
+            logger.debug(f"Pulling Assets index file", url=self.release_url)
+            try:
+                resp = httpx.get(self.release_url, timeout=3)
+                data = resp.json()[0]
                 assets: List[dict] = data.get("assets", [])
                 for asset in assets:
                     release_asset = from_dict_to_model(ReleaseAsset, asset)
                     self._name2asset[asset["name"]] = release_asset
+            except (httpx.ConnectError, JSONDecodeError) as err:
+                logger.error(err)
+            except (AttributeError, IndexError, KeyError) as err:
+                logger.error(err)
 
         # Only implemented after the Assets._pull network request is initiated,
         # it is used to update the content and timestamp of the local cache
@@ -227,7 +234,7 @@ class ModelHub:
         self.assets_dir.mkdir(mode=777, parents=True, exist_ok=True)
 
     @classmethod
-    def from_github_repo(cls, username: str = "QIN2DIM", lang: str = "en"):
+    def from_github_repo(cls, username: str = "QIN2DIM", lang: str = "en", **kwargs):
         release_url = f"https://api.github.com/repos/{username}/hcaptcha-challenger/releases"
         objects_url = f"https://raw.githubusercontent.com/{username}/hcaptcha-challenger/main/src/objects.yaml"
 
@@ -242,7 +249,7 @@ class ModelHub:
             upgrade
             or not self.objects_path.exists()
             or not self.objects_path.stat().st_size
-            or time.time() - self.objects_path.stat().st_ctime > 3600
+            or time.time() - self.objects_path.stat().st_mtime > 3600
         ):
             request_resource(self.objects_url, self.objects_path)
 

@@ -16,6 +16,7 @@ from loguru import logger
 
 from hcaptcha_challenger.components.image_downloader import download_images
 from hcaptcha_challenger.onnx.modelhub import ModelHub
+from hcaptcha_challenger.onnx.resnet import ResNetControl
 
 HOOK_CHALLENGE = "//iframe[contains(@src,'#frame=challenge')]"
 
@@ -45,12 +46,12 @@ class Skeleton(ABC):
     Build Skeleton with modelhub
     """
 
-    this_dir: Path = Path(__file__)
+    this_dir: Path = Path(__file__).parent
     """
     Project directory of Skeleton Agents
     """
 
-    tmp_dir = this_dir.joinpath("temp_cache")
+    tmp_dir: Path = this_dir.joinpath("temp_cache")
     challenge_dir = tmp_dir.joinpath("_challenge")
     """
     Runtime cache
@@ -90,7 +91,23 @@ class Skeleton(ABC):
     def from_modelhub(cls, **kwargs):
         modelhub = ModelHub.from_github_repo(**kwargs)
         modelhub.parse_objects()
-        return cls(modelhub=modelhub, _label_alias=modelhub.label_alias)
+
+        dragon = cls(modelhub=modelhub, _label_alias=modelhub.label_alias)
+
+        tmp_dir = kwargs.get("tmp_dir")
+        if tmp_dir and isinstance(tmp_dir, Path):
+            dragon.tmp_dir = tmp_dir
+            dragon.challenge_dir = tmp_dir.joinpath("_challenge")
+
+        return dragon
+
+    def match_solution(self) -> ResNetControl:
+        """match solution after `tactical_retreat`"""
+        focus_label = self._label_alias.get(self._label, "")
+        focus_name = focus_label if focus_label.endswith(".onnx") else f"{focus_label}.onnx"
+        net = self.modelhub.match_net(focus_name)
+        control = ResNetControl.from_pluggable_model(net)
+        return control
 
     @abstractmethod
     def switch_to_challenge_frame(self, ctx, **kwargs):
@@ -101,7 +118,7 @@ class Skeleton(ABC):
         """Obtain the label that needs to be recognized for the challenge"""
         raise NotImplementedError
 
-    def tactical_retreat(self) -> str | None:
+    def tactical_retreat(self, **kwargs) -> str | None:
         """skip unchoreographed challenges"""
         if self._label_alias.get(self._label):
             return Status.CHALLENGE_CONTINUE
@@ -123,7 +140,7 @@ class Skeleton(ABC):
     def download_images(self):
         prefix = ""
         if self._label:
-            prefix = f"{time.time()}_{self._label_alias.get(self._label, '')}"
+            prefix = f"{time.time()}_{self._label_alias.get(self._label, self._label)}"
         runtime_dir = self.challenge_dir.joinpath(prefix)
         runtime_dir.mkdir(mode=777, parents=True, exist_ok=True)
 
