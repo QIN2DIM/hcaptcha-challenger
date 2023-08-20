@@ -17,7 +17,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 import hcaptcha_challenger as solver
 from hcaptcha_challenger import HolyChallenger
-from hcaptcha_challenger.exceptions import ChallengePassed
+from hcaptcha_challenger.agents.exceptions import ChallengePassed
 
 # Existing user data
 email = "plms-123@tesla.com"

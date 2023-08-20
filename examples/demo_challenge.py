@@ -9,7 +9,7 @@ import typing
 from loguru import logger
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger.exceptions import ChallengePassed
+from hcaptcha_challenger.agents.exceptions import ChallengePassed
 
 
 def _motion(sample_site: str, ctx, challenger: solver.HolyChallenger) -> typing.Optional[str]:

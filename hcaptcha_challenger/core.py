@@ -25,13 +25,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
 
-from hcaptcha_challenger.components.image_downloader import download_images
-from hcaptcha_challenger.components.prompt_handler import label_cleaning, split_prompt_message
-from hcaptcha_challenger.exceptions import (
+from hcaptcha_challenger.agents.exceptions import (
     LabelNotFoundException,
     ChallengePassed,
     ChallengeLangException,
 )
+from hcaptcha_challenger.components.image_downloader import download_images
+from hcaptcha_challenger.components.prompt_handler import label_cleaning, split_prompt_message
 from hcaptcha_challenger.onnx import resnet
 
 

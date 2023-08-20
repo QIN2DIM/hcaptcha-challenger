@@ -13,7 +13,7 @@ from hcaptcha_challenger.components.image_classifier import Classifier as Binary
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.utils import init_log
 
-__all__ = ["new_challenger", "BinaryClassifier"]
+__all__ = ["BinaryClassifier"]
 __version__ = "0.6.0"
 
 
@@ -36,28 +36,6 @@ def install(upgrade: bool | None = False, username: str = "QIN2DIM", lang: str =
     modelhub = ModelHub.from_github_repo(username=username, lang=lang)
     modelhub.pull_objects(upgrade=upgrade)
     modelhub.assets.flush_runtime_assets(upgrade=upgrade)
-
-
-def new_challenger(
-    lang: str | None = "en",
-    screenshot: bool | None = False,
-    debug: bool | None = False,
-    slowdown: bool | None = True,
-    *args,
-    **kwargs,
-):
-    from hcaptcha_challenger.core import HolyChallenger
-
-    """Soon to be deprecated"""
-    return HolyChallenger(
-        dir_workspace=project.challenge_cache_dir,
-        models_dir=project.models_dir,
-        objects_path=project.objects_path,
-        lang=lang,
-        screenshot=screenshot,
-        debug=debug,
-        slowdown=slowdown,
-    )
 
 
 def set_reverse_proxy(https_cdn: str):
