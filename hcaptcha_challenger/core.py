@@ -1,19 +1,14 @@
 from __future__ import annotations
 
-import asyncio
 import os
 import random
 import re
-import sys
 import time
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Tuple, List, Any
+from typing import Tuple, List
 from urllib.parse import quote
 from urllib.request import getproxies
 
-from httpx import AsyncClient
 from loguru import logger
 from selenium.common.exceptions import (
     ElementNotVisibleException,
@@ -30,106 +25,20 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
 
+from hcaptcha_challenger.components.image_downloader import download_images
+from hcaptcha_challenger.components.prompt_handler import label_cleaning, split_prompt_message
 from hcaptcha_challenger.exceptions import (
     LabelNotFoundException,
     ChallengePassed,
     ChallengeLangException,
 )
-from hcaptcha_challenger.solutions import resnet, yolo
-
-
-@dataclass
-class AshFramework(ABC):
-
-    container: Iterable
-
-    @classmethod
-    def from_container(cls, container):
-        if sys.platform.startswith("win") or "cygwin" in sys.platform:
-            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-        else:
-            asyncio.set_event_loop(asyncio.new_event_loop())
-        return cls(container=container)
-
-    @abstractmethod
-    async def control_driver(self, context: Any, client: AsyncClient):
-        raise NotImplementedError
-
-    async def subvert(self):
-        if not self.container:
-            return
-        async with AsyncClient() as client:
-            task_list = [self.control_driver(context, client) for context in self.container]
-            await asyncio.gather(*task_list)
-
-    def execute(self):
-        asyncio.run(self.subvert())
+from hcaptcha_challenger.onnx import resnet
 
 
 class HolyChallenger:
     """hCAPTCHA challenge drive control"""
 
-    _label_alias = {
-        "zh": {
-            "自行车": "bicycle",
-            "火车": "train",
-            "卡车": "truck",
-            "公交车": "bus",
-            "巴士": "bus",
-            "飞机": "airplane",
-            "一条船": "boat",
-            "船": "boat",
-            "摩托车": "motorcycle",
-            "垂直河流": "vertical river",
-            "天空中向左飞行的飞机": "airplane in the sky flying left",
-            "请选择天空中所有向右飞行的飞机": "airplanes in the sky that are flying to the right",
-            "汽车": "car",
-            "大象": "elephant",
-            "鸟": "bird",
-            "狗": "dog",
-            "犬科动物": "dog",
-            "一匹马": "horse",
-            "长颈鹿": "giraffe",
-        },
-        "en": {
-            "airplane": "airplane",
-            "motorbus": "bus",
-            "bus": "bus",
-            "truck": "truck",
-            "motorcycle": "motorcycle",
-            "boat": "boat",
-            "bicycle": "bicycle",
-            "train": "train",
-            "vertical river": "vertical river",
-            "airplane in the sky flying left": "airplane in the sky flying left",
-            "Please select all airplanes in the sky that are flying to the right": "airplanes in the sky that are flying to the right",
-            "car": "car",
-            "elephant": "elephant",
-            "bird": "bird",
-            "dog": "dog",
-            "canine": "dog",
-            "horse": "horse",
-            "giraffe": "giraffe",
-        },
-    }
-
-    BAD_CODE = {
-        "а": "a",
-        "е": "e",
-        "e": "e",
-        "i": "i",
-        "і": "i",
-        "ο": "o",
-        "с": "c",
-        "ԁ": "d",
-        "ѕ": "s",
-        "һ": "h",
-        "у": "y",
-        "р": "p",
-        "ϳ": "j",
-        "ー": "一",
-        "土": "士",
-    }
+    _label_alias = {"zh": {}, "en": {}}
 
     HOOK_CHALLENGE = "//iframe[contains(@src,'#frame=challenge')]"
 
@@ -172,8 +81,6 @@ class HolyChallenger:
         self.screenshot = screenshot
         self.slowdown = slowdown
 
-        # 存储挑战图片的目录
-        self.runtime_workspace = ""
         # 挑战截图存储路径
         self.path_screenshot = ""
         # 博大精深！
@@ -202,41 +109,6 @@ class HolyChallenger:
     def utils(self):
         return ArmorUtils
 
-    @staticmethod
-    def split_prompt_message(prompt_message: str, lang: str) -> str:
-        """Detach label from challenge prompt"""
-        if lang.startswith("zh"):
-            if "中包含" in prompt_message or "上包含" in prompt_message:
-                return re.split(r"击|(的每)", prompt_message)[2]
-            if "的每" in prompt_message:
-                return re.split(r"(包含)|(的每)", prompt_message)[3]
-            if "包含" in prompt_message:
-                return re.split(r"(包含)|(的图)", prompt_message)[3]
-        elif lang.startswith("en"):
-            prompt_message = prompt_message.replace(".", "").lower()
-            if "containing" in prompt_message:
-                th = re.split(r"containing", prompt_message)[-1][1:].strip()
-                return th[2:].strip() if th.startswith("a") else th
-            if "select all" in prompt_message:
-                return re.split(r"all (.*) images", prompt_message)[1].strip()
-        return prompt_message
-
-    def label_cleaning(self, raw_label: str) -> str:
-        """cleaning errors-unicode"""
-        clean_label = raw_label
-        for c in self.BAD_CODE:
-            clean_label = clean_label.replace(c, self.BAD_CODE[c])
-        return clean_label
-
-    def _init_workspace(self) -> Path:
-        """初始化工作目录，存放缓存的挑战图片"""
-        _prefix = (
-            f"{time.time()}" + f"_{self.label_alias.get(self.label, '')}" if self.label else ""
-        )
-        _workspace = self.dir_workspace.joinpath(_prefix)
-        os.makedirs(_workspace, exist_ok=True)
-        return _workspace
-
     def captcha_screenshot(self, ctx, name_screenshot: str = None):
         """
         保存挑战截图，需要在 get_label 之后执行
@@ -262,20 +134,6 @@ class HolyChallenger:
             logger.exception(err)
         finally:
             return _out_path
-
-    def log(self, message: str, _reporter: bool | None = False, **params) -> str | None:
-        """格式化日志信息"""
-        if not self.debug:
-            return
-
-        motive = "Challenge"
-        flag_ = f">> {motive} [{self.action_name}] {message}"
-        if params:
-            flag_ += " - "
-            flag_ += " ".join([f"{i[0]}={i[1]}" for i in params.items()])
-        if _reporter is True:
-            return flag_
-        logger.debug(flag_)
 
     def switch_to_challenge_frame(self, ctx: Chrome):
         WebDriverWait(ctx, 15, ignored_exceptions=(ElementNotVisibleException,)).until(
@@ -317,11 +175,11 @@ class HolyChallenger:
 
         # Continue the `click challenge`
         try:
-            _label = self.split_prompt_message(prompt_message=self.prompt, lang=self.lang)
+            _label = split_prompt_message(prompt_message=self.prompt, lang=self.lang)
         except (AttributeError, IndexError):
             raise LabelNotFoundException("Get the exception label object")
         else:
-            self.label = self.label_cleaning(_label)
+            self.label = label_cleaning(_label)
             logger.debug("Get label", name=self.label)
 
     def tactical_retreat(self, ctx) -> str | None:
@@ -358,9 +216,6 @@ class HolyChallenger:
         label_alias = self.label_alias.get(self.label)
 
         # Load ONNX model - ResNet | YOLO
-        if label_alias not in self.pom_handler.fingers:
-            logger.debug("lazy-loading", sign="YOLO", match=label_alias)
-            return yolo.YOLO(self.models_dir, self.onnx_prefix)
         return self.pom_handler.lazy_loading(label_alias)
 
     def mark_samples(self, ctx: Chrome):
@@ -404,50 +259,21 @@ class HolyChallenger:
             self.alias2locator.update({alias: sample})
 
     def download_images(self):
-        """
-        Download Challenge Image
-
-        ### hcaptcha has a challenge duration limit
-
-        If the page element is not manipulated for a period of time,
-        the <iframe> box will disappear and the previously acquired Element Locator will be out of date.
-        Need to use some modern methods to shorten the time of `getting the dataset` as much as possible.
-
-        ### Solution
-
-        1. Coroutine Downloader
-          Use the coroutine-based method to _pull the image to the local, the best practice (this method).
-          In the case of poor network, _pull efficiency is at least 10 times faster than traversal download.
-
-        2. Screen cut
-          There is some difficulty in coding.
-          Directly intercept nine pictures of the target area, and use the tool function to cut and identify them.
-          Need to weave the locator index yourself.
-
-        :return:
-        """
-
-        @dataclass
-        class ImageDownloader(AshFramework):
-            async def control_driver(self, context: Any, client: AsyncClient):
-                (img_path, url) = context
-                resp = await client.get(url)
-                img_path.write_bytes(resp.content)
-
-        # Initialize the challenge image download directory
-        self.runtime_workspace = self._init_workspace()
+        prefix = ""
+        if self.label:
+            prefix = f"{time.time()}_{self.label_alias.get(self.label, '')}"
+        runtime_dir = self.dir_workspace.joinpath(prefix)
+        runtime_dir.mkdir(mode=777, parents=True, exist_ok=True)
 
         # Initialize the data container
-        docker_ = []
+        container = []
         for alias_, url_ in self.alias2url.items():
-            challenge_img_path = self.runtime_workspace.joinpath(f"{alias_}.png")
+            challenge_img_path = runtime_dir.joinpath(f"{alias_}.png")
             self.alias2path.update({alias_: challenge_img_path})
-            docker_.append((challenge_img_path, url_))
+            container.append((challenge_img_path, url_))
 
         # Initialize the coroutine-based image downloader
-        start = time.time()
-        ImageDownloader(docker_).execute()
-        logger.debug("Download challenge images", timeit=f"{round(time.time() - start, 2)}s")
+        download_images(container)
 
     def challenge(self, ctx: Chrome, model):
         """
@@ -666,8 +492,8 @@ class HolyChallenger:
         self.label_alias = self._label_alias[self.lang]
         self.label_alias.update(self.pom_handler.get_label_alias(self.lang))
         self.prompt = prompt
-        _label = self.split_prompt_message(prompt, lang=self.lang)
-        self.label = self.label_cleaning(_label)
+        _label = split_prompt_message(prompt, lang=self.lang)
+        self.label = label_cleaning(_label)
 
         if self.label not in self.label_alias:
             logger.error(

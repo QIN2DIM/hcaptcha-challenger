@@ -12,17 +12,6 @@ import hcaptcha_challenger as solver
 from hcaptcha_challenger.exceptions import ChallengePassed
 
 
-@logger.catch
-def test(hcaptcha_demo_site: str = "https://accounts.hcaptcha.com/demo"):
-    """Check if the Challenger driver version is compatible"""
-    ctx = solver.get_challenge_ctx(silence=True)
-    try:
-        ctx.get(hcaptcha_demo_site)
-    finally:
-        ctx.quit()
-    logger.success("The adaptation is successful")
-
-
 def _motion(sample_site: str, ctx, challenger: solver.HolyChallenger) -> typing.Optional[str]:
     resp = None
 
@@ -67,7 +56,7 @@ def run(
             if (resp := _motion(sample_site, ctx=ctx, challenger=challenger)) is None:
                 logger.warning("UnknownMistake")
             elif resp == challenger.CHALLENGE_SUCCESS:
-                challenger.log(f"End of demo - total: {round(time.time() - start, 2)}s")
+                logger.debug(f"End of demo - total: {round(time.time() - start, 2)}s")
                 logger.success(f"PASS[{i + 1}|{repeat}]".center(28, "="))
             elif resp == challenger.CHALLENGE_RETRY:
                 ctx.refresh()
@@ -75,7 +64,3 @@ def run(
         except ChallengePassed:
             ctx.refresh()
             logger.success(f"PASS[{i + 1}|{repeat}]".center(28, "="))
-
-
-if __name__ == "__main__":
-    test()

@@ -1,0 +1,335 @@
+# -*- coding: utf-8 -*-
+# Time       : 2023/8/19 18:23
+# Author     : QIN2DIM
+# GitHub     : https://github.com/QIN2DIM
+# Description:
+from __future__ import annotations
+
+import json
+import os
+import shutil
+import time
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from json import JSONDecodeError
+from pathlib import Path
+from typing import Dict, List
+from urllib.parse import urlparse
+
+import cv2
+import httpx
+import yaml
+from cv2.dnn import Net
+from loguru import logger
+
+from hcaptcha_challenger.utils import from_dict_to_model
+
+this_dir: Path = Path(__file__).parent
+
+
+@logger.catch
+def request_resource(url: str, save_path: Path):
+    cdn_prefix = os.environ.get("MODELHUB_CDN_PREFIX", "")
+
+    if cdn_prefix and cdn_prefix.startswith("https://"):
+        parser = urlparse(cdn_prefix)
+        scheme, netloc = parser.scheme, parser.netloc
+        url = f"{scheme}://{netloc}/{url}"
+
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.203"
+    }
+    logger.debug(f"Downloading resource", url=url, to=str(save_path))
+    with httpx.Client(headers=headers, follow_redirects=True) as client:
+        resp = client.get(url)
+        save_path.write_bytes(resp.content)
+
+
+@dataclass
+class ReleaseAsset:
+    id: int
+    node_id: str
+    name: str
+    size: int
+    browser_download_url: str
+
+
+@dataclass
+class Assets:
+    """
+    ONNX model manager
+    """
+
+    release_url: str
+    """
+    GitHub Release URL
+    Such as https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
+    """
+
+    _assets_dir: Path = this_dir.joinpath("models/_assets")
+    """
+    The local path of index file
+    """
+
+    _memory_dir: Path = this_dir.joinpath("models/_memory")
+    """
+    Archive historical versions of a model
+    """
+
+    cache_lifetime: timedelta = timedelta(hours=2)
+    """
+    The effective time of the index file
+    """
+
+    _name2asset: Dict[str, ReleaseAsset] = field(default_factory=dict)
+    """
+    { model_name.onnx: {ReleaseAsset} }
+    """
+
+    _name2node: Dict[str, str] = field(default_factory=dict)
+    """
+    model_name.onnx to asset_node_id
+    """
+
+    def __post_init__(self):
+        for ck in [self._assets_dir, self._memory_dir]:
+            ck.mkdir(mode=777, parents=True, exist_ok=True)
+
+    @classmethod
+    def from_release_url(cls, release_url: str, **kwargs):
+        instance = cls(release_url=release_url, **kwargs)
+
+        # Assets - latest information
+        # Called only before the Assets._pull network request is initiated,
+        # and the effective local cache will replace the remote resource
+        assets = [instance._assets_dir.joinpath(i) for i in os.listdir(instance._assets_dir)]
+        if assets:
+            resp_path = assets[-1]
+            resp_ctime = datetime.fromtimestamp(resp_path.stat().st_ctime)
+            if resp_ctime + instance.cache_lifetime > datetime.now():
+                try:
+                    data = json.loads(resp_path.read_text(encoding="utf8"))
+                    instance._name2asset = {
+                        k: from_dict_to_model(ReleaseAsset, v) for k, v in data.items()
+                    }
+                except JSONDecodeError as err:
+                    logger.warning(err)
+
+        # Memory - version control
+        for x in os.listdir(instance._memory_dir):
+            name, node = x.rsplit(".", maxsplit=1)
+            instance._name2node[name] = node
+
+        return instance
+
+    def get_focus_asset(self, focus_name: str) -> ReleaseAsset:
+        return self._name2asset.get(focus_name)
+
+    def flush_runtime_assets(self, upgrade: bool = False):
+        """Request assets index from remote repository"""
+        self._name2asset = {}
+
+        if upgrade is True:
+            logger.info("Reloading the local cache of Assets", assets_dir=str(self._assets_dir))
+            shutil.rmtree(self._assets_dir, ignore_errors=True)
+            self._assets_dir.mkdir(mode=777, parents=True, exist_ok=True)
+
+        # Request assets index from remote repository
+        logger.debug(f"Pulling Assets index file", url=self.release_url)
+        try:
+            resp = httpx.get(self.release_url, timeout=3)
+            data = resp.json()[0]
+        except (httpx.ConnectError, json.decoder.JSONDecodeError) as err:
+            logger.error(err)
+        except (AttributeError, IndexError, KeyError) as err:
+            logger.error(err)
+        else:
+            if isinstance(data, dict):
+                assets: List[dict] = data.get("assets", [])
+                for asset in assets:
+                    release_asset = from_dict_to_model(ReleaseAsset, asset)
+                    self._name2asset[asset["name"]] = release_asset
+
+        # Only implemented after the Assets._pull network request is initiated,
+        # it is used to update the content and timestamp of the local cache
+        for asset_fn in os.listdir(self._assets_dir):
+            asset_src = self._assets_dir.joinpath(asset_fn)
+            asset_dst = self._assets_dir.joinpath(f"_{asset_fn.replace('_', '')}")
+            shutil.move(asset_src, asset_dst)
+        assets_path = self._assets_dir.joinpath(f"{int(time.time())}.json")
+        data = {k: v.__dict__ for k, v in self._name2asset.items()}
+        assets_path.write_text(json.dumps(data, ensure_ascii=True, indent=2))
+
+    def archive_memory(self, focus_name: str, new_node_id: str):
+        """
+        Archive model version to local
+        :param focus_name: model name with .onnx suffix
+        :param new_node_id: node_id of the GitHub release, ONNX model file.
+        :return:
+        """
+        old_node_id = self._name2node.get(focus_name, "")
+
+        self._name2node[focus_name] = new_node_id
+
+        # Create or update a history tracking node
+        if not old_node_id:
+            memory_node = self._memory_dir.joinpath(f"{focus_name}.{new_node_id}")
+            memory_node.write_text(str(memory_node))
+        else:
+            memory_src = self._memory_dir.joinpath(f"{focus_name}.{old_node_id}")
+            memory_dst = self._memory_dir.joinpath(f"{focus_name}.{new_node_id}")
+            shutil.move(memory_src, memory_dst)
+
+    def is_outdated(self, focus_name: str):
+        """
+        Diagnostic steps for delayed reflection to maintain consistency at both ends of a distributed network
+        :param focus_name: model name with .onnx suffix
+        :return:
+        """
+        focus_asset = self._name2asset.get(focus_name)
+        if not focus_asset:
+            return
+
+        local_node_id = self._name2node.get(focus_name, "")
+        if not local_node_id:
+            return
+
+        if local_node_id != focus_asset.node_id:
+            return True
+        return False
+
+
+@dataclass
+class ModelHub:
+    """
+    Manage pluggable models. Provides high-level interfaces
+    such as model download, model cache, and model scheduling.
+    """
+
+    models_dir = this_dir.joinpath("models")
+    assets_dir = models_dir.joinpath("_assets")
+    objects_path = models_dir.joinpath("objects.yaml")
+
+    lang: str = "en"
+    label_alias: Dict[str, str] = field(default_factory=dict)
+
+    release_url: str = ""
+    objects_url: str = ""
+
+    assets: Assets = None
+
+    _name2net: Dict[str, Net] = field(default_factory=dict)
+    """
+    { model_name.onnx: cv2.dnn.Net }
+    """
+
+    def __post_init__(self):
+        self.assets_dir.mkdir(mode=777, parents=True, exist_ok=True)
+
+    @classmethod
+    def from_github_repo(cls, username: str = "QIN2DIM", lang: str = "en"):
+        release_url = f"https://api.github.com/repos/{username}/hcaptcha-challenger/releases"
+        objects_url = f"https://raw.githubusercontent.com/{username}/hcaptcha-challenger/main/src/objects.yaml"
+
+        instance = cls(release_url=release_url, objects_url=objects_url, lang=lang)
+        instance.assets = Assets.from_release_url(release_url)
+
+        return instance
+
+    def pull_objects(self, upgrade: bool = False):
+        """Network request"""
+        if (
+            upgrade
+            or not self.objects_path.exists()
+            or not self.objects_path.stat().st_size
+            or time.time() - self.objects_path.stat().st_ctime > 3600
+        ):
+            request_resource(self.objects_url, self.objects_path)
+
+    def parse_objects(self):
+        """Try to load label_alias from local database"""
+        if not self.objects_path.exists():
+            return
+
+        data = yaml.safe_load(self.objects_path.read_text(encoding="utf8"))
+        if not data:
+            os.remove(self.objects_path)
+            return
+
+        label_to_i18n_mapping: dict = data.get("label_alias", {})
+        if not label_to_i18n_mapping:
+            return
+
+        for model_name, lang_to_prompts in label_to_i18n_mapping.items():
+            for lang, prompts in lang_to_prompts.items():
+                if lang != self.lang:
+                    continue
+                self.label_alias.update({prompt.strip(): model_name for prompt in prompts})
+
+    def pull_model(self, focus_name: str):
+        """
+        1. node_id: Record the insertion point
+        and indirectly judge the changes of the file with the same name
+
+        2. assets.List: Record the item list of the release attachment,
+        and directly determine whether there are undownloaded files
+
+        3. assets.size: Record the amount of bytes inserted into the file,
+        and directly determine whether the file is downloaded completely
+
+        :param focus_name: model_name.onnx  Such as `mobile.onnx`
+        :return:
+        """
+        focus_asset = self.assets.get_focus_asset(focus_name)
+        if not focus_asset:
+            return
+
+        # Matching conditions to trigger download tasks
+        model_path = self.models_dir.joinpath(focus_name)
+        if (
+            not model_path.exists()
+            or model_path.stat().st_size != focus_asset.size
+            or self.assets.is_outdated(focus_name)
+        ):
+            request_resource(focus_asset.browser_download_url, model_path.absolute())
+            self.assets.archive_memory(focus_name, focus_asset.node_id)
+
+    def active_net(self, focus_name: str) -> Net | None:
+        """Load and register an existing model"""
+        model_path = self.models_dir.joinpath(focus_name)
+        if (
+            model_path.exists()
+            and model_path.stat().st_size
+            and not self.assets.is_outdated(focus_name)
+        ):
+            net = cv2.dnn.readNetFromONNX(str(model_path))
+            self._name2net[focus_name] = net
+            return net
+
+    def match_net(self, focus_name: str) -> Net | None:
+        """
+        PluggableONNXModel 对象实例化时：
+        - 自动读取并注册 objects.yaml 中注明的且已存在指定目录的模型对象，
+        - 然而，objects.yaml 中表达的标签组所对应的模型文件不一定都已存在。
+        - 初始化时不包含新的网络请求，即，不在初始化阶段下载缺失模型。
+
+        match_net 模型被动拉取：
+        - 在挑战进行时被动下载缺失的用于处理特定二分类任务的 ONNX 模型。
+        - 匹配的模型会被自动下载、注册并返回。
+        - 不在 objects.yaml 名单中的模型不会被下载
+
+        [?]升级的模型不支持热加载，需要重启程序才能读入，但新插入的模型可直接使用。
+        :param focus_name: model_name with .onnx suffix
+        :return:
+        """
+        net = self._name2net.get(focus_name)
+        if not net:
+            self.pull_model(focus_name)
+            net = self.active_net(focus_name)
+        return net
+
+
+class ChallengeStyle:
+    WATERMARK = 144  # onTrigger 128x128
+    GENERAL = 128
+    GAN = 144

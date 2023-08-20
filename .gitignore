@@ -137,3 +137,5 @@ docs-src/
 examples/datas
 datas/
 compile.py
+hcaptcha_challenger/logs
+**/models/**

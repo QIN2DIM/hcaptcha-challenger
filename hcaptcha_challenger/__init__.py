@@ -5,40 +5,22 @@
 # Description:
 from __future__ import annotations
 
-import shutil
-import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
 from urllib.parse import urlparse
 
-from loguru import logger
+from hcaptcha_challenger.components.image_classifier import Classifier as BinaryClassifier
+from hcaptcha_challenger.onnx.modelhub import ModelHub
+from hcaptcha_challenger.utils import init_log
 
-from hcaptcha_challenger.utils.agents import get_challenge_ctx
-from hcaptcha_challenger.utils.toolbox import init_log
-from hcaptcha_challenger.solutions.kernel import ModelHub
-from hcaptcha_challenger.solutions.kernel import PluggableObjects
-from hcaptcha_challenger.solutions.yolo import Prefix, YOLO
-
-__all__ = ["new_challenger", "get_challenge_ctx"]
+__all__ = ["new_challenger", "BinaryClassifier"]
 __version__ = "0.6.0"
 
 
 @dataclass
 class Project:
     at_dir = Path(__file__).parent
-    datas_dir = at_dir.joinpath("datas")
-
-    logs = datas_dir.joinpath("logs")
-    models_dir = datas_dir.joinpath("models")
-    assets_dir = models_dir.joinpath("_assets")
-    objects_path = datas_dir.joinpath("objects.yaml")
-
-    challenge_cache_dir = datas_dir.joinpath("temp_cache/_challenge")
-
-    def __post_init__(self):
-        for ck in [self.assets_dir, self.challenge_cache_dir]:
-            ck.mkdir(777, parents=True, exist_ok=True)
+    logs = at_dir.joinpath("logs")
 
 
 project = Project()
@@ -50,24 +32,10 @@ init_log(
 )
 
 
-def install(
-    onnx_prefix: Literal["yolov6n", "yolov6s", "yolov6t"] = "yolov6n", upgrade: bool | None = False
-):
-    if not hasattr(Prefix, onnx_prefix):
-        onnx_prefix = Prefix.YOLOv6n
-
-    if upgrade is True:
-        logger.debug(f"Reloading the local cache of Assets", assets_dir=str(project.assets_dir))
-        shutil.rmtree(project.assets_dir, ignore_errors=True)
-
-    if (
-        upgrade is True
-        or not project.objects_path.exists()
-        or not project.objects_path.stat().st_size
-        or time.time() - project.objects_path.stat().st_mtime > 3600
-    ):
-        PluggableObjects(path_objects=project.objects_path).sync()
-    YOLO(models_dir=project.models_dir, onnx_prefix=onnx_prefix).pull_model().offload()
+def install(upgrade: bool | None = False, username: str = "QIN2DIM", lang: str = "en"):
+    modelhub = ModelHub.from_github_repo(username=username, lang=lang)
+    modelhub.pull_objects(upgrade=upgrade)
+    modelhub.assets.flush_runtime_assets(upgrade=upgrade)
 
 
 def new_challenger(
@@ -79,13 +47,13 @@ def new_challenger(
     **kwargs,
 ):
     from hcaptcha_challenger.core import HolyChallenger
+
     """Soon to be deprecated"""
     return HolyChallenger(
         dir_workspace=project.challenge_cache_dir,
         models_dir=project.models_dir,
         objects_path=project.objects_path,
         lang=lang,
-        onnx_prefix=Prefix.YOLOv6n,
         screenshot=screenshot,
         debug=debug,
         slowdown=slowdown,

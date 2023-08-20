@@ -1,0 +1,51 @@
+# -*- coding: utf-8 -*-
+# Time       : 2023/8/19 18:04
+# Author     : QIN2DIM
+# GitHub     : https://github.com/QIN2DIM
+# Description:
+import re
+
+BAD_CODE = {
+    "а": "a",
+    "е": "e",
+    "e": "e",
+    "i": "i",
+    "і": "i",
+    "ο": "o",
+    "с": "c",
+    "ԁ": "d",
+    "ѕ": "s",
+    "һ": "h",
+    "у": "y",
+    "р": "p",
+    "ϳ": "j",
+    "ー": "一",
+    "土": "士",
+}
+
+
+def split_prompt_message(prompt_message: str, lang: str) -> str:
+    """Detach label from challenge prompt"""
+    if lang.startswith("zh"):
+        if "中包含" in prompt_message or "上包含" in prompt_message:
+            return re.split(r"击|(的每)", prompt_message)[2]
+        if "的每" in prompt_message:
+            return re.split(r"(包含)|(的每)", prompt_message)[3]
+        if "包含" in prompt_message:
+            return re.split(r"(包含)|(的图)", prompt_message)[3]
+    elif lang.startswith("en"):
+        prompt_message = prompt_message.replace(".", "").lower()
+        if "containing" in prompt_message:
+            th = re.split(r"containing", prompt_message)[-1][1:].strip()
+            return th[2:].strip() if th.startswith("a") else th
+        if "select all" in prompt_message:
+            return re.split(r"all (.*) images", prompt_message)[1].strip()
+    return prompt_message
+
+
+def label_cleaning(raw_label: str) -> str:
+    """cleaning errors-unicode"""
+    clean_label = raw_label
+    for c in BAD_CODE:
+        clean_label = clean_label.replace(c, BAD_CODE[c])
+    return clean_label
