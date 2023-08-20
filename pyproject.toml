@@ -1,3 +1,6 @@
+# https://python-poetry.org/docs/libraries/#versioning
+# https://python-poetry.org/docs/pyproject/#dependencies-and-dependency-groups
+
 [tool.poetry]
 name = "hcaptcha-challenger"
 version = "0.6.1"
@@ -9,27 +12,29 @@ homepage = "https://github.com/QIN2DIM/hcaptcha-challenger"
 repository = "https://github.com/QIN2DIM/hcaptcha-challenger"
 documentation = "https://github.com/QIN2DIM/hcaptcha-challenger"
 keywords = ["hcaptcha", "hcaptcha-challenger", "hcaptcha-solver"]
+packages = [{ include = "hcaptcha_challenger", format = "sdist" }]
 classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Image Recognition",
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
 ]
-packages = [{ include = "hcaptcha_challenger", format = "sdist" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 loguru = "^0.7.0"
 opencv-python = "^4.8.0.76"
 numpy = "^1.21.5"
-pyyaml = "^6.0"
+pyyaml = "*"
 httpx = "^0.24.1"
 undetected-chromedriver = { version = "^3.5.2", optional = true }
 webdriver-manager = { version = "^4.0.0", optional = true }
 selenium = { version = "*", optional = true }
-playwright = { version = "*", optional = true }
+playwright = { version = "^1.36.0", optional = true }
 
 [tool.poetry.group.test.dependencies]
 pytest = "*"
