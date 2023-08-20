@@ -8,10 +8,9 @@ from __future__ import annotations
 import hcaptcha_challenger as solver
 
 
-def do(yolo_onnx_prefix: str | None = None, upgrade: bool | None = False):
+def do(upgrade: bool | None = False, username="QIN2DIM", lang="en"):
     """Download the dependencies required to run the project."""
-    onnx_prefix = yolo_onnx_prefix or solver.Prefix.YOLOv6n
-    solver.install(onnx_prefix=onnx_prefix, upgrade=upgrade)
+    solver.install(upgrade=upgrade, username=username, lang=lang)
 
 
 if __name__ == "__main__":
