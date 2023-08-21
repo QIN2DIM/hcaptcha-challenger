@@ -1,4 +1,2 @@
 *.png binary
-*.js linguist-language=TypeScript
-*.html linguist-language=TypeScript
-*.css linguist-language=TypeScript
+*.js linguist-language=Python
