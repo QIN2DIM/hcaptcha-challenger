@@ -22,7 +22,7 @@ def bytedance():
     classifier = solver.BinaryClassifier()
     if result := classifier.execute(prompt, images):
         for i, name in enumerate(os.listdir(label_dir)):
-            print(result[i], name)
+            print(f"{name} - {result[i]}")
 
 
 if __name__ == "__main__":
