@@ -11,9 +11,9 @@ import hcaptcha_challenger as solver
 # Init local-side of the ModelHub
 solver.install()
 
-prompt = "Please click each image containing a horse walking or running."
+prompt = "diamond bracelet"
 
-label_dir = Path(__file__).parent.joinpath("horse_walking_or_running")
+label_dir = Path(__file__).parent.joinpath("diamond_bracelet")
 
 images = [label_dir.joinpath(fn).read_bytes() for fn in os.listdir(label_dir)]
 
