@@ -14,7 +14,6 @@ from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.utils import init_log
 
 __all__ = ["BinaryClassifier"]
-__version__ = "0.6.0"
 
 
 @dataclass
