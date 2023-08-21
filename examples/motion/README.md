@@ -1,0 +1,1 @@
+Start motion.py and tracker.py separately

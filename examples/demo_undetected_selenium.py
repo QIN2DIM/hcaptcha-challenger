@@ -9,10 +9,7 @@ import time
 from pathlib import Path
 
 from loguru import logger
-from selenium.common.exceptions import (
-    ElementNotInteractableException,
-    ElementClickInterceptedException,
-)
+from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -37,7 +34,7 @@ tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
 
 @logger.catch
-def hit_challenge(ctx, challenger: SeleniumAgent, retries: int = 2) -> str | None:
+def hit_challenge(ctx, challenger: SeleniumAgent, retries: int = 2) -> bool | None:
     """
     Use `anti_checkbox()` `anti_hcaptcha()` to be flexible to challenges
     :param ctx:
@@ -47,8 +44,6 @@ def hit_challenge(ctx, challenger: SeleniumAgent, retries: int = 2) -> str | Non
     """
     if ArmorUtils.face_the_checkbox(ctx):
         challenger.anti_checkbox(ctx)
-        if res := ArmorUtils.get_hcaptcha_response(ctx):
-            return res
 
     for _ in range(retries):
         try:
@@ -57,9 +52,9 @@ def hit_challenge(ctx, challenger: SeleniumAgent, retries: int = 2) -> str | Non
                 time.sleep(1)
                 continue
             if resp == Status.CHALLENGE_SUCCESS:
-                return ArmorUtils.get_hcaptcha_response(ctx)
+                return True
         except ChallengePassed:
-            return ArmorUtils.get_hcaptcha_response(ctx)
+            return True
         ArmorUtils.refresh(ctx)
         time.sleep(1)
 
@@ -82,13 +77,17 @@ def bytedance():
 
         # Handling context validation
         if hit_challenge(ctx=ctx, challenger=challenger):
-            # Submit test data
-            WebDriverWait(ctx, 15, ignored_exceptions=(ElementClickInterceptedException,)).until(
-                EC.element_to_be_clickable((By.XPATH, "//button[@data-cy]"))
+            ctx.switch_to.default_content()
+            WebDriverWait(ctx, 30).until(
+                EC.element_to_be_clickable((By.XPATH, "//span[text()='Submit']"))
             ).click()
-
-        ctx.save_screenshot(f"datas/bytedance{' - headless' if headless else ''}.png")
+            logger.success("Submit data form")
+    except Exception as err:
+        logger.exception(err)
     finally:
+        sp = tmp_dir.joinpath(f"bytedance{' - headless' if headless else ''}.png")
+        ctx.save_screenshot(sp)
+        time.sleep(3)
         ctx.quit()
 
 
