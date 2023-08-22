@@ -9,3 +9,6 @@ label_alias:
   diamond_bracelet:
     zh: [ "钻石手链" ]
     en: [ "diamond bracelet" ]
+  camera:
+    zh: [ "相机" ]
+    en: [ "camera" ]
