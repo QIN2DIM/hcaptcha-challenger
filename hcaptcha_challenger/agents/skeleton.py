@@ -14,7 +14,6 @@ from urllib.parse import quote
 
 from loguru import logger
 
-from hcaptcha_challenger.components.image_downloader import download_images
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 
@@ -35,6 +34,10 @@ class Status:
     CHALLENGE_REFRESH = "refresh"
     # <backcall> (New Challenge) Types of challenges not yet scheduled
     CHALLENGE_BACKCALL = "backcall"
+
+    AUTH_SUCCESS = "success"
+    AUTH_ERROR = "error"
+    AUTH_CHALLENGE = "challenge"
 
 
 @dataclass
@@ -87,14 +90,17 @@ class Skeleton(ABC):
     Store the `directory` of challenge image {挑战图片1: "/images/挑战图片1.png", ...}
     """
 
+    @property
+    def status(self):
+        return Status
+
     @classmethod
-    def from_modelhub(cls, **kwargs):
+    def from_modelhub(cls, tmp_dir: Path | None = None, **kwargs):
         modelhub = ModelHub.from_github_repo(**kwargs)
         modelhub.parse_objects()
 
         dragon = cls(modelhub=modelhub, _label_alias=modelhub.label_alias)
 
-        tmp_dir = kwargs.get("tmp_dir")
         if tmp_dir and isinstance(tmp_dir, Path):
             dragon.tmp_dir = tmp_dir
             dragon.challenge_dir = tmp_dir.joinpath("_challenge")
@@ -137,6 +143,7 @@ class Skeleton(ABC):
         """Get the download link and locator of each challenge image"""
         raise NotImplementedError
 
+    @abstractmethod
     def download_images(self):
         prefix = ""
         if self._label:
@@ -151,8 +158,7 @@ class Skeleton(ABC):
             self._alias2path.update({alias_: challenge_img_path})
             container.append((challenge_img_path, url_))
 
-        # Initialize the coroutine-based image downloader
-        download_images(container=container)
+        return container
 
     @abstractmethod
     def challenge(self, ctx, model, *args, **kwargs):

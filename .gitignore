@@ -137,4 +137,5 @@ compile.py
 hcaptcha_challenger/logs
 **/models/
 examples/tmp_dir
+examples/user_data_dir
 poetry.lock
