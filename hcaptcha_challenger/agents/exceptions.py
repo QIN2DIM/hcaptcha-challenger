@@ -25,40 +25,29 @@ class ChallengeException(ArmorException):
     """hCAPTCHA Challenge basic exceptions"""
 
 
-class ChallengeLangException(ChallengeException):
-    """指定了不兼容的挑战语言"""
-
-
 class ChallengePassed(ChallengeException):
-    """挑战未弹出"""
+    """Challenge not popping up"""
 
 
 class LoadImageTimeout(ChallengeException):
-    """加载挑战图片超时"""
-
-
-class ChallengeTimeout(ChallengeException):
-    """人机挑战超时 CPU能力太弱无法在规定时间内完成挑战"""
+    """Loading challenge image timed out"""
 
 
 class LabelNotFoundException(ChallengeException):
-    """获取到空的图像标签名"""
-
-
-class AssertTimeout(ChallengeTimeout):
-    """断言超时"""
+    """Get an empty image label name"""
 
 
 class AuthException(ArmorException):
-    """身份认证出现问题时抛出，例如遭遇插入到 hcaptcha 之后的 2FA 身份验证"""
+    """Thrown when there is a problem with authentication,
+    such as encountering 2FA authentication inserted after hcaptcha"""
 
 
 class AuthMFA(AuthException):
-    """認證失敗，不支持 2FA 雙重認證"""
+    """Authentication failed, 2FA is not supported"""
 
 
 class LoginException(AuthException):
-    """認證失敗，賬號或密碼錯誤"""
+    """Authentication failed, account or password error"""
 
 
 class AuthUnknownException(AuthException):
