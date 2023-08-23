@@ -14,7 +14,7 @@ from contextlib import suppress
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Tuple, Callable, Dict, Any, List
+from typing import Tuple, Dict, Any
 
 from loguru import logger
 from playwright.sync_api import BrowserContext as SyncContext, FrameLocator, Page, sync_playwright
@@ -179,10 +179,6 @@ class PlaywrightAgent(Skeleton):
             logger.exception(err)
 
 
-AgentMan = Callable[[SyncContext], None]
-AgentSu = Callable[[SyncContext, ...], None]
-
-
 class Tarnished:
     def __init__(
         self,
@@ -242,9 +238,7 @@ class Tarnished:
             logger.info("Storage ctx_cookie", path=self.state_path)
             context.storage_state(path=self.state_path)
 
-    def execute(
-        self, *, sequence: AgentMan | AgentSu | List, parameters: Dict[str, Any] = None, **kwargs
-    ):
+    def execute(self, *, sequence, parameters: Dict[str, Any] = None, **kwargs):
         with sync_playwright() as p:
             context = p.firefox.launch_persistent_context(
                 user_data_dir=self._user_data_dir,

@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "hcaptcha-challenger"
-version = "0.6.3-post1"
+version = "0.6.3-post2"
 description = "🥂 Gracefully face hCaptcha challenge with MoE(ONNX) embedded solution."
 license = "GPL-3.0-or-later"
 authors = ["QIN2DIM <yaoqinse@gmail.com>", "Bingjie Yan <bj.yan.pa@qq.com>"]
