@@ -175,7 +175,7 @@ class SeleniumAgent(Skeleton):
         if is_flagged_flow():
             return self.status.CHALLENGE_RETRY, "重置挑战"
         if is_challenge_image_clickable():
-            return self.status.statustus.CHALLENGE_CONTINUE, "继续挑战"
+            return self.status.CHALLENGE_CONTINUE, "继续挑战"
         return self.status.CHALLENGE_SUCCESS, "退火成功"
 
     def anti_checkbox(self, ctx, *args, **kwargs):
