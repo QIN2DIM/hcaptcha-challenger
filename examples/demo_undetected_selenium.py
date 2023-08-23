@@ -19,7 +19,6 @@ from hcaptcha_challenger.agents.exceptions import ChallengePassed
 from hcaptcha_challenger.agents.selenium import ArmorUtils
 from hcaptcha_challenger.agents.selenium import SeleniumAgent
 from hcaptcha_challenger.agents.selenium import get_challenge_ctx
-from hcaptcha_challenger.agents.skeleton import Status
 
 # Existing user data
 email = "plms-123@tesla.com"
@@ -51,7 +50,7 @@ def hit_challenge(ctx, challenger: SeleniumAgent, retries: int = 2) -> bool | No
                 ArmorUtils.refresh(ctx)
                 time.sleep(1)
                 continue
-            if resp == Status.CHALLENGE_SUCCESS:
+            if resp == challenger.status.CHALLENGE_SUCCESS:
                 return True
         except ChallengePassed:
             return True

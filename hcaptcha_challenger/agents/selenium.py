@@ -34,7 +34,7 @@ from undetected_chromedriver import ChromeOptions
 from webdriver_manager.chrome import ChromeDriverManager
 
 from hcaptcha_challenger.agents.exceptions import ChallengePassed, LabelNotFoundException
-from hcaptcha_challenger.agents.skeleton import Skeleton, Status
+from hcaptcha_challenger.agents.skeleton import Skeleton
 from hcaptcha_challenger.components.image_downloader import download_images
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 
@@ -72,7 +72,7 @@ class SeleniumAgent(Skeleton):
             logger.debug(
                 "Pass challenge", challenge="image_label_area_select", site_link=ctx.current_url
             )
-            return Status.CHALLENGE_BACKCALL
+            return self.status.CHALLENGE_BACKCALL
 
         # Continue the `click challenge`
         try:
@@ -97,9 +97,9 @@ class SeleniumAgent(Skeleton):
                         (By.XPATH, "//div[contains(@class,'hcaptcha-success')]")
                     )
                 )
-                return Status.CHALLENGE_SUCCESS
+                return self.status.CHALLENGE_SUCCESS
             except WebDriverException:
-                return Status.CHALLENGE_CONTINUE
+                return self.status.CHALLENGE_CONTINUE
 
         time.sleep(0.3)
 
@@ -173,10 +173,10 @@ class SeleniumAgent(Skeleton):
 
         time.sleep(1)
         if is_flagged_flow():
-            return Status.CHALLENGE_RETRY, "重置挑战"
+            return self.status.CHALLENGE_RETRY, "重置挑战"
         if is_challenge_image_clickable():
-            return Status.CHALLENGE_CONTINUE, "继续挑战"
-        return Status.CHALLENGE_SUCCESS, "退火成功"
+            return self.status.statustus.CHALLENGE_CONTINUE, "继续挑战"
+        return self.status.CHALLENGE_SUCCESS, "退火成功"
 
     def anti_checkbox(self, ctx, *args, **kwargs):
         for _ in range(8):
@@ -206,14 +206,14 @@ class SeleniumAgent(Skeleton):
                 self.switch_to_challenge_frame(ctx)
 
                 # [👻] 獲取挑戰標簽
-                if drop := self.get_label(ctx) in [Status.CHALLENGE_BACKCALL]:
+                if drop := self.get_label(ctx) in [self.status.CHALLENGE_BACKCALL]:
                     ctx.switch_to.default_content()
                     return drop
 
                 # [👻] 編排定位器索引
                 if drop := self.mark_samples(ctx) in [
-                    Status.CHALLENGE_SUCCESS,
-                    Status.CHALLENGE_CONTINUE,
+                    self.status.CHALLENGE_SUCCESS,
+                    self.status.CHALLENGE_CONTINUE,
                 ]:
                     ctx.switch_to.default_content()
                     return drop
@@ -222,7 +222,7 @@ class SeleniumAgent(Skeleton):
                 self.download_images()
 
                 # [👻] 滤除无法处理的挑战类别
-                if drop := self.tactical_retreat() in [Status.CHALLENGE_BACKCALL]:
+                if drop := self.tactical_retreat() in [self.status.CHALLENGE_BACKCALL]:
                     ctx.switch_to.default_content()
                     return drop
 
@@ -239,16 +239,16 @@ class SeleniumAgent(Skeleton):
 
                 ctx.switch_to.default_content()
                 if result in [
-                    Status.CHALLENGE_SUCCESS,
-                    Status.CHALLENGE_CRASH,
-                    Status.CHALLENGE_RETRY,
+                    self.status.CHALLENGE_SUCCESS,
+                    self.status.CHALLENGE_CRASH,
+                    self.status.CHALLENGE_RETRY,
                 ]:
                     return result
 
         except WebDriverException as err:
             logger.exception(err)
             ctx.switch_to.default_content()
-            return Status.CHALLENGE_CRASH
+            return self.status.CHALLENGE_CRASH
 
 
 class ArmorUtils:
