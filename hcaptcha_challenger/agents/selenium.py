@@ -35,6 +35,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from hcaptcha_challenger.agents.exceptions import ChallengePassed, LabelNotFoundException
 from hcaptcha_challenger.agents.skeleton import Skeleton, Status
+from hcaptcha_challenger.components.image_downloader import download_images
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -115,6 +116,10 @@ class SeleniumAgent(Skeleton):
                 except IndexError:
                     continue
             self._alias2locator.update({alias: sample})
+
+    def download_images(self):
+        container = super().download_images()
+        download_images(container=container)
 
     def challenge(self, ctx, model, *args, **kwargs):
         ta = []

@@ -47,3 +47,24 @@ class LabelNotFoundException(ChallengeException):
 
 class AssertTimeout(ChallengeTimeout):
     """断言超时"""
+
+
+class AuthException(ArmorException):
+    """身份认证出现问题时抛出，例如遭遇插入到 hcaptcha 之后的 2FA 身份验证"""
+
+
+class AuthMFA(AuthException):
+    """認證失敗，不支持 2FA 雙重認證"""
+
+
+class LoginException(AuthException):
+    """認證失敗，賬號或密碼錯誤"""
+
+
+class AuthUnknownException(AuthException):
+    def __init__(self, msg=None, stacktrace=None):
+        super().__init__(msg, stacktrace)
+        self.__doc__ = None
+
+    def report(self, msg):
+        self.__doc__ = msg
