@@ -49,3 +49,26 @@ def label_cleaning(raw_label: str) -> str:
     for c in BAD_CODE:
         clean_label = clean_label.replace(c, BAD_CODE[c])
     return clean_label
+
+
+def diagnose_task(words: str) -> str:
+    """from challenge label to focus model name"""
+    if not words or not isinstance(words, str) or len(words) < 2:
+        raise TypeError(f"({words})TASK should be string type data")
+
+    # Filename contains illegal characters
+    inv = {"\\", "/", ":", "*", "?", "<", ">", "|"}
+    if s := set(words) & inv:
+        raise TypeError(f"({words})TASK contains invalid characters({s})")
+
+    # Normalized separator
+    rnv = {" ", ",", "-"}
+    for s in rnv:
+        words = words.replace(s, "_")
+
+    for code, right_code in BAD_CODE.items():
+        words.replace(code, right_code)
+
+    words = words.strip()
+
+    return words
