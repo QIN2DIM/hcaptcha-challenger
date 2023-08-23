@@ -127,7 +127,7 @@ class Skeleton(ABC):
     def tactical_retreat(self, **kwargs) -> str | None:
         """skip unchoreographed challenges"""
         if self._label_alias.get(self._label):
-            return Status.CHALLENGE_CONTINUE
+            return self.status.CHALLENGE_CONTINUE
 
         q = quote(self._label, "utf8")
         logger.warning(
@@ -136,7 +136,7 @@ class Skeleton(ABC):
             prompt=self._prompt,
             issue=f"https://github.com/QIN2DIM/hcaptcha-challenger/issues?q={q}",
         )
-        return Status.CHALLENGE_BACKCALL
+        return self.status.CHALLENGE_BACKCALL
 
     @abstractmethod
     def mark_samples(self, ctx, *args, **kwargs):
