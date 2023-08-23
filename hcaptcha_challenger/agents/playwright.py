@@ -14,14 +14,14 @@ from contextlib import suppress
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Tuple, Callable, Dict, Any
+from typing import Tuple, Callable, Dict, Any, List
 
 from loguru import logger
 from playwright.sync_api import BrowserContext as SyncContext, FrameLocator, Page, sync_playwright
 from playwright.sync_api import Error as NinjaError
 from playwright.sync_api import TimeoutError as NinjaTimeout
 
-from hcaptcha_challenger.agents.exceptions import ChallengePassed, AuthUnknownException
+from hcaptcha_challenger.agents.exceptions import ChallengePassed
 from hcaptcha_challenger.agents.skeleton import Skeleton
 from hcaptcha_challenger.components.image_downloader import download_images
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
@@ -87,22 +87,13 @@ class PlaywrightAgent(Skeleton):
             fl.click(delay=1000, timeout=5000)
 
     def is_success(
-        self,
-        page: Page,
-        frame_challenge: FrameLocator = None,
-        window=None,
-        init=True,
-        hook_url=None,
-        *args,
-        **kwargs,
+        self, page: Page, frame_challenge: FrameLocator = None, init=True, *args, **kwargs
     ) -> Tuple[str, str]:
         """
-        判断挑战是否成功的复杂逻辑
-        :param hook_url:
+        Complex logic for judging the response of a challenge
         :param frame_challenge:
         :param init:
-        :param window:
-        :param page: 挑战者驱动上下文
+        :param page:
         :return:
         """
 
@@ -114,7 +105,6 @@ class PlaywrightAgent(Skeleton):
             try:
                 prompts_obj = frame_challenge.locator("//div[@class='error-text']")
                 prompts_obj.first.wait_for(timeout=2000)
-                logger.debug("Checkout - status=再试一次")
                 return True
             except NinjaTimeout:
                 task_image = frame_challenge.locator("//div[@class='task-image']")
@@ -131,47 +121,10 @@ class PlaywrightAgent(Skeleton):
         # hcaptcha 最多两轮验证，一般情况下，账号信息有误仅会执行一轮，然后返回登录窗格提示密码错误
         # 其次是被识别为自动化控制，这种情况也是仅执行一轮，回到登录窗格提示“返回数据错误”
         if init and is_init_clickable():
-            return self.status.CHALLENGE_CONTINUE, "继续挑战"
+            return self.status.CHALLENGE_CONTINUE, "Continue to challenge"
         if is_continue_clickable():
-            return self.status.CHALLENGE_CONTINUE, "继续挑战"
-
-        flag = page.url
-
-        if window == "free":
-            try:
-                page.locator(self.HOOK_PURCHASE).wait_for(state="detached")
-                return self.status.CHALLENGE_SUCCESS, "退火成功"
-            except NinjaTimeout:
-                return self.status.CHALLENGE_RETRY, "決策中斷"
-        if window == "login":
-            for _ in range(3):
-                if hook_url:
-                    with suppress(NinjaTimeout):
-                        page.wait_for_url(hook_url, timeout=3000)
-                        return self.status.CHALLENGE_SUCCESS, "退火成功"
-                else:
-                    page.wait_for_timeout(2000)
-                    if page.url != flag:
-                        if "id/login/mfa" not in page.url:
-                            return self.status.CHALLENGE_SUCCESS, "退火成功"
-                        raise self.status("人机挑战已退出 - error=遭遇意外的 MFA 多重认证")
-
-                mui_typography = page.locator("//h6")
-                with suppress(NinjaTimeout):
-                    mui_typography.first.wait_for(timeout=1000, state="attached")
-                if mui_typography.count() > 1:
-                    with suppress(AttributeError):
-                        error_text = mui_typography.nth(1).text_content().strip()
-                        if "错误回复" in error_text:
-                            self.critical_threshold += 1
-                            return self.status.CHALLENGE_RETRY, "登入页面错误回复"
-                        if "there was a socket open error" in error_text:
-                            return self.status.CHALLENGE_RETRY, "there was a socket open error"
-                        if self.critical_threshold > 3:
-                            logger.debug(f"認證失敗 - {error_text=}")
-                            _unknown = AuthUnknownException(msg=error_text)
-                            _unknown.report(error_text)
-                            raise _unknown
+            return self.status.CHALLENGE_CONTINUE, "Continue to challenge"
+        return self.status.CHALLENGE_SUCCESS, "退火成功"
 
     def anti_checkbox(self, page: Page, *args, **kwargs):
         checkbox = page.frame_locator("//iframe[contains(@title,'checkbox')]")
@@ -209,7 +162,7 @@ class PlaywrightAgent(Skeleton):
                     result, message = self.is_success(
                         page, frame_challenge, window=window, init=not i, hook_url=recur_url
                     )
-                    logger.debug("获取响应", desc=f"{message}({result})")
+                    logger.debug("Get response", desc=f"{message}({result})")
                     if result in [
                         self.status.CHALLENGE_SUCCESS,
                         self.status.CHALLENGE_CRASH,
@@ -289,7 +242,9 @@ class Tarnished:
             logger.info("Storage ctx_cookie", path=self.state_path)
             context.storage_state(path=self.state_path)
 
-    def execute(self, *, sequence: AgentMan | AgentSu, parameters: Dict[str, Any] = None, **kwargs):
+    def execute(
+        self, *, sequence: AgentMan | AgentSu | List, parameters: Dict[str, Any] = None, **kwargs
+    ):
         with sync_playwright() as p:
             context = p.firefox.launch_persistent_context(
                 user_data_dir=self._user_data_dir,

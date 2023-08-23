@@ -77,7 +77,7 @@ def bytedance():
         record_har_path=record_har_path,
         state_path=state_path,
     )
-    radagon.execute(sequence=hit_challenge)
+    radagon.execute(sequence=[hit_challenge])
     print(f"View record video path={record_dir}")
 
 
