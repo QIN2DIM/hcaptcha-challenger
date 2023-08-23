@@ -10,18 +10,16 @@ import random
 import re
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Tuple, Callable, Dict, Any
 
-import httpx
 from loguru import logger
 from playwright.sync_api import BrowserContext as SyncContext, FrameLocator, Page, sync_playwright
-from playwright.sync_api import TimeoutError as NinjaTimeout
 from playwright.sync_api import Error as NinjaError
+from playwright.sync_api import TimeoutError as NinjaTimeout
 
 from hcaptcha_challenger.agents.exceptions import ChallengePassed, AuthUnknownException
 from hcaptcha_challenger.agents.skeleton import Skeleton
@@ -73,10 +71,6 @@ class PlaywrightAgent(Skeleton):
         t = threading.Thread(target=download_images, kwargs={"container": container})
         t.start()
         t.join()
-        # with httpx.Client() as client:
-        #     for challenge_img_path, url in container:
-        #         data = client.get(url).content
-        #         challenge_img_path.write_bytes(data)
 
     def challenge(self, frame_challenge: FrameLocator, model, *args, **kwargs):
         # {{< IMAGE CLASSIFICATION >}}

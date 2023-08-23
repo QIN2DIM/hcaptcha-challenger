@@ -69,8 +69,6 @@ def hit_challenge(context: BrowserContext):
             if result == agent.status.CHALLENGE_SUCCESS:
                 return
 
-    page.wait_for_timeout(3000)
-
 
 def bytedance():
     radagon = Tarnished(
