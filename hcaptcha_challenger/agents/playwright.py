@@ -238,12 +238,20 @@ class Tarnished:
             logger.info("Storage ctx_cookie", path=self.state_path)
             context.storage_state(path=self.state_path)
 
-    def execute(self, *, sequence, parameters: Dict[str, Any] = None, **kwargs):
+    def execute(
+        self,
+        sequence,
+        *,
+        parameters: Dict[str, Any] = None,
+        headless: bool = False,
+        locale: str = "en-US",
+        **kwargs,
+    ):
         with sync_playwright() as p:
             context = p.firefox.launch_persistent_context(
                 user_data_dir=self._user_data_dir,
-                headless=False,
-                locale="en-US",
+                headless=headless,
+                locale=locale,
                 record_video_dir=self._record_dir,
                 record_har_path=self._record_har_path,
                 args=["--hide-crash-restore-bubble"],
