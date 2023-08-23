@@ -15,3 +15,6 @@ label_alias:
   palm_tree:
     zh: [ "棕榈树" ]
     en: [ "palm tree" ]
+  item_of_office_equipment:
+    zh: [ "办公设备项目" ]
+    en: [ "item of office equipment" ]
