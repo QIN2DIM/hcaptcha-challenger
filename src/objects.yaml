@@ -21,3 +21,6 @@ label_alias:
   headphones:
     zh: [ "耳机" ]
     en: [ "headphones" ]
+  musical_instrument:
+    zh: [ "乐器" ]
+    en: [ "musical instrument" ]
