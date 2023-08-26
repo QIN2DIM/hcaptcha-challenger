@@ -5,20 +5,17 @@
 # Description:
 from __future__ import annotations
 
-import inspect
 import random
 import re
 import threading
 import time
 from contextlib import suppress
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Tuple, Dict, Any
+from typing import Tuple
 
 from loguru import logger
-from playwright.sync_api import BrowserContext as SyncContext, FrameLocator, Page, sync_playwright
 from playwright.sync_api import Error as NinjaError
+from playwright.sync_api import FrameLocator, Page
 from playwright.sync_api import TimeoutError as NinjaTimeout
 
 from hcaptcha_challenger.agents.exceptions import ChallengePassed
@@ -36,8 +33,14 @@ class PlaywrightAgent(Skeleton):
 
     critical_threshold = 3
 
-    def switch_to_challenge_frame(self, ctx, **kwargs):
-        pass
+    def switch_to_challenge_frame(self, page: Page, window: str = "login", **kwargs):
+        if window == "login":
+            frame_challenge = page.frame_locator(self.HOOK_CHALLENGE)
+        else:
+            frame_purchase = page.frame_locator(self.HOOK_PURCHASE)
+            frame_challenge = frame_purchase.frame_locator(self.HOOK_CHALLENGE)
+
+        return frame_challenge
 
     def get_label(self, frame_challenge: FrameLocator, **kwargs):
         try:
@@ -49,9 +52,6 @@ class PlaywrightAgent(Skeleton):
 
         _label = split_prompt_message(self._prompt, lang="en")
         self._label = label_cleaning(_label)
-
-        if "please click on the" in self._label.lower():
-            logger.warning("Pass challenge", label=self._label, case="NotBinaryChallenge")
 
     def mark_samples(self, frame_challenge: FrameLocator, *args, **kwargs):
         """Get the download link and locator of each challenge image"""
@@ -87,7 +87,7 @@ class PlaywrightAgent(Skeleton):
             fl.click(delay=1000, timeout=5000)
 
     def is_success(
-        self, page: Page, frame_challenge: FrameLocator = None, init=True, *args, **kwargs
+            self, page: Page, frame_challenge: FrameLocator = None, init=True, *args, **kwargs
     ) -> Tuple[str, str]:
         """
         Complex logic for judging the response of a challenge
@@ -131,14 +131,9 @@ class PlaywrightAgent(Skeleton):
         checkbox.locator("#checkbox").click()
 
     def anti_hcaptcha(
-        self, page: Page, window: str = "login", recur_url=None, *args, **kwargs
+            self, page: Page, window: str = "login", recur_url=None, *args, **kwargs
     ) -> bool | str:
-        if window == "login":
-            frame_challenge = page.frame_locator(self.HOOK_CHALLENGE)
-        else:
-            frame_purchase = page.frame_locator(self.HOOK_PURCHASE)
-            frame_challenge = frame_purchase.frame_locator(self.HOOK_CHALLENGE)
-
+        frame_challenge = self.switch_to_challenge_frame(page, window)
         try:
             # [👻] 人机挑战！
             for i in range(2):
@@ -177,101 +172,3 @@ class PlaywrightAgent(Skeleton):
             return self.status.CHALLENGE_SUCCESS
         except Exception as err:
             logger.exception(err)
-
-
-class Tarnished:
-    def __init__(
-        self,
-        user_data_dir: Path,
-        *,
-        record_dir: Path | None = None,
-        record_har_path: Path | None = None,
-        state_path: Path | None = None,
-    ):
-        self._user_data_dir = user_data_dir
-        self._record_dir = record_dir
-        self._record_har_path = record_har_path
-        self.state_path = state_path
-
-    @staticmethod
-    def _apply_stealth(context: SyncContext):
-        enabled_evasions = [
-            "chrome.app",
-            "chrome.csi",
-            "chrome.loadTimes",
-            "chrome.runtime",
-            "iframe.contentWindow",
-            "media.codecs",
-            "navigator.hardwareConcurrency",
-            "navigator.languages",
-            "navigator.permissions",
-            "navigator.plugins",
-            "navigator.webdriver",
-            "sourceurl",
-            "webgl.vendor",
-            "window.outerdimensions",
-        ]
-
-        for e in enabled_evasions:
-            evasion_code = (
-                Path(__file__)
-                .parent.joinpath(f"puppeteer-extra-plugin-stealth/evasions/{e}/index.js")
-                .read_text(encoding="utf8")
-            )
-            context.add_init_script(evasion_code)
-
-        return context
-
-    @staticmethod
-    def _patch_cookies(context: SyncContext):
-        five_days_ago = datetime.now() - timedelta(days=5)
-        cookie = {
-            "name": "OptanonAlertBoxClosed",
-            "value": five_days_ago.isoformat(),
-            "domain": ".epicgames.com",
-            "path": "/",
-        }
-        context.add_cookies([cookie])
-
-    def storage_state(self, context: SyncContext):
-        if self.state_path:
-            logger.info("Storage ctx_cookie", path=self.state_path)
-            context.storage_state(path=self.state_path)
-
-    def execute(
-        self,
-        sequence,
-        *,
-        parameters: Dict[str, Any] = None,
-        headless: bool = False,
-        locale: str = "en-US",
-        **kwargs,
-    ):
-        with sync_playwright() as p:
-            context = p.firefox.launch_persistent_context(
-                user_data_dir=self._user_data_dir,
-                headless=headless,
-                locale=locale,
-                record_video_dir=self._record_dir,
-                record_har_path=self._record_har_path,
-                args=["--hide-crash-restore-bubble"],
-                **kwargs,
-            )
-            self._apply_stealth(context)
-            self._patch_cookies(context)
-
-            if not isinstance(sequence, list):
-                sequence = [sequence]
-            for container in sequence:
-                logger.info("Execute task", name=container.__name__)
-                kws = {}
-                params = inspect.signature(container).parameters
-                if parameters and isinstance(parameters, dict):
-                    for name in params:
-                        if name != "context" and name in parameters:
-                            kws[name] = parameters[name]
-                if not kws:
-                    container(context)
-                else:
-                    container(context, **kws)
-            context.close()

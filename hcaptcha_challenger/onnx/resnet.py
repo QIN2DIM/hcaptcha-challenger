@@ -37,7 +37,7 @@ class ResNetControl:
         # Use the delayed reflection mechanism
         # to ensure the consistency of both ends of the distributed network
         if self.net is None:
-            logger.warning("The remote network does not exist or the local cache has expired.")
+            logger.debug("The remote network does not exist or the local cache has expired.")
             return False
         self.net.setInput(blob)
         out = self.net.forward()

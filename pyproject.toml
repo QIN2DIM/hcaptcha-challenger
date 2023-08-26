@@ -36,6 +36,7 @@ python = "^3.8"
 opencv-python = "^4.8.0.76"
 numpy = "^1.21.5"
 httpx = "^0.24.1"
+onnxruntime = "^1.15.1"
 loguru = "*"
 pyyaml = "*"
 
