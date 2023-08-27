@@ -24,3 +24,12 @@ label_alias:
   musical_instrument:
     zh: [ "乐器" ]
     en: [ "musical instrument" ]
+  violin:
+    zh: [ "小提琴" ]
+    en: [ "violin" ]
+  guitar:
+    zh: [ "吉他" ]
+    en: [ "guitar" ]
+  animal:
+    zh: [ "动物" ]
+    en: [ "animal" ]

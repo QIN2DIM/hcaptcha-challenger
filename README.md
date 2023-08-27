@@ -5,8 +5,8 @@
     <img src="https://img.shields.io/github/license/QIN2DIM/hcaptcha-challenger?style=for-the-badge">
     <a href="https://github.com/QIN2DIM/hcaptcha-challenger/releases"><img src="https://img.shields.io/github/downloads/qin2dim/hcaptcha-challenger/total?style=for-the-badge"></a>
 	<br>
-    <a href="https://github.com/QIN2DIM/hcaptcha-challenger/"><img src="https://img.shields.io/github/stars/QIN2DIM/hcaptcha-challenger?style=social"></a>
-	<a href = "https://t.me/+Cn-KBOTCaWNmNGNh"><img src="https://img.shields.io/static/v1?style=social&logo=telegram&label=chat&message=studio" ></a>
+	<a href="https://discord.gg/KA66wZBQ"><img alt="Discord" src="https://img.shields.io/discord/978108215499816980?style=social&logo=discord&label=echosec"></a>
+ 	<a href = "https://t.me/+Cn-KBOTCaWNmNGNh"><img src="https://img.shields.io/static/v1?style=social&logo=telegram&label=chat&message=studio" ></a>
 	<br>
 	<br>
 </div>
