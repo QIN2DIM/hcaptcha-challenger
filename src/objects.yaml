@@ -27,4 +27,9 @@ label_alias:
   violin:
     zh: [ "小提琴" ]
     en: [ "violin" ]
-  
+  guitar:
+    zh: [ "吉他" ]
+    en: [ "guitar" ]
+  animal:
+    zh: [ "动物" ]
+    en: [ "animal" ]
