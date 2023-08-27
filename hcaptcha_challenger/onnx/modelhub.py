@@ -18,9 +18,11 @@ from urllib.parse import urlparse
 
 import cv2
 import httpx
+import onnxruntime
 import yaml
 from cv2.dnn import Net
 from loguru import logger
+from onnxruntime import InferenceSession
 
 from hcaptcha_challenger.utils import from_dict_to_model
 
@@ -301,7 +303,7 @@ class ModelHub:
             request_resource(focus_asset.browser_download_url, model_path.absolute())
             self.assets.archive_memory(focus_name, focus_asset.node_id)
 
-    def active_net(self, focus_name: str) -> Net | None:
+    def active_net(self, focus_name: str) -> Net | InferenceSession | None:
         """Load and register an existing model"""
         model_path = self.models_dir.joinpath(focus_name)
         if (
@@ -309,11 +311,16 @@ class ModelHub:
             and model_path.stat().st_size
             and not self.assets.is_outdated(focus_name)
         ):
-            net = cv2.dnn.readNetFromONNX(str(model_path))
+            if "yolo" in focus_name:
+                net = onnxruntime.InferenceSession(
+                    model_path, providers=onnxruntime.get_available_providers()
+                )
+            else:
+                net = cv2.dnn.readNetFromONNX(str(model_path))
             self._name2net[focus_name] = net
             return net
 
-    def match_net(self, focus_name: str) -> Net | None:
+    def match_net(self, focus_name: str) -> Net | InferenceSession | None:
         """
         PluggableONNXModel 对象实例化时：
         - 自动读取并注册 objects.yaml 中注明的且已存在指定目录的模型对象，

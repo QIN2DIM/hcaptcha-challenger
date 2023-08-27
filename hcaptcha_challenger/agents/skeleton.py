@@ -34,6 +34,9 @@ class Status:
     CHALLENGE_REFRESH = "refresh"
     # <backcall> (New Challenge) Types of challenges not yet scheduled
     CHALLENGE_BACKCALL = "backcall"
+    # <to-X> NOT MATCH PATTERN
+    CHALLENGE_TO_BINARY = "to_binary"
+    CHALLENGE_TO_AREA_SELECT = "to_area_select"
 
     AUTH_SUCCESS = "success"
     AUTH_ERROR = "error"

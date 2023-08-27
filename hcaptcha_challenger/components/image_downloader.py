@@ -7,14 +7,12 @@ from __future__ import annotations
 
 import asyncio
 import sys
-import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Tuple, Iterable
 
 from httpx import AsyncClient
-from loguru import logger
 
 
 @dataclass
@@ -76,6 +74,4 @@ def download_images(container: Iterable[Tuple[Path, str]]):
     :param container:
     :return:
     """
-    start = time.time()
     ImageDownloader(container).execute()
-    logger.debug("Download challenge images", timeit=f"{round(time.time() - start, 2)}s")

@@ -3,13 +3,9 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-# -*- coding: utf-8 -*-
-# Time       : 2022/9/23 17:28
-# Author     : QIN2DIM
-# Github     : https://github.com/QIN2DIM
-# Description:
 from __future__ import annotations
 
+import json
 import time
 from contextlib import suppress
 from pathlib import Path
@@ -19,11 +15,12 @@ from playwright.sync_api import BrowserContext, TimeoutError
 
 import hcaptcha_challenger as solver
 from hcaptcha_challenger.agents.exceptions import ChallengePassed
-from hcaptcha_challenger.agents.playwright import PlaywrightAgent
 from hcaptcha_challenger.agents.playwright import Tarnished
+from hcaptcha_challenger.agents.playwright.binary_challenge import PlaywrightAgent
+from hcaptcha_challenger.agents.playwright.onclick_challenge import OnClickAgent
 
 # Init local-side of the ModelHub
-solver.install(upgrade=True)
+solver.install()
 
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
@@ -31,7 +28,6 @@ user_data_dir = Path(__file__).parent.joinpath("user_data_dir")
 context_dir = user_data_dir.joinpath("context")
 record_dir = user_data_dir.joinpath("record")
 record_har_path = record_dir.joinpath(f"eg-{int(time.time())}.har")
-state_path = user_data_dir.joinpath("ctx_cookie.json")
 
 
 class SiteKey:
@@ -51,31 +47,41 @@ class SiteKey:
 
 @logger.catch
 def hit_challenge(context: BrowserContext):
-    agent = PlaywrightAgent.from_modelhub(tmp_dir=tmp_dir)
+    onclick_agent = OnClickAgent.from_modelhub(tmp_dir=tmp_dir)
+    binary_agent = PlaywrightAgent.from_modelhub(tmp_dir=tmp_dir)
 
     page = context.pages[0]
+    onclick_agent.handle_onclick_resp(page)
     page.goto(SiteKey.to_sitelink())
 
     with suppress(TimeoutError):
         page.locator("//iframe[contains(@title,'checkbox')]").wait_for()
-        agent.anti_checkbox(page)
+        onclick_agent.anti_checkbox(page)
 
-    for _ in range(3):
+    for _ in range(8):
         with suppress(ChallengePassed):
-            result = agent.anti_hcaptcha(page)
-            if result == agent.status.CHALLENGE_BACKCALL:
-                page.click("//div[@class='refresh button']")
+            result = onclick_agent.anti_hcaptcha(page)
+            print(f">> Challenge Result: {result}")
+            # if result == onclick_agent.status.CHALLENGE_TO_BINARY:
+            #     result = binary_agent.anti_hcaptcha(page)
+            if result in [
+                onclick_agent.status.CHALLENGE_BACKCALL,
+                onclick_agent.status.CHALLENGE_TO_BINARY,
+            ]:
+                fl = page.frame_locator(onclick_agent.HOOK_CHALLENGE)
+                fl.locator("//div[@class='refresh button']").click()
                 continue
-            if result == agent.status.CHALLENGE_SUCCESS:
+            if result == onclick_agent.status.CHALLENGE_SUCCESS:
+                rqdata_path = Path("tmp_dir", f"rqdata-{time.time()}.json")
+                rqdata_path.write_text(json.dumps(onclick_agent.challenge_resp.__dict__, indent=2))
+                print(f"View RQdata path={rqdata_path}")
+                page.wait_for_timeout(2000)
                 return
 
 
 def bytedance():
     radagon = Tarnished(
-        user_data_dir=context_dir,
-        record_dir=record_dir,
-        record_har_path=record_har_path,
-        state_path=state_path,
+        user_data_dir=context_dir, record_dir=record_dir, record_har_path=record_har_path
     )
     radagon.execute(sequence=[hit_challenge])
     print(f"View record video path={record_dir}")
