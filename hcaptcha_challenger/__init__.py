@@ -31,10 +31,19 @@ init_log(
 )
 
 
-def install(upgrade: bool | None = False, username: str = "QIN2DIM", lang: str = "en"):
+def install(
+    upgrade: bool | None = False,
+    username: str = "QIN2DIM",
+    lang: str = "en",
+    flush_yolo: bool = False,
+):
     modelhub = ModelHub.from_github_repo(username=username, lang=lang)
     modelhub.pull_objects(upgrade=upgrade)
     modelhub.assets.flush_runtime_assets(upgrade=upgrade)
+    if flush_yolo:
+        from hcaptcha_challenger.onnx.yolo import YOLOv8
+
+        modelhub.pull_model(focus_name=YOLOv8.best)
 
 
 def set_reverse_proxy(https_cdn: str):

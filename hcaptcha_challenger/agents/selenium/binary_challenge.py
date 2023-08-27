@@ -5,11 +5,8 @@
 # Description:
 from __future__ import annotations
 
-import logging
-import os
 import random
 import re
-import sys
 import time
 import warnings
 from dataclasses import dataclass
@@ -30,8 +27,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from undetected_chromedriver import Chrome
-from undetected_chromedriver import ChromeOptions
-from webdriver_manager.chrome import ChromeDriverManager
 
 from hcaptcha_challenger.agents.exceptions import ChallengePassed, LabelNotFoundException
 from hcaptcha_challenger.agents.skeleton import Skeleton

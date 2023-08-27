@@ -3,11 +3,6 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-# -*- coding: utf-8 -*-
-# Time       : 2022/9/23 17:28
-# Author     : QIN2DIM
-# Github     : https://github.com/QIN2DIM
-# Description:
 from __future__ import annotations
 
 import json
@@ -46,7 +41,7 @@ class SiteKey:
 
     @staticmethod
     def to_sitelink() -> str:
-        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.epic}"
+        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.new_type_challenge}"
 
 
 @logger.catch

@@ -5,21 +5,27 @@
 # Description:
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import List
 
 import cv2
 import numpy as np
-import onnxruntime
+from onnxruntime import InferenceSession
 
-# fmt:off
-classes = [
+YOLO_CLASSES = [
+    "bat",
+    "bear",
+    "cat",
+    "elephant",
+    "hedgehog",
     "lighthouse",
-    "bear", "parrot", "squirrel", "lion", "elephant",
-    "bat", "cat", "hedgehog", "penguin", "raccoon",
+    "lion",
+    "parrot",
+    "penguin",
+    "raccoon",
+    "squirrel",
 ]
-
-# fmt:on
 
 
 def nms(boxes, scores, iou_threshold):
@@ -92,12 +98,13 @@ def xywh2xyxy(x):
 
 @dataclass
 class YOLOv8:
-    model_path: Path = Path("onclick_yolov8m.onnx")
+    best: str = "onclick_yolov8m.onnx"
 
     conf_threshold: float = 0.5
     iou_threshold: float = 0.5
+    classes: List[str] = field(default_factory=list)
 
-    session = None
+    session: InferenceSession = None
 
     input_names = None
     input_shape = None
@@ -109,9 +116,7 @@ class YOLOv8:
     img_width = None
 
     def __post_init__(self):
-        self.session = onnxruntime.InferenceSession(
-            self.model_path, providers=onnxruntime.get_available_providers()
-        )
+        self.classes = YOLO_CLASSES
 
         # get_input_details
         model_inputs = self.session.get_inputs()
@@ -126,8 +131,8 @@ class YOLOv8:
         self.output_names = [model_outputs[i].name for i in range(len(model_outputs))]
 
     @classmethod
-    def from_model_path(cls, model_path: Path):
-        return cls(model_path=model_path)
+    def from_pluggable_model(cls, session: InferenceSession):
+        return cls(session=session)
 
     def __call__(self, image: Path | bytes):
         if isinstance(image, Path):
@@ -142,7 +147,7 @@ class YOLOv8:
         for i, class_id in enumerate(class_ids):
             x1, y1, x2, y2 = boxes[i]
             center_x, center_y = int((x2 - x1) / 2 + x1), int((y2 - y1) / 2 + y1)
-            response.append((classes[class_id], (center_x, center_y), scores[i]))
+            response.append((self.classes[class_id], (center_x, center_y), scores[i]))
         return response
 
     def detect_objects(self, image: np.ndarray):

@@ -15,14 +15,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
 
+from loguru import logger
 from playwright.sync_api import Page, Response, FrameLocator
 from playwright.sync_api import TimeoutError as NinjaTimeout
 
 from hcaptcha_challenger.agents.playwright.binary_challenge import PlaywrightAgent
 from hcaptcha_challenger.components.image_downloader import download_images
-from hcaptcha_challenger.onnx.yolo import YOLOv8, classes
+from hcaptcha_challenger.onnx.yolo import YOLOv8, YOLO_CLASSES
 from hcaptcha_challenger.utils import from_dict_to_model
-from loguru import logger
 
 
 @dataclass
@@ -169,8 +169,8 @@ class OnClickAgent(PlaywrightAgent):
             self.img_paths.append(dst)
 
     def match_solution(self) -> YOLOv8:
-        model_path = self.modelhub.models_dir.joinpath("onclick_yolov8m.onnx")
-        detector = YOLOv8.from_model_path(model_path)
+        session = self.modelhub.match_net(focus_name=YOLOv8.best)
+        detector = YOLOv8.from_pluggable_model(session)
         return detector
 
     def challenge(self, frame_challenge: FrameLocator, detector, *args, **kwargs):
@@ -195,7 +195,7 @@ class OnClickAgent(PlaywrightAgent):
             # Click canvas
             position = {"x": center_x, "y": center_y}
             locator.click(delay=500, position=position)
-            # input(f">>[{kwargs.get('pth')}] onclick - {name} - {position=}")
+            # print(f">>[{kwargs.get('pth')}] onclick - {name} - {position=}")
             page.wait_for_timeout(500)
             break
 
@@ -215,7 +215,7 @@ class OnClickAgent(PlaywrightAgent):
             return self.status.CHALLENGE_SUCCESS, "success"
 
     def tactical_retreat(self, **kwargs) -> str | None:
-        if any(c in self._label for c in classes):
+        if any(c in self._label for c in YOLO_CLASSES):
             return
         return self.status.CHALLENGE_BACKCALL
 
