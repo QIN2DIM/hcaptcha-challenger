@@ -236,6 +236,8 @@ class OnClickAgent(PlaywrightAgent):
 
         # Bypass `image_label_binary` challenge
         if self.onclick_resp.request_type != "image_label_area_select":
+            if self.onclick_resp.request_type == "image_label_binary":
+                return self.status.CHALLENGE_TO_BINARY
             return self.status.CHALLENGE_BACKCALL
 
         # [Optional] Download challenge image as dataset
