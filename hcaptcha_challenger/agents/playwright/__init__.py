@@ -6,4 +6,4 @@
 from .binary_challenge import PlaywrightAgent
 from .tarnished import Tarnished
 
-__all__=["PlaywrightAgent", "Tarnished"]
+__all__ = ["PlaywrightAgent", "Tarnished"]

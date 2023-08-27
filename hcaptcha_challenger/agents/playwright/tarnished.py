@@ -16,12 +16,12 @@ from playwright.sync_api import BrowserContext as SyncContext, sync_playwright
 
 class Tarnished:
     def __init__(
-            self,
-            user_data_dir: Path,
-            *,
-            record_dir: Path | None = None,
-            record_har_path: Path | None = None,
-            state_path: Path | None = None,
+        self,
+        user_data_dir: Path,
+        *,
+        record_dir: Path | None = None,
+        record_har_path: Path | None = None,
+        state_path: Path | None = None,
     ):
         self._user_data_dir = user_data_dir
         self._record_dir = record_dir
@@ -74,13 +74,13 @@ class Tarnished:
             context.storage_state(path=self.state_path)
 
     def execute(
-            self,
-            sequence,
-            *,
-            parameters: Dict[str, Any] = None,
-            headless: bool = False,
-            locale: str = "en-US",
-            **kwargs,
+        self,
+        sequence,
+        *,
+        parameters: Dict[str, Any] = None,
+        headless: bool = False,
+        locale: str = "en-US",
+        **kwargs,
     ):
         with sync_playwright() as p:
             context = p.firefox.launch_persistent_context(

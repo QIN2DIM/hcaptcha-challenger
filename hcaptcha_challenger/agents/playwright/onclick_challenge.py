@@ -9,21 +9,24 @@ import hashlib
 import shutil
 import threading
 import time
+import uuid
 from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 
-from playwright.sync_api import Page, Response, FrameLocator, Position
+from playwright.sync_api import Page, Response, FrameLocator
+from playwright.sync_api import TimeoutError as NinjaTimeout
 
 from hcaptcha_challenger.agents.playwright.binary_challenge import PlaywrightAgent
 from hcaptcha_challenger.components.image_downloader import download_images
-from hcaptcha_challenger.onnx.yolo import YOLOv8
+from hcaptcha_challenger.onnx.yolo import YOLOv8, classes
 from hcaptcha_challenger.utils import from_dict_to_model
+from loguru import logger
 
 
 @dataclass
-class ChallengeResp:
+class OnClickResp:
     c: Dict[str, str] = field(default_factory=dict)
     """
     type: hsw
@@ -75,13 +78,45 @@ class ChallengeResp:
     def from_response(cls, response: Response):
         return from_dict_to_model(cls, response.json())
 
-    def get_datapoint(self, pth: int):
-        return self.tasklist[pth]["datapoint_uri"]
+
+@dataclass
+class ChallengeResp:
+    c: Dict[str, str] = None
+    """
+    type: hsw
+    req: eyj0 ...
+    """
+
+    is_pass: bool = None
+    """
+    true or false
+    """
+
+    generated_pass_uuid: str = None
+    """
+    P1_eyj0 ...
+    """
+
+    error: str = None
+    """
+    Only available if `pass is False`
+    """
+
+    @classmethod
+    def from_response(cls, response: Response):
+        metadata = response.json()
+        return cls(
+            c=metadata["c"],
+            is_pass=metadata["pass"],
+            generated_pass_uuid=metadata.get("generated_pass_UUID", ""),
+            error=metadata.get("error", ""),
+        )
 
 
 @dataclass
 class OnClickAgent(PlaywrightAgent):
-    onclick_resp: ChallengeResp = None
+    onclick_resp: OnClickResp | None = None
+    challenge_resp: ChallengeResp | None = None
 
     typed_dir: Path = Path("please click on the X")
     """
@@ -98,10 +133,9 @@ class OnClickAgent(PlaywrightAgent):
 
     def handle_onclick_resp(self, page: Page):
         def handle(response: Response):
-            if not response.url.startswith("https://hcaptcha.com/getcaptcha/"):
-                return
-            with suppress(Exception):
-                self.onclick_resp = ChallengeResp.from_response(response)
+            if response.url.startswith("https://hcaptcha.com/getcaptcha/"):
+                with suppress(Exception):
+                    self.onclick_resp = OnClickResp.from_response(response)
 
         page.on("response", handle)
 
@@ -113,7 +147,7 @@ class OnClickAgent(PlaywrightAgent):
             self.typed_dir = self.tmp_dir.joinpath(request_type, self._label)
             self.typed_dir.mkdir(mode=777, parents=True, exist_ok=True)
         except Exception as err:
-            print(err)
+            logger.error(err)
 
     def download_images(self):
         # Prelude container
@@ -134,30 +168,103 @@ class OnClickAgent(PlaywrightAgent):
             shutil.move(src, dst)
             self.img_paths.append(dst)
 
-    def anti_hcaptcha(
-            self, page: Page, window: str = "login", recur_url=None, *args, **kwargs
-    ) -> bool | str:
-        frame_challenge = self.switch_to_challenge_frame(page, window)
-        page.wait_for_timeout(2000)
+    def match_solution(self) -> YOLOv8:
+        model_path = self.modelhub.models_dir.joinpath("onclick_yolov8m.onnx")
+        detector = YOLOv8.from_model_path(model_path)
+        return detector
 
+    def challenge(self, frame_challenge: FrameLocator, detector, *args, **kwargs):
+        locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
+        locator.wait_for(state="visible")
+
+        page: Page = kwargs.get("page")
+        page.wait_for_timeout(1000)
+
+        path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
+        locator.screenshot(path=path, type="png")
+
+        # {{< Please click on the X >}}
+        res = detector(Path(path))
+        for name, (center_x, center_y), _ in res:
+            # Bypass unfocused objects
+            if name not in self._label:
+                continue
+            # Bypass invalid area
+            if center_y < 20 or center_y > 520 or center_x < 91 or center_x > 400:
+                continue
+            # Click canvas
+            position = {"x": center_x, "y": center_y}
+            locator.click(delay=500, position=position)
+            # input(f">>[{kwargs.get('pth')}] onclick - {name} - {position=}")
+            page.wait_for_timeout(500)
+            break
+
+        # {{< Verify >}}
+        with suppress(NinjaTimeout):
+            fl = frame_challenge.locator("//div[@class='button-submit button']")
+            fl.click()
+
+    def is_success(
+        self, page: Page, frame_challenge: FrameLocator = None, init=True, *args, **kwargs
+    ) -> Tuple[str, str]:
+        with page.expect_response("**checkcaptcha**") as resp:
+            self.challenge_resp = ChallengeResp.from_response(resp.value)
+        if not self.challenge_resp:
+            return self.status.CHALLENGE_RETRY, "retry"
+        if self.challenge_resp.is_pass:
+            return self.status.CHALLENGE_SUCCESS, "success"
+
+    def tactical_retreat(self, **kwargs) -> str | None:
+        if any(c in self._label for c in classes):
+            return
+        return self.status.CHALLENGE_BACKCALL
+
+    def anti_hcaptcha(
+        self, page: Page, window: str = "login", recur_url=None, *args, **kwargs
+    ) -> bool | str:
+        # Switch to hCaptcha challenge iframe
+        frame_challenge = self.switch_to_challenge_frame(page, window)
+
+        # Reset state of the OnClick Challenger
+        self.challenge_resp = None
+        self.onclick_resp = None
+        with page.expect_response("**getcaptcha**") as resp:
+            self.onclick_resp = OnClickResp.from_response(resp.value)
+
+        # Parse challenge prompt
         self.get_label(frame_challenge)
 
+        # Bypass `image_label_binary` challenge
         if self.onclick_resp.request_type != "image_label_area_select":
             return self.status.CHALLENGE_BACKCALL
 
+        # [Optional] Download challenge image as dataset
+        # The input of the task should be a screenshot of challenge-view
+        # rather than the challenge image itself
         self.mark_samples(frame_challenge)
-
         self.download_images()
 
-        model_path = self.modelhub.models_dir.joinpath("onclick_yolov8n.onnx")
-        detector = YOLOv8.from_model_path(model_path)
-        res = detector(self.img_paths[0])
-        for name, (center_x, center_y), _ in res:
-            if name not in self._label:
-                continue
-            print(name, center_x, center_y)
-            locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
-            locator.hover(position=Position(x=center_x, y=center_y))
-            locator.click(delay=1000)
-        input("123")
-        return self.status.CHALLENGE_BACKCALL
+        # Bypass Low-mAP Detection tasks
+        result = self.tactical_retreat()
+        if result in [self.status.CHALLENGE_BACKCALL]:
+            return result
+
+        # Load YOLOv8 model from local or remote repo
+        detector = self.match_solution()
+
+        # Execute the detection task for twice
+        for pth in range(2):
+            frame_challenge = self.switch_to_challenge_frame(page, window)
+            self.challenge(frame_challenge, detector, pth=pth, page=page)
+
+        # Check challenge result
+        with suppress(TypeError):
+            result, message = self.is_success(
+                page, frame_challenge, window=window, hook_url=recur_url
+            )
+            if result in [
+                self.status.CHALLENGE_SUCCESS,
+                self.status.CHALLENGE_CRASH,
+                self.status.CHALLENGE_RETRY,
+            ]:
+                return result

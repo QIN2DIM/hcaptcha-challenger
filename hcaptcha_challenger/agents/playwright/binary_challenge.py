@@ -87,7 +87,7 @@ class PlaywrightAgent(Skeleton):
             fl.click(delay=1000, timeout=5000)
 
     def is_success(
-            self, page: Page, frame_challenge: FrameLocator = None, init=True, *args, **kwargs
+        self, page: Page, frame_challenge: FrameLocator = None, init=True, *args, **kwargs
     ) -> Tuple[str, str]:
         """
         Complex logic for judging the response of a challenge
@@ -131,7 +131,7 @@ class PlaywrightAgent(Skeleton):
         checkbox.locator("#checkbox").click()
 
     def anti_hcaptcha(
-            self, page: Page, window: str = "login", recur_url=None, *args, **kwargs
+        self, page: Page, window: str = "login", recur_url=None, *args, **kwargs
     ) -> bool | str:
         frame_challenge = self.switch_to_challenge_frame(page, window)
         try:

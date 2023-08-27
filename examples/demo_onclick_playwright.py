@@ -10,6 +10,7 @@
 # Description:
 from __future__ import annotations
 
+import json
 import time
 from contextlib import suppress
 from pathlib import Path
@@ -45,7 +46,7 @@ class SiteKey:
 
     @staticmethod
     def to_sitelink() -> str:
-        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.new_type_challenge}"
+        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.epic}"
 
 
 @logger.catch
@@ -63,19 +64,22 @@ def hit_challenge(context: BrowserContext):
     for _ in range(8):
         with suppress(ChallengePassed):
             result = agent.anti_hcaptcha(page)
+            print(f">> Challenge Result: {result}")
             if result == agent.status.CHALLENGE_BACKCALL:
                 fl = page.frame_locator(agent.HOOK_CHALLENGE)
                 fl.locator("//div[@class='refresh button']").click()
                 continue
             if result == agent.status.CHALLENGE_SUCCESS:
+                rqdata_path = Path("tmp_dir", f"rqdata-{time.time()}.json")
+                rqdata_path.write_text(json.dumps(agent.challenge_resp.__dict__, indent=2))
+                print(f"View RQdata path={rqdata_path}")
+                page.wait_for_timeout(2000)
                 return
 
 
 def bytedance():
     radagon = Tarnished(
-        user_data_dir=context_dir,
-        record_dir=record_dir,
-        record_har_path=record_har_path,
+        user_data_dir=context_dir, record_dir=record_dir, record_har_path=record_har_path
     )
     radagon.execute(sequence=[hit_challenge])
     print(f"View record video path={record_dir}")

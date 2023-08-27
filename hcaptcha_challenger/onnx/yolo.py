@@ -12,7 +12,14 @@ import cv2
 import numpy as np
 import onnxruntime
 
-classes = ["bear", "elephant", "lion", "parrot", "squirrel"]
+# fmt:off
+classes = [
+    "lighthouse",
+    "bear", "parrot", "squirrel", "lion", "elephant",
+    "bat", "cat", "hedgehog", "penguin", "raccoon",
+]
+
+# fmt:on
 
 
 def nms(boxes, scores, iou_threshold):
@@ -85,9 +92,9 @@ def xywh2xyxy(x):
 
 @dataclass
 class YOLOv8:
-    model_path: Path = Path("onclick_yolov8n.onnx")
+    model_path: Path = Path("onclick_yolov8m.onnx")
 
-    conf_threshold: float = 0.7
+    conf_threshold: float = 0.5
     iou_threshold: float = 0.5
 
     session = None
