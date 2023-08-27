@@ -24,3 +24,7 @@ label_alias:
   musical_instrument:
     zh: [ "乐器" ]
     en: [ "musical instrument" ]
+  violin:
+    zh: [ "小提琴" ]
+    en: [ "violin" ]
+  
