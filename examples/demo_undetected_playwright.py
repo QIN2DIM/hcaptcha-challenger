@@ -64,7 +64,10 @@ def hit_challenge(context: BrowserContext):
             print(f">> Challenge Result: {result}")
             # if result == onclick_agent.status.CHALLENGE_TO_BINARY:
             #     result = binary_agent.anti_hcaptcha(page)
-            if result in [onclick_agent.status.CHALLENGE_BACKCALL, onclick_agent.status.CHALLENGE_TO_BINARY]:
+            if result in [
+                onclick_agent.status.CHALLENGE_BACKCALL,
+                onclick_agent.status.CHALLENGE_TO_BINARY,
+            ]:
                 fl = page.frame_locator(onclick_agent.HOOK_CHALLENGE)
                 fl.locator("//div[@class='refresh button']").click()
                 continue
