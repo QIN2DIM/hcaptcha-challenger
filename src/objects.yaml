@@ -4,9 +4,18 @@ branches:
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 label_alias:
   onclick_yolov8m:
-    en: [ "lighthouse",
-          "bear", "parrot", "squirrel", "lion", "elephant",
-          "bat", "cat", "hedgehog", "penguin", "raccoon" ]
+    en:
+      - bat
+      - bear
+      - cat
+      - elephant
+      - hedgehog
+      - lighthouse
+      - lion
+      - parrot
+      - penguin
+      - raccoon
+      - squirrel
   dolphin:
     zh: [ "海豚" ]
     en: [ "dolphin" ]
