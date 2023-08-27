@@ -9,13 +9,14 @@ import time
 from abc import abstractmethod, ABC
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Literal
 from urllib.parse import quote
 
 from loguru import logger
 
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
+from hcaptcha_challenger.onnx.yolo import YOLOv8
 
 HOOK_CHALLENGE = "//iframe[contains(@src,'#frame=challenge')]"
 
@@ -110,11 +111,21 @@ class Skeleton(ABC):
 
         return dragon
 
-    def match_solution(self) -> ResNetControl:
+    def match_solution(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
         """match solution after `tactical_retreat`"""
         focus_label = self._label_alias.get(self._label, "")
-        focus_name = focus_label if focus_label.endswith(".onnx") else f"{focus_label}.onnx"
-        net = self.modelhub.match_net(focus_name)
+
+        # Match YOLOv8 model
+        if not focus_label or select == "yolo":
+            session = self.modelhub.match_net(focus_name=YOLOv8.best)
+            detector = YOLOv8.from_pluggable_model(session)
+            return detector
+
+        # Match ResNet model
+        focus_name = focus_label
+        if not focus_name.endswith(".onnx"):
+            focus_name = f"{focus_name}.onnx"
+        net = self.modelhub.match_net(focus_name=focus_name)
         control = ResNetControl.from_pluggable_model(net)
         return control
 
