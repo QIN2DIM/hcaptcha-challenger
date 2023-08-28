@@ -1,0 +1,74 @@
+{
+  "c": {
+    "type": "hsw",
+    "req": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJmIjowLCJzIjoyLCJ0IjoidyIsImQiOiJDdndsbmg5djZubytUWVhkSWZ4UzE1c2wzczhmMWRyUFR6NXlYVFEvWlh1TExjMEtzaVFxbkNidy95TFlCSGhCL3BKME9aREtPOGNVS0s5TUxMbVB4RHJzYTQ3VDZZK0xyZzBOVXE0b25aa2U0bWdFYmdMT3RCVFg5VHducUR3K0s1MjlsUU14RkNib3JCckVPZGY1V1BTdkhlLzl3RnBwT25yMGF2aDgrRmtVRWo4N3VjdWQzbTdlY2c9PTlpMVk1WDVkUThGL2JlQlYiLCJsIjoiaHR0cHM6Ly9uZXdhc3NldHMuaGNhcHRjaGEuY29tL2MvNmY0OGZmYiIsImUiOjE2OTMyMTUxODQsIm4iOiJoc3ciLCJjIjoxMDAwfQ.faVCx26NW2ij2V1AFd6SIr-PvKeF_CzO9SQG08v9IYn5QmD10TgMrOalC0IlIV8wuh4ZvskIpVHNxtdk7rjbtYE7AwBMLLyDQ7F2OSB6wWXOuOrbRrsC46WjFLLJviAGVGlDAoAKRcCegArk_E5u9PxnuqtyYZpCtprRcm8PAYk"
+  },
+  "challenge_uri": "https://hcaptcha.com/challenge/grid/challenge.js",
+  "key": "E0_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiMEVVU3FJV3VVUlZiblJSWXFiSW0xSkY0SXlOSEZHRTBWMU9jNVdGcm9vNzUxMzVjcVFpNnk0bVlhZjlsUy93QXpBSFJjcnovN2cwbXo3ays4dnBzVXZ5L2d5L3o5ai9Ucm5vRWZqZmY5dWpreGxUNXhMSTFmSWw4ODg3NldmQ1NZV2xzYzB6SXN5Nmw1a0JvUCt1WVp4K1VhYVMxQ3gwelJtZE1rMUFVU2pjbUdWM3d0RFNYY0dGd0owS2xXU01zM09lNjROeUVIL1hPRUU3ellIZitLcE91U3Q1dFVQc3ZDVHlLNmpTNG80VnFiVWZjQnh4R0ZLOTVsMitMSjV6SHpud0ZsUXlMTDhWb3phQlZwUT09T1dRNXNoNStpNTlKTHFSbiJ9.Y77xTPUmyZXfp4jfooP1fIuyRrbpECCfgEcJ7vueiPI",
+  "request_config": {
+    "version": 0,
+    "shape_type": null,
+    "min_points": null,
+    "max_points": null,
+    "min_shapes_per_image": null,
+    "max_shapes_per_image": null,
+    "restrict_to_coords": null,
+    "minimum_selection_area_per_shape": null,
+    "multiple_choice_max_choices": 1,
+    "multiple_choice_min_choices": 1,
+    "overlap_threshold": null,
+    "answer_type": "str",
+    "max_value": null,
+    "min_value": null,
+    "max_length": null,
+    "min_length": null,
+    "sig_figs": null,
+    "keep_answers_order": false
+  },
+  "request_type": "image_label_binary",
+  "requester_question": {
+    "en": "Please click each image containing a chair"
+  },
+  "requester_question_example": [
+    "https://imgs.hcaptcha.com/NRtdZ7pzArCw3D8fnXq6Zd0tWFHN1JCiM3jvGX8tcuP0BZvo9M1PILUjCzkdGqlT0ykBlCRjdlqfJaQtEryqST3MXKFpqVNqqSzKbXVV87vY0bM8lNDPl_-qPaBtzFD0Z1KzRxDYdeUCw0gk-tsnFMLqK7fy-BldVqb1_gYPQhHAx2HTz08YSuFwZakEFS10EtAgBjOvMa3IWoNG1ze0p8G0_hZC-VkxCOpTzZ7_LxFIZb5nE499qRojib2mWoPczGlIjNYuFl6iIbSNk8_N92FhlSoTOUdCLI6_b0c6"
+  ],
+  "requester_restricted_answer_set": {},
+  "tasklist": [
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/Gpa0KjBpcXK2fy2xuyAnZMNjfyQFz-8-87cWygY5W70gi7Nx9-V-B6R48o-6N5jGaCACHHp3l0CnXMPT5CFznzig__xHvJEk2A4tIk0WlvY3O-MjyTSwIVKc2VILHmNMBPtiPRnmWmNX8THTt7LjxGmxRavlnzfO_ddsgPYFUGfWGsdhtnulvuNczEmxwyQdfGBtfu-PTT96nQr-gWmJQQT4rmeuzhHx-m1Mxm-e8JskXf_uJdVlinyrw3QxW5hNfClMRThx4ruvt2SWeTYuWNV-Wra870888BzBPxCP",
+      "task_key": "2e1f1e5e-29d9-4ca5-aa08-f4cc018dbfca"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/rPTC021PDH7ztgepDvmGmgkoWylPqLn2WodtTHPKLNw3DY0NR05Ce2A4J_lAapli_PJj39QWrnKxeTHpsN8-vv0uEaKnPZ6P9v5DZ6kqgf25c8bdKp2-lCVjOK4GPWVmYqfOSplQDohfnnh5wRYes-gNmednrNSJsBbynJQK2tg5BWrpoXxBfCvNAw4zVPmdbNl0oJRLT9POBSPap5sQ0s4jJVwptkDnTAUW8doQmA2pNzQvQqdh3YKCSesBibCnF6gc_CQh4h6AWBGvLjPSQUkgQ581EA7gEtJCJWLG",
+      "task_key": "ca7e8c9f-81d5-4bf5-96f3-be0a368f6b3c"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/VALSVZmG2LzQ7QeLR0XJ_vMsv2lGdH30umuEkao68N3hewgieRmMmfrnn8TpvPVH1EM87SrM-VWDaUAiAsEL7ePMHqusfz5NTOOJaPJwa8d6yoUUWgXrj2bgg1y8nEjAX5Ub70wk4vJ3LfRV3b8_fmnYbhhA4pQu_5kPUesJfB_ua8Eez3ZravnrZhki26K528VMzgrUn3gla3tIkd7nbs3ziM-7vRGwtA6IO0lo9OmDLu8bgTbmfnygG_f-2O9NkZfx4CTPL8V9CoH76N5-VZsSLvNYun7nOY0ZCfrb",
+      "task_key": "68623fc9-51e3-4758-ba92-32aaa0cee41d"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/iqMT4T5YKBTMxRvLU1yjNreTLi6sTIV6Fxzp329gmE5PJpUS9FCoSN7T6lCqEQBT5IIJbs6clN-oGgcwa62Rr8cGCJtGmIOubgRIq5aQDrwI84tI9riSYRXArEkvAXSEtYAEFnW5XppdbzHKLwXkEGmU9F5TBkLvj6bZrCk6m5BM24pQtgHFiYfOQpVCoTaNcSO2C7P0tdlPkNBYmUR64dBdytiOfzYUePC7fwyUyuE0TDsyrARL-dQddbiiApaidxwiYSSPcSF1jxbBtZizzRIj8o4q3_Fflb25vO8z",
+      "task_key": "2341bb36-216c-4c62-adaa-fe83b704436b"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/B4Up7CnMV0a90OEKlbJGx_vpCusyV8TXnW9JlKXtxyvFUbYn3JpXsbZeGW19Gnv8_NHucJvtbjomVkhm2aN4T_uzV6liR3zVfx860AswFSM7z5HX14ZM5YcmqPLpe45BfD34fYvCKXQ_1coH7CC0QMbvoaySmzXJajnaxiWqYbACmOsaWWXPbauZGEJ2k8DuDXRMPfZ4wrRZTKBMXHwrBCwRK_xN3fQKG2Cmt-Dk66lt73O8r0ngsl_w2xZ539OAAT4ys4Vg3TyiRZs64QLxVfcZau_cHf4Sc_6xDtOl",
+      "task_key": "b744487f-1bdc-405b-925e-bf9e601c5b5a"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/vZ074fNBeWOa2c2YI8k1AU_TnwsNVwJ4oNpHxg7RDXWj9Zr8i9MJGrpRZKymEapJUoKuBzhVik3mKCYwmZtKdwLumO269d9VRtuxK9gcNnHVw5Z4IwOG_urx7Kvg3H0wx7-Gfo-olJjH9o27InCwGfdGSVXfmJQv-h8Yd87zm_2WDBNbW9NnLtnNo4lekYeweD65EK8G1yk396GsK0a6W2NCXuTfx91b8my9aoT7kWuPgcE0tXrpu7Pwsnm3iOHXwFhiS3yNCsPY0CkVcH9XaeCsQ9FpC_4F8KLn4WJv",
+      "task_key": "829b8c38-213f-46aa-a28c-abd9afd6f570"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/3jIAbYUWUx-CPRM_jOyHcumLZQ4e8iLAQptSSnRZe_DBE7t788SPlbDW3QT880uWy7YgB77JP-NHZ1giudDkIaE-Ug_zDdXb4_lnI1-SaoR3fv0ZPdD-vEkWfu34FxP5uZ0WgHH7h_lVgv-JEILBrTLdTfYC0F4NDZ3EnAVZA4iLLj6m1U_-HNVboZCwx_RDN3cgilB_2JskEzSWVSSQduSXfg-c2i1sdsrnrnq0cCO8DjQ5qMsmD64xFRsxTt5WIyTyWxnXeX8mpnWKFwdQBLDYUeqIduamKEXq-7Ee",
+      "task_key": "056c8ef6-443c-494f-9be9-bcff640ad00f"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/aSMAEVtg5DsMJE8Qc5YPFRsbNbG0vvPMi-haHW326nkksLJueGfykYzPI3QIyJkpdj8j7U7sT8NxSmGlakAib_6eMZnQbz_Lqr2iqUHfPhwcJcPt13yVwlGHzy0Szw6XJ0OnPO_CM_d6O6P4CcwmIAcnTXv51msXdu_6wB3QcY3tzg0muULd4iQbp74pxF48hf3vYf6KFo1uOphATcHIMutwnU-gBWNFbRb6vHNbIt4VEZ88DbdIpQRBpe6ZuS7sNPN4Dwjsee2-z4oxmmFWDUyU2DmMdmR96-RU7igY",
+      "task_key": "cbb93951-64c7-4469-b3ac-228266a2bc9a"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/G6eE0D8Wb9DbaFnyIomyw_bTna7CFeqwj4sbUg0v997DvtUeGaPTpN2mYWB9NJDBu0dEQSX2srZoLgkm36jTj80QhZ3iAZ_nMZICV1ZqnwrOfoe_5ZCHRPzAitqi9UnrHtNqtOb8sH8a9LJLax8FMR2MEp5ryoFhkNXfrCeWWrCNlYfFh_p8wlI8PHVHxFp4z1-j_jvsQm3ObPKogmK82nU66cswqxXROJ8TAyz3D5mkc_XBKLCmDJhFQ5piWSjs9QqEftQiJZJFRs8bnCJMjqP8kOZndvwqdd3LoppR",
+      "task_key": "eb3ea59c-58be-4e4e-992c-bca80429ebc1"
+    }
+  ]
+}

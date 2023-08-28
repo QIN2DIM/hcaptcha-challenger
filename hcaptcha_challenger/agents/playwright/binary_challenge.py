@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import random
 import re
 import shutil
@@ -14,14 +15,12 @@ import time
 from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Tuple, Dict, Any, List
+from typing import Tuple, Dict, Any, List, Iterable
 
-from loguru import logger
 from playwright.sync_api import FrameLocator, Page
 from playwright.sync_api import Response
 from playwright.sync_api import TimeoutError as NinjaTimeout
 
-from hcaptcha_challenger.agents.exceptions import ChallengePassed
 from hcaptcha_challenger.agents.skeleton import Skeleton
 from hcaptcha_challenger.components.image_downloader import download_images
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
@@ -84,6 +83,11 @@ class QuestionResp:
     def from_response(cls, response: Response):
         return from_dict_to_model(cls, response.json())
 
+    def save_example(self):
+        shape_type = self.request_config.get("shape_type", "")
+        fn = f"{self.request_type}.{shape_type}.json"
+        Path(fn).write_text(json.dumps(self.__dict__, indent=2))
+
 
 @dataclass
 class ChallengeResp:
@@ -125,8 +129,6 @@ class PlaywrightAgent(Skeleton):
 
     challenge_resp: ChallengeResp | None = None
 
-    need_to_handle_resp: bool | None = True
-
     typed_dir: Path = Path("please click on the X")
     """
     - image_label_area_select
@@ -155,11 +157,13 @@ class PlaywrightAgent(Skeleton):
         if response.url.startswith("https://hcaptcha.com/getcaptcha/"):
             with suppress(Exception):
                 self.question_resp = QuestionResp.from_response(response)
+                self.question_resp.save_example()
+        if response.url.startswith("https://hcaptcha.com/checkcaptcha/"):
+            with suppress(Exception):
+                self.challenge_resp = ChallengeResp.from_response(response)
 
     def handle_question_resp(self, page: Page):
-        if self.need_to_handle_resp:
-            page.on("response", self.handler)
-            self.need_to_handle_resp = False
+        page.on("response", self.handler)
 
     def switch_to_challenge_frame(self, page: Page, window: str = "login", **kwargs):
         if window == "login":
@@ -226,10 +230,11 @@ class PlaywrightAgent(Skeleton):
             fl.click(delay=1000, timeout=5000)
 
     def is_success(
-            self, page: Page, frame_challenge: FrameLocator = None, init=True, *args, **kwargs
+        self, page: Page, frame_challenge: FrameLocator = None, init=True, *args, **kwargs
     ) -> Tuple[str, str]:
-        with page.expect_response("**checkcaptcha**") as resp:
-            self.challenge_resp = ChallengeResp.from_response(resp.value)
+        if not self.challenge_resp:
+            with page.expect_response("**checkcaptcha**") as resp:
+                self.challenge_resp = ChallengeResp.from_response(resp.value)
         if not self.challenge_resp:
             return self.status.CHALLENGE_RETRY, "retry"
         if self.challenge_resp.is_pass:
@@ -240,44 +245,39 @@ class PlaywrightAgent(Skeleton):
         checkbox.locator("#checkbox").click()
 
     def anti_hcaptcha(
-            self, page: Page, window: str = "login", recur_url=None, *args, **kwargs
+        self, page: Page, window: str = "login", recur_url=None, *args, **kwargs
     ) -> bool | str:
+        # Switch to hCaptcha challenge iframe
         frame_challenge = self.switch_to_challenge_frame(page, window)
-        try:
-            # [👻] 人机挑战！
-            for i in range(2):
-                page.wait_for_timeout(2000)
-                # [👻] 获取挑战标签
-                self.get_label(frame_challenge)
-                # [👻] 編排定位器索引
-                self.mark_samples(frame_challenge)
-                # [👻] 拉取挑戰圖片
-                self.download_images()
-                # [👻] 滤除无法处理的挑战类别
-                if not self._label_alias.get(self._label):
-                    return self.status.CHALLENGE_BACKCALL
-                # [👻] 注册解决方案
-                # 根据挑战类型自动匹配不同的模型
-                model = self.match_solution()
-                # [👻] 識別|點擊|提交
-                self.challenge(frame_challenge, model=model)
-                # [👻] 輪詢控制臺響應
-                with suppress(TypeError):
-                    result, message = self.is_success(
-                        page, frame_challenge, window=window, init=not i, hook_url=recur_url
-                    )
-                    logger.debug("Get response", desc=f"{message}({result})")
-                    if result in [
-                        self.status.CHALLENGE_SUCCESS,
-                        self.status.CHALLENGE_CRASH,
-                        self.status.CHALLENGE_RETRY,
-                    ]:
-                        return result
-                    page.wait_for_timeout(2000)
-        # from::mark_samples url = re.split(r'[(")]', image_style)[2]
-        except IndexError:
-            return self.anti_hcaptcha(page, window, recur_url)
-        except ChallengePassed:
-            return self.status.CHALLENGE_SUCCESS
-        except Exception as err:
-            logger.exception(err)
+
+        # Execute the classification task for twice
+        for pth in range(2):
+            # Reset state of the OnClick Challenger
+            self.challenge_resp = None
+            self.question_resp = None
+            with page.expect_response("**getcaptcha**") as resp:
+                self.question_resp = QuestionResp.from_response(resp.value)
+
+            # Parse challenge prompt
+            self.get_label(frame_challenge)
+
+            # Download challenge image as dataset
+            self.mark_samples(frame_challenge)
+            self.download_images()
+
+            # Bypass Low-mAP classification tasks
+            if not self._label_alias.get(self._label):
+                return self.status.CHALLENGE_BACKCALL
+
+            # Load ResNet model from local or remote repo
+            classifier = self.match_solution(select="resnet")
+
+            # Execute the classification task for twice
+            frame_challenge = self.switch_to_challenge_frame(page, window)
+            self.challenge(frame_challenge, model=classifier)
+
+            # Check challenge result
+            result = self.is_success(page, frame_challenge, window=window, hook_url=recur_url)
+            if isinstance(result, Iterable):
+                result = result[0]
+            return result
