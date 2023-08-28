@@ -41,7 +41,7 @@ class SiteKey:
 
     @staticmethod
     def to_sitelink() -> str:
-        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.user}"
+        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.new_type_challenge}"
 
 
 @logger.catch
@@ -56,11 +56,12 @@ def hit_challenge(context: BrowserContext):
         page.locator("//iframe[contains(@title,'checkbox')]").wait_for()
         agent.anti_checkbox(page)
 
-    for pth in range(8):
+    for pth in range(1, 8):
         with suppress(ChallengePassed):
             result = agent.anti_hcaptcha(page)
-            print(f">> [{pth}] Challenge Result: {result}")
+            print(f">> {pth} - Challenge Result: {result}")
             if result == agent.status.CHALLENGE_BACKCALL:
+                page.wait_for_timeout(500)
                 fl = page.frame_locator(agent.HOOK_CHALLENGE)
                 fl.locator("//div[@class='refresh button']").click()
                 continue
