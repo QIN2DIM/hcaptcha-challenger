@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Time       : 2023/8/19 17:53
+# Time       : 2023/8/29 14:13
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
@@ -7,35 +7,42 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import List
+from typing import List, Literal
 
 from loguru import logger
 
-from hcaptcha_challenger.components.prompt_handler import label_cleaning, split_prompt_message
+from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub
-from hcaptcha_challenger.onnx.resnet import ResNetControl
+from hcaptcha_challenger.onnx.yolo import apply_ash_of_war, YOLOv8
 
 
-class Classifier:
+class AreaSelector:
     def __init__(self):
         self.modelhub = ModelHub.from_github_repo()
         self.modelhub.parse_objects()
 
-    def execute(self, prompt: str, images: List[Path | bytes]) -> List[bool | None]:
+    def execute(
+        self,
+        prompt: str,
+        images: List[Path | bytes],
+        shape_type: Literal["point", "bounding_box"] = "point",
+    ) -> List[bool | None]:
+        """
+
+        :param prompt:
+        :param images:
+        :param shape_type:
+        :return:
+        """
         response = []
 
         lang = "zh" if re.compile("[\u4e00-\u9fa5]+").search(prompt) else "en"
         _label = split_prompt_message(prompt, lang=lang)
         label = label_cleaning(_label)
 
-        focus_label = self.modelhub.label_alias.get(label)
-        if not focus_label:
-            logger.debug("Types of challenges not yet scheduled", label=label, prompt=prompt)
-            return response
-
-        focus_name = focus_label if focus_label.endswith(".onnx") else f"{focus_label}.onnx"
-        net = self.modelhub.match_net(focus_name)
-        control = ResNetControl.from_pluggable_model(net)
+        focus_name, yolo_classes = apply_ash_of_war(ash=label)
+        session = self.modelhub.match_net(focus_name=focus_name)
+        detector = YOLOv8.from_pluggable_model(session, focus_name)
 
         for image in images:
             try:
@@ -45,12 +52,12 @@ class Classifier:
                         continue
                     image = image.read_bytes()
                 if isinstance(image, bytes):
-                    result = control.binary_classify(image)
+                    result = detector(image=image, shape_type=shape_type)
                     response.append(result)
                 else:
                     response.append(None)
             except Exception as err:
-                logger.debug(str(err), label=focus_label, prompt=prompt)
+                logger.debug(str(err), prompt=prompt)
                 response.append(None)
 
         return response
