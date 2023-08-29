@@ -10,7 +10,6 @@ import re
 import time
 import warnings
 from dataclasses import dataclass
-from typing import Tuple
 
 from loguru import logger
 from selenium.common.exceptions import (
@@ -76,7 +75,6 @@ class SeleniumAgent(Skeleton):
             raise LabelNotFoundException("Get the exception label object")
         else:
             self._label = label_cleaning(_label)
-            logger.debug("Get label", name=self._label)
 
     def mark_samples(self, ctx, *args, **kwargs):
         # 等待图片加载完成
@@ -94,7 +92,7 @@ class SeleniumAgent(Skeleton):
                 )
                 return self.status.CHALLENGE_SUCCESS
             except WebDriverException:
-                return self.status.CHALLENGE_CONTINUE
+                return self.status.CHALLENGE_BACKCALL
 
         time.sleep(0.3)
 
@@ -142,9 +140,8 @@ class SeleniumAgent(Skeleton):
             pass
         except WebDriverException as err:
             logger.exception(err)
-        logger.debug("Submit challenge", result=f"{self._label}: {round(sum(ta), 2)}s")
 
-    def is_success(self, ctx, *args, **kwargs) -> Tuple[str, str]:
+    def is_success(self, ctx, *args, **kwargs):
         def is_challenge_image_clickable():
             try:
                 WebDriverWait(ctx, 1, poll_frequency=0.1).until(
@@ -168,10 +165,10 @@ class SeleniumAgent(Skeleton):
 
         time.sleep(1)
         if is_flagged_flow():
-            return self.status.CHALLENGE_RETRY, "重置挑战"
+            return self.status.CHALLENGE_RETRY
         if is_challenge_image_clickable():
-            return self.status.CHALLENGE_CONTINUE, "继续挑战"
-        return self.status.CHALLENGE_SUCCESS, "退火成功"
+            return self.status.CHALLENGE_CONTINUE
+        return self.status.CHALLENGE_SUCCESS
 
     def anti_checkbox(self, ctx, *args, **kwargs):
         for _ in range(8):
@@ -184,7 +181,6 @@ class SeleniumAgent(Skeleton):
                 )
                 # [👻] 点击复选框
                 WebDriverWait(ctx, 2).until(EC.element_to_be_clickable((By.ID, "checkbox"))).click()
-                logger.debug("Handle hCaptcha checkbox")
                 return True
             except (TimeoutException, InvalidArgumentException):
                 pass
@@ -192,7 +188,7 @@ class SeleniumAgent(Skeleton):
                 # [👻] 回到主线剧情
                 ctx.switch_to.default_content()
 
-    def anti_hcaptcha(self, ctx, *args, **kwargs) -> bool | str:
+    def anti_hcaptcha(self, ctx: Chrome, *args, **kwargs) -> bool | str:
         # [👻] 它來了！
         try:
             # If it cycles more than twice, your IP has been blacklisted
@@ -201,36 +197,35 @@ class SeleniumAgent(Skeleton):
                 self.switch_to_challenge_frame(ctx)
 
                 # [👻] 獲取挑戰標簽
-                if drop := self.get_label(ctx) in [self.status.CHALLENGE_BACKCALL]:
+                result = self.get_label(ctx)
+                if result == self.status.CHALLENGE_BACKCALL:
                     ctx.switch_to.default_content()
-                    return drop
+                    return result
 
                 # [👻] 編排定位器索引
-                if drop := self.mark_samples(ctx) in [
-                    self.status.CHALLENGE_SUCCESS,
-                    self.status.CHALLENGE_CONTINUE,
-                ]:
+                result = self.mark_samples(ctx)
+                if result in [self.status.CHALLENGE_SUCCESS, self.status.CHALLENGE_CONTINUE]:
                     ctx.switch_to.default_content()
-                    return drop
+                    return result
 
                 # [👻] 拉取挑戰圖片
                 self.download_images()
 
                 # [👻] 滤除无法处理的挑战类别
-                if drop := self.tactical_retreat() in [self.status.CHALLENGE_BACKCALL]:
+                result = self.tactical_retreat()
+                if result == self.status.CHALLENGE_BACKCALL:
                     ctx.switch_to.default_content()
-                    return drop
+                    return result
 
                 # [👻] 注册解决方案
                 # 根据挑战类型自动匹配不同的模型
-                model = self.match_solution()
+                model = self._match_solution()
 
                 # [👻] 識別|點擊|提交
                 self.challenge(ctx, model)
 
                 # [👻] 輪詢控制臺響應
-                result, _ = self.is_success(ctx)
-                logger.debug("Get response", desc=result)
+                result = self.is_success(ctx)
 
                 ctx.switch_to.default_content()
                 if result in [

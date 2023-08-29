@@ -9,7 +9,7 @@ import time
 from abc import ABC
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Tuple, Dict, Literal
+from typing import Dict, Literal
 from urllib.parse import quote
 
 from loguru import logger
@@ -190,7 +190,7 @@ class Skeleton(ABC):
         """
         raise NotImplementedError
 
-    def is_success(self, ctx, *args, **kwargs) -> Tuple[str, str]:
+    def is_success(self, ctx, *args, **kwargs):
         """
         判断挑战是否成功的复杂逻辑
 
