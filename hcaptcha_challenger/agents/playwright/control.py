@@ -25,7 +25,12 @@ from hcaptcha_challenger.components.image_downloader import download_images
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
-from hcaptcha_challenger.onnx.yolo import YOLO_CLASSES, YOLOv8, apply_ash_of_war
+from hcaptcha_challenger.onnx.yolo import (
+    YOLO_CLASSES,
+    YOLOv8,
+    apply_ash_of_war,
+    is_matched_ash_of_war,
+)
 from hcaptcha_challenger.utils import from_dict_to_model
 
 
@@ -226,6 +231,13 @@ class Radagon:
     def status(self):
         return Status
 
+    @property
+    def ash(self):
+        answer_keys = list(self.qr.requester_restricted_answer_set.keys())
+        ak = answer_keys[0] if len(answer_keys) > 0 else ""
+        ash = f"{self._label} {ak}"
+        return ash
+
     def _switch_to_challenge_frame(self, page: Page, window: str = "login", **kwargs):
         if window == "login":
             frame_challenge = page.frame_locator(self.HOOK_CHALLENGE)
@@ -276,10 +288,7 @@ class Radagon:
 
         # Match YOLOv8 model
         if not focus_label or select == "yolo":
-            answer_keys = list(self.qr.requester_restricted_answer_set.keys())
-            ak = answer_keys[0] if len(answer_keys) > 0 else ""
-            ash = f"{self._label} {ak}"
-            focus_name, yolo_classes = apply_ash_of_war(ash=ash)
+            focus_name = apply_ash_of_war(ash=self.ash)
             session = self.modelhub.match_net(focus_name=focus_name)
             detector = YOLOv8.from_pluggable_model(session, focus_name)
             return detector
@@ -310,7 +319,7 @@ class Radagon:
             alts = []
             for name, (center_x, center_y), score in res:
                 # Bypass unfocused objects
-                if name not in self._label:
+                if not is_matched_ash_of_war(ash=self.ash, class_name=name):
                     continue
                 # Bypass invalid area
                 if center_y < 20 or center_y > 520 or center_x < 91 or center_x > 400:
@@ -377,6 +386,8 @@ class Radagon:
 
 @dataclass
 class AgentT(Radagon):
+    rqdata: ChallengeResp = None
+
     def __call__(self, *args, **kwargs):
         return self.execute(**kwargs)
 

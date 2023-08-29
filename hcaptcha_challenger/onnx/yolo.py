@@ -15,15 +15,19 @@ from onnxruntime import InferenceSession
 
 # 命名真难
 # Ash of War: Sacred Ring of Light
+BEST_ONCLICK_MODEL = "onclick_yolov8m.onnx"
 ash_of_war = {
-    "onclick_yolov8m.onnx": [
+    BEST_ONCLICK_MODEL: [
         "bat",
         "bear",
         "cat",
+        "duck head",
+        "duck",
         "elephant",
         "hedgehog",
         "lighthouse",
         "lion",
+        "parrot head",
         "parrot",
         "penguin",
         "raccoon",
@@ -166,16 +170,34 @@ class YOLOv8:
         return boxes[indices], scores[indices], class_ids[indices]
 
 
-def apply_ash_of_war(ash: str):
+def apply_ash_of_war(ash: str) -> str:
     """
     match pluggable model
     :param ash: `cleaning label` or `prompt` or `cleaning label + requester_restricted_answer_set`
-    :return:
+    :return: YOLOv8 model name, YOLO_classes
     """
+    # prelude
     for model_name, covered_class in ash_of_war.items():
         for class_name in covered_class:
             if class_name in ash:
-                return model_name, ash_of_war[model_name]
+                return model_name
+
+    # catch-all rules
+    return BEST_ONCLICK_MODEL
+
+
+def is_matched_ash_of_war(ash: str, class_name: str):
+    if "head of " in ash:
+        if "head" not in class_name:
+            return False
+        keyword = class_name.replace("head", "").strip()
+        if keyword not in ash:
+            return False
+
+    # catch-all rules
+    if class_name not in ash:
+        return False
+    return True
 
 
 def nms(boxes, scores, iou_threshold):
