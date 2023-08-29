@@ -38,7 +38,7 @@ class SiteKey:
 
     @staticmethod
     def to_sitelink() -> str:
-        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.epic}"
+        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.user}"
 
 
 @logger.catch
