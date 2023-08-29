@@ -3,7 +3,6 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-from .binary_challenge import PlaywrightAgent
 from .tarnished import Tarnished
 
-__all__ = ["PlaywrightAgent", "Tarnished"]
+__all__ = ["Tarnished"]

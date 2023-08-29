@@ -11,12 +11,12 @@ from contextlib import suppress
 from pathlib import Path
 
 from loguru import logger
-from playwright.sync_api import BrowserContext, TimeoutError
+from playwright.sync_api import BrowserContext
 
 import hcaptcha_challenger as solver
 from hcaptcha_challenger.agents.exceptions import ChallengePassed
 from hcaptcha_challenger.agents.playwright import Tarnished
-from hcaptcha_challenger.agents.playwright.auto_challenge import OnClickAgent
+from hcaptcha_challenger.agents.playwright.control import AgentT
 
 # Init local-side of the ModelHub
 solver.install()
@@ -41,24 +41,20 @@ class SiteKey:
 
     @staticmethod
     def to_sitelink() -> str:
-        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.new_type_challenge}"
+        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.epic}"
 
 
 @logger.catch
-def hit_challenge(context: BrowserContext):
-    agent = OnClickAgent.from_modelhub(tmp_dir=tmp_dir)
-
+def hit_challenge(context: BrowserContext, times=300):
     page = context.pages[0]
-    agent.handle_question_resp(page)
+    agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
     page.goto(SiteKey.to_sitelink())
 
-    with suppress(TimeoutError):
-        page.locator("//iframe[contains(@title,'checkbox')]").wait_for()
-        agent.anti_checkbox(page)
+    agent.handle_checkbox()
 
-    for pth in range(1, 8):
+    for pth in range(1, times):
         with suppress(ChallengePassed):
-            result = agent.anti_hcaptcha(page)
+            result = agent.execute()
             print(f">> {pth} - Challenge Result: {result}")
             if result == agent.status.CHALLENGE_BACKCALL:
                 page.wait_for_timeout(500)
@@ -67,7 +63,7 @@ def hit_challenge(context: BrowserContext):
                 continue
             if result == agent.status.CHALLENGE_SUCCESS:
                 rqdata_path = Path("tmp_dir", f"rqdata-{time.time()}.json")
-                rqdata_path.write_text(json.dumps(agent.challenge_resp.__dict__, indent=2))
+                rqdata_path.write_text(json.dumps(agent.cr.__dict__, indent=2))
                 print(f"View RQdata path={rqdata_path}")
                 page.wait_for_timeout(2000)
                 return

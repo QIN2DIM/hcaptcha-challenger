@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import time
-from abc import abstractmethod, ABC
+from abc import ABC
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Tuple, Dict, Literal
@@ -16,7 +16,7 @@ from loguru import logger
 
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
-from hcaptcha_challenger.onnx.yolo import YOLOv8
+from hcaptcha_challenger.onnx.yolo import YOLOv8, apply_ash_of_war
 
 HOOK_CHALLENGE = "//iframe[contains(@src,'#frame=challenge')]"
 
@@ -111,14 +111,15 @@ class Skeleton(ABC):
 
         return dragon
 
-    def match_solution(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
+    def _match_solution(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
         """match solution after `tactical_retreat`"""
         focus_label = self._label_alias.get(self._label, "")
 
         # Match YOLOv8 model
         if not focus_label or select == "yolo":
-            session = self.modelhub.match_net(focus_name=YOLOv8.best)
-            detector = YOLOv8.from_pluggable_model(session)
+            focus_name, yolo_classes = apply_ash_of_war(ash=self._label)
+            session = self.modelhub.match_net(focus_name=focus_name)
+            detector = YOLOv8.from_pluggable_model(session, focus_name)
             return detector
 
         # Match ResNet model
@@ -129,11 +130,9 @@ class Skeleton(ABC):
         control = ResNetControl.from_pluggable_model(net)
         return control
 
-    @abstractmethod
     def switch_to_challenge_frame(self, ctx, **kwargs):
         raise NotImplementedError
 
-    @abstractmethod
     def get_label(self, ctx, **kwargs):
         """Obtain the label that needs to be recognized for the challenge"""
         raise NotImplementedError
@@ -152,12 +151,10 @@ class Skeleton(ABC):
         )
         return self.status.CHALLENGE_BACKCALL
 
-    @abstractmethod
     def mark_samples(self, ctx, *args, **kwargs):
         """Get the download link and locator of each challenge image"""
         raise NotImplementedError
 
-    @abstractmethod
     def download_images(self):
         prefix = ""
         if self._label:
@@ -174,7 +171,6 @@ class Skeleton(ABC):
 
         return container
 
-    @abstractmethod
     def challenge(self, ctx, model, *args, **kwargs):
         """
         图像分类，元素点击，答案提交
@@ -194,7 +190,6 @@ class Skeleton(ABC):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def is_success(self, ctx, *args, **kwargs) -> Tuple[str, str]:
         """
         判断挑战是否成功的复杂逻辑
@@ -217,11 +212,9 @@ class Skeleton(ABC):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def anti_checkbox(self, ctx, *args, **kwargs):
         raise NotImplementedError
 
-    @abstractmethod
     def anti_hcaptcha(self, ctx, *args, **kwargs) -> bool | str:
         """
         Handle hcaptcha challenge
