@@ -219,7 +219,6 @@ class Radagon:
         if tmp_dir and isinstance(tmp_dir, Path):
             self.tmp_dir = tmp_dir
             self.challenge_dir = tmp_dir.joinpath("_challenge")
-
         return self
 
     @property
