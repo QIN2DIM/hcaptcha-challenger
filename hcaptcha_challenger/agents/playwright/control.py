@@ -276,7 +276,9 @@ class Radagon:
 
         # Match YOLOv8 model
         if not focus_label or select == "yolo":
-            ash = f"{self._label} {next(iter(self.qr.requester_restricted_answer_set))}"
+            answer_keys = list(self.qr.requester_restricted_answer_set.keys())
+            ak = answer_keys[0] if len(answer_keys) > 0 else ""
+            ash = f"{self._label} {ak}"
             focus_name, yolo_classes = apply_ash_of_war(ash=ash)
             session = self.modelhub.match_net(focus_name=focus_name)
             detector = YOLOv8.from_pluggable_model(session, focus_name)
@@ -327,7 +329,7 @@ class Radagon:
             # {{< Verify >}}
             with suppress(NinjaTimeout):
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
-                fl.click()
+                fl.click(delay=200)
 
             # {{< Done | Continue >}}
             if pth == 0:
