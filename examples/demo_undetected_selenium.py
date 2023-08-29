@@ -2,10 +2,11 @@
 # Time       : 2022/9/23 17:28
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
-# Description:
+# Description: No longer maintained
 from __future__ import annotations
 
 import time
+from contextlib import suppress
 from pathlib import Path
 
 from loguru import logger
@@ -33,29 +34,36 @@ tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
 
 @logger.catch
-def hit_challenge(ctx, challenger: SeleniumAgent, retries: int = 2) -> bool | None:
+def hit_challenge(ctx, agent: SeleniumAgent, retries: int = 2) -> bool | None:
     """
     Use `anti_checkbox()` `anti_hcaptcha()` to be flexible to challenges
     :param ctx:
-    :param challenger:
+    :param agent:
     :param retries:
     :return:
     """
     if ArmorUtils.face_the_checkbox(ctx):
-        challenger.anti_checkbox(ctx)
+        agent.anti_checkbox(ctx)
 
-    for _ in range(retries):
-        try:
-            if (resp := challenger.anti_hcaptcha(ctx)) is None:
-                ArmorUtils.refresh(ctx)
-                time.sleep(1)
+    for pth in range(1, retries):
+        with suppress(ChallengePassed):
+            result = agent.anti_hcaptcha(ctx)
+            print(f">> {pth} - Challenge Result: {result}")
+            if result == agent.status.CHALLENGE_BACKCALL:
+                time.sleep(0.5)
+                ctx.find_element(By.XPATH, "//div[@class='refresh button']").click()
                 continue
-            if resp == challenger.status.CHALLENGE_SUCCESS:
+            if result == agent.status.CHALLENGE_RETRY:
+                continue
+            if result == agent.status.CHALLENGE_SUCCESS:
+                # Not related action
+                WebDriverWait(ctx, 30).until(
+                    EC.element_to_be_clickable((By.XPATH, "//span[text()='Submit']"))
+                ).click()
                 return True
-        except ChallengePassed:
-            return True
-        ArmorUtils.refresh(ctx)
-        time.sleep(1)
+
+    ctx.switch_to.default_content()
+    return True
 
 
 def bytedance():
@@ -75,12 +83,7 @@ def bytedance():
         ).send_keys(country)
 
         # Handling context validation
-        if hit_challenge(ctx=ctx, challenger=challenger):
-            ctx.switch_to.default_content()
-            WebDriverWait(ctx, 30).until(
-                EC.element_to_be_clickable((By.XPATH, "//span[text()='Submit']"))
-            ).click()
-            logger.success("Submit data form")
+        hit_challenge(ctx=ctx, agent=challenger)
     except Exception as err:
         logger.exception(err)
     finally:
@@ -90,5 +93,6 @@ def bytedance():
         ctx.quit()
 
 
+# No longer maintained
 if __name__ == "__main__":
     bytedance()

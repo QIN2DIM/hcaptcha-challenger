@@ -219,6 +219,7 @@ class Radagon:
         if tmp_dir and isinstance(tmp_dir, Path):
             self.tmp_dir = tmp_dir
             self.challenge_dir = tmp_dir.joinpath("_challenge")
+
         return self
 
     @property
@@ -288,7 +289,7 @@ class Radagon:
         control = ResNetControl.from_pluggable_model(net)
         return control
 
-    def _onclick_challenge(self, frame_challenge: FrameLocator):
+    def _keypoint_challenge(self, frame_challenge: FrameLocator):
         # Load YOLOv8 model from local or remote repo
         detector: YOLOv8 = self._match_solution(select="yolo")
 
@@ -376,6 +377,38 @@ class AgentT(Radagon):
     def __call__(self, *args, **kwargs):
         return self.execute(**kwargs)
 
+    def export_rq(self, record_dir: Path | None = None, flag: str = "") -> Path | None:
+        """
+          "c":
+            "type": "hsw",
+            "req": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9 ..."
+          "is_pass": true,
+          "generated_pass_UUID": "P1_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9 ...",
+          "error": ""
+        :param record_dir:
+        :param flag: filename
+        :return:
+        """
+        # Default output path
+        _record_dir = self.tmp_dir
+        _flag = f"rqdata-{time.time()}.json"
+
+        # Parse `record_dir` and `flag`
+        if isinstance(record_dir, Path) and record_dir.exists():
+            _record_dir = record_dir
+        if flag and isinstance(flag, str):
+            if not flag.endswith(".json"):
+                flag = f"{flag}.json"
+            _flag = flag
+
+        # Join the path
+        _record_dir.joinpath(_flag)
+        _rqdata_path = _record_dir.joinpath(_flag)
+
+        _rqdata_path.write_text(json.dumps(self.cr.__dict__, indent=2))
+
+        return _rqdata_path
+
     def handle_checkbox(self):
         with suppress(TimeoutError):
             checkbox = self.page.frame_locator("//iframe[contains(@title,'checkbox')]")
@@ -415,7 +448,7 @@ class AgentT(Radagon):
 
             # Run detection tasks
             if shape_type == "point":
-                self._onclick_challenge(frame_challenge)
+                self._keypoint_challenge(frame_challenge)
             elif shape_type == "bounding_box":
                 return self.status.CHALLENGE_BACKCALL
 

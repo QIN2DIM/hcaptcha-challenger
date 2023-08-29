@@ -5,16 +5,13 @@
 # Description:
 from __future__ import annotations
 
-import json
 import time
-from contextlib import suppress
 from pathlib import Path
 
 from loguru import logger
 from playwright.sync_api import BrowserContext
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger.agents.exceptions import ChallengePassed
 from hcaptcha_challenger.agents.playwright import Tarnished
 from hcaptcha_challenger.agents.playwright.control import AgentT
 
@@ -53,22 +50,20 @@ def hit_challenge(context: BrowserContext, times: int = 8):
     agent.handle_checkbox()
 
     for pth in range(1, times):
-        with suppress(ChallengePassed):
-            result = agent.execute()
-            print(f">> {pth} - Challenge Result: {result}")
-            if result == agent.status.CHALLENGE_BACKCALL:
-                page.wait_for_timeout(500)
-                fl = page.frame_locator(agent.HOOK_CHALLENGE)
-                fl.locator("//div[@class='refresh button']").click()
-                continue
-            if result == agent.status.CHALLENGE_RETRY:
-                continue
-            if result == agent.status.CHALLENGE_SUCCESS:
-                rqdata_path = Path("tmp_dir", f"rqdata-{time.time()}.json")
-                rqdata_path.write_text(json.dumps(agent.cr.__dict__, indent=2))
-                print(f"View RQdata path={rqdata_path}")
-                page.wait_for_timeout(2000)
-                return
+        result = agent.execute()
+        print(f">> {pth} - Challenge Result: {result}")
+        if result == agent.status.CHALLENGE_BACKCALL:
+            page.wait_for_timeout(500)
+            fl = page.frame_locator(agent.HOOK_CHALLENGE)
+            fl.locator("//div[@class='refresh button']").click()
+            continue
+        if result == agent.status.CHALLENGE_RETRY:
+            continue
+        if result == agent.status.CHALLENGE_SUCCESS:
+            rqdata_path = agent.export_rq()
+            print(f"View RQdata path={rqdata_path}")
+            page.wait_for_timeout(2000)
+            return
 
 
 def bytedance():
