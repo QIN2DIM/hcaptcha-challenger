@@ -15,7 +15,7 @@ import uuid
 from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, List, Dict, Any, Literal
+from typing import List, Dict, Any, Literal
 
 from playwright.sync_api import Page, FrameLocator, Response
 from playwright.sync_api import TimeoutError as NinjaTimeout
@@ -85,9 +85,14 @@ class QuestionResp:
     def from_response(cls, response: Response):
         return from_dict_to_model(cls, response.json())
 
-    def save_example(self):
+    def save_example(self, tmp_dir: Path = None):
         shape_type = self.request_config.get("shape_type", "")
-        fn = f"{self.request_type}.{shape_type}.json"
+
+        requester_question = self.requester_question.get("en")
+        fn = f"{self.request_type}.{shape_type}.{requester_question}.json"
+        if tmp_dir and tmp_dir.exists():
+            fn = tmp_dir.joinpath(fn)
+
         Path(fn).write_text(json.dumps(self.__dict__, indent=2))
 
 
@@ -196,7 +201,7 @@ class Radagon:
         if response.url.startswith("https://hcaptcha.com/getcaptcha/"):
             with suppress(Exception):
                 self.qr = QuestionResp.from_response(response)
-                self.qr.save_example()
+                self.qr.save_example(tmp_dir=self.tmp_dir)
         if response.url.startswith("https://hcaptcha.com/checkcaptcha/"):
             with suppress(Exception):
                 self.cr = ChallengeResp.from_response(response)
@@ -258,6 +263,7 @@ class Radagon:
         t.join()
 
         # Optional deduplication
+        self._img_paths = []
         for src, _ in container:
             cache = src.read_bytes()
             dst = self.typed_dir.joinpath(f"{hashlib.md5(cache).hexdigest()}.png")
@@ -335,15 +341,17 @@ class Radagon:
             # Drop element location
             samples = frame_challenge.locator("//div[@class='task-image']")
             count = samples.count()
+            # Remember you are human not a robot
+            self.page.wait_for_timeout(1700)
+            # Classify and Click on the right image
             for i in range(count):
                 sample = samples.nth(i)
                 sample.wait_for()
-                # Classify
                 result = classifier.execute(img_stream=self._img_paths[i + pth * 9].read_bytes())
                 if result:
                     with suppress(NinjaTimeout):
                         time.sleep(random.uniform(0.1, 0.3))
-                        sample.click()
+                        sample.click(delay=200)
 
             # {{< Verify >}}
             with suppress(NinjaTimeout):
@@ -358,10 +366,10 @@ class Radagon:
         if not self.cr:
             with page.expect_response("**checkcaptcha**") as resp:
                 self.cr = ChallengeResp.from_response(resp.value)
-        if not self.cr:
-            return self.status.CHALLENGE_RETRY, "retry"
+        if not self.cr or not self.cr.is_pass:
+            return self.status.CHALLENGE_RETRY
         if self.cr.is_pass:
-            return self.status.CHALLENGE_SUCCESS, "success"
+            return self.status.CHALLENGE_SUCCESS
 
 
 @dataclass
@@ -379,6 +387,7 @@ class AgentT(Radagon):
 
         # Switch to hCaptcha challenge iframe
         frame_challenge = self._switch_to_challenge_frame(self.page, window)
+        self.page.wait_for_timeout(500)
 
         # Reset state of the OnClick Challenger
         self._reset_state()
@@ -413,6 +422,4 @@ class AgentT(Radagon):
 
         # Check challenge result
         result = self._is_success(self.page)
-        if isinstance(result, Iterable):
-            result = result[0]
         return result

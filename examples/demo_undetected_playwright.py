@@ -45,7 +45,7 @@ class SiteKey:
 
 
 @logger.catch
-def hit_challenge(context: BrowserContext, times=300):
+def hit_challenge(context: BrowserContext, times: int = 8):
     page = context.pages[0]
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
     page.goto(SiteKey.to_sitelink())
@@ -60,6 +60,8 @@ def hit_challenge(context: BrowserContext, times=300):
                 page.wait_for_timeout(500)
                 fl = page.frame_locator(agent.HOOK_CHALLENGE)
                 fl.locator("//div[@class='refresh button']").click()
+                continue
+            if result == agent.status.CHALLENGE_RETRY:
                 continue
             if result == agent.status.CHALLENGE_SUCCESS:
                 rqdata_path = Path("tmp_dir", f"rqdata-{time.time()}.json")

@@ -30,7 +30,7 @@ class Classifier:
 
         focus_label = self.modelhub.label_alias.get(label)
         if not focus_label:
-            logger.error("Types of challenges not yet scheduled", label=label, prompt=prompt)
+            logger.debug("Types of challenges not yet scheduled", label=label, prompt=prompt)
             return response
 
         focus_name = focus_label if focus_label.endswith(".onnx") else f"{focus_label}.onnx"
@@ -50,7 +50,7 @@ class Classifier:
                 else:
                     response.append(None)
             except Exception as err:
-                logger.error(str(err), label=focus_label, prompt=prompt)
+                logger.debug(str(err), label=focus_label, prompt=prompt)
                 response.append(None)
 
         return response
