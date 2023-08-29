@@ -29,18 +29,18 @@ ash_of_war = {
         "raccoon",
         "squirrel",
     ],
-    "digit_yolov8n.onnx": [
-        "eight",
-        "five",
-        "four",
-        "nine",
-        "one",
-        "seven",
-        "six",
-        "three",
-        "two",
-        "zero",
-    ],
+    # "digit_yolov8n.onnx": [
+    #     "eight",
+    #     "five",
+    #     "four",
+    #     "nine",
+    #     "one",
+    #     "seven",
+    #     "six",
+    #     "three",
+    #     "two",
+    #     "zero",
+    # ],
 }
 YOLO_CLASSES = [cl for cc in ash_of_war.values() for cl in cc]
 
@@ -167,6 +167,11 @@ class YOLOv8:
 
 
 def apply_ash_of_war(ash: str):
+    """
+    match pluggable model
+    :param ash: `cleaning label` or `prompt` or `cleaning label + requester_restricted_answer_set`
+    :return:
+    """
     for model_name, covered_class in ash_of_war.items():
         for class_name in covered_class:
             if class_name in ash:
