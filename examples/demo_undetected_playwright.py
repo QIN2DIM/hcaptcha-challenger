@@ -50,7 +50,7 @@ def hit_challenge(context: BrowserContext, times: int = 8):
     agent.handle_checkbox()
 
     for pth in range(1, times):
-        result = agent.execute()
+        result = agent()
         print(f">> {pth} - Challenge Result: {result}")
         if result == agent.status.CHALLENGE_BACKCALL:
             page.wait_for_timeout(500)

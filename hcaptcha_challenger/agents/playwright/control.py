@@ -198,6 +198,8 @@ class Radagon:
     HOOK_CHECKBOX = "//iframe[contains(@title, 'checkbox for hCaptcha')]"
     HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
 
+    _qr_trigger = 0
+
     def __post_init__(self):
         self.handle_question_resp(self.page)
         self.label_alias = self.modelhub.label_alias
@@ -207,6 +209,7 @@ class Radagon:
             with suppress(Exception):
                 self.qr = QuestionResp.from_response(response)
                 self.qr.save_example(tmp_dir=self.tmp_dir)
+                self._qr_trigger += 1
         if response.url.startswith("https://hcaptcha.com/checkcaptcha/"):
             with suppress(Exception):
                 self.cr = ChallengeResp.from_response(response)
@@ -248,10 +251,14 @@ class Radagon:
         return frame_challenge
 
     def _reset_state(self):
+        if self._qr_trigger and self.qr:
+            return
+
         self.cr, self.qr = None, None
         if not self.qr:
             with self.page.expect_response("**getcaptcha**") as resp:
                 self.qr = QuestionResp.from_response(resp.value)
+                self._qr_trigger += 1
 
     def _get_label(self):
         self._prompt = self.qr.requester_question.get("en")
@@ -324,16 +331,21 @@ class Radagon:
                 # Bypass invalid area
                 if center_y < 20 or center_y > 520 or center_x < 91 or center_x > 400:
                     continue
-                alts.append(
-                    {"name": name, "position": {"x": center_x, "y": center_y}, "score": score}
-                )
+                alt = {"name": name, "position": {"x": center_x, "y": center_y}, "score": score}
+                alts.append(alt)
 
             # Get best result
-            alts = sorted(alts, key=lambda x: x["score"])
-            best = alts[-1]
-
+            if len(alts) > 1:
+                alts = sorted(alts, key=lambda x: x["score"])
             # Click canvas
-            locator.click(delay=500, position=best["position"])
+            if len(alts) > 0:
+                best = alts[-1]
+                locator.click(delay=500, position=best["position"])
+                # print(f">> Click on the object - position={best['position']} name={best['name']}")
+            # Catch-all rule
+            else:
+                locator.click(delay=500)
+                # print(">> click on the center of the canvas")
 
             # {{< Verify >}}
             with suppress(NinjaTimeout):
@@ -389,7 +401,10 @@ class AgentT(Radagon):
     rqdata: ChallengeResp = None
 
     def __call__(self, *args, **kwargs):
-        return self.execute(**kwargs)
+        try:
+            return self.execute(**kwargs)
+        finally:
+            self._qr_trigger = 0
 
     def export_rq(self, record_dir: Path | None = None, flag: str = "") -> Path | None:
         """
@@ -457,7 +472,8 @@ class AgentT(Radagon):
             shape_type = self.qr.request_config.get("shape_type", "")
 
             # Bypass Low-mAP Detection tasks
-            if not any(c in self._label for c in YOLO_CLASSES):
+            ash = self.ash
+            if not any(is_matched_ash_of_war(ash, c) for c in YOLO_CLASSES):
                 return self.status.CHALLENGE_BACKCALL
 
             # Run detection tasks

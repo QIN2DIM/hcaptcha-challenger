@@ -13,39 +13,26 @@ import cv2
 import numpy as np
 from onnxruntime import InferenceSession
 
+# fmt:off
 # 命名真难
 # Ash of War: Sacred Ring of Light
-BEST_ONCLICK_MODEL = "onclick_yolov8m.onnx"
 ash_of_war = {
-    BEST_ONCLICK_MODEL: [
-        "bat",
-        "bear",
-        "cat",
-        "duck head",
-        "duck",
-        "elephant",
-        "hedgehog",
-        "lighthouse",
-        "lion",
-        "parrot head",
-        "parrot",
-        "penguin",
-        "raccoon",
-        "squirrel",
-    ],
-    # "digit_yolov8n.onnx": [
-    #     "eight",
-    #     "five",
-    #     "four",
-    #     "nine",
-    #     "one",
-    #     "seven",
-    #     "six",
-    #     "three",
-    #     "two",
-    #     "zero",
-    # ],
+    "onclick_yolov8m.onnx": ['bat', 'bear', 'cat', 'elephant', 'hedgehog', 'lighthouse', 'lion', 'parrot', 'penguin', 'raccoon', 'squirrel'],
+    # "digit_yolov8m.onnx": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    "COCO2020_yolov8m.onnx": ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
+                              'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat',
+                              'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack',
+                              'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
+                              'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
+                              'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
+                              'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair',
+                              'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse',
+                              'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink',
+                              'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier',
+                              'toothbrush'],
 }
+# fmt:on
+BEST_ONCLICK_MODEL = "onclick_yolov8m.onnx"
 YOLO_CLASSES = [cl for cc in ash_of_war.values() for cl in cc]
 
 
@@ -193,6 +180,7 @@ def is_matched_ash_of_war(ash: str, class_name: str):
         keyword = class_name.replace("head", "").strip()
         if keyword not in ash:
             return False
+        return True
 
     # catch-all rules
     if class_name not in ash:
