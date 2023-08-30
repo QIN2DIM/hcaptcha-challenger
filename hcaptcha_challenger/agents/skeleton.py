@@ -160,7 +160,7 @@ class Skeleton(ABC):
         if self._label:
             prefix = f"{time.time()}_{self._label_alias.get(self._label, self._label)}"
         runtime_dir = self.challenge_dir.joinpath(prefix)
-        runtime_dir.mkdir(mode=777, parents=True, exist_ok=True)
+        runtime_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
 
         # Initialize the data container
         container = []

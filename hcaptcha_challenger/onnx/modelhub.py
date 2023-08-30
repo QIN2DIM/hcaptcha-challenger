@@ -95,7 +95,7 @@ class Assets:
 
     def __post_init__(self):
         for ck in [self._assets_dir, self._memory_dir]:
-            ck.mkdir(mode=777, parents=True, exist_ok=True)
+            ck.mkdir(mode=0o777, parents=True, exist_ok=True)
 
     @classmethod
     def from_release_url(cls, release_url: str, **kwargs):
@@ -134,7 +134,7 @@ class Assets:
         if upgrade is True:
             logger.info("Reloading the local cache of Assets", assets_dir=str(self._assets_dir))
             shutil.rmtree(self._assets_dir, ignore_errors=True)
-            self._assets_dir.mkdir(mode=777, parents=True, exist_ok=True)
+            self._assets_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
 
         assets_paths = [self._assets_dir.joinpath(i) for i in os.listdir(self._assets_dir)]
         is_outdated = False
@@ -233,7 +233,7 @@ class ModelHub:
     """
 
     def __post_init__(self):
-        self.assets_dir.mkdir(mode=777, parents=True, exist_ok=True)
+        self.assets_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
 
     @classmethod
     def from_github_repo(cls, username: str = "QIN2DIM", lang: str = "en", **kwargs):

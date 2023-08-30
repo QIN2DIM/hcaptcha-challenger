@@ -57,7 +57,7 @@ class QuestionResp:
     request_type: str = ""
     """
     1. image_label_binary
-    2. image_label_area_select  
+    2. image_label_area_select
     """
 
     requester_question: Dict[str, str] = field(default_factory=dict)
@@ -268,7 +268,7 @@ class Radagon:
     def _download_images(self):
         request_type = self.qr.request_type
         self.typed_dir = self.tmp_dir.joinpath(request_type, self._label)
-        self.typed_dir.mkdir(mode=777, parents=True, exist_ok=True)
+        self.typed_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
 
         # Prelude container
         container = []
