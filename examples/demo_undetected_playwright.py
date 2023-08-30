@@ -5,18 +5,19 @@
 # Description:
 from __future__ import annotations
 
+import asyncio
 import time
 from pathlib import Path
 
 from loguru import logger
-from playwright.sync_api import BrowserContext
+from playwright.async_api import BrowserContext as ASyncContext
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger.agents.playwright import Tarnished
 from hcaptcha_challenger.agents.playwright.control import AgentT
+from hcaptcha_challenger.agents.playwright.tarnished import Malenia
 
 # Init local-side of the ModelHub
-solver.install()
+solver.install(flush_yolo=True)
 
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
@@ -42,37 +43,37 @@ class SiteKey:
 
 
 @logger.catch
-def hit_challenge(context: BrowserContext, times: int = 8):
+async def hit_challenge(context: ASyncContext, times: int = 8):
     page = context.pages[0]
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
-    page.goto(SiteKey.to_sitelink())
+    await page.goto(SiteKey.to_sitelink())
 
-    agent.handle_checkbox()
+    await agent.handle_checkbox()
 
     for pth in range(1, times):
-        result = agent()
+        result = await agent()
         print(f">> {pth} - Challenge Result: {result}")
         if result == agent.status.CHALLENGE_BACKCALL:
-            page.wait_for_timeout(500)
+            await page.wait_for_timeout(500)
             fl = page.frame_locator(agent.HOOK_CHALLENGE)
-            fl.locator("//div[@class='refresh button']").click()
+            await fl.locator("//div[@class='refresh button']").click()
             continue
         if result == agent.status.CHALLENGE_RETRY:
             continue
         if result == agent.status.CHALLENGE_SUCCESS:
             rqdata_path = agent.export_rq()
             print(f"View RQdata path={rqdata_path}")
-            page.wait_for_timeout(2000)
+            await page.wait_for_timeout(2000)
             return
 
 
-def bytedance():
-    radagon = Tarnished(
+async def bytedance():
+    malenia = Malenia(
         user_data_dir=context_dir, record_dir=record_dir, record_har_path=record_har_path
     )
-    radagon.execute(sequence=[hit_challenge], headless=False)
+    await malenia.execute(sequence=[hit_challenge], headless=True)
     print(f"View record video path={record_dir}")
 
 
 if __name__ == "__main__":
-    bytedance()
+    asyncio.run(bytedance())

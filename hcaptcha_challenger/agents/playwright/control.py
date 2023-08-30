@@ -18,8 +18,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Dict, Any, Literal
 
-from playwright.sync_api import Page, FrameLocator, Response
-from playwright.sync_api import TimeoutError as NinjaTimeout
+from playwright.async_api import Page, FrameLocator, Response
+from playwright.async_api import TimeoutError
 
 from hcaptcha_challenger.agents.skeleton import Status
 from hcaptcha_challenger.components.image_downloader import download_images
@@ -88,8 +88,8 @@ class QuestionResp:
     """
 
     @classmethod
-    def from_response(cls, response: Response):
-        return from_dict_to_model(cls, response.json())
+    def from_json(cls, data: Dict[str, Any]):
+        return from_dict_to_model(cls, data)
 
     def save_example(self, tmp_dir: Path = None):
         shape_type = self.request_config.get("shape_type", "")
@@ -126,8 +126,7 @@ class ChallengeResp:
     """
 
     @classmethod
-    def from_response(cls, response: Response):
-        metadata = response.json()
+    def from_json(cls, metadata: Dict[str, Any]):
         return cls(
             c=metadata["c"],
             is_pass=metadata["pass"],
@@ -201,8 +200,6 @@ class Radagon:
     HOOK_CHECKBOX = "//iframe[contains(@title, 'checkbox for hCaptcha')]"
     HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
 
-    _qr_trigger = 0
-
     def __post_init__(self):
         self.label_alias = self.modelhub.label_alias
 
@@ -211,16 +208,18 @@ class Radagon:
 
         self.handle_question_resp(self.page)
 
-    def handler(self, response: Response):
+    async def handler(self, response: Response):
         if response.url.startswith("https://hcaptcha.com/getcaptcha/"):
             with suppress(Exception):
-                qr = QuestionResp.from_response(response)
+                data = await response.json()
+                qr = QuestionResp.from_json(data)
                 qr.save_example(tmp_dir=self.tmp_dir)
-                self.qr_queue.put(qr)
+                self.qr_queue.put_nowait(qr)
         if response.url.startswith("https://hcaptcha.com/checkcaptcha/"):
             with suppress(Exception):
-                cr = ChallengeResp.from_response(response)
-                self.cr_queue.put(cr)
+                metadata = await response.json()
+                cr = ChallengeResp.from_json(metadata)
+                self.cr_queue.put_nowait(cr)
 
     def handle_question_resp(self, page: Page):
         page.on("response", self.handler)
@@ -258,17 +257,11 @@ class Radagon:
 
         return frame_challenge
 
-    def _reset_state(self):
-        if self._qr_trigger and self.qr:
-            return
+    async def _reset_state(self):
+        self.cr = None
+        self.qr = await self.qr_queue.get()
 
-        self.cr, self.qr = None, None
-        if not self.qr:
-            with self.page.expect_response("**getcaptcha**") as resp:
-                self.qr = QuestionResp.from_response(resp.value)
-                self._qr_trigger += 1
-
-    def _get_label(self):
+    def _parse_label(self):
         self._prompt = self.qr.requester_question.get("en")
         _label = split_prompt_message(self._prompt, lang="en")
         self._label = label_cleaning(_label)
@@ -278,13 +271,11 @@ class Radagon:
         self.typed_dir = self.tmp_dir.joinpath(request_type, self._label)
         self.typed_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
 
-        # Prelude container
         container = []
         for i, tk in enumerate(self.qr.tasklist):
             challenge_img_path = self.typed_dir.joinpath(f"{time.time()}.{i}.png")
             container.append((challenge_img_path, tk["datapoint_uri"]))
 
-        # Download
         t = threading.Thread(target=download_images, kwargs={"container": container})
         t.start()
         t.join()
@@ -316,7 +307,7 @@ class Radagon:
         control = ResNetControl.from_pluggable_model(net)
         return control
 
-    def _keypoint_challenge(self, frame_challenge: FrameLocator):
+    async def _keypoint_challenge(self, frame_challenge: FrameLocator):
         # Load YOLOv8 model from local or remote repo
         detector: YOLOv8 = self._match_solution(select="yolo")
 
@@ -324,10 +315,10 @@ class Radagon:
         times = int(len(self.qr.tasklist))
         for pth in range(times):
             locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
-            locator.wait_for(state="visible")
+            await locator.wait_for(state="visible")
 
             path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
-            locator.screenshot(path=path, type="png")
+            await locator.screenshot(path=path, type="png")
 
             # {{< Please click on the X >}}
             res = detector(Path(path), shape_type="point")
@@ -348,23 +339,23 @@ class Radagon:
             # Click canvas
             if len(alts) > 0:
                 best = alts[-1]
-                locator.click(delay=500, position=best["position"])
+                await locator.click(delay=500, position=best["position"])
                 # print(f">> Click on the object - position={best['position']} name={best['name']}")
             # Catch-all rule
             else:
-                locator.click(delay=500)
+                await locator.click(delay=500)
                 # print(">> click on the center of the canvas")
 
             # {{< Verify >}}
-            with suppress(NinjaTimeout):
+            with suppress(TimeoutError):
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
-                fl.click(delay=200)
+                await fl.click(delay=200)
 
             # {{< Done | Continue >}}
             if pth == 0:
-                self.page.wait_for_timeout(1000)
+                await self.page.wait_for_timeout(1000)
 
-    def _binary_challenge(self, frame_challenge: FrameLocator):
+    async def _binary_challenge(self, frame_challenge: FrameLocator):
         classifier = self._match_solution(select="resnet")
 
         # {{< IMAGE CLASSIFICATION >}}
@@ -372,32 +363,30 @@ class Radagon:
         for pth in range(times):
             # Drop element location
             samples = frame_challenge.locator("//div[@class='task-image']")
-            count = samples.count()
+            count = await samples.count()
             # Remember you are human not a robot
-            self.page.wait_for_timeout(1700)
+            await self.page.wait_for_timeout(1700)
             # Classify and Click on the right image
             for i in range(count):
                 sample = samples.nth(i)
-                sample.wait_for()
+                await sample.wait_for()
                 result = classifier.execute(img_stream=self._img_paths[i + pth * 9].read_bytes())
                 if result:
-                    with suppress(NinjaTimeout):
+                    with suppress(TimeoutError):
                         time.sleep(random.uniform(0.1, 0.3))
-                        sample.click(delay=200)
+                        await sample.click(delay=200)
 
             # {{< Verify >}}
-            with suppress(NinjaTimeout):
+            with suppress(TimeoutError):
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
-                fl.click()
+                await fl.click()
 
             # {{< Done | Continue >}}
             if pth == 0:
-                self.page.wait_for_timeout(1000)
+                await self.page.wait_for_timeout(1000)
 
-    def _is_success(self, page: Page):
-        if not self.cr:
-            with page.expect_response("**checkcaptcha**") as resp:
-                self.cr = ChallengeResp.from_response(resp.value)
+    async def _is_success(self):
+        self.cr = await self.cr_queue.get()
         if not self.cr or not self.cr.is_pass:
             return self.status.CHALLENGE_RETRY
         if self.cr.is_pass:
@@ -408,11 +397,8 @@ class Radagon:
 class AgentT(Radagon):
     rqdata: ChallengeResp = None
 
-    def __call__(self, *args, **kwargs):
-        try:
-            return self.execute(**kwargs)
-        finally:
-            self._qr_trigger = 0
+    async def __call__(self, *args, **kwargs):
+        return await self.execute(**kwargs)
 
     def export_rq(self, record_dir: Path | None = None, flag: str = "") -> Path | None:
         """
@@ -446,50 +432,38 @@ class AgentT(Radagon):
 
         return _rqdata_path
 
-    def handle_checkbox(self):
+    async def handle_checkbox(self):
         with suppress(TimeoutError):
             checkbox = self.page.frame_locator("//iframe[contains(@title,'checkbox')]")
-            checkbox.locator("#checkbox").click()
+            await checkbox.locator("#checkbox").click()
 
-    def execute(self, **kwargs):
+    async def execute(self, **kwargs):
         window = kwargs.get("window", "login")
 
-        # Switch to hCaptcha challenge iframe
         frame_challenge = self._switch_to_challenge_frame(self.page, window)
-        self.page.wait_for_timeout(500)
 
-        # Reset state of the OnClick Challenger
-        self._reset_state()
+        await self._reset_state()
 
-        # Parse challenge prompt
-        self._get_label()
+        self._parse_label()
 
-        # [Optional] Download challenge image as dataset
-        # The input of the task should be a screenshot of challenge-view
-        # rather than the challenge image itself
         self._download_images()
 
-        # Match Pattern
+        # Match: image_label_binary
         if self.qr.request_type == "image_label_binary":
             if not self.label_alias.get(self._label):
                 return self.status.CHALLENGE_BACKCALL
-
-            self._binary_challenge(frame_challenge)
-
+            await self._binary_challenge(frame_challenge)
+        # Match: image_label_area_select
         elif self.qr.request_type == "image_label_area_select":
-            shape_type = self.qr.request_config.get("shape_type", "")
-
-            # Bypass Low-mAP Detection tasks
             ash = self.ash
             if not any(is_matched_ash_of_war(ash, c) for c in YOLO_CLASSES):
                 return self.status.CHALLENGE_BACKCALL
 
-            # Run detection tasks
+            shape_type = self.qr.request_config.get("shape_type", "")
             if shape_type == "point":
-                self._keypoint_challenge(frame_challenge)
+                await self._keypoint_challenge(frame_challenge)
             elif shape_type == "bounding_box":
                 return self.status.CHALLENGE_BACKCALL
 
-        # Check challenge result
-        result = self._is_success(self.page)
+        result = await self._is_success()
         return result
