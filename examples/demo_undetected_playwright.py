@@ -50,7 +50,7 @@ def hit_challenge(context: BrowserContext, times: int = 8):
     agent.handle_checkbox()
 
     for pth in range(1, times):
-        result = agent.execute()
+        result = agent()
         print(f">> {pth} - Challenge Result: {result}")
         if result == agent.status.CHALLENGE_BACKCALL:
             page.wait_for_timeout(500)
@@ -70,7 +70,7 @@ def bytedance():
     radagon = Tarnished(
         user_data_dir=context_dir, record_dir=record_dir, record_har_path=record_har_path
     )
-    radagon.execute(sequence=[hit_challenge])
+    radagon.execute(sequence=[hit_challenge], headless=False)
     print(f"View record video path={record_dir}")
 
 

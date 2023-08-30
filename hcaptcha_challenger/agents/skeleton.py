@@ -117,7 +117,7 @@ class Skeleton(ABC):
 
         # Match YOLOv8 model
         if not focus_label or select == "yolo":
-            focus_name, yolo_classes = apply_ash_of_war(ash=self._label)
+            focus_name = apply_ash_of_war(ash=self._label)
             session = self.modelhub.match_net(focus_name=focus_name)
             detector = YOLOv8.from_pluggable_model(session, focus_name)
             return detector

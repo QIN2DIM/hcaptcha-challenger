@@ -40,7 +40,7 @@ class AreaSelector:
         _label = split_prompt_message(prompt, lang=lang)
         label = label_cleaning(_label)
 
-        focus_name, yolo_classes = apply_ash_of_war(ash=label)
+        focus_name = apply_ash_of_war(ash=label)
         session = self.modelhub.match_net(focus_name=focus_name)
         detector = YOLOv8.from_pluggable_model(session, focus_name)
 
