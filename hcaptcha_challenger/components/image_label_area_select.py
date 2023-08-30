@@ -5,7 +5,6 @@
 # Description:
 from __future__ import annotations
 
-import re
 from pathlib import Path
 from typing import List, Literal
 
@@ -26,21 +25,34 @@ class AreaSelector:
         prompt: str,
         images: List[Path | bytes],
         shape_type: Literal["point", "bounding_box"] = "point",
-    ) -> List[bool | None]:
+        *,
+        answer_key: str = "",
+    ) -> List[tuple | None]:
         """
+        answer_keys = list(self.qr.requester_restricted_answer_set.keys())
+        ak = answer_keys[0] if len(answer_keys) > 0 else ""
+        ash = f"{self._label} {ak}"
 
+        :param answer_key:
         :param prompt:
         :param images:
         :param shape_type:
         :return:
+
+        IF shape_type == point
+            Element --> (class_name, (center_x, center_y), score)
+            Response --> List[Element | None]
+        ELIF shape_type == bounding box
+            Element -->  (class_name, (x1, y1), (x2, y2), score)
+            Response --> List[Element | None]
         """
         response = []
 
-        lang = "zh" if re.compile("[\u4e00-\u9fa5]+").search(prompt) else "en"
-        _label = split_prompt_message(prompt, lang=lang)
+        _label = split_prompt_message(prompt, lang="en")
         label = label_cleaning(_label)
+        ash = f"{label} {answer_key}"
 
-        focus_name = apply_ash_of_war(ash=label)
+        focus_name = apply_ash_of_war(ash=ash)
         session = self.modelhub.match_net(focus_name=focus_name)
         detector = YOLOv8.from_pluggable_model(session, focus_name)
 
