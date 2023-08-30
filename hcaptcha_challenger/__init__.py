@@ -13,7 +13,7 @@ from hcaptcha_challenger.components.image_classifier import Classifier as Binary
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.utils import init_log
 
-__all__ = ["BinaryClassifier"]
+__all__ = ["BinaryClassifier", "install"]
 
 
 @dataclass

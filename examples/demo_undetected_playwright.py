@@ -53,25 +53,22 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
     for pth in range(1, times):
         result = await agent()
         print(f">> {pth} - Challenge Result: {result}")
-        if result == agent.status.CHALLENGE_BACKCALL:
-            await page.wait_for_timeout(500)
-            fl = page.frame_locator(agent.HOOK_CHALLENGE)
-            await fl.locator("//div[@class='refresh button']").click()
-            continue
-        if result == agent.status.CHALLENGE_RETRY:
-            continue
-        if result == agent.status.CHALLENGE_SUCCESS:
-            rqdata_path = agent.export_rq()
-            print(f"View RQdata path={rqdata_path}")
-            await page.wait_for_timeout(2000)
-            return
+        match result:
+            case agent.status.CHALLENGE_BACKCALL:
+                await page.wait_for_timeout(500)
+                fl = page.frame_locator(agent.HOOK_CHALLENGE)
+                await fl.locator("//div[@class='refresh button']").click()
+            case agent.status.CHALLENGE_SUCCESS:
+                rqdata_path = agent.export_rq()
+                print(f"View RQdata path={rqdata_path}")
+                return
 
 
 async def bytedance():
     malenia = Malenia(
         user_data_dir=context_dir, record_dir=record_dir, record_har_path=record_har_path
     )
-    await malenia.execute(sequence=[hit_challenge], headless=True)
+    await malenia.execute(sequence=[hit_challenge], headless=False)
     print(f"View record video path={record_dir}")
 
 
