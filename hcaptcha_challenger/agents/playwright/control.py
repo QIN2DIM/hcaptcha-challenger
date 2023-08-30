@@ -151,8 +151,8 @@ class Radagon:
     qr: QuestionResp | None = None
     cr: ChallengeResp | None = None
 
-    qr_queue: asyncio.Queue | None = None
-    cr_queue: asyncio.Queue | None = None
+    qr_queue: asyncio.Queue[QuestionResp] | None = None
+    cr_queue: asyncio.Queue[ChallengeResp] | None = None
 
     this_dir: Path = Path(__file__).parent
     """
