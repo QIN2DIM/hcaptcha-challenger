@@ -5,6 +5,7 @@
 # Description:
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import random
@@ -33,7 +34,6 @@ from hcaptcha_challenger.onnx.yolo import (
 )
 from hcaptcha_challenger.utils import from_dict_to_model
 
-import asyncio
 
 @dataclass
 class QuestionResp:
@@ -204,11 +204,12 @@ class Radagon:
     _qr_trigger = 0
 
     def __post_init__(self):
-        self.handle_question_resp(self.page)
         self.label_alias = self.modelhub.label_alias
 
         self.qr_queue = asyncio.Queue()
         self.cr_queue = asyncio.Queue()
+
+        self.handle_question_resp(self.page)
 
     def handler(self, response: Response):
         if response.url.startswith("https://hcaptcha.com/getcaptcha/"):
