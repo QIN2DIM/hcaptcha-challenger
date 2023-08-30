@@ -33,6 +33,7 @@ from hcaptcha_challenger.onnx.yolo import (
 )
 from hcaptcha_challenger.utils import from_dict_to_model
 
+import asyncio
 
 @dataclass
 class QuestionResp:
@@ -148,8 +149,10 @@ class Radagon:
     """
 
     qr: QuestionResp | None = None
-
     cr: ChallengeResp | None = None
+
+    qr_queue: asyncio.Queue | None = None
+    cr_queue: asyncio.Queue | None = None
 
     this_dir: Path = Path(__file__).parent
     """
@@ -204,15 +207,19 @@ class Radagon:
         self.handle_question_resp(self.page)
         self.label_alias = self.modelhub.label_alias
 
+        self.qr_queue = asyncio.Queue()
+        self.cr_queue = asyncio.Queue()
+
     def handler(self, response: Response):
         if response.url.startswith("https://hcaptcha.com/getcaptcha/"):
             with suppress(Exception):
-                self.qr = QuestionResp.from_response(response)
-                self.qr.save_example(tmp_dir=self.tmp_dir)
-                self._qr_trigger += 1
+                qr = QuestionResp.from_response(response)
+                qr.save_example(tmp_dir=self.tmp_dir)
+                self.qr_queue.put(qr)
         if response.url.startswith("https://hcaptcha.com/checkcaptcha/"):
             with suppress(Exception):
-                self.cr = ChallengeResp.from_response(response)
+                cr = ChallengeResp.from_response(response)
+                self.cr_queue.put(cr)
 
     def handle_question_resp(self, page: Page):
         page.on("response", self.handler)
