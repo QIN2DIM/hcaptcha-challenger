@@ -227,9 +227,10 @@ class ModelHub:
 
     assets: Assets = None
 
-    _name2net: Dict[str, Net] = field(default_factory=dict)
+    _name2net: Dict[str, Net | InferenceSession] = field(default_factory=dict)
     """
-    { model_name.onnx: cv2.dnn.Net }
+    { model_name1.onnx: cv2.dnn.Net }
+    { model_name2.onnx: onnxruntime.InferenceSession }
     """
 
     def __post_init__(self):
