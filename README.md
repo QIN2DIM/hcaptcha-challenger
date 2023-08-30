@@ -32,7 +32,7 @@ Just implement some interfaces to make `AI vs AI` possible.
 - [beiyuouo/hcaptcha-model-factory 🏗](https://github.com/beiyuouo/hcaptcha-model-factory)
 - [roboflow motion](https://universe.roboflow.com/qin2dim/hcaptcha-challenger)
 - [captcha-challenge/datasets 🦜](https://github.com/captcha-challenger/hcaptcha-whistleblower)
-- [ultralytics/YOLOv8 🚀 ](https://github.com/ultralytics/yolov5)
+- [ultralytics/YOLOv8 🚀 ](https://github.com/ultralytics/ultralytics)
 - [ultrafunkamsterdam/undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
 - [microsoft/playwright-python](https://github.com/microsoft/playwright-python)
 - hCaptcha challenge template site [@maximedrn](https://github.com/maximedrn/hcaptcha-solver-python-selenium)
