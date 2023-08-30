@@ -14,7 +14,6 @@ import numpy as np
 from onnxruntime import InferenceSession
 
 # fmt:off
-# 命名真难
 # Ash of War: Sacred Ring of Light
 ash_of_war = {
     "onclick_yolov8m.onnx": ['bat', 'bear', 'cat', 'elephant', 'hedgehog', 'lighthouse', 'lion', 'parrot', 'penguin', 'raccoon', 'squirrel'],
