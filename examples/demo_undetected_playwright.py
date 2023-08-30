@@ -70,7 +70,7 @@ def bytedance():
     radagon = Tarnished(
         user_data_dir=context_dir, record_dir=record_dir, record_har_path=record_har_path
     )
-    radagon.execute(sequence=[hit_challenge])
+    radagon.execute(sequence=[hit_challenge], headless=False)
     print(f"View record video path={record_dir}")
 
 
