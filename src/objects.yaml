@@ -36,6 +36,9 @@ label_alias:
   flower:
     zh: [ "花" ]
     en: [ "flower" ]
+  sports_stadium:
+    zh: [ "体育场" ]
+    en: [ "sports stadium" ]
 #  animal:
 #    zh: [ "动物" ]
 #    en: [ "animal" ]
