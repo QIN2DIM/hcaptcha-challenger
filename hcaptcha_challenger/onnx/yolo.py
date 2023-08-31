@@ -16,6 +16,7 @@ from onnxruntime import InferenceSession
 # fmt:off
 # Ash of War: Sacred Ring of Light
 ash_of_war = {
+    "animal0831_yolov8s.onnx": ["elephant", "raccoon"],
     "onclick_yolov8m.onnx": ['bat', 'bear', 'cat', 'elephant', 'hedgehog', 'lighthouse', 'lion', 'parrot', 'penguin', 'raccoon', 'squirrel'],
     "digit9_yolov8s.onnx": ["9"],
     # "digit_yolov8m.onnx": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
