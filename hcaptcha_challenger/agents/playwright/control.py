@@ -314,30 +314,26 @@ class Radagon:
 
             res = detector(Path(path), shape_type="bounding_box")
             print(res)
+
             alts = []
-            for name, point_start, point_end, score in res:
-                in_canvas = [None, None]
+            for name, (x1, y1), (x2, y2), score in res:
                 if not is_matched_ash_of_war(ash=self.ash, class_name=name):
                     continue
-                for i, point in enumerate([point_start, point_end]):
-                    x, y = point
-                    if y < 189 or y > 520 or x < 20 or x > 450:
-                        continue
-                    in_canvas[i] = True
-                if not all(in_canvas):
-                    continue
-                alt = {"name": name, "start": point_start, "end": point_end, "score": score}
+                scoop = (x2 - x1) * (y2 - y1)
+                start = (int(x1), int(y1))
+                end = (int(x2), int(y2))
+                alt = {"name": name, "start": start, "end": end, "scoop": scoop}
                 alts.append(alt)
 
             if len(alts) > 1:
-                alts = sorted(alts, key=lambda xf: xf["score"])
+                alts = sorted(alts, key=lambda xf: xf["scoop"])
             if len(alts) > 0:
                 best = alts[-1]
                 x1, y1 = best["start"]
                 x2, y2 = best["end"]
-                await locator.click(delay=200, position={"x": int(x1), "y": int(y1)})
-                await self.page.mouse.move(int(x2), int(y2))
-                await locator.click(delay=200, position={"x": int(x2), "y": int(y2)})
+                await locator.click(delay=200, position={"x": x1, "y": y1})
+                await self.page.mouse.move(x2, y2)
+                await locator.click(delay=200, position={"x": x2, "y": y2})
 
             with suppress(TimeoutError):
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
