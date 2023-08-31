@@ -3,11 +3,11 @@ branches:
     release_url: https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 ashes_of_war:
-  # "animal0831_yolov8s.onnx": ["elephant", "raccoon"],
-  "onclick_yolov8m.onnx": [ 'bat', 'bear', 'cat', 'elephant', 'hedgehog', 'lighthouse', 'lion', 'parrot', 'penguin', 'raccoon', 'squirrel' ]
-  "digit9_yolov8s.onnx": [ "9" ]
-  # "digit_yolov8m.onnx": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-  "COCO2020_yolov8m.onnx": [ 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
+  animal0831_yolov8s.onnx: ["elephant", "raccoon"]
+  onclick_yolov8m.onnx: [ 'bat', 'bear', 'cat', 'elephant', 'hedgehog', 'lighthouse', 'lion', 'parrot', 'penguin', 'raccoon', 'squirrel' ]
+  digit9_yolov8s.onnx: [ "9" ]
+  # digit_yolov8m.onnx: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+  COCO2020_yolov8m.onnx: [ 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
                              'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat',
                              'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack',
                              'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
