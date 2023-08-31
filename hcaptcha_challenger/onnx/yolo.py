@@ -192,7 +192,8 @@ def is_matched_ash_of_war(ash: str, class_name: str):
 def finetune_keypoint(name: str, point: List[int, int]) -> List[int, int]:
     point = point.copy()
     if name in ["nine", "9"]:
-        point[-1] = point[-1] + 10
+        point[-1] = point[-1] + 8
+        point[0] = point[0] + 2
 
     return point
 
