@@ -188,6 +188,14 @@ def is_matched_ash_of_war(ash: str, class_name: str):
     return True
 
 
+def finetune_keypoint(name: str, point: List[int, int]) -> List[int, int]:
+    point = point.copy()
+    if name in ["nine", "9"]:
+        point[-1] = point[-1] + 10
+
+    return point
+
+
 def nms(boxes, scores, iou_threshold):
     # Sort by score
     sorted_indices = np.argsort(scores)[::-1]
