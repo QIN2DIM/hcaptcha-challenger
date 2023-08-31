@@ -43,7 +43,7 @@ def install(
     if flush_yolo:
         from hcaptcha_challenger.onnx.yolo import YOLOv8
 
-        modelhub.pull_model(focus_name=YOLOv8.best)
+        modelhub.pull_model(focus_name=YOLOv8.default)
 
 
 def set_reverse_proxy(https_cdn: str):
