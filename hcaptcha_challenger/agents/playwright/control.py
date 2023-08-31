@@ -31,6 +31,7 @@ from hcaptcha_challenger.onnx.yolo import (
     YOLOv8,
     apply_ash_of_war,
     is_matched_ash_of_war,
+    finetune_keypoint,
 )
 from hcaptcha_challenger.utils import from_dict_to_model
 
@@ -330,6 +331,7 @@ class Radagon:
                 # Bypass invalid area
                 if center_y < 20 or center_y > 520 or center_x < 91 or center_x > 400:
                     continue
+                center_x, center_y = finetune_keypoint(name, [center_x, center_y])
                 alt = {"name": name, "position": {"x": center_x, "y": center_y}, "score": score}
                 alts.append(alt)
 
