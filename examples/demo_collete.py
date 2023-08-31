@@ -6,7 +6,7 @@
 import asyncio
 from pathlib import Path
 
-from playwright.async_api import BrowserContext as ASyncContext
+from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
 from hcaptcha_challenger.agents.playwright.control import AgentT
 from hcaptcha_challenger.agents.playwright.tarnished import Malenia
@@ -22,10 +22,11 @@ labels = set()
 
 
 @logger.catch
-async def collete_datasets(context: ASyncContext, batch: int = 8):
-    page = context.pages[0]
+async def collete_datasets(context: ASyncContext, batch: int = 80):
+    page = await context.new_page()
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
-    await page.goto(SiteKey.as_sitelink(sitekey="user"))
+
+    await page.goto(SiteKey.as_sitelink(sitekey="epic"))
 
     await agent.handle_checkbox()
 
@@ -40,9 +41,15 @@ async def collete_datasets(context: ASyncContext, batch: int = 8):
 
 async def bytedance():
     malenia = Malenia(user_data_dir=context_dir)
-    await malenia.execute(sequence=[collete_datasets], headless=True)
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.new_context(locale="en-US")
+        await malenia.apply_stealth(context)
+        await collete_datasets(context)
+        await context.close()
 
     print(f"\n>> COUNT - {labels=}")
+
 
 if __name__ == "__main__":
     asyncio.run(bytedance())
