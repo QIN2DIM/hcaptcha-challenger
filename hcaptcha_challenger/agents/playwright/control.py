@@ -469,3 +469,10 @@ class AgentT(Radagon):
 
         result = await self._is_success()
         return result
+
+    async def collete(self):
+        """Download datasets"""
+        await self._reset_state()
+        self._parse_label()
+        self._download_images()
+        return self._label

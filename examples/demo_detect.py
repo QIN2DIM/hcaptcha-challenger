@@ -12,9 +12,12 @@ from hcaptcha_challenger.components.image_label_area_select import AreaSelector
 # Init local-side of the ModelHub
 solver.install(flush_yolo=True)
 
-prompt = "please click on the digit 9"
+# please click on the elephant
+# please click on the raccoon
+# please click on the digit 9
+prompt = "please click on the elephant"
 
-label_dir = Path(__file__).parent.joinpath("image_label_area_select", "number")
+label_dir = Path(__file__).parent.joinpath("image_label_area_select", "raccoon")
 
 images = [label_dir.joinpath(fn).read_bytes() for fn in os.listdir(label_dir)]
 
