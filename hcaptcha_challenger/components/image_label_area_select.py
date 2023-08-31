@@ -54,6 +54,11 @@ class AreaSelector:
 
         focus_name = apply_ash_of_war(ash=ash)
         session = self.modelhub.match_net(focus_name=focus_name)
+        if not session:
+            logger.error(
+                f"ModelNotFound, please upgrade assets and flush yolo model", focus_name=focus_name
+            )
+            return response
         detector = YOLOv8.from_pluggable_model(session, focus_name)
 
         for image in images:

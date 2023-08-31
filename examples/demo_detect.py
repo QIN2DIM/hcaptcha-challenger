@@ -12,22 +12,28 @@ from hcaptcha_challenger.components.image_label_area_select import AreaSelector
 # Init local-side of the ModelHub
 solver.install(flush_yolo=True)
 
-prompt = "please click on the elephant"
+prompt = "please click on the digit 9"
 
-label_dir = Path(__file__).parent.joinpath("animal")
+label_dir = Path(__file__).parent.joinpath("image_label_area_select", "number")
 
 images = [label_dir.joinpath(fn).read_bytes() for fn in os.listdir(label_dir)]
 
 
 def bytedance():
-    alts = []
     tool = AreaSelector()
     results = tool.execute(prompt, images, shape_type="point")
+    if not results:
+        return
     for i, filename in enumerate(os.listdir(label_dir)):
-        # name, (center_x, center_y), score = results[i]
-        # alt = {"name": name, "position": {"x": center_x, "y": center_y}, "score": score}
-        # alts.append(alt)
-        print(f"{label_dir.name}.{filename} - {results[i]}")
+        alts = results[i]
+        if len(alts) > 1:
+            alts = sorted(alts, key=lambda x: x[-1])
+        if len(alts) > 0:
+            best = alts[-1]
+            class_name, (center_x, center_y), score = best
+            print(f"{label_dir.name}.{filename} - {class_name=} {(center_x, center_y)=}")
+        else:
+            print(f"{label_dir.name}.{filename} - ObjectsNotFound")
 
 
 if __name__ == "__main__":
