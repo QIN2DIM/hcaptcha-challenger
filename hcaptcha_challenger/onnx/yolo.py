@@ -13,34 +13,9 @@ import cv2
 import numpy as np
 from onnxruntime import InferenceSession
 
-# fmt:off
-# Ash of War: Sacred Ring of Light
-ash_of_war = {
-    # "animal0831_yolov8s.onnx": ["elephant", "raccoon"],
-    "onclick_yolov8m.onnx": ['bat', 'bear', 'cat', 'elephant', 'hedgehog', 'lighthouse', 'lion', 'parrot', 'penguin', 'raccoon', 'squirrel'],
-    "digit9_yolov8s.onnx": ["9"],
-    # "digit_yolov8m.onnx": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    "COCO2020_yolov8m.onnx": ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
-                              'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat',
-                              'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack',
-                              'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
-                              'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-                              'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
-                              'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair',
-                              'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse',
-                              'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink',
-                              'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier',
-                              'toothbrush'],
-}
-# fmt:on
-BEST_ONCLICK_MODEL = "onclick_yolov8m.onnx"
-YOLO_CLASSES = [cl for cc in ash_of_war.values() for cl in cc]
-
 
 @dataclass
 class YOLOv8:
-    best: str = "onclick_yolov8m.onnx"
-
     conf_threshold: float = 0.5
     iou_threshold: float = 0.5
     classes: List[str] = field(default_factory=list)
@@ -57,8 +32,6 @@ class YOLOv8:
     img_width = None
 
     def __post_init__(self):
-        self.classes = ash_of_war[self.best]
-
         # get_input_details
         model_inputs = self.session.get_inputs()
         self.input_names = [model_inputs[i].name for i in range(len(model_inputs))]
@@ -72,8 +45,8 @@ class YOLOv8:
         self.output_names = [model_outputs[i].name for i in range(len(model_outputs))]
 
     @classmethod
-    def from_pluggable_model(cls, session: InferenceSession, best: str):
-        return cls(session=session, best=best)
+    def from_pluggable_model(cls, session: InferenceSession, classes: List[str]):
+        return cls(session=session, classes=classes)
 
     def __call__(self, image: Path | bytes, shape_type: Literal["point", "bounding_box"] = "point"):
         if isinstance(image, Path):
@@ -156,22 +129,6 @@ class YOLOv8:
         indices = multiclass_nms(boxes, scores, class_ids, self.iou_threshold)
 
         return boxes[indices], scores[indices], class_ids[indices]
-
-
-def apply_ash_of_war(ash: str) -> str:
-    """
-    match pluggable model
-    :param ash: `cleaning label` or `prompt` or `cleaning label + requester_restricted_answer_set`
-    :return: YOLOv8 model name, YOLO_classes
-    """
-    # Prelude - Ordered dictionary
-    for model_name, covered_class in ash_of_war.items():
-        for class_name in covered_class:
-            if class_name in ash:
-                return model_name
-
-    # catch-all rules
-    return BEST_ONCLICK_MODEL
 
 
 def is_matched_ash_of_war(ash: str, class_name: str):

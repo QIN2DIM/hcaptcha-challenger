@@ -41,9 +41,9 @@ def install(
     modelhub.pull_objects(upgrade=upgrade)
     modelhub.assets.flush_runtime_assets(upgrade=upgrade)
     if flush_yolo:
-        from hcaptcha_challenger.onnx.yolo import YOLOv8
+        from hcaptcha_challenger.onnx.modelhub import DEFAULT_KEYPOINT_MODEL
 
-        modelhub.pull_model(focus_name=YOLOv8.best)
+        modelhub.pull_model(focus_name=DEFAULT_KEYPOINT_MODEL)
 
 
 def set_reverse_proxy(https_cdn: str):

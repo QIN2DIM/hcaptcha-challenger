@@ -26,13 +26,7 @@ from hcaptcha_challenger.components.image_downloader import download_images
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
-from hcaptcha_challenger.onnx.yolo import (
-    YOLO_CLASSES,
-    YOLOv8,
-    apply_ash_of_war,
-    is_matched_ash_of_war,
-    finetune_keypoint,
-)
+from hcaptcha_challenger.onnx.yolo import YOLOv8, is_matched_ash_of_war, finetune_keypoint
 from hcaptcha_challenger.utils import from_dict_to_model
 
 
@@ -295,9 +289,9 @@ class Radagon:
 
         # Match YOLOv8 model
         if not focus_label or select == "yolo":
-            focus_name = apply_ash_of_war(ash=self.ash)
+            focus_name, classes = self.modelhub.apply_ash_of_war(ash=self.ash)
             session = self.modelhub.match_net(focus_name=focus_name)
-            detector = YOLOv8.from_pluggable_model(session, focus_name)
+            detector = YOLOv8.from_pluggable_model(session, classes)
             return detector
 
         # Match ResNet model
@@ -458,7 +452,7 @@ class AgentT(Radagon):
         # Match: image_label_area_select
         elif self.qr.request_type == "image_label_area_select":
             ash = self.ash
-            if not any(is_matched_ash_of_war(ash, c) for c in YOLO_CLASSES):
+            if not any(is_matched_ash_of_war(ash, c) for c in self.modelhub.yolo_names):
                 return self.status.CHALLENGE_BACKCALL
 
             shape_type = self.qr.request_config.get("shape_type", "")

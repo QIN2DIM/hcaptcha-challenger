@@ -6,12 +6,12 @@
 import asyncio
 from pathlib import Path
 
+from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
 from hcaptcha_challenger.agents.playwright.control import AgentT
 from hcaptcha_challenger.agents.playwright.tarnished import Malenia
 from hcaptcha_challenger.utils import SiteKey
-from loguru import logger
 
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")

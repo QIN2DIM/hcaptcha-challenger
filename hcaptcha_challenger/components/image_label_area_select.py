@@ -12,7 +12,7 @@ from loguru import logger
 
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub
-from hcaptcha_challenger.onnx.yolo import apply_ash_of_war, YOLOv8
+from hcaptcha_challenger.onnx.yolo import YOLOv8
 
 
 class AreaSelector:
@@ -52,14 +52,14 @@ class AreaSelector:
         label = label_cleaning(_label)
         ash = f"{label} {answer_key}"
 
-        focus_name = apply_ash_of_war(ash=ash)
+        focus_name, classes = self.modelhub.apply_ash_of_war(ash=ash)
         session = self.modelhub.match_net(focus_name=focus_name)
         if not session:
             logger.error(
                 f"ModelNotFound, please upgrade assets and flush yolo model", focus_name=focus_name
             )
             return response
-        detector = YOLOv8.from_pluggable_model(session, focus_name)
+        detector = YOLOv8.from_pluggable_model(session, classes)
 
         for image in images:
             try:

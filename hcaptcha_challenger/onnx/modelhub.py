@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from urllib.parse import urlparse
 
 import cv2
@@ -27,6 +27,7 @@ from onnxruntime import InferenceSession
 from hcaptcha_challenger.utils import from_dict_to_model
 
 this_dir: Path = Path(__file__).parent
+DEFAULT_KEYPOINT_MODEL = "COCO2020_yolov8m.onnx"
 
 
 @logger.catch
@@ -222,6 +223,9 @@ class ModelHub:
     lang: str = "en"
     label_alias: Dict[str, str] = field(default_factory=dict)
 
+    yolo_names: List[str] = field(default_factory=list)
+    ashes_of_war: Dict[str, List[str]] = field(default_factory=dict)
+
     release_url: str = ""
     objects_url: str = ""
 
@@ -267,14 +271,17 @@ class ModelHub:
             return
 
         label_to_i18n_mapping: dict = data.get("label_alias", {})
-        if not label_to_i18n_mapping:
-            return
+        if label_to_i18n_mapping:
+            for model_name, lang_to_prompts in label_to_i18n_mapping.items():
+                for lang, prompts in lang_to_prompts.items():
+                    if lang != self.lang:
+                        continue
+                    self.label_alias.update({prompt.strip(): model_name for prompt in prompts})
 
-        for model_name, lang_to_prompts in label_to_i18n_mapping.items():
-            for lang, prompts in lang_to_prompts.items():
-                if lang != self.lang:
-                    continue
-                self.label_alias.update({prompt.strip(): model_name for prompt in prompts})
+        yolo2names: Dict[str, List[str]] = data.get("ashes_of_war", {})
+        if yolo2names:
+            self.yolo_names = [cl for cc in yolo2names.values() for cl in cc]
+            self.ashes_of_war = yolo2names
 
     def pull_model(self, focus_name: str):
         """
@@ -342,6 +349,16 @@ class ModelHub:
             self.pull_model(focus_name)
             net = self.active_net(focus_name)
         return net
+
+    def apply_ash_of_war(self, ash: str) -> Tuple[str, List[str]]:
+        # Prelude - Ordered dictionary
+        for model_name, covered_class in self.ashes_of_war.items():
+            for class_name in covered_class:
+                if class_name in ash:
+                    return model_name, covered_class
+
+        # catch-all rules
+        return DEFAULT_KEYPOINT_MODEL, self.ashes_of_war[DEFAULT_KEYPOINT_MODEL]
 
 
 class ChallengeStyle:
