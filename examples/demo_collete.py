@@ -22,11 +22,11 @@ labels = set()
 
 
 @logger.catch
-async def collete_datasets(context: ASyncContext, batch: int = 10):
+async def collete_datasets(context: ASyncContext, batch: int = 80):
     page = await context.new_page()
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
 
-    await page.goto(SiteKey.as_sitelink(sitekey="user"))
+    await page.goto(SiteKey.as_sitelink(sitekey="adafb813-8b5c-473f-9de3-485b4ad5aa09"))
 
     await agent.handle_checkbox()
 

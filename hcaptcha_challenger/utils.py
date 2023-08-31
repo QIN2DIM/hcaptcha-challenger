@@ -81,7 +81,7 @@ class SiteKey:
         return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.user}"
 
     @staticmethod
-    def as_sitelink(sitekey: Literal["discord", "epic", "hcaptcha", "newtype", "user"]):
+    def as_sitelink(sitekey: Literal["discord", "epic", "hcaptcha", "newtype", "user"] | str):
         keymap = {
             "discord": SiteKey.discord,
             "epic": SiteKey.epic,
@@ -89,4 +89,4 @@ class SiteKey:
             "newtype": SiteKey.new_type_challenge,
             "user": SiteKey.user,
         }
-        return f"https://accounts.hcaptcha.com/demo?sitekey={keymap[sitekey]}"
+        return f"https://accounts.hcaptcha.com/demo?sitekey={keymap.get(sitekey, sitekey)}"
