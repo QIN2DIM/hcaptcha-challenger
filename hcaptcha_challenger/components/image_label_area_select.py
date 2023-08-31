@@ -59,7 +59,7 @@ class AreaSelector:
                 f"ModelNotFound, please upgrade assets and flush yolo model", focus_name=focus_name
             )
             return response
-        detector = YOLOv8.from_pluggable_model(session, focus_name, classes)
+        detector = YOLOv8.from_pluggable_model(session, classes)
 
         for image in images:
             try:

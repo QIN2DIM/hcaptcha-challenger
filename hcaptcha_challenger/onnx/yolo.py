@@ -16,8 +16,6 @@ from onnxruntime import InferenceSession
 
 @dataclass
 class YOLOv8:
-    default: str = "COCO2020_yolov8m.onnx"
-
     conf_threshold: float = 0.5
     iou_threshold: float = 0.5
     classes: List[str] = field(default_factory=list)
@@ -47,8 +45,8 @@ class YOLOv8:
         self.output_names = [model_outputs[i].name for i in range(len(model_outputs))]
 
     @classmethod
-    def from_pluggable_model(cls, session: InferenceSession, best: str, classes: List[str]):
-        return cls(session=session, default=best, classes=classes)
+    def from_pluggable_model(cls, session: InferenceSession, classes: List[str]):
+        return cls(session=session, classes=classes)
 
     def __call__(self, image: Path | bytes, shape_type: Literal["point", "bounding_box"] = "point"):
         if isinstance(image, Path):

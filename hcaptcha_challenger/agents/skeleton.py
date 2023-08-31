@@ -119,7 +119,7 @@ class Skeleton(ABC):
         if not focus_label or select == "yolo":
             focus_name, classes = self.modelhub.apply_ash_of_war(ash=self._label)
             session = self.modelhub.match_net(focus_name=focus_name)
-            detector = YOLOv8.from_pluggable_model(session, focus_name, classes)
+            detector = YOLOv8.from_pluggable_model(session, classes)
             return detector
 
         # Match ResNet model
