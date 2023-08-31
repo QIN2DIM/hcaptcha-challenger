@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import inspect
+import random
 import sys
 from typing import Dict, Any, Literal
 
@@ -90,3 +91,18 @@ class SiteKey:
             "user": SiteKey.user,
         }
         return f"https://accounts.hcaptcha.com/demo?sitekey={keymap.get(sitekey, sitekey)}"
+
+    @staticmethod
+    def choice():
+        ks = [
+            "f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34",
+            "91e4137f-95af-4bc9-97af-cdcedce21c8c",
+            "a5f74b19-9e45-40e0-b45d-47ff91b7a6c2",
+            "13257c82-e129-4f09-a733-2a7cb3102832",
+            "ace50dd0-0d68-44ff-931a-63b670c7eed7",
+            "c86d730b-300a-444c-a8c5-5312e7a93628",
+            "edc4ce89-8903-4906-80b1-7440ad9a69c8",
+            "adafb813-8b5c-473f-9de3-485b4ad5aa09",
+        ]
+        k = random.choice(ks)
+        return f"https://accounts.hcaptcha.com/demo?sitekey={k}"
