@@ -13,8 +13,8 @@ label_alias:
     zh: [ "相机" ]
     en: [ "camera" ]
   palm_tree:
-      zh: [ "棕榈树" ]
-      en: [ "palm tree" ]
+    zh: [ "棕榈树" ]
+    en: [ "palm tree" ]
   item_of_office_equipment:
     zh: [ "办公设备项目" ]
     en: [ "item of office equipment" ]
@@ -33,6 +33,9 @@ label_alias:
   chair:
     zh: [ "椅子" ]
     en: [ "chair" ]
+  flower:
+    zh: [ "花" ]
+    en: [ "flower" ]
 #  animal:
 #    zh: [ "动物" ]
 #    en: [ "animal" ]
