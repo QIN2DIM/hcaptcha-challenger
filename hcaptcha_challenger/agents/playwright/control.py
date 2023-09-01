@@ -449,6 +449,9 @@ class AgentT(Radagon):
         :param flag: filename
         :return:
         """
+        if not self.cr:
+            return
+
         # Default output path
         _record_dir = self.tmp_dir
         _flag = f"rqdata-{time.time()}.json"
