@@ -32,7 +32,7 @@ record_har_path = record_dir.joinpath(f"eg-{int(time.time())}.har")
 async def hit_challenge(context: ASyncContext, times: int = 8):
     page = context.pages[0]
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
-    await page.goto(SiteKey.as_sitelink(sitekey="adafb813-8b5c-473f-9de3-485b4ad5aa09"))
+    await page.goto(SiteKey.as_sitelink(sitekey="user"))
 
     await agent.handle_checkbox()
 
