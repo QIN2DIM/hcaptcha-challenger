@@ -480,6 +480,10 @@ class AgentT(Radagon):
 
         await self._reset_state()
 
+        # Match: ChallengePassed
+        if not self.qr.requester_question.keys():
+            return self.status.CHALLENGE_SUCCESS
+
         self._parse_label()
 
         self._download_images()
@@ -507,6 +511,8 @@ class AgentT(Radagon):
     async def collete(self):
         """Download datasets"""
         await self._reset_state()
+        if not self.qr.requester_question.keys():
+            return self._label
         self._parse_label()
         self._download_images()
         return self._label
