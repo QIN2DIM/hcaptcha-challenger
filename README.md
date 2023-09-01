@@ -22,13 +22,6 @@ Does not use any third-party anti-captcha services.
 
 Just implement some interfaces to make `AI vs AI` possible.
 
-## Requirements
-
-- Python 3.8 or higher.
-- Windows 10+, Windows Server 2016+ or Windows Subsystem for Linux (WSL).
-- MacOS 12 Monterey or MacOS 13 Ventura.
-- Debian 11, Debian 12, Ubuntu 20.04 or Ubuntu 22.04.
-
 ## What's features
 
 | Challenge Type                          | Pluggable Resource                                                     |
@@ -46,6 +39,10 @@ Just implement some interfaces to make `AI vs AI` possible.
 | `model: YOLOv8 - train / val` | [ultralytics/YOLOv8](https://github.com/ultralytics/ultralytics) |
 | `model: upload, upgrade`      | [challenger-objects](https://github.com/QIN2DIM/hcaptcha-challenger/tree/main/src), [ONNX ModelHub](https://github.com/QIN2DIM/hcaptcha-challenger/releases/tag/model) |
 | `datasets: public, archive`   | [QIN2DIM - Roboflow Universe](https://universe.roboflow.com/qin2dim/), [captcha-challenge/datasets](https://github.com/captcha-challenger/hcaptcha-whistleblower) |
+
+## What's next
+
+- [Dislock](https://github.com/Vinyzu/DiscordGenerator), the most advanced Discord Browser Generator. Powered by hCaptcha Solving AI.
 
 ## Reference
 
