@@ -351,13 +351,7 @@ class ModelHub:
         return net
 
     def apply_ash_of_war(self, ash: str) -> Tuple[str, List[str]]:
-        # Prelude - Ordered dictionary
-        for model_name, covered_class in self.ashes_of_war.items():
-            for class_name in covered_class:
-                if class_name in ash:
-                    return model_name, covered_class
-
-        # Postlude - pending DensePose
+        # Prelude - pending DensePose
         if "head of " in ash and "animal" in ash:
             for model_name, covered_class in self.ashes_of_war.items():
                 if "head" not in model_name:
@@ -365,6 +359,12 @@ class ModelHub:
                 for class_name in covered_class:
                     if class_name.replace("-head", "") in ash:
                         return model_name, covered_class
+
+        # Prelude - Ordered dictionary
+        for model_name, covered_class in self.ashes_of_war.items():
+            for class_name in covered_class:
+                if class_name in ash:
+                    return model_name, covered_class
 
         # catch-all rules
         return DEFAULT_KEYPOINT_MODEL, self.ashes_of_war[DEFAULT_KEYPOINT_MODEL]
