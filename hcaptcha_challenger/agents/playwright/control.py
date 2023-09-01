@@ -302,6 +302,46 @@ class Radagon:
         control = ResNetControl.from_pluggable_model(net)
         return control
 
+    async def _bounding_challenge(self, frame_challenge: FrameLocator):
+        detector: YOLOv8 = self._match_solution(select="yolo")
+        times = int(len(self.qr.tasklist))
+        for pth in range(times):
+            locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
+            await locator.wait_for(state="visible")
+
+            path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
+            await locator.screenshot(path=path, type="png")
+
+            res = detector(Path(path), shape_type="bounding_box")
+            print(res)
+
+            alts = []
+            for name, (x1, y1), (x2, y2), score in res:
+                if not is_matched_ash_of_war(ash=self.ash, class_name=name):
+                    continue
+                scoop = (x2 - x1) * (y2 - y1)
+                start = (int(x1), int(y1))
+                end = (int(x2), int(y2))
+                alt = {"name": name, "start": start, "end": end, "scoop": scoop}
+                alts.append(alt)
+
+            if len(alts) > 1:
+                alts = sorted(alts, key=lambda xf: xf["scoop"])
+            if len(alts) > 0:
+                best = alts[-1]
+                x1, y1 = best["start"]
+                x2, y2 = best["end"]
+                await locator.click(delay=200, position={"x": x1, "y": y1})
+                await self.page.mouse.move(x2, y2)
+                await locator.click(delay=200, position={"x": x2, "y": y2})
+
+            with suppress(TimeoutError):
+                fl = frame_challenge.locator("//div[@class='button-submit button']")
+                await fl.click(delay=200)
+
+            if pth == 0:
+                await self.page.wait_for_timeout(1000)
+
     async def _keypoint_challenge(self, frame_challenge: FrameLocator):
         # Load YOLOv8 model from local or remote repo
         detector: YOLOv8 = self._match_solution(select="yolo")
@@ -459,7 +499,7 @@ class AgentT(Radagon):
             if shape_type == "point":
                 await self._keypoint_challenge(frame_challenge)
             elif shape_type == "bounding_box":
-                return self.status.CHALLENGE_BACKCALL
+                await self._bounding_challenge(frame_challenge)
 
         result = await self._is_success()
         return result
