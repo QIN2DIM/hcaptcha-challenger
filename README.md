@@ -36,13 +36,19 @@ Just implement some interfaces to make `AI vs AI` possible.
 | `image_label_binary`                    | ResNet ONNX [#challenge](https://github.com/QIN2DIM/hcaptcha-challenger/issues?q=label%3A%22%F0%9F%94%A5+challenge%22+) |
 | `image_label_area_select: point`        | YOLOv8s ONNX [#588](https://github.com/QIN2DIM/hcaptcha-challenger/issues/588)                                           |
 | `image_label_area_select: bounding box` | YOLOv8m ONNX [#592](https://github.com/QIN2DIM/hcaptcha-challenger/issues/592)                                           |
+## Workflow
+
+| Tasks                         | Resource                                                     |
+| ----------------------------- | ------------------------------------------------------------ |
+| `datasets: collect`           | [QIN2DIM/hcaptcha-challenger](https://github.com/QIN2DIM/hcaptcha-challenger) |
+| `datasets: VCS, annoate`      | [roboflow](hcaptcha-challenger), [beiyuouo/hcaptcha-model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
+| `model: ResNet - train / val` | [beiyuouo/hcaptcha-model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
+| `model: YOLOv8 - train / val` | [ultralytics/YOLOv8](https://github.com/ultralytics/ultralytics) |
+| `model: upload, upgrade`      | [challenger-objects](https://github.com/QIN2DIM/hcaptcha-challenger/tree/main/src), [ONNX ModelHub](https://github.com/QIN2DIM/hcaptcha-challenger/releases/tag/model) |
+| `datasets: public, archive`   | [QIN2DIM - Roboflow Universe](https://universe.roboflow.com/qin2dim/), [captcha-challenge/datasets](https://github.com/captcha-challenger/hcaptcha-whistleblower) |
 
 ## Reference
 
-- [beiyuouo/hcaptcha-model-factory 🏗](https://github.com/beiyuouo/hcaptcha-model-factory)
-- [roboflow motion](https://universe.roboflow.com/qin2dim/hcaptcha-challenger)
-- [captcha-challenge/datasets 🦜](https://github.com/captcha-challenger/hcaptcha-whistleblower)
-- [ultralytics/YOLOv8 🚀 ](https://github.com/ultralytics/ultralytics)
-- [ultrafunkamsterdam/undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
 - [microsoft/playwright-python](https://github.com/microsoft/playwright-python)
+- [ultrafunkamsterdam/undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
 - hCaptcha challenge template site [@maximedrn](https://github.com/maximedrn/hcaptcha-solver-python-selenium)
