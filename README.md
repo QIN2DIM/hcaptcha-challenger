@@ -24,8 +24,18 @@ Just implement some interfaces to make `AI vs AI` possible.
 
 ## Requirements
 
-- Python 3.8+
-- google-chrome
+- Python 3.8 or higher.
+- Windows 10+, Windows Server 2016+ or Windows Subsystem for Linux (WSL).
+- MacOS 12 Monterey or MacOS 13 Ventura.
+- Debian 11, Debian 12, Ubuntu 20.04 or Ubuntu 22.04.
+
+## What's features
+
+| Challenge Type                          | Pluggable Resource                                                     |
+| --------------------------------------- | ------------------------------------------------------------ |
+| `image_label_binary`                    | ResNet ONNX [#challenge](https://github.com/QIN2DIM/hcaptcha-challenger/issues?q=label%3A%22%F0%9F%94%A5+challenge%22+) |
+| `image_label_area_select: point`        | YOLOv8s ONNX [#588](https://github.com/QIN2DIM/hcaptcha-challenger/issues/588)                                           |
+| `image_label_area_select: bounding box` | YOLOv8m ONNX [#592](https://github.com/QIN2DIM/hcaptcha-challenger/issues/592)                                           |
 
 ## Reference
 
