@@ -31,7 +31,7 @@ async def collete_datasets(context: ASyncContext, batch: int = 80):
     await agent.handle_checkbox()
 
     for pth in range(1, batch + 1):
-        label = await agent.collete()
+        label = await agent.collect()
         labels.add(label)
         print(f"\r>> COLLETE - progress={pth}/{batch} {label=}", end="")
         await page.wait_for_timeout(500)

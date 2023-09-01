@@ -512,7 +512,7 @@ class AgentT(Radagon):
         result = await self._is_success()
         return result
 
-    async def collete(self):
+    async def collect(self):
         """Download datasets"""
         await self._reset_state()
         if not self.qr.requester_question.keys():
