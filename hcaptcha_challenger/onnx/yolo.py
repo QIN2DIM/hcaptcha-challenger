@@ -135,7 +135,7 @@ def is_matched_ash_of_war(ash: str, class_name: str):
     if "head of " in ash:
         if "head" not in class_name:
             return False
-        keyword = class_name.replace("head", "").strip()
+        keyword = class_name.replace("-head", "").strip()
         if keyword not in ash:
             return False
         return True

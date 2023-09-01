@@ -351,6 +351,15 @@ class ModelHub:
         return net
 
     def apply_ash_of_war(self, ash: str) -> Tuple[str, List[str]]:
+        # Prelude - pending DensePose
+        if "head of " in ash and "animal" in ash:
+            for model_name, covered_class in self.ashes_of_war.items():
+                if "head" not in model_name:
+                    continue
+                for class_name in covered_class:
+                    if class_name.replace("-head", "") in ash:
+                        return model_name, covered_class
+
         # Prelude - Ordered dictionary
         for model_name, covered_class in self.ashes_of_war.items():
             for class_name in covered_class:
