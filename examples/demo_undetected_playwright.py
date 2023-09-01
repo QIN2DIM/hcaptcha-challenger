@@ -47,7 +47,7 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
             case agent.status.CHALLENGE_SUCCESS:
                 rqdata_path = agent.export_rq()
                 print(f"View RQdata path={rqdata_path}")
-                await page.wait_for_timeout(2000)
+                # await page.wait_for_timeout(2000)
                 return
 
 
