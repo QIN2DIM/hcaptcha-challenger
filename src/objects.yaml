@@ -59,6 +59,10 @@ label_alias:
   color_pencil:
     zh: [ "彩色铅笔" ]
     en: [ "color pencil" ]
+  bonsai_tree:
+    zh: [ "盆景树" ]
+    en: [ "bonsai tree" ]
+
 #  animal:
 #    zh: [ "动物" ]
 #    en: [ "animal" ]
