@@ -151,7 +151,9 @@ def finetune_keypoint(name: str, point: List[int, int]) -> List[int, int]:
     if name in ["nine", "9"]:
         point[-1] = point[-1] + 8
         point[0] = point[0] + 2
-
+    if name in ["two", "2"]:
+        point[-1] = point[-1] + 7
+        point[0] = point[0] + 4
     return point
 
 
