@@ -350,6 +350,12 @@ class ModelHub:
             net = self.active_net(focus_name)
         return net
 
+    def unplug(self, focus_name: str | None = None):
+        if focus_name and focus_name in self._name2net:
+            del self._name2net[focus_name]
+        else:
+            self._name2net = {}
+
     def apply_ash_of_war(self, ash: str) -> Tuple[str, List[str]]:
         # Prelude - pending DensePose
         if "head of " in ash and "animal" in ash:
