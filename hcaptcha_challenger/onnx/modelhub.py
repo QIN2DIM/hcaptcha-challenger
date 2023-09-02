@@ -5,6 +5,7 @@
 # Description:
 from __future__ import annotations
 
+import gc
 import json
 import os
 import shutil
@@ -349,6 +350,13 @@ class ModelHub:
             self.pull_model(focus_name)
             net = self.active_net(focus_name)
         return net
+
+    def unplug(self):
+        for ash in self.ashes_of_war:
+            if ash not in self._name2net:
+                continue
+            del self._name2net[ash]
+            gc.collect()
 
     def apply_ash_of_war(self, ash: str) -> Tuple[str, List[str]]:
         # Prelude - pending DensePose

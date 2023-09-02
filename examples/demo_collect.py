@@ -26,14 +26,17 @@ async def collete_datasets(context: ASyncContext, batch: int = 80):
     page = await context.new_page()
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
 
-    await page.goto(SiteKey.as_sitelink(sitekey="adafb813-8b5c-473f-9de3-485b4ad5aa09"))
+    await page.goto(SiteKey.as_sitelink(sitekey="user"))
 
     await agent.handle_checkbox()
 
     for pth in range(1, batch + 1):
-        label = await agent.collect()
-        labels.add(label)
-        print(f"\r>> COLLETE - progress={pth}/{batch} {label=}", end="")
+        try:
+            label = await agent.collect()
+            labels.add(label)
+            print(f"\r>> COLLETE - progress={pth}/{batch} {label=}", end="")
+        except FileNotFoundError as err:
+            logger.warning(err)
         await page.wait_for_timeout(500)
         fl = page.frame_locator(agent.HOOK_CHALLENGE)
         await fl.locator("//div[@class='refresh button']").click()

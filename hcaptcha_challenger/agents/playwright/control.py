@@ -509,6 +509,8 @@ class AgentT(Radagon):
             elif shape_type == "bounding_box":
                 await self._bounding_challenge(frame_challenge)
 
+        self.modelhub.unplug()
+
         result = await self._is_success()
         return result
 

@@ -18,7 +18,7 @@ from hcaptcha_challenger.agents.playwright.tarnished import Malenia
 from hcaptcha_challenger.utils import SiteKey
 
 # Init local-side of the ModelHub
-solver.install(flush_yolo=True)
+solver.install(upgrade=True, flush_yolo=False)
 
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
@@ -47,7 +47,6 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
             case agent.status.CHALLENGE_SUCCESS:
                 rqdata_path = agent.export_rq()
                 print(f"View RQdata path={rqdata_path}")
-                # await page.wait_for_timeout(2000)
                 return
 
 
