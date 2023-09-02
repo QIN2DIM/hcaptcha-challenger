@@ -4,7 +4,7 @@ branches:
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 ashes_of_war:
   animal0831_yolov8s.onnx: [ "elephant", "raccoon" ]
-  animalhead_yolov8s.onnx: ["duck-head", "parrot-head"]
+  animalhead_yolov8s.onnx: [ "duck-head", "parrot-head" ]
   onclick_yolov8m.onnx: [ 'bat', 'bear', 'cat', 'elephant', 'hedgehog', 'lighthouse', 'lion', 'parrot', 'penguin', 'raccoon', 'squirrel' ]
   digit2_yolov8s.onnx: [ "2" ]
   digit9_yolov8s.onnx: [ "9" ]
@@ -63,6 +63,12 @@ label_alias:
   bonsai_tree:
     zh: [ "盆景树" ]
     en: [ "bonsai tree" ]
+  car0903:
+    zh: [ "汽车" ]
+    en: [ "car" ]
+  door:
+    zh: [ "门" ]
+    en: [ "door" ]
 
 #  animal:
 #    zh: [ "动物" ]
