@@ -131,17 +131,17 @@ class YOLOv8:
         return boxes[indices], scores[indices], class_ids[indices]
 
 
-def is_matched_ash_of_war(ash: str, class_name: str):
-    if "head of " in ash:
+def is_matched_area_select_label(area_select_question: str, class_name: str):
+    if "head of " in area_select_question:
         if "head" not in class_name:
             return False
         keyword = class_name.replace("-head", "").strip()
-        if keyword not in ash:
+        if keyword not in area_select_question:
             return False
         return True
 
     # catch-all rules
-    if class_name not in ash:
+    if class_name not in area_select_question:
         return False
     return True
 

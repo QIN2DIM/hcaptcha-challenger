@@ -3,6 +3,6 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-from .tarnished import Tarnished
+from .stealthened import Stealthened
 
-__all__ = ["Tarnished"]
+__all__ = ["Stealthened"]

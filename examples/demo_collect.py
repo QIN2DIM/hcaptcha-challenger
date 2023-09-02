@@ -9,8 +9,8 @@ from pathlib import Path
 from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
-from hcaptcha_challenger.agents.playwright.control import AgentT
-from hcaptcha_challenger.agents.playwright.tarnished import Malenia
+from hcaptcha_challenger.agents.playwright.control import CaptchaAgent
+from hcaptcha_challenger.agents.playwright.stealthened import Stealthened
 from hcaptcha_challenger.utils import SiteKey
 
 # Save dataset to current working directory
@@ -24,7 +24,7 @@ labels = set()
 @logger.catch
 async def collete_datasets(context: ASyncContext, batch: int = 80):
     page = await context.new_page()
-    agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
+    agent = CaptchaAgent.from_page(page=page, tmp_dir=tmp_dir)
 
     await page.goto(SiteKey.as_sitelink(sitekey="adafb813-8b5c-473f-9de3-485b4ad5aa09"))
 
@@ -40,7 +40,7 @@ async def collete_datasets(context: ASyncContext, batch: int = 80):
 
 
 async def bytedance():
-    malenia = Malenia(user_data_dir=context_dir)
+    malenia = Stealthened(user_data_dir=context_dir)
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(locale="en-US")

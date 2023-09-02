@@ -12,7 +12,7 @@ from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger.agents.playwright.control import AgentT
+from hcaptcha_challenger.agents.playwright.control import CaptchaAgent
 from hcaptcha_challenger.utils import SiteKey
 
 # Init local-side of the ModelHub
@@ -25,14 +25,14 @@ tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 @logger.catch
 async def hit_challenge(context: ASyncContext, times: int = 8):
     page = await context.new_page()
-    agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
+    agent = CaptchaAgent.from_page(page=page, tmp_dir=tmp_dir)
     await page.goto(SiteKey.as_sitelink(sitekey="hcaptcha"))
 
     await agent.handle_checkbox()
 
     for pth in range(1, times):
         result = await agent()
-        print(f">> {pth} - Challenge Result: {result} - question={agent.qr.requester_question}")
+        print(f">> {pth} - Challenge Result: {result} - question={agent.quest_resp.requester_question}")
         match result:
             case agent.status.CHALLENGE_BACKCALL:
                 await page.wait_for_timeout(500)

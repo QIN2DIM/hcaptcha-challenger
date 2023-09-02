@@ -26,7 +26,7 @@ from hcaptcha_challenger.components.image_downloader import download_images
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
-from hcaptcha_challenger.onnx.yolo import YOLOv8, is_matched_ash_of_war, finetune_keypoint
+from hcaptcha_challenger.onnx.yolo import YOLOv8, is_matched_area_select_label, finetune_keypoint
 from hcaptcha_challenger.utils import from_dict_to_model
 
 
@@ -74,7 +74,7 @@ class QuestionResp:
     Not available on the binary challenge
     """
 
-    tasklist: List[Dict[str, str]] = field(default_factory=list)
+    task_list: List[Dict[str, str]] = field(default_factory=list)
     """
     [
         {datapoint_uri: "https://imgs.hcaptcha.com + base64", task_key: "" },
@@ -90,11 +90,11 @@ class QuestionResp:
         shape_type = self.request_config.get("shape_type", "")
 
         requester_question = self.requester_question.get("en")
-        fn = f"{self.request_type}.{shape_type}.{requester_question}.json"
+        file_name = f"{self.request_type}.{shape_type}.{requester_question}.json"
         if tmp_dir and tmp_dir.exists():
-            fn = tmp_dir.joinpath(fn)
+            file_name = tmp_dir.joinpath(file_name)
 
-        Path(fn).write_text(json.dumps(self.__dict__, indent=2))
+        Path(file_name).write_text(json.dumps(self.__dict__, indent=2))
 
 
 @dataclass
@@ -131,7 +131,7 @@ class ChallengeResp:
 
 
 @dataclass
-class Radagon:
+class Challenger:
     page: Page
     """
     Playwright Page
@@ -142,24 +142,24 @@ class Radagon:
     Build Skeleton with modelhub
     """
 
-    qr: QuestionResp | None = None
-    cr: ChallengeResp | None = None
+    quest_resp: QuestionResp | None = None
+    challenge_resp: ChallengeResp | None = None
 
-    qr_queue: asyncio.Queue[QuestionResp] | None = None
-    cr_queue: asyncio.Queue[ChallengeResp] | None = None
+    quest_resp_queue: asyncio.Queue[QuestionResp] | None = None
+    challenge_resp_queue: asyncio.Queue[ChallengeResp] | None = None
 
-    this_dir: Path = Path(__file__).parent
+    current_dir: Path = Path(__file__).parent
     """
     Project directory of Skeleton Agents
     """
 
-    tmp_dir: Path = this_dir.joinpath("temp_cache")
+    tmp_dir: Path = current_dir.joinpath("temp_cache")
     challenge_dir = tmp_dir.joinpath("_challenge")
     """
     Runtime cache
     """
 
-    typed_dir: Path = Path("please click on the X")
+    type_dir: Path = Path("please click on the X")
     """
     - image_label_area_select
         - please click on the X  # typed
@@ -198,8 +198,8 @@ class Radagon:
     def __post_init__(self):
         self.label_alias = self.modelhub.label_alias
 
-        self.qr_queue = asyncio.Queue()
-        self.cr_queue = asyncio.Queue()
+        self.quest_resp_queue = asyncio.Queue()
+        self.challenge_resp_queue = asyncio.Queue()
 
         self.handle_question_resp(self.page)
 
@@ -207,14 +207,14 @@ class Radagon:
         if response.url.startswith("https://hcaptcha.com/getcaptcha/"):
             with suppress(Exception):
                 data = await response.json()
-                qr = QuestionResp.from_json(data)
-                qr.save_example(tmp_dir=self.tmp_dir)
-                self.qr_queue.put_nowait(qr)
+                quest_resp = QuestionResp.from_json(data)
+                quest_resp.save_example(tmp_dir=self.tmp_dir)
+                self.quest_resp_queue.put_nowait(quest_resp)
         if response.url.startswith("https://hcaptcha.com/checkcaptcha/"):
             with suppress(Exception):
                 metadata = await response.json()
-                cr = ChallengeResp.from_json(metadata)
-                self.cr_queue.put_nowait(cr)
+                challenge_resp = ChallengeResp.from_json(metadata)
+                self.challenge_resp_queue.put_nowait(challenge_resp)
 
     def handle_question_resp(self, page: Page):
         page.on("response", self.handler)
@@ -237,11 +237,11 @@ class Radagon:
         return Status
 
     @property
-    def ash(self):
-        answer_keys = list(self.qr.requester_restricted_answer_set.keys())
-        ak = answer_keys[0] if len(answer_keys) > 0 else ""
-        ash = f"{self._label} {ak}"
-        return ash
+    def area_select_question(self):
+        answer_keys = list(self.quest_resp.requester_restricted_answer_set.keys())
+        answer_key = answer_keys[0] if len(answer_keys) > 0 else ""
+        area_select_question = f"{self._label} {answer_key}"
+        return area_select_question
 
     def _switch_to_challenge_frame(self, page: Page, window: str = "login", **kwargs):
         if window == "login":
@@ -253,22 +253,22 @@ class Radagon:
         return frame_challenge
 
     async def _reset_state(self):
-        self.cr = None
-        self.qr = await self.qr_queue.get()
+        self.challenge_resp = None
+        self.quest_resp = await self.quest_resp_queue.get()
 
     def _parse_label(self):
-        self._prompt = self.qr.requester_question.get("en")
+        self._prompt = self.quest_resp.requester_question.get("en")
         _label = split_prompt_message(self._prompt, lang="en")
         self._label = label_cleaning(_label)
 
     def _download_images(self):
-        request_type = self.qr.request_type
-        self.typed_dir = self.tmp_dir.joinpath(request_type, self._label)
-        self.typed_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
+        request_type = self.quest_resp.request_type
+        self.type_dir = self.tmp_dir.joinpath(request_type, self._label)
+        self.type_dir.mkdir(parents=True, exist_ok=True)
 
         container = []
-        for i, tk in enumerate(self.qr.tasklist):
-            challenge_img_path = self.typed_dir.joinpath(f"{time.time()}.{i}.png")
+        for i, tk in enumerate(self.quest_resp.task_list):
+            challenge_img_path = self.type_dir.joinpath(f"{time.time()}.{i}.png")
             container.append((challenge_img_path, tk["datapoint_uri"]))
 
         t = threading.Thread(target=download_images, kwargs={"container": container})
@@ -279,17 +279,17 @@ class Radagon:
         self._img_paths = []
         for src, _ in container:
             cache = src.read_bytes()
-            dst = self.typed_dir.joinpath(f"{hashlib.md5(cache).hexdigest()}.png")
+            dst = self.type_dir.joinpath(f"{hashlib.md5(cache).hexdigest()}.png")
             shutil.move(src, dst)
             self._img_paths.append(dst)
 
     def _match_solution(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
-        """match solution after `tactical_retreat`"""
+        """match solution after `retreat_challenge`"""
         focus_label = self.label_alias.get(self._label, "")
 
         # Match YOLOv8 model
         if not focus_label or select == "yolo":
-            focus_name, classes = self.modelhub.apply_ash_of_war(ash=self.ash)
+            focus_name, classes = self.modelhub.apply_area_select_label(area_select_question=self.area_select_question)
             session = self.modelhub.match_net(focus_name=focus_name)
             detector = YOLOv8.from_pluggable_model(session, classes)
             return detector
@@ -304,7 +304,7 @@ class Radagon:
 
     async def _bounding_challenge(self, frame_challenge: FrameLocator):
         detector: YOLOv8 = self._match_solution(select="yolo")
-        times = int(len(self.qr.tasklist))
+        times = int(len(self.quest_resp.task_list))
         for pth in range(times):
             locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
             await locator.wait_for(state="visible")
@@ -316,16 +316,17 @@ class Radagon:
 
             alts = []
             for name, (x1, y1), (x2, y2), score in res:
-                if not is_matched_ash_of_war(ash=self.ash, class_name=name):
+                if not is_matched_area_select_label(area_select_question=self.area_select_question, class_name=name):
                     continue
-                scoop = (x2 - x1) * (y2 - y1)
-                start = (int(x1), int(y1))
-                end = (int(x2), int(y2))
-                alt = {"name": name, "start": start, "end": end, "scoop": scoop}
+
+                alt = {"name": name,
+                       "start": (int(x1), int(y1)),
+                       "end": (int(x2), int(y2)),
+                       "scoop": (x2 - x1) * (y2 - y1)}
                 alts.append(alt)
 
             if len(alts) > 1:
-                alts = sorted(alts, key=lambda xf: xf["scoop"])
+                alts = sorted(alts, key=lambda _alt: _alt["scoop"])
             if len(alts) > 0:
                 best = alts[-1]
                 x1, y1 = best["start"]
@@ -335,8 +336,8 @@ class Radagon:
                 await locator.click(delay=200, position={"x": x2, "y": y2})
 
             with suppress(TimeoutError):
-                fl = frame_challenge.locator("//div[@class='button-submit button']")
-                await fl.click(delay=200)
+                submit_button = frame_challenge.locator("//div[@class='button-submit button']")
+                await submit_button.click(delay=200)
 
             if pth == 0:
                 await self.page.wait_for_timeout(1000)
@@ -346,7 +347,7 @@ class Radagon:
         detector: YOLOv8 = self._match_solution(select="yolo")
 
         # Execute the detection task for twice
-        times = int(len(self.qr.tasklist))
+        times = int(len(self.quest_resp.task_list))
         for pth in range(times):
             locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
             await locator.wait_for(state="visible")
@@ -361,7 +362,7 @@ class Radagon:
             alts = []
             for name, (center_x, center_y), score in res:
                 # Bypass unfocused objects
-                if not is_matched_ash_of_war(ash=self.ash, class_name=name):
+                if not is_matched_area_select_label(area_select_question=self.area_select_question, class_name=name):
                     continue
                 # Bypass invalid area
                 if center_y < 20 or center_y > 520 or center_x < 91 or center_x > 400:
@@ -396,7 +397,7 @@ class Radagon:
         classifier = self._match_solution(select="resnet")
 
         # {{< IMAGE CLASSIFICATION >}}
-        times = int(len(self.qr.tasklist) / 9)
+        times = int(len(self.quest_resp.task_list) / 9)
         for pth in range(times):
             # Drop element location
             samples = frame_challenge.locator("//div[@class='task-image']")
@@ -415,23 +416,23 @@ class Radagon:
 
             # {{< Verify >}}
             with suppress(TimeoutError):
-                fl = frame_challenge.locator("//div[@class='button-submit button']")
-                await fl.click()
+                submit_button = frame_challenge.locator("//div[@class='button-submit button']")
+                await submit_button.click()
 
             # {{< Done | Continue >}}
             if pth == 0:
                 await self.page.wait_for_timeout(1000)
 
     async def _is_success(self):
-        self.cr = await self.cr_queue.get()
-        if not self.cr or not self.cr.is_pass:
+        self.challenge_resp = await self.challenge_resp_queue.get()
+        if not self.challenge_resp or not self.challenge_resp.is_pass:
             return self.status.CHALLENGE_RETRY
-        if self.cr.is_pass:
+        if self.challenge_resp.is_pass:
             return self.status.CHALLENGE_SUCCESS
 
 
 @dataclass
-class AgentT(Radagon):
+class CaptchaAgent(Challenger):
     rqdata: ChallengeResp = None
 
     async def __call__(self, *args, **kwargs):
@@ -449,7 +450,7 @@ class AgentT(Radagon):
         :param flag: filename
         :return:
         """
-        if not self.cr:
+        if not self.challenge_resp:
             return
 
         # Default output path
@@ -468,7 +469,7 @@ class AgentT(Radagon):
         _record_dir.joinpath(_flag)
         _rqdata_path = _record_dir.joinpath(_flag)
 
-        _rqdata_path.write_text(json.dumps(self.cr.__dict__, indent=2))
+        _rqdata_path.write_text(json.dumps(self.challenge_resp.__dict__, indent=2))
 
         return _rqdata_path
 
@@ -485,7 +486,7 @@ class AgentT(Radagon):
         await self._reset_state()
 
         # Match: ChallengePassed
-        if not self.qr.requester_question.keys():
+        if not self.quest_resp.requester_question.keys():
             return self.status.CHALLENGE_SUCCESS
 
         self._parse_label()
@@ -493,17 +494,17 @@ class AgentT(Radagon):
         self._download_images()
 
         # Match: image_label_binary
-        if self.qr.request_type == "image_label_binary":
+        if self.quest_resp.request_type == "image_label_binary":
             if not self.label_alias.get(self._label):
                 return self.status.CHALLENGE_BACKCALL
             await self._binary_challenge(frame_challenge)
         # Match: image_label_area_select
-        elif self.qr.request_type == "image_label_area_select":
-            ash = self.ash
-            if not any(is_matched_ash_of_war(ash, c) for c in self.modelhub.yolo_names):
+        elif self.quest_resp.request_type == "image_label_area_select":
+            area_select_question = self.area_select_question
+            if not any(is_matched_area_select_label(area_select_question, c) for c in self.modelhub.yolo_names):
                 return self.status.CHALLENGE_BACKCALL
 
-            shape_type = self.qr.request_config.get("shape_type", "")
+            shape_type = self.quest_resp.request_config.get("shape_type", "")
             if shape_type == "point":
                 await self._keypoint_challenge(frame_challenge)
             elif shape_type == "bounding_box":
@@ -515,7 +516,7 @@ class AgentT(Radagon):
     async def collect(self):
         """Download datasets"""
         await self._reset_state()
-        if not self.qr.requester_question.keys():
+        if not self.quest_resp.requester_question.keys():
             return self._label
         self._parse_label()
         self._download_images()

@@ -26,7 +26,7 @@ from onnxruntime import InferenceSession
 
 from hcaptcha_challenger.utils import from_dict_to_model
 
-this_dir: Path = Path(__file__).parent
+current_dir: Path = Path(__file__).parent
 DEFAULT_KEYPOINT_MODEL = "COCO2020_yolov8m.onnx"
 
 
@@ -69,12 +69,12 @@ class Assets:
     Such as https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
     """
 
-    _assets_dir: Path = this_dir.joinpath("models/_assets")
+    _assets_dir: Path = current_dir.joinpath("models/_assets")
     """
     The local path of index file
     """
 
-    _memory_dir: Path = this_dir.joinpath("models/_memory")
+    _memory_dir: Path = current_dir.joinpath("models/_memory")
     """
     Archive historical versions of a model
     """
@@ -84,19 +84,19 @@ class Assets:
     The effective time of the index file
     """
 
-    _name2asset: Dict[str, ReleaseAsset] = field(default_factory=dict)
+    _name_to_asset: Dict[str, ReleaseAsset] = field(default_factory=dict)
     """
     { model_name.onnx: {ReleaseAsset} }
     """
 
-    _name2node: Dict[str, str] = field(default_factory=dict)
+    _name_to_node: Dict[str, str] = field(default_factory=dict)
     """
     model_name.onnx to asset_node_id
     """
 
     def __post_init__(self):
         for ck in [self._assets_dir, self._memory_dir]:
-            ck.mkdir(mode=0o777, parents=True, exist_ok=True)
+            ck.mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def from_release_url(cls, release_url: str, **kwargs):
@@ -112,7 +112,7 @@ class Assets:
             if resp_ctime + instance.cache_lifetime > datetime.now():
                 try:
                     data = json.loads(resp_path.read_text(encoding="utf8"))
-                    instance._name2asset = {
+                    instance._name_to_asset = {
                         k: from_dict_to_model(ReleaseAsset, v) for k, v in data.items()
                     }
                 except JSONDecodeError as err:
@@ -121,21 +121,21 @@ class Assets:
         # Memory - version control
         for x in os.listdir(instance._memory_dir):
             name, node = x.rsplit(".", maxsplit=1)
-            instance._name2node[name] = node
+            instance._name_to_node[name] = node
 
         return instance
 
     def get_focus_asset(self, focus_name: str) -> ReleaseAsset:
-        return self._name2asset.get(focus_name)
+        return self._name_to_asset.get(focus_name)
 
     def flush_runtime_assets(self, upgrade: bool = False):
         """Request assets index from remote repository"""
-        self._name2asset = {}
+        self._name_to_asset = {}
 
         if upgrade is True:
             logger.info("Reloading the local cache of Assets", assets_dir=str(self._assets_dir))
             shutil.rmtree(self._assets_dir, ignore_errors=True)
-            self._assets_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
+            self._assets_dir.mkdir(parents=True, exist_ok=True)
 
         assets_paths = [self._assets_dir.joinpath(i) for i in os.listdir(self._assets_dir)]
         is_outdated = False
@@ -154,7 +154,7 @@ class Assets:
                 assets: List[dict] = data.get("assets", [])
                 for asset in assets:
                     release_asset = from_dict_to_model(ReleaseAsset, asset)
-                    self._name2asset[asset["name"]] = release_asset
+                    self._name_to_asset[asset["name"]] = release_asset
             except (httpx.ConnectError, JSONDecodeError) as err:
                 logger.error(err)
             except (AttributeError, IndexError, KeyError) as err:
@@ -167,7 +167,7 @@ class Assets:
             asset_dst = self._assets_dir.joinpath(f"_{asset_fn.replace('_', '')}")
             shutil.move(asset_src, asset_dst)
         assets_path = self._assets_dir.joinpath(f"{int(time.time())}.json")
-        data = {k: v.__dict__ for k, v in self._name2asset.items()}
+        data = {k: v.__dict__ for k, v in self._name_to_asset.items()}
         assets_path.write_text(json.dumps(data, ensure_ascii=True, indent=2))
 
     def archive_memory(self, focus_name: str, new_node_id: str):
@@ -177,9 +177,9 @@ class Assets:
         :param new_node_id: node_id of the GitHub release, ONNX model file.
         :return:
         """
-        old_node_id = self._name2node.get(focus_name, "")
+        old_node_id = self._name_to_node.get(focus_name, "")
 
-        self._name2node[focus_name] = new_node_id
+        self._name_to_node[focus_name] = new_node_id
 
         # Create or update a history tracking node
         if not old_node_id:
@@ -196,11 +196,11 @@ class Assets:
         :param focus_name: model name with .onnx suffix
         :return:
         """
-        focus_asset = self._name2asset.get(focus_name)
+        focus_asset = self._name_to_asset.get(focus_name)
         if not focus_asset:
             return
 
-        local_node_id = self._name2node.get(focus_name, "")
+        local_node_id = self._name_to_node.get(focus_name, "")
         if not local_node_id:
             return
 
@@ -216,7 +216,7 @@ class ModelHub:
     such as model download, model cache, and model scheduling.
     """
 
-    models_dir = this_dir.joinpath("models")
+    models_dir = current_dir.joinpath("models")
     assets_dir = models_dir.joinpath("_assets")
     objects_path = models_dir.joinpath("objects.yaml")
 
@@ -224,21 +224,21 @@ class ModelHub:
     label_alias: Dict[str, str] = field(default_factory=dict)
 
     yolo_names: List[str] = field(default_factory=list)
-    ashes_of_war: Dict[str, List[str]] = field(default_factory=dict)
+    area_select_labels: Dict[str, List[str]] = field(default_factory=dict)
 
     release_url: str = ""
     objects_url: str = ""
 
     assets: Assets = None
 
-    _name2net: Dict[str, Net | InferenceSession] = field(default_factory=dict)
+    _name_to_net: Dict[str, Net | InferenceSession] = field(default_factory=dict)
     """
     { model_name1.onnx: cv2.dnn.Net }
-    { model_name2.onnx: onnxruntime.InferenceSession }
+    { model_name_to_.onnx: onnxruntime.InferenceSession }
     """
 
     def __post_init__(self):
-        self.assets_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
+        self.assets_dir.mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def from_github_repo(cls, username: str = "QIN2DIM", lang: str = "en", **kwargs):
@@ -278,10 +278,10 @@ class ModelHub:
                         continue
                     self.label_alias.update({prompt.strip(): model_name for prompt in prompts})
 
-        yolo2names: Dict[str, List[str]] = data.get("ashes_of_war", {})
+        yolo2names: Dict[str, List[str]] = data.get("area_select_labels", {})
         if yolo2names:
             self.yolo_names = [cl for cc in yolo2names.values() for cl in cc]
-            self.ashes_of_war = yolo2names
+            self.area_select_labels = yolo2names
 
     def pull_model(self, focus_name: str):
         """
@@ -325,7 +325,7 @@ class ModelHub:
                 )
             else:
                 net = cv2.dnn.readNetFromONNX(str(model_path))
-            self._name2net[focus_name] = net
+            self._name_to_net[focus_name] = net
             return net
 
     def match_net(self, focus_name: str) -> Net | InferenceSession | None:
@@ -344,30 +344,30 @@ class ModelHub:
         :param focus_name: model_name with .onnx suffix
         :return:
         """
-        net = self._name2net.get(focus_name)
+        net = self._name_to_net.get(focus_name)
         if not net:
             self.pull_model(focus_name)
             net = self.active_net(focus_name)
         return net
 
-    def apply_ash_of_war(self, ash: str) -> Tuple[str, List[str]]:
+    def apply_area_select_label(self, area_select_question: str) -> Tuple[str, List[str]]:
         # Prelude - pending DensePose
-        if "head of " in ash and "animal" in ash:
-            for model_name, covered_class in self.ashes_of_war.items():
+        if "head of " in area_select_question and "animal" in area_select_question:
+            for model_name, covered_class in self.area_select_labels.items():
                 if "head" not in model_name:
                     continue
                 for class_name in covered_class:
-                    if class_name.replace("-head", "") in ash:
+                    if class_name.replace("-head", "") in area_select_question:
                         return model_name, covered_class
 
         # Prelude - Ordered dictionary
-        for model_name, covered_class in self.ashes_of_war.items():
+        for model_name, covered_class in self.area_select_labels.items():
             for class_name in covered_class:
-                if class_name in ash:
+                if class_name in area_select_question:
                     return model_name, covered_class
 
         # catch-all rules
-        return DEFAULT_KEYPOINT_MODEL, self.ashes_of_war[DEFAULT_KEYPOINT_MODEL]
+        return DEFAULT_KEYPOINT_MODEL, self.area_select_labels[DEFAULT_KEYPOINT_MODEL]
 
 
 class ChallengeStyle:

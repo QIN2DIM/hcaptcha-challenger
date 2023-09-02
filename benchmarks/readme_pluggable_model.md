@@ -16,13 +16,13 @@ def plug_model(model_name: str):
 
 @profile
 def unplug_model(model_name: str):
-    if model_name in modelhub._name2net:
-        del modelhub._name2net[model_name]
+    if model_name in modelhub._name_to_net:
+        del modelhub._name_to_net[model_name]
 
 
 @profile
 def test_memory():
-    for mn in modelhub.ashes_of_war:
+    for mn in modelhub.area_select_labels:
         plug_model(mn)
         print("something works...")
         unplug_model(mn)

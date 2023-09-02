@@ -29,9 +29,9 @@ class AreaSelector:
         answer_key: str = "",
     ) -> List[tuple | None]:
         """
-        answer_keys = list(self.qr.requester_restricted_answer_set.keys())
+        answer_keys = list(self.quest_resp.requester_restricted_answer_set.keys())
         ak = answer_keys[0] if len(answer_keys) > 0 else ""
-        ash = f"{self._label} {ak}"
+        area_select_question = f"{self._label} {ak}"
 
         :param answer_key:
         :param prompt:
@@ -50,9 +50,9 @@ class AreaSelector:
 
         _label = split_prompt_message(prompt, lang="en")
         label = label_cleaning(_label)
-        ash = f"{label} {answer_key}"
+        area_select_question = f"{label} {answer_key}"
 
-        focus_name, classes = self.modelhub.apply_ash_of_war(ash=ash)
+        focus_name, classes = self.modelhub.apply_area_select_label(area_select_question=area_select_question)
         session = self.modelhub.match_net(focus_name=focus_name)
         if not session:
             logger.error(

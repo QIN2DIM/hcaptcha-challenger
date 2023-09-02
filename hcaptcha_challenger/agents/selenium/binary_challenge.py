@@ -104,11 +104,11 @@ class SeleniumAgent(Skeleton):
                 try:
                     image_style = sample.find_element(By.CLASS_NAME, "image").get_attribute("style")
                     url = re.split(r'[(")]', image_style)[2]
-                    self._alias2url.update({alias: url})
+                    self._alias_to_url.update({alias: url})
                     break
                 except IndexError:
                     continue
-            self._alias2locator.update({alias: sample})
+            self._alias_to_locator.update({alias: sample})
 
     def download_images(self):
         container = super().download_images()
@@ -117,15 +117,15 @@ class SeleniumAgent(Skeleton):
     def challenge(self, ctx, model, *args, **kwargs):
         ta = []
         # {{< IMAGE CLASSIFICATION >}}
-        for alias, path in self._alias2path.items():
+        for alias, path in self._alias_to_path.items():
             t0 = time.time()
             result = model.execute(img_stream=path.read_bytes())
             ta.append(time.time() - t0)
             # Pass: Hit at least one object
             if result:
                 try:
-                    time.sleep(random.uniform(0.2, 0.3))
-                    self._alias2locator[alias].click()
+                    time.sleep(0.3)
+                    self._alias_to_locator[alias].click()
                 except StaleElementReferenceException:
                     pass
                 except WebDriverException as err:
@@ -212,7 +212,7 @@ class SeleniumAgent(Skeleton):
                 self.download_images()
 
                 # [👻] 滤除无法处理的挑战类别
-                result = self.tactical_retreat()
+                result = self.retreat_challenge()
                 if result == self.status.CHALLENGE_BACKCALL:
                     ctx.switch_to.default_content()
                     return result
@@ -243,7 +243,7 @@ class SeleniumAgent(Skeleton):
 
 class ArmorUtils:
     @staticmethod
-    def face_the_checkbox(ctx: Chrome) -> bool | None:
+    def checkbox_visible(ctx: Chrome) -> bool | None:
         try:
             WebDriverWait(ctx, 8, ignored_exceptions=(WebDriverException,)).until(
                 EC.presence_of_element_located((By.XPATH, "//iframe[contains(@title,'checkbox')]"))

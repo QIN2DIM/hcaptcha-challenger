@@ -53,12 +53,12 @@ class Skeleton(ABC):
     Build Skeleton with modelhub
     """
 
-    this_dir: Path = Path(__file__).parent
+    current_dir: Path = Path(__file__).parent
     """
     Project directory of Skeleton Agents
     """
 
-    tmp_dir: Path = this_dir.joinpath("temp_cache")
+    tmp_dir: Path = current_dir.joinpath("temp_cache")
     challenge_dir = tmp_dir.joinpath("_challenge")
     """
     Runtime cache
@@ -79,17 +79,17 @@ class Skeleton(ABC):
     A collection of { prompt[s]: model_name[.onnx] }
     """
 
-    _alias2locator: dict = field(default_factory=dict)
+    _alias_to_locator: dict = field(default_factory=dict)
     """
     Store the `element locator` of challenge images {挑战图片1: locator1, ...}
     """
 
-    _alias2url: dict = field(default_factory=dict)
+    _alias_to_url: dict = field(default_factory=dict)
     """
     Store the `download link` of the challenge image {挑战图片1: url1, ...}
     """
 
-    _alias2path: dict = field(default_factory=dict)
+    _alias_to_path: dict = field(default_factory=dict)
     """
     Store the `directory` of challenge image {挑战图片1: "/images/挑战图片1.png", ...}
     """
@@ -112,12 +112,12 @@ class Skeleton(ABC):
         return dragon
 
     def _match_solution(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
-        """match solution after `tactical_retreat`"""
+        """match solution after `retreat_challenge`"""
         focus_label = self._label_alias.get(self._label, "")
 
         # Match YOLOv8 model
         if not focus_label or select == "yolo":
-            focus_name, classes = self.modelhub.apply_ash_of_war(ash=self._label)
+            focus_name, classes = self.modelhub.apply_area_select_label(area_select_question=self._label)
             session = self.modelhub.match_net(focus_name=focus_name)
             detector = YOLOv8.from_pluggable_model(session, classes)
             return detector
@@ -137,7 +137,7 @@ class Skeleton(ABC):
         """Obtain the label that needs to be recognized for the challenge"""
         raise NotImplementedError
 
-    def tactical_retreat(self, **kwargs) -> str | None:
+    def retreat_challenge(self, **kwargs) -> str | None:
         """skip unchoreographed challenges"""
         if self._label_alias.get(self._label):
             return self.status.CHALLENGE_CONTINUE
@@ -160,13 +160,13 @@ class Skeleton(ABC):
         if self._label:
             prefix = f"{time.time()}_{self._label_alias.get(self._label, self._label)}"
         runtime_dir = self.challenge_dir.joinpath(prefix)
-        runtime_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
+        runtime_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize the data container
         container = []
-        for alias_, url_ in self._alias2url.items():
+        for alias_, url_ in self._alias_to_url.items():
             challenge_img_path = runtime_dir.joinpath(f"{alias_}.png")
-            self._alias2path.update({alias_: challenge_img_path})
+            self._alias_to_path.update({alias_: challenge_img_path})
             container.append((challenge_img_path, url_))
 
         return container

@@ -21,6 +21,7 @@ from hcaptcha_challenger.agents.selenium import ArmorUtils
 from hcaptcha_challenger.agents.selenium import SeleniumAgent
 from hcaptcha_challenger.agents.selenium import get_challenge_ctx
 
+
 # Existing user data
 email = "plms-123@tesla.com"
 country = "Hong Kong"
@@ -42,7 +43,7 @@ def hit_challenge(ctx, agent: SeleniumAgent, retries: int = 2) -> bool | None:
     :param retries:
     :return:
     """
-    if ArmorUtils.face_the_checkbox(ctx):
+    if ArmorUtils.checkbox_visible(ctx):
         agent.anti_checkbox(ctx)
 
     for pth in range(1, retries):

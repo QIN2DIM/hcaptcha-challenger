@@ -31,7 +31,7 @@ enabled_evasions = [
 ]
 
 
-class Tarnished:
+class Stealthened:
     def __init__(
         self,
         user_data_dir: Path,
@@ -47,10 +47,10 @@ class Tarnished:
 
     @staticmethod
     def apply_stealth(context: SyncContext):
-        for e in enabled_evasions:
+        for evasion in enabled_evasions:
             evasion_code = (
                 Path(__file__)
-                .parent.joinpath(f"puppeteer-extra-plugin-stealth/evasions/{e}/index.js")
+                .parent.joinpath(f"puppeteer-extra-plugin-stealth/evasions/{evasion}/index.js")
                 .read_text(encoding="utf8")
             )
             context.add_init_script(evasion_code)
@@ -98,72 +98,3 @@ class Tarnished:
                 else:
                     container(context, **kws)
             context.close()
-
-
-class Malenia:
-    def __init__(
-        self,
-        user_data_dir: Path,
-        *,
-        record_dir: Path | None = None,
-        record_har_path: Path | None = None,
-        state_path: Path | None = None,
-    ):
-        self._user_data_dir = user_data_dir
-        self._record_dir = record_dir
-        self._record_har_path = record_har_path
-        self.state_path = state_path
-
-    @staticmethod
-    async def apply_stealth(context: ASyncContext):
-        for e in enabled_evasions:
-            evasion_code = (
-                Path(__file__)
-                .parent.joinpath(f"puppeteer-extra-plugin-stealth/evasions/{e}/index.js")
-                .read_text(encoding="utf8")
-            )
-            await context.add_init_script(evasion_code)
-
-        return context
-
-    async def storage_state(self, context: ASyncContext):
-        if self.state_path:
-            logger.info("Storage ctx_cookie", path=self.state_path)
-            await context.storage_state(path=self.state_path)
-
-    async def execute(
-        self,
-        sequence: Callable[..., Awaitable[...]] | List,
-        *,
-        parameters: Dict[str, Any] = None,
-        headless: bool = False,
-        locale: str = "en-US",
-        **kwargs,
-    ):
-        async with async_playwright() as p:
-            context = await p.firefox.launch_persistent_context(
-                user_data_dir=self._user_data_dir,
-                headless=headless,
-                locale=locale,
-                record_video_dir=self._record_dir,
-                record_har_path=self._record_har_path,
-                args=["--hide-crash-restore-bubble"],
-                **kwargs,
-            )
-            await self.apply_stealth(context)
-
-            if not isinstance(sequence, list):
-                sequence = [sequence]
-            for container in sequence:
-                logger.info("Execute task", name=container.__name__)
-                kws = {}
-                params = inspect.signature(container).parameters
-                if parameters and isinstance(parameters, dict):
-                    for name in params:
-                        if name != "context" and name in parameters:
-                            kws[name] = parameters[name]
-                if not kws:
-                    await container(context)
-                else:
-                    await container(context, **kws)
-            await context.close()

@@ -57,14 +57,14 @@ def diagnose_task(words: str) -> str:
         raise TypeError(f"({words})TASK should be string type data")
 
     # Filename contains illegal characters
-    inv = {"\\", "/", ":", "*", "?", "<", ">", "|"}
-    if s := set(words) & inv:
+    invalids = {"\\", "/", ":", "*", "?", "<", ">", "|"}
+    if special_char := set(words) & invalids:
         raise TypeError(f"({words})TASK contains invalid characters({s})")
 
     # Normalized separator
-    rnv = {" ", ",", "-"}
-    for s in rnv:
-        words = words.replace(s, "_")
+    separators = {" ", ",", "-"}
+    for special_char in separators:
+        words = words.replace(special_char, "_")
 
     for code, right_code in BAD_CODE.items():
         words.replace(code, right_code)
