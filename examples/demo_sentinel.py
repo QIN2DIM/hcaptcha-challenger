@@ -15,7 +15,7 @@ import httpx
 from github import Github, Auth
 from github.Repository import Repository
 from loguru import logger
-from playwright.async_api import BrowserContext as ASyncContext, async_playwright
+from playwright.async_api import BrowserContext as ASyncContext, async_playwright, Page
 
 from hcaptcha_challenger import install
 from hcaptcha_challenger.agents.playwright.control import AgentT, QuestionResp
@@ -117,10 +117,6 @@ class Pigeon:
         return False
 
     def notify(self):
-        if not os.getenv("GITHUB_TOKEN"):
-            logger.error("Failed to update issue, miss GITHUB TOKEN.")
-            return
-
         challenge_prompt = list(self.qr.requester_question.values())[0]
         challenge_prompt = label_cleaning(challenge_prompt)
         if not self._bypass_motion(challenge_prompt):
@@ -140,10 +136,23 @@ class Sentinel:
         self.nt_screenshot_dir.mkdir(parents=True, exist_ok=True)
         self.pending_pigeon = asyncio.Queue()
 
+    async def register_pigeon(self, page: Page, label: str, agent, sitekey):
+        fl = page.frame_locator(agent.HOOK_CHALLENGE)
+        canvas = fl.locator("//div[@class='challenge-view']")
+
+        canvas_path = self.nt_screenshot_dir.joinpath(f"{label}.png")
+        await canvas.screenshot(type="png", path=canvas_path)
+
+        pigeon = Pigeon.build(label, agent.qr, sitekey, canvas_path)
+        self.pending_pigeon.put_nowait(pigeon)
+
+        self.lookup_labels.add(label)
+
     @logger.catch
     async def collete_datasets(self, context: ASyncContext, sitekey: str, batch: int = per_times):
         page = await context.new_page()
         agent = AgentT.from_page(page=page, tmp_dir=self.tmp_dir)
+        label_alias = agent.modelhub.label_alias
 
         sitelink = SiteKey.as_sitelink(sitekey)
         await page.goto(sitelink)
@@ -153,29 +162,21 @@ class Sentinel:
         for pth in range(1, batch + 1):
             try:
                 label = await agent.collect()
-                print(f">> COLLETE - progress={pth}/{batch} {label=} {sitelink=}")
+                print(f">> COLLETE - progress={pth}/{batch} {label=}")
             except httpx.HTTPError as err:
-                logger.warning(f"Collection speed is too fast - reason={err}")
+                logger.warning(f"Collection speed is too fast", reason=err)
             except FileNotFoundError:
                 pass
             else:
                 # {{< Sentinel Notify >}}
-                label_alias = {}
-
                 if (
                     label
                     and "binary" in agent.qr.request_type
                     and label not in self.lookup_labels
                     and label not in label_alias
                 ):
-                    logger.success(f"lookup new challenge - {label=} {sitelink=}")
-                    fl = page.frame_locator(agent.HOOK_CHALLENGE)
-                    canvas = fl.locator("//div[@class='challenge-view']")
-                    canvas_path = self.nt_screenshot_dir.joinpath(f"{label}.png")
-                    await canvas.screenshot(type="png", path=canvas_path)
-                    pigeon = Pigeon.build(label, agent.qr, sitekey, canvas_path)
-                    self.pending_pigeon.put_nowait(pigeon)
-                    self.lookup_labels.add(label)
+                    logger.info(f"lookup new challenge", label=label, sitelink=sitelink)
+                    await self.register_pigeon(page, label, agent, sitekey)
 
             # Update MQ
             await page.wait_for_timeout(500)
@@ -198,5 +199,8 @@ class Sentinel:
 
 
 if __name__ == "__main__":
-    sentinel = Sentinel()
-    asyncio.run(sentinel.bytedance())
+    if os.getenv("GITHUB_TOKEN"):
+        sentinel = Sentinel()
+        asyncio.run(sentinel.bytedance())
+    else:
+        logger.critical("Failed to startup sentinel, miss GITHUB TOKEN.")
