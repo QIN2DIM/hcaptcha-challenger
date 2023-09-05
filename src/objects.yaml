@@ -73,7 +73,9 @@ label_alias:
   tractor0903:
     zh: [ "拖拉机" ]
     en: [ "tractor" ]
-
+  crumpled_paper_ball:
+    zh: [ "皱纸球" ]
+    en: [ "crumpled paper ball" ]
 #  animal:
 #    zh: [ "动物" ]
 #    en: [ "animal" ]
