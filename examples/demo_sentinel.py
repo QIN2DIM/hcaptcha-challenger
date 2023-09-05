@@ -6,6 +6,7 @@
 import asyncio
 import hashlib
 import os
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -70,7 +71,7 @@ class Pigeon:
         return cls(label=label, qr=qr, sitekey=sitekey, canvas_path=canvas_path)
 
     def _upload_asset(self) -> str:
-        asset_path = f"captcha/{self.label}.png"
+        asset_path = f"captcha/{int(time.time())}.{self.label}.png"
         branch = "main"
         content = Path(self.canvas_path).read_bytes()
 
