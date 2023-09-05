@@ -76,6 +76,12 @@ label_alias:
   crumpled_paper_ball:
     zh: [ "皱纸球" ]
     en: [ "crumpled paper ball" ]
+  river:
+    zh: [ "河" ]
+    en: [ "river" ]
+  clothing:
+    zh: [ "衣服" ]
+    en: [ "clothing" ]
 #  animal:
 #    zh: [ "动物" ]
 #    en: [ "animal" ]
