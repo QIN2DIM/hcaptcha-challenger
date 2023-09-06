@@ -69,7 +69,7 @@ class QuestionResp:
     ]
     """
 
-    requester_restricted_answer_set: Dict[dict] = field(default_factory=dict)
+    requester_restricted_answer_set: Dict[str, Any] = field(default_factory=dict)
     """
     Not available on the binary challenge
     """
@@ -263,8 +263,12 @@ class Radagon:
 
     def _download_images(self):
         request_type = self.qr.request_type
-        self.typed_dir = self.tmp_dir.joinpath(request_type, self._label)
-        self.typed_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
+        ks = list(self.qr.requester_restricted_answer_set.keys())
+        if len(ks) > 0:
+            self.typed_dir = self.tmp_dir.joinpath(request_type, self._label, ks[0])
+        else:
+            self.typed_dir = self.tmp_dir.joinpath(request_type, self._label)
+        self.typed_dir.mkdir(parents=True, exist_ok=True)
 
         container = []
         for i, tk in enumerate(self.qr.tasklist):
