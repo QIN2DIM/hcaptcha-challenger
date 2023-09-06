@@ -96,7 +96,7 @@ class SiteKey:
         }
         url = "https://accounts.hcaptcha.com/demo"
         if sitekey in keymap:
-            return f"{url}?sitekey={sitekey}"
+            return f"{url}?sitekey={keymap[sitekey]}"
 
         try:
             uuid.UUID(sitekey)

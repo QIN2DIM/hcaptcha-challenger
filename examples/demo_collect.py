@@ -20,11 +20,12 @@ context_dir = user_data_dir.joinpath("context")
 
 labels = set()
 
-sitelink = SiteKey.as_sitelink(sitekey="easy")
+sitelink = SiteKey.as_sitelink(sitekey="user")
+batch = 80
 
 
 @logger.catch
-async def collete_datasets(context: ASyncContext, batch: int = 80):
+async def collete_datasets(context: ASyncContext):
     page = await context.new_page()
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
 
@@ -47,7 +48,7 @@ async def collete_datasets(context: ASyncContext, batch: int = 80):
 async def bytedance():
     malenia = Malenia(user_data_dir=context_dir)
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(headless=False)
         context = await browser.new_context(locale="en-US")
         await malenia.apply_stealth(context)
         await collete_datasets(context)
