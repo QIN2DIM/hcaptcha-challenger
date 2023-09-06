@@ -206,6 +206,10 @@ class Sentinel:
         await page.close()
 
     async def bytedance(self):
+        if not self.pending_sitekey:
+            logger.info("No pending tasks, sentinel exits", tasks=self.pending_sitekey)
+            return
+
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(locale="en-US")

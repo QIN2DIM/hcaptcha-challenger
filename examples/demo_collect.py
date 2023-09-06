@@ -20,7 +20,7 @@ context_dir = user_data_dir.joinpath("context")
 
 labels = set()
 
-sitekey = "user"
+sitelink = SiteKey.as_sitelink(sitekey="easy")
 
 
 @logger.catch
@@ -28,7 +28,7 @@ async def collete_datasets(context: ASyncContext, batch: int = 80):
     page = await context.new_page()
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
 
-    await page.goto(SiteKey.as_sitelink(sitekey=sitekey))
+    await page.goto(sitelink)
 
     await agent.handle_checkbox()
 

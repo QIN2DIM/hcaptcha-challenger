@@ -8,6 +8,7 @@ from __future__ import annotations
 import inspect
 import random
 import sys
+import uuid
 from typing import Dict, Any, Literal
 
 from loguru import logger
@@ -82,18 +83,26 @@ class SiteKey:
     user_difficult = "3fac610f-4879-4fd5-919b-ca072a134a79"
 
     @staticmethod
-    def as_sitelink(sitekey: Literal["discord", "epic", "hcaptcha", "newtype", "user"] | str):
+    def as_sitelink(
+        sitekey: Literal["discord", "epic", "easy", "moderate", "difficult", "user"] | str
+    ):
         keymap = {
             "discord": SiteKey.discord,
             "epic": SiteKey.epic,
-            "hcaptcha": SiteKey.hcaptcha,
-            "newtype": SiteKey.new_type_challenge,
             "user": SiteKey.user_easy,
             "easy": SiteKey.user_easy,
             "moderate": SiteKey.user_moderate,
             "difficult": SiteKey.user_difficult,
         }
-        return f"https://accounts.hcaptcha.com/demo?sitekey={keymap.get(sitekey, sitekey)}"
+        url = "https://accounts.hcaptcha.com/demo"
+        if sitekey in keymap:
+            return f"{url}?sitekey={sitekey}"
+
+        try:
+            uuid.UUID(sitekey)
+            return f"{url}?sitekey={sitekey}"
+        except ValueError:
+            raise ValueError(f"sitekey is a string in UUID format, but you entered `{sitekey}`")
 
     @staticmethod
     def choice():

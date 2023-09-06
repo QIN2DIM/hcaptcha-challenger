@@ -27,16 +27,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: |
-          pipx install poetry
-          poetry export -o requirements.txt -E sentinel
       - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
           cache: 'pip' # caching pip dependencies
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install hcaptcha-challenger[sentinel]
           playwright install chromium
           playwright install-deps chromium
       - name: Startup sentinel
