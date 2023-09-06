@@ -18,16 +18,25 @@ jobs:
   setup:
     env:
       GITHUB_TOKEN: ${{ secrets.SENTINEL_ACCESS_TOKEN }}
+      SENTINEL_PER_TIMES: 12
+      SITEKEY_DISCORD: f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34
+      SITEKEY_EPIC: 91e4137f-95af-4bc9-97af-cdcedce21c8c
+      SITEKEY_USER_DIFFICULT: 3fac610f-4879-4fd5-919b-ca072a134a79
+      SITEKEY_USER_MODERATE: eb932362-438e-43b4-9373-141064402110
+      SITEKEY_USER_EASY: c86d730b-300a-444c-a8c5-5312e7a93628
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - run: |
+          pipx install poetry
+          poetry export -o requirements.txt -E sentinel
       - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: 'poetry' # caching pip dependencies
+          cache: 'pip' # caching pip dependencies
       - name: Install dependencies
         run: |
-          poetry install -E sentinel
+          pip install -r requirements.txt
           playwright install chromium
           playwright install-deps chromium
       - name: Startup sentinel

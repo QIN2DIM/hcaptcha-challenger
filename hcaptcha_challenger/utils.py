@@ -73,13 +73,13 @@ class SiteKey:
     hcaptcha = "a5f74b19-9e45-40e0-b45d-47ff91b7a6c2"
     hcaptcha_signup = "13257c82-e129-4f09-a733-2a7cb3102832"
     new_type_challenge = "ace50dd0-0d68-44ff-931a-63b670c7eed7"
-    user = "c86d730b-300a-444c-a8c5-5312e7a93628"
     cloud_horse = "edc4ce89-8903-4906-80b1-7440ad9a69c8"
     top_level = "adafb813-8b5c-473f-9de3-485b4ad5aa09"
 
-    @staticmethod
-    def to_sitelink() -> str:
-        return f"https://accounts.hcaptcha.com/demo?sitekey={SiteKey.user}"
+    user_easy = "c86d730b-300a-444c-a8c5-5312e7a93628"
+    user = user_easy
+    user_moderate = "eb932362-438e-43b4-9373-141064402110"
+    user_difficult = "3fac610f-4879-4fd5-919b-ca072a134a79"
 
     @staticmethod
     def as_sitelink(sitekey: Literal["discord", "epic", "hcaptcha", "newtype", "user"] | str):
@@ -88,7 +88,10 @@ class SiteKey:
             "epic": SiteKey.epic,
             "hcaptcha": SiteKey.hcaptcha,
             "newtype": SiteKey.new_type_challenge,
-            "user": SiteKey.user,
+            "user": SiteKey.user_easy,
+            "easy": SiteKey.user_easy,
+            "moderate": SiteKey.user_moderate,
+            "difficult": SiteKey.user_difficult,
         }
         return f"https://accounts.hcaptcha.com/demo?sitekey={keymap.get(sitekey, sitekey)}"
 

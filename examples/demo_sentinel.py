@@ -48,7 +48,7 @@ image_label_binary
 """
 
 # Find new binary challenge from here
-PENDING_SITEKEY = [SiteKey.epic, SiteKey.user, SiteKey.discord, SiteKey.top_level]
+PENDING_SITEKEY = []
 
 
 @dataclass
@@ -131,16 +131,30 @@ class Pigeon:
 
 @dataclass
 class Sentinel:
-    per_times: int = 20
+    per_times: int = 8
     tmp_dir: Path = Path(__file__).parent.joinpath("tmp_dir")
     nt_screenshot_dir = tmp_dir.joinpath("sentinel_challenge")
 
     lookup_labels: Set[str] = field(default_factory=set)
     pending_pigeon: asyncio.Queue[Pigeon] = None
 
+    pending_sitekey = PENDING_SITEKEY
+
     def __post_init__(self):
         self.nt_screenshot_dir.mkdir(parents=True, exist_ok=True)
         self.pending_pigeon = asyncio.Queue()
+
+        spt = os.getenv("SENTINEL_PER_TIMES", "")
+        self.per_times = int(spt) if spt.isdigit() else 8
+
+        for skn in os.environ:
+            if skn.startswith("SITEKEY_"):
+                sk = os.environ[skn]
+                logger.info("get sitekey from env", name=skn, sitekey=sk)
+                self.pending_sitekey.append(sk)
+
+        self.pending_sitekey = list(set(self.pending_sitekey))
+        logger.info("create tasks", pending_sitekey=self.pending_sitekey)
 
     async def register_pigeon(self, page: Page, label: str, agent, sitekey):
         fl = page.frame_locator(agent.HOOK_CHALLENGE)
@@ -196,7 +210,7 @@ class Sentinel:
             browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(locale="en-US")
             await Malenia.apply_stealth(context)
-            for sitekey in PENDING_SITEKEY:
+            for sitekey in self.pending_sitekey:
                 await self.collete_datasets(context, sitekey)
                 while not self.pending_pigeon.empty():
                     pigeon = self.pending_pigeon.get_nowait()
