@@ -88,6 +88,9 @@ label_alias:
   mountain2309:
     zh: [ "山" ]
     en: [ "mountain" ]
+  motorcycle2309:
+    zh: [ "摩托车" ]
+    en: [ "motorcycle" ]
 #  animal:
 #    zh: [ "动物" ]
 #    en: [ "animal" ]
