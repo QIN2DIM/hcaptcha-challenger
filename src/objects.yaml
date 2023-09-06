@@ -4,7 +4,8 @@ branches:
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 ashes_of_war:
   fruit0903_yolov8s.onnx: [ "orange", "pineapple", "strawberries" ]
-  animal0903_yolov8s.onnx: [ "parrot" ]
+  animal2309_yolov8s.onnx: [ "parrot", "squirrel" ]
+  #  animal0903_yolov8s.onnx: [ "parrot" ]
   animal0831_yolov8s.onnx: [ "elephant", "raccoon" ]
   animalhead_yolov8s.onnx: [ "duck-head", "parrot-head" ]
   onclick_yolov8m.onnx: [ 'bat', 'bear', 'cat', 'elephant', 'hedgehog', 'lighthouse', 'lion', 'parrot', 'penguin', 'raccoon', 'squirrel' ]
