@@ -477,7 +477,7 @@ class AgentT(Radagon):
             checkbox = self.page.frame_locator("//iframe[contains(@title,'checkbox')]")
             await checkbox.locator("#checkbox").click()
 
-    async def execute(self, **kwargs):
+    async def execute(self, **kwargs) -> str | None:
         window = kwargs.get("window", "login")
 
         frame_challenge = self._switch_to_challenge_frame(self.page, window)
@@ -514,11 +514,11 @@ class AgentT(Radagon):
         result = await self._is_success()
         return result
 
-    async def collect(self):
+    async def collect(self) -> str | None:
         """Download datasets"""
         await self._reset_state()
         if not self.qr.requester_question.keys():
-            return self._label
+            return
         self._parse_label()
         self._download_images()
         return self._label
