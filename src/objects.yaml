@@ -85,6 +85,9 @@ label_alias:
   cat2309:
     zh: [ "猫" ]
     en: [ "cat" ]
+  mountain2309:
+    zh: [ "山" ]
+    en: [ "mountain" ]
 #  animal:
 #    zh: [ "动物" ]
 #    en: [ "animal" ]
