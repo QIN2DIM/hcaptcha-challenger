@@ -6,6 +6,7 @@
 import asyncio
 from pathlib import Path
 
+import httpx
 from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
@@ -20,8 +21,8 @@ context_dir = user_data_dir.joinpath("context")
 
 labels = set()
 
-sitelink = SiteKey.as_sitelink(sitekey="user")
-batch = 80
+sitelink = SiteKey.as_sitelink(sitekey="easy")
+batch = 30
 
 
 @logger.catch
@@ -38,8 +39,12 @@ async def collete_datasets(context: ASyncContext):
             label = await agent.collect()
             labels.add(label)
             print(f"\r>> COLLETE - progress={pth}/{batch} {label=}", end="")
-        except FileNotFoundError as err:
-            logger.warning(err)
+        except httpx.HTTPError as err:
+            logger.warning(f"Collection speed is too fast", reason=err)
+            await page.wait_for_timeout(500)
+        except FileNotFoundError:
+            pass
+
         await page.wait_for_timeout(500)
         fl = page.frame_locator(agent.HOOK_CHALLENGE)
         await fl.locator("//div[@class='refresh button']").click()
