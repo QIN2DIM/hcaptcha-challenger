@@ -21,21 +21,21 @@ from playwright.async_api import BrowserContext as ASyncContext, async_playwrigh
 from hcaptcha_challenger import install
 from hcaptcha_challenger.agents.playwright.control import AgentT, QuestionResp
 from hcaptcha_challenger.agents.playwright.tarnished import Malenia
-from hcaptcha_challenger.components.prompt_handler import label_cleaning
+from hcaptcha_challenger.components.prompt_handler import label_cleaning, split_prompt_message
 from hcaptcha_challenger.utils import SiteKey
 
 install(upgrade=True, flush_yolo=False)
 
-PENDING_SITEKEY = [SiteKey.epic, SiteKey.discord, SiteKey.user, SiteKey.top_level]
-
 TEMPLATE_BINARY_CHALLENGE = """
+> Automated deployment @ utc {now}
+
 ### Prompt[en]
 
 {prompt}
 
 ### New types of challenge
 
-New prompt (for ex. Please select all the 45th President of the US)
+image_label_binary
 
 ### Sitelink
 
@@ -46,6 +46,9 @@ New prompt (for ex. Please select all the 45th President of the US)
 ![{prompt}]({screenshot_url})
 
 """
+
+# Find new binary challenge from here
+PENDING_SITEKEY = [SiteKey.epic, SiteKey.user, SiteKey.discord, SiteKey.top_level]
 
 
 @dataclass
@@ -62,15 +65,15 @@ class Pigeon:
 
     def __post_init__(self):
         auth = Auth.Token(os.getenv("GITHUB_TOKEN"))
-        # self.issue_repo = Github(auth=auth).get_repo("QIN2DIM/hcaptcha-challenger")
-        self.issue_repo = Github(auth=auth).get_repo("QIN2DIM/cdn-relay")
+        self.issue_repo = Github(auth=auth).get_repo("QIN2DIM/hcaptcha-challenger")
+        # self.issue_repo = Github(auth=auth).get_repo("QIN2DIM/cdn-relay")
         self.asset_repo = Github(auth=auth).get_repo("QIN2DIM/cdn-relay")
 
     @classmethod
     def build(cls, label, qr, sitekey, canvas_path):
         return cls(label=label, qr=qr, sitekey=sitekey, canvas_path=canvas_path)
 
-    def _upload_asset(self) -> str:
+    def _upload_asset(self) -> str | None:
         asset_path = f"captcha/{int(time.time())}.{self.label}.png"
         branch = "main"
         content = Path(self.canvas_path).read_bytes()
@@ -92,6 +95,7 @@ class Pigeon:
         asset_url = self._upload_asset()
 
         body = TEMPLATE_BINARY_CHALLENGE.format(
+            now=str(datetime.now()),
             prompt=challenge_prompt,
             screenshot_url=asset_url,
             sitelink=SiteKey.as_sitelink(self.sitekey),
@@ -107,21 +111,22 @@ class Pigeon:
         logger.success(f"create issue", html_url=resp.html_url)
 
     def _bypass_motion(self, challenge_prompt: str):
-        issues = self.issue_repo.get_issues(
+        for issue in self.issue_repo.get_issues(
             labels=[self.binary_challenge_label],
             state="all",
             since=datetime.now() - timedelta(days=14),
-        )
-        issue_titles = [i.title for i in issues]
-        if challenge_prompt in issue_titles:
-            return True
-        return False
+        ):
+            label = split_prompt_message(challenge_prompt, lang="en")
+            if label in issue.title:
+                return True
 
     def notify(self):
         challenge_prompt = list(self.qr.requester_question.values())[0]
         challenge_prompt = label_cleaning(challenge_prompt)
         if not self._bypass_motion(challenge_prompt):
             self._create_challenge_issues(challenge_prompt)
+        else:
+            logger.info("bypass issue", prompt=challenge_prompt)
 
 
 @dataclass
