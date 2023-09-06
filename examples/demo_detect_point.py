@@ -10,7 +10,7 @@ import hcaptcha_challenger as solver
 from hcaptcha_challenger.components.image_label_area_select import AreaSelector
 
 # Init local-side of the ModelHub
-solver.install(flush_yolo=True)
+solver.install(upgrade=True, flush_yolo=False)
 
 # please click on the elephant
 # please click on the raccoon
