@@ -3,16 +3,18 @@ name: hCAPTCHA Sentinel
 on:
   push:
     branches:
-      - sentinel
+      - main
     paths-ignore:
-#      - ".github/**"
+      - ".github/**"
       - "README.md"
       - "LICENSE"
       - ".gitignore"
       - ".deepsource.toml"
   workflow_dispatch:
+
+  # “At minute 7 past every 2nd hour.”
   schedule:
-    - cron: "10 23 * * 4,5"
+    - cron: "7 */2 * * *"
 
 jobs:
   setup:
