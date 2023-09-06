@@ -48,7 +48,7 @@ async def collete_datasets(context: ASyncContext):
 async def bytedance():
     malenia = Malenia(user_data_dir=context_dir)
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
+        browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(locale="en-US")
         await malenia.apply_stealth(context)
         await collete_datasets(context)
