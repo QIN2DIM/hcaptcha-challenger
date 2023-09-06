@@ -96,6 +96,9 @@ label_alias:
   excavator2309:
     zh: [ "挖掘机" ]
     en: [ "excavator" ]
+  outdoor_gear2309:
+    zh: [ "户外装备" ]
+    en: [ "outdoor gear" ]
 #  animal:
 #    zh: [ "动物" ]
 #    en: [ "animal" ]
