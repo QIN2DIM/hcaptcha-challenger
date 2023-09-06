@@ -82,6 +82,9 @@ label_alias:
   clothing:
     zh: [ "衣服" ]
     en: [ "clothing" ]
+  cat2309:
+    zh: [ "猫" ]
+    en: [ "cat" ]
 #  animal:
 #    zh: [ "动物" ]
 #    en: [ "animal" ]
