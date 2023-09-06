@@ -91,6 +91,9 @@ label_alias:
   motorcycle2309:
     zh: [ "摩托车" ]
     en: [ "motorcycle" ]
+  excavator2309:
+    zh: [ "挖掘机" ]
+    en: [ "excavator" ]
 #  animal:
 #    zh: [ "动物" ]
 #    en: [ "animal" ]
