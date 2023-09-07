@@ -40,4 +40,4 @@ jobs:
           playwright install-deps chromium
       - name: Startup sentinel
         run: |
-          cd examples && python3 demo_sentinel.py
+          cd automation && python3 sentinel.py
