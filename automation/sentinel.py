@@ -182,12 +182,13 @@ class Sentinel:
         for pth in range(1, batch + 1):
             try:
                 label = await agent.collect()
-                print(f">> COLLETE - progress={pth}/{batch} {label=}")
             except httpx.HTTPError as err:
                 logger.warning(f"Collection speed is too fast", reason=err)
             except FileNotFoundError:
                 pass
             else:
+                probe = list(agent.qr.requester_restricted_answer_set.keys())
+                print(f">> COLLETE - progress=[{pth}/{batch}] {label=} {probe=}")
                 # {{< Sentinel Notify >}}
                 if (
                     label
