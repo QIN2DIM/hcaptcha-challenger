@@ -33,12 +33,13 @@ Just implement some interfaces to make `AI vs AI` possible.
 
 | Tasks                         | Resource                                                     |
 | ----------------------------- | ------------------------------------------------------------ |
-| `datasets: collect`           | [QIN2DIM/hcaptcha-challenger](https://github.com/QIN2DIM/hcaptcha-challenger) |
-| `datasets: VCS, annoate`      | [roboflow](hcaptcha-challenger), [beiyuouo/hcaptcha-model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
-| `model: ResNet - train / val` | [beiyuouo/hcaptcha-model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
-| `model: YOLOv8 - train / val` | [ultralytics/YOLOv8](https://github.com/ultralytics/ultralytics) |
-| `model: upload, upgrade`      | [challenger-objects](https://github.com/QIN2DIM/hcaptcha-challenger/tree/main/src), [ONNX ModelHub](https://github.com/QIN2DIM/hcaptcha-challenger/releases/tag/model) |
-| `datasets: public, archive`   | [QIN2DIM - Roboflow Universe](https://universe.roboflow.com/qin2dim/), [captcha-challenge/datasets](https://github.com/captcha-challenger/hcaptcha-whistleblower) |
+| `challenge: automation`       | [![hCAPTCHA Sentinel](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/sentinel.yaml/badge.svg?branch=main)](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/sentinel.yaml) |
+| `datasets: collect`           | [#challenger](https://github.com/QIN2DIM/hcaptcha-challenger) |
+| `datasets: VCS, annoate`      | [#roboflow](hcaptcha-challenger), [#model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
+| `model: ResNet - train / val` | [#model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
+| `model: YOLOv8 - train / val` | [#ultralytics](https://github.com/ultralytics/ultralytics)   |
+| `model: upload, upgrade`      | [#objects](https://github.com/QIN2DIM/hcaptcha-challenger/tree/main/src), [#modelhub](https://github.com/QIN2DIM/hcaptcha-challenger/releases/tag/model) |
+| `datasets: public, archive`   | [#roboflow-universe](https://universe.roboflow.com/qin2dim/), [#captcha-datasets](https://github.com/captcha-challenger/hcaptcha-whistleblower) |
 
 ## What's next
 
