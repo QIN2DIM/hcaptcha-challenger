@@ -9,11 +9,35 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
 
+from hcaptcha_challenger.agents.playwright.control import AgentT, QuestionResp, ChallengeResp
+from hcaptcha_challenger.agents.playwright.tarnished import Malenia, Tarnished
 from hcaptcha_challenger.components.image_classifier import Classifier as BinaryClassifier
+from hcaptcha_challenger.components.image_label_area_select import AreaSelector
+from hcaptcha_challenger.components.prompt_handler import (
+    label_cleaning,
+    diagnose_task,
+    split_prompt_message,
+)
 from hcaptcha_challenger.onnx.modelhub import ModelHub
+from hcaptcha_challenger.onnx.resnet import ResNetControl
+from hcaptcha_challenger.onnx.yolo import YOLOv8
 from hcaptcha_challenger.utils import init_log
 
-__all__ = ["BinaryClassifier", "install"]
+__all__ = [
+    "BinaryClassifier",
+    "AreaSelector",
+    "install",
+    "AgentT",
+    "QuestionResp",
+    "ChallengeResp",
+    "YOLOv8",
+    "ResNetControl",
+    "Malenia",
+    "Tarnished",
+    "label_cleaning",
+    "diagnose_task",
+    "split_prompt_message",
+]
 
 
 @dataclass

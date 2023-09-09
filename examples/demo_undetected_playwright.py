@@ -13,8 +13,6 @@ from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger.agents.playwright.control import AgentT
-from hcaptcha_challenger.agents.playwright.tarnished import Malenia
 from hcaptcha_challenger.utils import SiteKey
 
 # Init local-side of the ModelHub
@@ -33,7 +31,7 @@ sitelink = SiteKey.as_sitelink(sitekey="easy")
 @logger.catch
 async def hit_challenge(context: ASyncContext, times: int = 8):
     page = context.pages[0]
-    agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
+    agent = solver.AgentT.from_page(page=page, tmp_dir=tmp_dir)
     await page.goto(sitelink)
 
     await agent.handle_checkbox()
@@ -53,7 +51,7 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
 
 
 async def bytedance():
-    malenia = Malenia(
+    malenia = solver.Malenia(
         user_data_dir=context_dir, record_dir=record_dir, record_har_path=record_har_path
     )
     await malenia.execute(sequence=[hit_challenge], headless=False)

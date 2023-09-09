@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger.components.image_label_area_select import AreaSelector
 
 # Init local-side of the ModelHub
 solver.install(flush_yolo=True)
@@ -23,7 +22,7 @@ images = [label_dir.joinpath(fn).read_bytes() for fn in os.listdir(label_dir)]
 
 
 def bytedance():
-    tool = AreaSelector()
+    tool = solver.AreaSelector()
     results = tool.execute(prompt, images, shape_type="point")
     if not results:
         return

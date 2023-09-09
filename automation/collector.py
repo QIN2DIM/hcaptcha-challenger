@@ -10,8 +10,7 @@ import httpx
 from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
-from hcaptcha_challenger.agents.playwright.control import AgentT
-from hcaptcha_challenger.agents.playwright.tarnished import Malenia
+from hcaptcha_challenger import AgentT, Malenia
 from hcaptcha_challenger.utils import SiteKey
 
 # Save dataset to current working directory

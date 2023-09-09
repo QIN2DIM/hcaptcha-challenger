@@ -12,7 +12,6 @@ from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger.agents.playwright.control import AgentT
 from hcaptcha_challenger.utils import SiteKey
 
 # Init local-side of the ModelHub
@@ -27,7 +26,7 @@ sitelink = SiteKey.as_sitelink(sitekey="easy")
 @logger.catch
 async def hit_challenge(context: ASyncContext, times: int = 8):
     page = await context.new_page()
-    agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
+    agent = solver.AgentT.from_page(page=page, tmp_dir=tmp_dir)
     await page.goto(sitelink)
 
     await agent.handle_checkbox()
