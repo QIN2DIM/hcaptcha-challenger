@@ -19,13 +19,11 @@ from github.Repository import Repository
 from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright, Page
 
-from hcaptcha_challenger import install
-from hcaptcha_challenger.agents.playwright.control import AgentT, QuestionResp
-from hcaptcha_challenger.agents.playwright.tarnished import Malenia
-from hcaptcha_challenger.components.prompt_handler import label_cleaning, split_prompt_message
+import hcaptcha_challenger as solver
+from hcaptcha_challenger import AgentT, QuestionResp, Malenia, label_cleaning, split_prompt_message
 from hcaptcha_challenger.utils import SiteKey
 
-install(upgrade=True, flush_yolo=False)
+solver.install(upgrade=True, flush_yolo=False)
 
 TEMPLATE_BINARY_CHALLENGE = """
 > Automated deployment @ utc {now}

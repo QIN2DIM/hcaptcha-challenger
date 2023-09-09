@@ -3,14 +3,12 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-
 from __future__ import annotations
 
 import logging
 import os
 import sys
 
-from loguru import logger
 from undetected_chromedriver import Chrome
 from undetected_chromedriver import ChromeOptions
 from webdriver_manager.chrome import ChromeDriverManager
@@ -66,7 +64,6 @@ def get_challenge_ctx(silence: bool | None = None, lang: str | None = None, **kw
     logging.getLogger("WDM").setLevel(logging.NOTSET)
     driver_executable_path = ChromeDriverManager().install()
 
-    logger.debug("🎮 Activate challenger context", silence=silence)
     return Chrome(
         options=create_chrome_options(silence, lang),
         headless=silence,

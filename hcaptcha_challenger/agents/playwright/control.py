@@ -22,13 +22,35 @@ from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response
 from playwright.async_api import TimeoutError
 
-from hcaptcha_challenger.agents.skeleton import Status
 from hcaptcha_challenger.components.image_downloader import download_images
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8, is_matched_ash_of_war, finetune_keypoint
 from hcaptcha_challenger.utils import from_dict_to_model
+
+
+@dataclass
+class Status:
+    # <success> Challenge Passed by following the expected
+    CHALLENGE_SUCCESS = "success"
+    # <continue> Continue the challenge
+    CHALLENGE_CONTINUE = "continue"
+    # <crash> Failure of the challenge as expected
+    CHALLENGE_CRASH = "crash"
+    # <retry> Your proxy IP may have been flagged
+    CHALLENGE_RETRY = "retry"
+    # <refresh> Skip the specified label as expected
+    CHALLENGE_REFRESH = "refresh"
+    # <backcall> (New Challenge) Types of challenges not yet scheduled
+    CHALLENGE_BACKCALL = "backcall"
+    # <to-X> NOT MATCH PATTERN
+    CHALLENGE_TO_BINARY = "to_binary"
+    CHALLENGE_TO_AREA_SELECT = "to_area_select"
+
+    AUTH_SUCCESS = "success"
+    AUTH_ERROR = "error"
+    AUTH_CHALLENGE = "challenge"
 
 
 @dataclass
