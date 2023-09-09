@@ -117,3 +117,6 @@ label_alias:
   motor_vehicle2309:
     zh: [ "机动车" ]
     en: [ "motor vehicle" ]
+  chess_piece2309:
+    zh: [ "棋子" ]
+    en: [ "chess piece" ]
