@@ -5,6 +5,7 @@
 # Description:
 import asyncio
 from pathlib import Path
+from typing import List
 
 import httpx
 from loguru import logger
@@ -20,12 +21,18 @@ context_dir = user_data_dir.joinpath("context")
 
 labels = set()
 
-sitelink = SiteKey.as_sitelink(sitekey="easy")
-batch = 30
+per_times: int = 20
+loop_times: int = 3
+sitelinks: List[str] = [
+    SiteKey.as_sitelink(sitekey=SiteKey.user_easy),
+    # SiteKey.as_sitelink(sitekey=SiteKey.discord),
+    # SiteKey.as_sitelink(sitekey=SiteKey.hcaptcha),
+    # SiteKey.as_sitelink(sitekey="eb932362-438e-43b4-9373-141064402110")
+]
 
 
 @logger.catch
-async def collete_datasets(context: ASyncContext):
+async def collete_datasets(context: ASyncContext, sitelink: str):
     page = await context.new_page()
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
 
@@ -33,16 +40,18 @@ async def collete_datasets(context: ASyncContext):
 
     await agent.handle_checkbox()
 
-    for pth in range(1, batch + 1):
+    for pth in range(1, per_times + 1):
         try:
             label = await agent.collect()
             labels.add(label)
-            print(f"\r>> COLLETE - progress={pth}/{batch} {label=}", end="")
-        except httpx.HTTPError as err:
+            print(f">> COLLETE - progress={pth}/{per_times} {label=}")
+        except (httpx.HTTPError, httpx.ConnectTimeout) as err:
             logger.warning(f"Collection speed is too fast", reason=err)
             await page.wait_for_timeout(500)
         except FileNotFoundError:
             pass
+        except Exception as err:
+            print(err)
 
         await page.wait_for_timeout(500)
         fl = page.frame_locator(agent.HOOK_CHALLENGE)
@@ -55,11 +64,10 @@ async def bytedance():
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(locale="en-US")
         await malenia.apply_stealth(context)
-        await collete_datasets(context)
+        for sitelink in sitelinks * loop_times:
+            await collete_datasets(context, sitelink)
+            print(f"\n>> COUNT - {labels=}")
         await context.close()
-
-    print(f"\n>> COUNT - {labels=}")
-
 
 if __name__ == "__main__":
     asyncio.run(bytedance())
