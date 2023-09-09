@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Dict, Any, Literal
 
+from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response
 from playwright.async_api import TimeoutError
 
@@ -28,7 +29,6 @@ from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8, is_matched_ash_of_war, finetune_keypoint
 from hcaptcha_challenger.utils import from_dict_to_model
-from loguru import logger
 
 
 @dataclass

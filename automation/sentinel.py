@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Set
+from urllib.parse import quote
 
 import httpx
 from github import Github, Auth
@@ -85,9 +86,8 @@ class Pigeon:
             sha=hashlib.sha256(content).hexdigest(),
             branch=branch,
         )
-        asset_url = (
-            f"https://github.com/{self.asset_repo.full_name}/blob/{branch}/{asset_path}?raw=true"
-        )
+        asset_quote_path = quote(asset_path)
+        asset_url = f"https://github.com/{self.asset_repo.full_name}/blob/{branch}/{asset_quote_path}?raw=true"
         logger.success(f"upload screenshot", asset_url=asset_url)
         return asset_url
 

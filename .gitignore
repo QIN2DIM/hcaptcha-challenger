@@ -141,3 +141,4 @@ examples/user_data_dir
 poetry.lock
 examples/*.png
 automation/tmp_dir
+docs/*.xmind
