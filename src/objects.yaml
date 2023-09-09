@@ -114,3 +114,6 @@ label_alias:
   helicopter2310:
     zh: [ "直升机" ]
     en: [ "helicopter" ]
+  motor_vehicle2309:
+    zh: [ "机动车" ]
+    en: [ "motor vehicle" ]
