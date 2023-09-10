@@ -23,18 +23,17 @@ from hcaptcha_challenger import AgentT, Malenia
 from hcaptcha_challenger import split_prompt_message, diagnose_task
 from hcaptcha_challenger.utils import SiteKey
 
-PENDING_SITEKEY = []
+PENDING_SITELINK = [SiteKey.as_sitelink(sitekey=SiteKey.user_easy)]
 
 TEMPLATE_BINARY_DATASETS = """
 > Automated deployment @ utc {now}
 
-| Item       | Details                    |
-| ---------- | -------------------------- |
-| prompt     | {prompt}                   |
-| type       | `{type}`                   |
-| sitelink   | {sitelink}                 |
-| statistics | {statistics}               |
-| assets     | [{label}]({download_url}) |
+| Attributes | Details                      |
+| ---------- | ---------------------------- |
+| prompt     | {prompt}                     |
+| type       | `{type}`                     |
+| statistics | [#asset]({statistics})       |
+| assets     | [{zip_name}]({download_url}) |
 
 """
 
@@ -75,7 +74,7 @@ class Gravitas:
         with zipfile.ZipFile(self.zip_path, "w") as zip_file:
             for root, dirs, files in os.walk(self.typed_dir):
                 for file in files:
-                    zip_file.write(os.path.join(root, file))
+                    zip_file.write(file)
 
     def to_asset(self, archive_release: GitRelease) -> GitReleaseAsset:
         res = archive_release.upload_asset(path=str(self.zip_path))
@@ -87,8 +86,7 @@ def create_comment(asset: GitReleaseAsset, gravitas: Gravitas):
         now=str(datetime.now()),
         prompt=gravitas.challenge_prompt,
         type="image_label_binary",
-        sitelink=gravitas.sitelink,
-        label=gravitas.label,
+        zip_name=asset.name,
         download_url=asset.browser_download_url,
         statistics=asset.url,
     )
@@ -96,7 +94,7 @@ def create_comment(asset: GitReleaseAsset, gravitas: Gravitas):
     logger.success(f"create comment", html_url=comment.html_url)
 
 
-def load_tasks_from_issues() -> List[Gravitas]:
+def load_gravitas_from_issues() -> List[Gravitas]:
     auth = Auth.Token(os.getenv("GITHUB_TOKEN"))
     issue_repo = Github(auth=auth).get_repo("QIN2DIM/hcaptcha-challenger")
     binary_challenge_label = "🔥 challenge"
@@ -104,8 +102,8 @@ def load_tasks_from_issues() -> List[Gravitas]:
     tasks = []
     for issue in issue_repo.get_issues(
         labels=[binary_challenge_label],
-        state="closed",  # fixme
-        since=datetime.now() - timedelta(hours=2),
+        state="open",  # fixme `open`
+        since=datetime.now() - timedelta(hours=3),  # fixme `3hours`
     ):
         if "Automated deployment @" not in issue.body:
             continue
@@ -130,7 +128,7 @@ def get_archive_release() -> GitRelease:
 @dataclass
 class Collector:
     per_times: int = 20
-    loop_times: int = 3
+    loop_times: int = 1
     tmp_dir: Path = Path(__file__).parent.joinpath("tmp_dir")
 
     pending_sitelink: List[str] = field(default_factory=list)
@@ -140,13 +138,14 @@ class Collector:
 
     def __post_init__(self):
         cpt = os.getenv("COLLECTOR_PER_TIMES", "")
-        self.per_times = int(cpt) if cpt.isdigit() else 20
-        logger.debug("init collector parameter", per_times=cpt)
+        self.per_times = int(cpt) if cpt.isdigit() else self.per_times
+        logger.debug("init collector parameter", per_times=self.per_times)
 
         clt = os.getenv("COLLECTOR_LOOP_TIMES", "")
-        self.loop_times = int(clt) if clt.isdigit() else 3
-        logger.debug("init collector parameter", loop_times=clt)
+        self.loop_times = int(clt) if clt.isdigit() else self.loop_times
+        logger.debug("init collector parameter", loop_times=self.loop_times)
 
+        self.pending_sitelink.extend(PENDING_SITELINK)
         for skn in os.environ:
             if skn.startswith("SITEKEY_"):
                 sk = os.environ[skn]
@@ -154,13 +153,13 @@ class Collector:
                 self.pending_sitelink.append(SiteKey.as_sitelink(sk))
 
         if os.getenv("GITHUB_TOKEN"):
-            self.pending_gravitas = load_tasks_from_issues()
+            self.pending_gravitas = load_gravitas_from_issues()
             for pi in self.pending_gravitas:
                 self.pending_sitelink.append(pi.sitelink)
                 logger.info("parse task from issues", prompt=pi.challenge_prompt)
 
         self.pending_sitelink = list(set(self.pending_sitelink))
-        logger.info("create tasks", pending_sitekey=self.pending_sitelink)
+        logger.info("create tasks", pending_sitelink=self.pending_sitelink)
 
     @logger.catch
     async def collete_datasets(self, context: ASyncContext, sitelink: str):
@@ -174,8 +173,6 @@ class Collector:
         for pth in range(1, self.per_times + 1):
             try:
                 label = await agent.collect()
-                self.typed_dirs.add(str(agent.typed_dir.absolute()))
-                print(f">> COLLETE - progress={pth}/{self.per_times} {label=}")
             except (httpx.HTTPError, httpx.ConnectTimeout) as err:
                 logger.warning(f"Collection speed is too fast", reason=err)
                 await page.wait_for_timeout(500)
@@ -183,6 +180,10 @@ class Collector:
                 pass
             except Exception as err:
                 print(err)
+            else:
+                self.typed_dirs.add(str(agent.typed_dir.absolute()))
+                probe = list(agent.qr.requester_restricted_answer_set.keys())
+                print(f">> COLLETE - progress=[{pth}/{self.per_times}] {label=} {probe=}")
 
             await page.wait_for_timeout(500)
             fl = page.frame_locator(agent.HOOK_CHALLENGE)
@@ -202,10 +203,10 @@ class Collector:
                 await self.collete_datasets(context, sitelink)
             await context.close()
 
-        # pack datasets
         if not self.pending_gravitas:
             return
 
+        # pack datasets
         archive_release = get_archive_release()
         for gravitas in self.pending_gravitas:
             for typed_dir in self.typed_dirs:
