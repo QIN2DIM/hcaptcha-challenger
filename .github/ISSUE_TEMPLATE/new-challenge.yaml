@@ -12,11 +12,11 @@ body:
       required: true
   - type: dropdown
     attributes:
-      label: New types of challenge
+      label: request_type
       options: 
-        - New prompt (for ex. Please select all the 45th President of the US)
-        - New approach (for ex. image watermark)
-        - Other
+        - "image_label_binary (for ex. Please click each image containing a fox)"
+        - "image_label_area_select: point (fox ex. Please click on the X)"
+        - "image_label_area_select: bounding_box (fox ex. Draw a tight bounding box around the X)"
     validations:
       required: true
   - type: input
@@ -30,6 +30,7 @@ body:
     attributes: 
       label: Sitelink
       description: Copy the link to the site where the challenge popped up.
+      value: "https://accounts.hcaptcha.com/demo?sitekey="
     validations:
       required: true
   - type: textarea

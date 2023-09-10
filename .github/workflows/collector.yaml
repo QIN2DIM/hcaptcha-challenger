@@ -17,9 +17,9 @@ on:
       - "src/**"
   workflow_dispatch:
 
-  # “At minute 7 past every 2nd hour.”
+  # “At minute 37 past every 2nd hour.”
   schedule:
-    - cron: "7 */2 * * *"
+    - cron: "37 */3 * * *"
 
 jobs:
   setup:
@@ -27,6 +27,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.SENTINEL_ACCESS_TOKEN }}
       COLLECTOR_PER_TIMES: 20
       COLLECTOR_LOOP_TIMES: 1
+      SITEKEY_USER_EASY: c86d730b-300a-444c-a8c5-5312e7a93628
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -39,6 +40,6 @@ jobs:
           pip install -U hcaptcha-challenger[sentinel]
           playwright install chromium
           playwright install-deps chromium
-      - name: Startup sentinel
+      - name: Startup Collector
         run: |
           cd automation && python3 collector.py

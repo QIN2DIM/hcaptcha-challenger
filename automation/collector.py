@@ -23,7 +23,7 @@ from hcaptcha_challenger import AgentT, Malenia
 from hcaptcha_challenger import split_prompt_message, diagnose_task
 from hcaptcha_challenger.utils import SiteKey
 
-PENDING_SITELINK = [SiteKey.as_sitelink(sitekey=SiteKey.user_easy)]
+PENDING_SITELINK = []
 
 TEMPLATE_BINARY_DATASETS = """
 > Automated deployment @ utc {now}
