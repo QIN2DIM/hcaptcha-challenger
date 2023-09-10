@@ -102,8 +102,8 @@ def load_gravitas_from_issues() -> List[Gravitas]:
     tasks = []
     for issue in issue_repo.get_issues(
         labels=[binary_challenge_label],
-        state="closed",  # fixme `open`
-        since=datetime.now() - timedelta(hours=3),  # fixme `3hours`
+        state="open",  # fixme `open`
+        since=datetime.now() - timedelta(hours=24),  # fixme `24hours`
     ):
         if "Automated deployment @" not in issue.body:
             continue
