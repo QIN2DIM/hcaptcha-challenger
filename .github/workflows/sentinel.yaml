@@ -2,8 +2,7 @@ name: hCAPTCHA Sentinel
 
 on:
   push:
-    branches:
-      - main
+
     paths-ignore:
       - ".github/**"
       - "README.md"
@@ -22,18 +21,25 @@ jobs:
   check_new_challenge:
     env:
       GITHUB_TOKEN: ${{ secrets.SENTINEL_ACCESS_TOKEN }}
+      SITEKEY_DISCORD: f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34
+      SITEKEY_EPIC: 91e4137f-95af-4bc9-97af-cdcedce21c8c
+      SITEKEY_USER_DIFFICULT: 3fac610f-4879-4fd5-919b-ca072a134a79
+      SITEKEY_USER_MODERATE: eb932362-438e-43b4-9373-141064402110
+      SITEKEY_USER_EASY: c86d730b-300a-444c-a8c5-5312e7a93628
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Checkout environment
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: 'pip' # caching pip dependencies
-      - uses: actions/download-artifact@v3
-        if: always()
+          cache: 'pip'
+      - name: Download artifact
+        uses: actions/download-artifact@v3
         continue-on-error: true
         with:
-          name: automation
+          name: tmp_dir
           path: ./automation/tmp_dir
       - name: Install dependencies
         run: |
@@ -43,26 +49,21 @@ jobs:
       - name: Startup sentinel
         env:
           SENTINEL_PER_TIMES: 12
-          SITEKEY_DISCORD: f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34
-          SITEKEY_EPIC: 91e4137f-95af-4bc9-97af-cdcedce21c8c
-          SITEKEY_USER_DIFFICULT: 3fac610f-4879-4fd5-919b-ca072a134a79
-          SITEKEY_USER_MODERATE: eb932362-438e-43b4-9373-141064402110
-          SITEKEY_USER_EASY: c86d730b-300a-444c-a8c5-5312e7a93628
         continue-on-error: true
         timeout-minutes: 10
         run: |
           cd automation && python3 sentinel.py
       - name: Startup collector
         env:
-          COLLECTOR_PER_TIMES: 10
-          COLLECTOR_LOOP_TIMES: 1
-          SITEKEY_USER_EASY: c86d730b-300a-444c-a8c5-5312e7a93628
+          COLLECTOR_PER_TIMES: 20
+          COLLECTOR_LOOP_TIMES: 3
         continue-on-error: true
-        timeout-minutes: 10
+        timeout-minutes: 20
         run: |
           cd automation && python3 collector.py
-      - uses: actions/upload-artifact@v3
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
         continue-on-error: true
         with:
-          name: automation
+          name: tmp_dir
           path: ./automation/tmp_dir

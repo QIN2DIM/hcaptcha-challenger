@@ -5,6 +5,7 @@
 # Description:
 import asyncio
 import os
+import shutil
 import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -224,6 +225,7 @@ class Collector:
                 gravitas.zip()
                 asset = gravitas.to_asset(archive_release)
                 create_comment(asset, gravitas)
+                shutil.rmtree(gravitas.zip_path, ignore_errors=True)
 
     async def bytedance(self):
         await self.startup_collector()
