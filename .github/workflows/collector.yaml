@@ -1,9 +1,6 @@
 name: hCAPTCHA Collector
 
 on:
-  issues:
-    types:
-      - opened
   push:
     branches:
       - ci-collector

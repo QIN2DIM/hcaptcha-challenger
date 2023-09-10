@@ -34,7 +34,7 @@ TEMPLATE_BINARY_CHALLENGE = """
 
 ### request_type
 
-{request_type}
+`{request_type}`
 
 ### Sitelink
 
@@ -92,13 +92,19 @@ class Pigeon:
     def _create_challenge_issues(self, challenge_prompt: str):
         asset_url = self._upload_asset()
 
+        # Switch to request_type
         request_type = self.qr.request_type
         if shape_type := self.qr.request_config.get("shape_type"):
             request_type = f"{request_type}: {shape_type}"
 
+        # Switch to mixed_label
+        prompt = challenge_prompt
+        if ":" in request_type:
+            prompt = self.label
+
         body = TEMPLATE_BINARY_CHALLENGE.format(
             now=str(datetime.now()),
-            prompt=challenge_prompt,
+            prompt=prompt,
             request_type=request_type,
             screenshot_url=asset_url,
             sitelink=SiteKey.as_sitelink(self.sitekey),
