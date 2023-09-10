@@ -3,6 +3,7 @@ branches:
     release_url: https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 ashes_of_war:
+  animalhead2309_yolov8s.onnx: [ "cat-head", "cow-head", "horse-head", "panda-head", "turtle-head" ]
   fruit0903_yolov8s.onnx: [ "orange", "pineapple", "strawberries" ]
   animal2309_yolov8s.onnx: [ "parrot", "squirrel" ]
   #  animal0903_yolov8s.onnx: [ "parrot" ]
