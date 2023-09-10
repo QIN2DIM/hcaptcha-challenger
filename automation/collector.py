@@ -10,7 +10,7 @@ import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Set
+from typing import List, Set, Dict
 
 import httpx
 from github import Auth, Github
@@ -22,9 +22,6 @@ from playwright.async_api import BrowserContext as ASyncContext, async_playwrigh
 
 from hcaptcha_challenger import AgentT, Malenia
 from hcaptcha_challenger import split_prompt_message, diagnose_task
-from hcaptcha_challenger.utils import SiteKey
-
-PENDING_SITELINK = []
 
 TEMPLATE_BINARY_DATASETS = """
 > Automated deployment @ utc {now}
@@ -33,10 +30,14 @@ TEMPLATE_BINARY_DATASETS = """
 | ---------- | ---------------------------- |
 | prompt     | {prompt}                     |
 | type       | `{type}`                     |
+| cases      | {cases_num}                  |
 | statistics | [#asset]({statistics})       |
 | assets     | [{zip_name}]({download_url}) |
 
 """
+
+issue_labels = ["🔥 challenge", "🏹 ci: sentinel"]
+issue_post_label = "☄️ci: collector"
 
 
 @dataclass
@@ -58,6 +59,8 @@ class Gravitas:
     ./automation/tmp_dir/image_label_binary/{mixed_label}/
     ./automation/tmp_dir/image_label_area_select/{question}/{mixed_label}
     """
+
+    cases_num: int = 0
 
     def __post_init__(self):
         body = [i for i in self.issue.body.split("\n") if i]
@@ -93,27 +96,29 @@ class Gravitas:
         return res
 
 
-def create_comment(asset: GitReleaseAsset, gravitas: Gravitas):
+def create_comment(asset: GitReleaseAsset, gravitas: Gravitas, sign_label: bool = False):
     body = TEMPLATE_BINARY_DATASETS.format(
         now=str(datetime.now()),
         prompt=gravitas.challenge_prompt,
         type=gravitas.request_type,
+        cases_num=gravitas.cases_num,
         zip_name=asset.name,
         download_url=asset.browser_download_url,
         statistics=asset.url,
     )
     comment = gravitas.issue.create_comment(body=body)
     logger.success(f"create comment", html_url=comment.html_url)
+    if sign_label:
+        gravitas.issue.add_to_labels(issue_post_label)
 
 
 def load_gravitas_from_issues() -> List[Gravitas]:
     auth = Auth.Token(os.getenv("GITHUB_TOKEN"))
     issue_repo = Github(auth=auth).get_repo("QIN2DIM/hcaptcha-challenger")
-    binary_challenge_label = "🔥 challenge"
 
     tasks = []
     for issue in issue_repo.get_issues(
-        labels=[binary_challenge_label],
+        labels=issue_labels,
         state="open",  # fixme `open`
         since=datetime.now() - timedelta(hours=24),  # fixme `24hours`
     ):
@@ -134,6 +139,13 @@ def get_archive_release() -> GitRelease:
     return archive_release
 
 
+@dataclass
+class GravitasState:
+    done: bool
+    cases_num: int
+    typed_dir: Path | None = None
+
+
 # noinspection DuplicatedCode
 @dataclass
 class Collector:
@@ -141,8 +153,8 @@ class Collector:
     loop_times: int = 1
     tmp_dir: Path = Path(__file__).parent.joinpath("tmp_dir")
 
-    pending_sitelink: List[str] = field(default_factory=list)
     pending_gravitas: List[Gravitas] = field(default_factory=list)
+    sitelink2gravitas: Dict[str, Gravitas] = field(default_factory=dict)
 
     typed_dirs: Set[Path] = field(default_factory=set)
 
@@ -155,21 +167,8 @@ class Collector:
         self.loop_times = int(clt) if clt.isdigit() else self.loop_times
         logger.debug("init collector parameter", loop_times=self.loop_times)
 
-        self.pending_sitelink.extend(PENDING_SITELINK)
-        for skn in os.environ:
-            if skn.startswith("SITEKEY_"):
-                sk = os.environ[skn]
-                logger.info("get sitekey from env", name=skn, sitekey=sk)
-                self.pending_sitelink.append(SiteKey.as_sitelink(sk))
-
         if os.getenv("GITHUB_TOKEN"):
             self.pending_gravitas = load_gravitas_from_issues()
-            for pi in self.pending_gravitas:
-                self.pending_sitelink.append(pi.sitelink)
-                logger.info("parse task from issues", prompt=pi.challenge_prompt)
-
-        self.pending_sitelink = list(set(self.pending_sitelink))
-        logger.info("create tasks", pending_sitelink=self.pending_sitelink)
 
     @logger.catch
     async def _collete_datasets(self, context: ASyncContext, sitelink: str):
@@ -200,17 +199,50 @@ class Collector:
             await fl.locator("//div[@class='refresh button']").click()
 
     async def startup_collector(self):
-        if not self.pending_sitelink:
-            logger.info("No pending tasks, sentinel exits", tasks=self.pending_sitelink)
+        if not self.sitelink2gravitas:
+            logger.info("exits", reseon="No pending tasks")
             return
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(locale="en-US")
             await Malenia.apply_stealth(context)
-            for sitelink in self.pending_sitelink * self.loop_times:
+
+            while self.sitelink2gravitas:
+                sitelink, gravitas = self.sitelink2gravitas.popitem()
                 await self._collete_datasets(context, sitelink)
+                gs = self.all_right(gravitas)
+                if not gs.done:
+                    self.sitelink2gravitas[sitelink] = gravitas
+
             await context.close()
+
+    def all_right(self, gravitas: Gravitas) -> GravitasState:
+        cases_num = 0
+        for root, _, _ in os.walk(self.tmp_dir):
+            root_dir = Path(root)
+            if gravitas.mixed_label != root_dir.name:
+                continue
+            cases_num = len(os.listdir(root))
+            if "binary" in gravitas.request_type and cases_num > 300:
+                return GravitasState(typed_dir=root_dir, done=True, cases_num=cases_num)
+            if "area_select" in gravitas.request_type and cases_num > 50:
+                return GravitasState(typed_dir=root_dir, done=True, cases_num=cases_num)
+        return GravitasState(done=False, cases_num=cases_num)
+
+    def prelude_tasks(self):
+        for gravitas in self.pending_gravitas:
+            gs = self.all_right(gravitas)
+            if gs.done:
+                logger.success("task done", prompt=gravitas.challenge_prompt, progress=gs.cases_num)
+            else:
+                self.sitelink2gravitas[gravitas.sitelink] = gravitas
+                logger.info(
+                    "parse task from issues",
+                    prompt=gravitas.challenge_prompt,
+                    sitelink=gravitas.sitelink,
+                    progress=gs.cases_num,
+                )
 
     def post_datasets(self):
         if not self.pending_gravitas:
@@ -218,16 +250,18 @@ class Collector:
 
         archive_release = get_archive_release()
         for gravitas in self.pending_gravitas:
-            for typed_dir in self.typed_dirs:
-                if gravitas.mixed_label not in typed_dir.name:
-                    continue
-                gravitas.typed_dir = typed_dir
-                gravitas.zip()
-                asset = gravitas.to_asset(archive_release)
-                create_comment(asset, gravitas)
-                shutil.rmtree(gravitas.zip_path, ignore_errors=True)
+            gs = self.all_right(gravitas)
+            if not gs.typed_dir:
+                continue
+            gravitas.typed_dir = gs.typed_dir
+            gravitas.cases_num = gs.cases_num
+            gravitas.zip()
+            asset = gravitas.to_asset(archive_release)
+            create_comment(asset, gravitas, sign_label=gs.done)
+            shutil.rmtree(gravitas.zip_path, ignore_errors=True)
 
     async def bytedance(self):
+        self.prelude_tasks()
         await self.startup_collector()
         self.post_datasets()
 

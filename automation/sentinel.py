@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Set
+from typing import Set, List
 from urllib.parse import quote
 
 import httpx
@@ -21,6 +21,7 @@ from playwright.async_api import BrowserContext as ASyncContext, async_playwrigh
 
 import hcaptcha_challenger as solver
 from hcaptcha_challenger import AgentT, QuestionResp, Malenia, label_cleaning, split_prompt_message
+from hcaptcha_challenger.onnx.yolo import is_matched_ash_of_war
 from hcaptcha_challenger.utils import SiteKey
 
 solver.install(upgrade=True, flush_yolo=False)
@@ -47,12 +48,17 @@ TEMPLATE_BINARY_CHALLENGE = """
 """
 
 # Find new binary challenge from here
-PENDING_SITEKEY = []
+PENDING_SITEKEY = [SiteKey.epic]
 
 
 @dataclass
 class Pigeon:
-    label: str
+    mixed_label: str
+    """
+    area_select --> probe @ question
+    binary --> not diagnosed label name 
+    """
+
     qr: QuestionResp
     sitekey: str
     canvas_path: Path
@@ -60,7 +66,17 @@ class Pigeon:
     issue_repo: Repository | None = None
     asset_repo: Repository | None = None
 
-    binary_challenge_label = "🔥 challenge"
+    issue_prompt: str = field(default=str)
+    """
+    area_select --> probe @ question
+    binary --> question
+    """
+
+    request_type: str = field(default=str)
+    challenge_prompt: str = field(default=str)
+    issue_labels: List[str] = field(default_factory=list)
+    assignees: List[str] = field(default_factory=list)
+    issue_title: str = field(default=str)
 
     def __post_init__(self):
         auth = Auth.Token(os.getenv("GITHUB_TOKEN"))
@@ -68,12 +84,29 @@ class Pigeon:
         # self.issue_repo = Github(auth=auth).get_repo("QIN2DIM/cdn-relay")
         self.asset_repo = Github(auth=auth).get_repo("QIN2DIM/cdn-relay")
 
+        self.request_type = self.qr.request_type
+        if shape_type := self.qr.request_config.get("shape_type"):
+            self.request_type = f"{self.request_type}: {shape_type}"
+
+        challenge_prompt = list(self.qr.requester_question.values())[0]
+        self.challenge_prompt = label_cleaning(challenge_prompt)
+
+        self.issue_prompt = self.challenge_prompt
+        if ":" in self.request_type:
+            self.issue_prompt = self.mixed_label
+
+        self.issue_title = f"[Challenge] {self.issue_prompt}"
+
+        self.issue_labels = ["🔥 challenge"]
+        self.issue_post_label = "🏹 ci: sentinel"
+        self.assignees = ["QIN2DIM"]
+
     @classmethod
     def build(cls, label, qr, sitekey, canvas_path):
-        return cls(label=label, qr=qr, sitekey=sitekey, canvas_path=canvas_path)
+        return cls(mixed_label=label, qr=qr, sitekey=sitekey, canvas_path=canvas_path)
 
     def _upload_asset(self) -> str | None:
-        asset_path = f"captcha/{int(time.time())}.{self.label}.png"
+        asset_path = f"captcha/{int(time.time())}.{self.mixed_label}.png"
         branch = "main"
         content = Path(self.canvas_path).read_bytes()
 
@@ -89,53 +122,63 @@ class Pigeon:
         logger.success(f"upload screenshot", asset_url=asset_url)
         return asset_url
 
-    def _create_challenge_issues(self, challenge_prompt: str):
+    def _create_challenge_issues(self):
         asset_url = self._upload_asset()
-
-        # Switch to request_type
-        request_type = self.qr.request_type
-        if shape_type := self.qr.request_config.get("shape_type"):
-            request_type = f"{request_type}: {shape_type}"
-
-        # Switch to mixed_label
-        prompt = challenge_prompt
-        if ":" in request_type:
-            prompt = self.label
 
         body = TEMPLATE_BINARY_CHALLENGE.format(
             now=str(datetime.now()),
-            prompt=prompt,
-            request_type=request_type,
+            prompt=self.issue_prompt,
+            request_type=self.request_type,
             screenshot_url=asset_url,
             sitelink=SiteKey.as_sitelink(self.sitekey),
         )
 
-        issue_title = f"[Challenge] {prompt}"
         resp = self.issue_repo.create_issue(
-            title=issue_title,
+            title=self.issue_title,
             body=body,
-            assignees=["QIN2DIM"],
-            labels=[self.binary_challenge_label],
+            assignees=self.assignees,
+            labels=self.issue_labels + [self.issue_post_label],
         )
         logger.success(f"create issue", html_url=resp.html_url)
 
-    def _bypass_motion(self, challenge_prompt: str):
+    def _bypass_motion(self):
+        """
+        mixed_label in issue.title
+        ------------
+
+        area_select
+        ------------
+
+                    squirrelwatercolor-lmv2 @ please click on the squirrel
+                    ↓
+        [Challenge] squirrelwatercolor-lmv2 @ please click on the squirrel
+
+        binary
+        ------------
+
+                                                         chess piece
+                                                         ↓
+        [Challenge] Please click each image containing a chess piece
+
+        :return:
+        """
         for issue in self.issue_repo.get_issues(
-            labels=[self.binary_challenge_label],
+            labels=self.issue_labels,
             state="all",
             since=datetime.now() - timedelta(days=14),
+            assignee=self.assignees[0],
         ):
-            mixed_label = split_prompt_message(challenge_prompt, lang="en")
+            mixed_label = split_prompt_message(self.issue_prompt, lang="en")
+            if issue.created_at + timedelta(hours=24) > datetime.now():
+                issue.add_to_labels("🏹 ci: sentinel")
             if mixed_label in issue.title:
                 return True
 
     def notify(self):
-        challenge_prompt = list(self.qr.requester_question.values())[0]
-        challenge_prompt = label_cleaning(challenge_prompt)
-        if not self._bypass_motion(challenge_prompt):
-            self._create_challenge_issues(challenge_prompt)
+        if not self._bypass_motion():
+            self._create_challenge_issues()
         else:
-            logger.info("bypass issue", mixed_label=self.label)
+            logger.info("bypass issue", issue_prompt=self.issue_prompt)
 
 
 @dataclass
@@ -206,7 +249,9 @@ class Sentinel:
                 elif probe:
                     # probe --> one-step model
                     mixed_label = f"{probe[0]} @ {label}"
-                    if mixed_label not in self.lookup_labels:
+                    if mixed_label not in self.lookup_labels and not any(
+                        is_matched_ash_of_war(agent.ash, c) for c in agent.modelhub.yolo_names
+                    ):
                         logger.info(f"lookup new challenge", label=mixed_label, sitelink=sitelink)
                         await self.register_pigeon(page, mixed_label, agent, sitekey)
                 # Match: image_label_binary
