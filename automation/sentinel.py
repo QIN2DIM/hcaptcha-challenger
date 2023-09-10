@@ -32,9 +32,9 @@ TEMPLATE_BINARY_CHALLENGE = """
 
 {prompt}
 
-### New types of challenge
+### request_type
 
-image_label_binary
+{request_type}
 
 ### Sitelink
 
@@ -92,9 +92,14 @@ class Pigeon:
     def _create_challenge_issues(self, challenge_prompt: str):
         asset_url = self._upload_asset()
 
+        request_type = self.qr.request_type
+        if shape_type := self.qr.request_config.get("shape_type"):
+            request_type = f"{request_type}: {shape_type}"
+
         body = TEMPLATE_BINARY_CHALLENGE.format(
             now=str(datetime.now()),
             prompt=challenge_prompt,
+            request_type=request_type,
             screenshot_url=asset_url,
             sitelink=SiteKey.as_sitelink(self.sitekey),
         )
@@ -114,8 +119,8 @@ class Pigeon:
             state="all",
             since=datetime.now() - timedelta(days=14),
         ):
-            label = split_prompt_message(challenge_prompt, lang="en")
-            if label in issue.title:
+            mixed_label = split_prompt_message(challenge_prompt, lang="en")
+            if mixed_label in issue.title:
                 return True
 
     def notify(self):
@@ -154,17 +159,17 @@ class Sentinel:
         self.pending_sitekey = list(set(self.pending_sitekey))
         logger.info("create tasks", pending_sitekey=self.pending_sitekey)
 
-    async def register_pigeon(self, page: Page, label: str, agent, sitekey):
+    async def register_pigeon(self, page: Page, mixed_label: str, agent, sitekey):
         fl = page.frame_locator(agent.HOOK_CHALLENGE)
         canvas = fl.locator("//div[@class='challenge-view']")
 
-        canvas_path = self.nt_screenshot_dir.joinpath(f"{label}.png")
+        canvas_path = self.nt_screenshot_dir.joinpath(f"{mixed_label}.png")
         await canvas.screenshot(type="png", path=canvas_path)
 
-        pigeon = Pigeon.build(label, agent.qr, sitekey, canvas_path)
+        pigeon = Pigeon.build(mixed_label, agent.qr, sitekey, canvas_path)
         self.pending_pigeon.put_nowait(pigeon)
 
-        self.lookup_labels.add(label)
+        self.lookup_labels.add(mixed_label)
 
     @logger.catch
     async def collete_datasets(self, context: ASyncContext, sitekey: str, batch: int = per_times):
@@ -186,16 +191,23 @@ class Sentinel:
                 pass
             else:
                 probe = list(agent.qr.requester_restricted_answer_set.keys())
+                mixed_label = label
                 print(f">> COLLETE - progress=[{pth}/{batch}] {label=} {probe=}")
-                # {{< Sentinel Notify >}}
-                if (
-                    label
-                    and "binary" in agent.qr.request_type
-                    and label not in self.lookup_labels
-                    and label not in label_alias
-                ):
-                    logger.info(f"lookup new challenge", label=label, sitelink=sitelink)
-                    await self.register_pigeon(page, label, agent, sitekey)
+
+                if not mixed_label:
+                    pass
+                # Match: image_label_area_select
+                elif probe:
+                    # probe --> one-step model
+                    mixed_label = f"{probe[0]} @ {label}"
+                    if mixed_label not in self.lookup_labels:
+                        logger.info(f"lookup new challenge", label=mixed_label, sitelink=sitelink)
+                        await self.register_pigeon(page, mixed_label, agent, sitekey)
+                # Match: image_label_binary
+                elif agent.qr.request_type == "image_label_binary":
+                    if mixed_label not in self.lookup_labels and mixed_label not in label_alias:
+                        logger.info(f"lookup new challenge", label=label, sitelink=sitelink)
+                        await self.register_pigeon(page, label, agent, sitekey)
 
             # Update MQ
             await page.wait_for_timeout(500)
