@@ -20,14 +20,14 @@ solver.install(upgrade=True, flush_yolo=False)
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
-sitelink = SiteKey.as_sitelink(sitekey="easy")
+sitekey = SiteKey.user_easy
 
 
 @logger.catch
 async def hit_challenge(context: ASyncContext, times: int = 8):
     page = await context.new_page()
     agent = solver.AgentT.from_page(page=page, tmp_dir=tmp_dir)
-    await page.goto(sitelink)
+    await page.goto(SiteKey.as_sitelink(sitekey))
 
     await agent.handle_checkbox()
 

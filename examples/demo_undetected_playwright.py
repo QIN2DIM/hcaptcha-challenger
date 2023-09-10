@@ -25,14 +25,14 @@ context_dir = user_data_dir.joinpath("context")
 record_dir = user_data_dir.joinpath("record")
 record_har_path = record_dir.joinpath(f"eg-{int(time.time())}.har")
 
-sitelink = SiteKey.as_sitelink(sitekey="easy")
+sitekey = SiteKey.user_easy
 
 
 @logger.catch
 async def hit_challenge(context: ASyncContext, times: int = 8):
     page = context.pages[0]
     agent = solver.AgentT.from_page(page=page, tmp_dir=tmp_dir)
-    await page.goto(sitelink)
+    await page.goto(SiteKey.as_sitelink(sitekey))
 
     await agent.handle_checkbox()
 
