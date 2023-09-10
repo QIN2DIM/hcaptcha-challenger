@@ -33,7 +33,8 @@ Just implement some interfaces to make `AI vs AI` possible.
 
 | Tasks                         | Resource                                                     |
 | ----------------------------- | ------------------------------------------------------------ |
-| `ci: sentinel, collector`     | [![hCAPTCHA Sentinel](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/sentinel.yaml/badge.svg?branch=main)](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/sentinel.yaml) |
+| `ci: sentinel`                | [![hCAPTCHA Sentinel](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/sentinel.yaml/badge.svg?branch=main)](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/sentinel.yaml) |
+| `ci: collector`               | [![hCAPTCHA Collector](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/collector.yaml/badge.svg)](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/collector.yaml) |
 | `datasets: VCS, annoate`      | [#roboflow](hcaptcha-challenger), [#model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
 | `model: ResNet - train / val` | [#model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
 | `model: YOLOv8 - train / val` | [#ultralytics](https://github.com/ultralytics/ultralytics)   |
