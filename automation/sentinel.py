@@ -110,7 +110,7 @@ class Pigeon:
             sitelink=SiteKey.as_sitelink(self.sitekey),
         )
 
-        issue_title = f"[Challenge] {challenge_prompt}"
+        issue_title = f"[Challenge] {prompt}"
         resp = self.issue_repo.create_issue(
             title=issue_title,
             body=body,

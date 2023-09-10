@@ -1,17 +1,6 @@
 name: hCAPTCHA Collector
 
 on:
-  push:
-    branches:
-      - ci-collector
-      - main
-    paths-ignore:
-      - ".github/**"
-      - "README.md"
-      - "LICENSE"
-      - ".gitignore"
-      - ".deepsource.toml"
-      - "src/**"
   workflow_dispatch:
 
   # “At minute 37 past every 2nd hour.”

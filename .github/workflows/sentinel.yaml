@@ -18,7 +18,7 @@ on:
     - cron: "7 */2 * * *"
 
 jobs:
-  setup:
+  check_new_challenge:
     env:
       GITHUB_TOKEN: ${{ secrets.SENTINEL_ACCESS_TOKEN }}
       SENTINEL_PER_TIMES: 12
@@ -42,3 +42,27 @@ jobs:
       - name: Startup sentinel
         run: |
           cd automation && python3 sentinel.py
+
+  handle_new_challenge:
+    runs-on: ubuntu-latest
+    needs:
+      - check_new_challenge
+    env:
+      GITHUB_TOKEN: ${{ secrets.SENTINEL_ACCESS_TOKEN }}
+      COLLECTOR_PER_TIMES: 20
+      COLLECTOR_LOOP_TIMES: 1
+      SITEKEY_USER_EASY: c86d730b-300a-444c-a8c5-5312e7a93628
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'pip' # caching pip dependencies
+      - name: Install dependencies
+        run: |
+          pip install -U hcaptcha-challenger[sentinel]
+          playwright install chromium
+          playwright install-deps chromium
+      - name: Startup Collector
+        run: |
+          cd automation && python3 collector.py
