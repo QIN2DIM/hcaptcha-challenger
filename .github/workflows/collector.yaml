@@ -3,7 +3,7 @@ name: hCAPTCHA Collector
 on:
   workflow_dispatch:
 
-  # “At minute 37 past every 2nd hour.”
+  # https://crontab.guru/
   schedule:
     - cron: "37 */3 * * *"
 

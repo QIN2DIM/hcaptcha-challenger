@@ -14,6 +14,7 @@ on:
   workflow_dispatch:
 
   # “At minute 7 past every 2nd hour.”
+  # https://crontab.guru/
   schedule:
     - cron: "7 */2 * * *"
 
@@ -28,6 +29,10 @@ jobs:
         with:
           python-version: "3.10"
           cache: 'pip' # caching pip dependencies
+      - uses: actions/download-artifact@v3
+        with:
+          name: automation
+          path: ./automation/tmp_dir
       - name: Install dependencies
         run: |
           pip install -U hcaptcha-challenger[sentinel]
@@ -47,10 +52,14 @@ jobs:
           cd automation && python3 sentinel.py
       - name: Startup collector
         env:
-          COLLECTOR_PER_TIMES: 40
-          COLLECTOR_LOOP_TIMES: 2
+          COLLECTOR_PER_TIMES: 10
+          COLLECTOR_LOOP_TIMES: 1
           SITEKEY_USER_EASY: c86d730b-300a-444c-a8c5-5312e7a93628
         continue-on-error: true
-        timeout-minutes: 20
+        timeout-minutes: 10
         run: |
           cd automation && python3 collector.py
+      - uses: actions/upload-artifact@v3
+        with:
+          name: automation
+          path: ./automation/tmp_dir

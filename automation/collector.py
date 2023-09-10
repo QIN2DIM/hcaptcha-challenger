@@ -41,27 +41,36 @@ TEMPLATE_BINARY_DATASETS = """
 @dataclass
 class Gravitas:
     issue: Issue
-    challenge_prompt: str
-    sitelink: str
 
-    label: str = ""
+    challenge_prompt: str = field(default=str)
+    request_type: str = field(default=str)
+    sitelink: str = field(default=str)
+    mixed_label: str = field(default=str)
     """
-    label no diagnose
+    binary --> challenge_prompt
+    area_select --> model_name
     """
 
     typed_dir: Path = None
     """
     init by collector
-    ./automation/tmp_dir/image_label_binary/{label_name}/
-    ./automation/tmp_dir/image_label_area_select/{question}/{model_name}
+    ./automation/tmp_dir/image_label_binary/{mixed_label}/
+    ./automation/tmp_dir/image_label_area_select/{question}/{mixed_label}
     """
 
     def __post_init__(self):
-        self.label = split_prompt_message(self.challenge_prompt, lang="en")
+        body = [i for i in self.issue.body.split("\n") if i]
+        self.challenge_prompt = body[2]
+        self.request_type = body[4]
+        self.sitelink = body[6]
+        if "@" in self.issue.title:
+            self.mixed_label = self.issue.title.split(" ")[1].strip()
+        else:
+            self.mixed_label = split_prompt_message(self.challenge_prompt, lang="en")
 
     @classmethod
-    def from_issue(cls, issue: Issue, challenge_prompt: str, sitelink: str):
-        return cls(issue=issue, challenge_prompt=challenge_prompt, sitelink=sitelink)
+    def from_issue(cls, issue: Issue):
+        return cls(issue=issue)
 
     @property
     def zip_path(self) -> Path:
@@ -71,12 +80,14 @@ class Gravitas:
         return zip_path
 
     def zip(self):
+        logger.info("pack datasets", mixed=self.zip_path.name)
         with zipfile.ZipFile(self.zip_path, "w") as zip_file:
             for root, dirs, files in os.walk(self.typed_dir):
                 for file in files:
-                    zip_file.write(file)
+                    zip_file.write(os.path.join(root, file), file)
 
     def to_asset(self, archive_release: GitRelease) -> GitReleaseAsset:
+        logger.info("upload datasets", mixed=self.zip_path.name)
         res = archive_release.upload_asset(path=str(self.zip_path))
         return res
 
@@ -85,7 +96,7 @@ def create_comment(asset: GitReleaseAsset, gravitas: Gravitas):
     body = TEMPLATE_BINARY_DATASETS.format(
         now=str(datetime.now()),
         prompt=gravitas.challenge_prompt,
-        type="image_label_binary",
+        type=gravitas.request_type,
         zip_name=asset.name,
         download_url=asset.browser_download_url,
         statistics=asset.url,
@@ -107,9 +118,7 @@ def load_gravitas_from_issues() -> List[Gravitas]:
     ):
         if "Automated deployment @" not in issue.body:
             continue
-        body = [i for i in issue.body.split("\n") if i]
-        g = Gravitas.from_issue(issue, challenge_prompt=body[2], sitelink=body[6])
-        tasks.append(g)
+        tasks.append(Gravitas.from_issue(issue))
 
     return tasks
 
@@ -127,14 +136,14 @@ def get_archive_release() -> GitRelease:
 # noinspection DuplicatedCode
 @dataclass
 class Collector:
-    per_times: int = 20
+    per_times: int = 3
     loop_times: int = 1
     tmp_dir: Path = Path(__file__).parent.joinpath("tmp_dir")
 
     pending_sitelink: List[str] = field(default_factory=list)
     pending_gravitas: List[Gravitas] = field(default_factory=list)
 
-    typed_dirs: Set[str] = field(default_factory=set)
+    typed_dirs: Set[Path] = field(default_factory=set)
 
     def __post_init__(self):
         cpt = os.getenv("COLLECTOR_PER_TIMES", "")
@@ -162,7 +171,7 @@ class Collector:
         logger.info("create tasks", pending_sitelink=self.pending_sitelink)
 
     @logger.catch
-    async def collete_datasets(self, context: ASyncContext, sitelink: str):
+    async def _collete_datasets(self, context: ASyncContext, sitelink: str):
         page = await context.new_page()
         agent = AgentT.from_page(page=page, tmp_dir=self.tmp_dir)
 
@@ -181,7 +190,7 @@ class Collector:
             except Exception as err:
                 print(err)
             else:
-                self.typed_dirs.add(str(agent.typed_dir))
+                self.typed_dirs.add(agent.typed_dir)
                 probe = list(agent.qr.requester_restricted_answer_set.keys())
                 print(f">> COLLETE - progress=[{pth}/{self.per_times}] {label=} {probe=}")
 
@@ -189,33 +198,36 @@ class Collector:
             fl = page.frame_locator(agent.HOOK_CHALLENGE)
             await fl.locator("//div[@class='refresh button']").click()
 
-    async def bytedance(self):
+    async def startup_collector(self):
         if not self.pending_sitelink:
             logger.info("No pending tasks, sentinel exits", tasks=self.pending_sitelink)
             return
 
-        # collect datasets
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(locale="en-US")
             await Malenia.apply_stealth(context)
             for sitelink in self.pending_sitelink * self.loop_times:
-                await self.collete_datasets(context, sitelink)
+                await self._collete_datasets(context, sitelink)
             await context.close()
 
+    def post_datasets(self):
         if not self.pending_gravitas:
             return
 
-        # pack datasets
         archive_release = get_archive_release()
         for gravitas in self.pending_gravitas:
             for typed_dir in self.typed_dirs:
-                if gravitas.label not in typed_dir:
+                if gravitas.mixed_label not in typed_dir.name:
                     continue
-                gravitas.typed_dir = Path(typed_dir)
+                gravitas.typed_dir = typed_dir
                 gravitas.zip()
                 asset = gravitas.to_asset(archive_release)
                 create_comment(asset, gravitas)
+
+    async def bytedance(self):
+        await self.startup_collector()
+        self.post_datasets()
 
 
 if __name__ == "__main__":
