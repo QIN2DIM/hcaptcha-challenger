@@ -102,7 +102,7 @@ def load_gravitas_from_issues() -> List[Gravitas]:
     tasks = []
     for issue in issue_repo.get_issues(
         labels=[binary_challenge_label],
-        state="open",  # fixme `open`
+        state="closed",  # fixme `open`
         since=datetime.now() - timedelta(hours=3),  # fixme `3hours`
     ):
         if "Automated deployment @" not in issue.body:
@@ -181,7 +181,7 @@ class Collector:
             except Exception as err:
                 print(err)
             else:
-                self.typed_dirs.add(str(agent.typed_dir.absolute()))
+                self.typed_dirs.add(str(agent.typed_dir))
                 probe = list(agent.qr.requester_restricted_answer_set.keys())
                 print(f">> COLLETE - progress=[{pth}/{self.per_times}] {label=} {probe=}")
 
