@@ -135,7 +135,7 @@ class Pigeon:
         if not self._bypass_motion(challenge_prompt):
             self._create_challenge_issues(challenge_prompt)
         else:
-            logger.info("bypass issue", prompt=challenge_prompt)
+            logger.info("bypass issue", mixed_label=self.label)
 
 
 @dataclass
