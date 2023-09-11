@@ -52,7 +52,7 @@ bs4 = { version = "*", optional = true }
 jupyterlab = { version = "^4.0.5", optional = true }
 notebook = { version = "^7.0.3", optional = true }
 onnx = { version = "*", optional = true }
-ultralytics = { version = "8.0.134", optional = true }
+ultralytics = { version = "==8.0.134", optional = true }
 roboflow = { version = "*", optional = true }
 
 [tool.poetry.group.test.dependencies]
