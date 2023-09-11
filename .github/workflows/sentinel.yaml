@@ -47,7 +47,6 @@ jobs:
       - name: Startup collector
         env:
           COLLECTOR_PER_TIMES: 20
-          COLLECTOR_LOOP_TIMES: 3
           SITEKEY_EPIC: 91e4137f-95af-4bc9-97af-cdcedce21c8c
         continue-on-error: true
         timeout-minutes: 20
