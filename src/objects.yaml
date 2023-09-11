@@ -127,3 +127,9 @@ label_alias:
   dog2309:
     zh: [ "狗" ]
     en: [ "dog" ]
+  seaplane:
+    zh: [ "水上飞机" ]
+    en: [ "seaplane" ]
+  rollercoaster2309:
+    zh: [ "过山车" ]
+    en: [ "rollercoaster" ]
