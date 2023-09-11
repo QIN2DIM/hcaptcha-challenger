@@ -13,7 +13,6 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.SENTINEL_ACCESS_TOKEN }}
       SITEKEY_EPIC: 91e4137f-95af-4bc9-97af-cdcedce21c8c
       COLLECTOR_PER_TIMES: 20
-      COLLECTOR_LOOP_TIMES: 3
     runs-on: ubuntu-latest
     steps:
       - name: Checkout environment

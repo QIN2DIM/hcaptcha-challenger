@@ -7,12 +7,12 @@ import asyncio
 import os
 import shutil
 import zipfile
+from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Any
 
-import httpx
 from github import Auth, Github
 from github.GitRelease import GitRelease
 from github.GitReleaseAsset import GitReleaseAsset
@@ -149,8 +149,7 @@ class GravitasState:
 # noinspection DuplicatedCode
 @dataclass
 class Collector:
-    per_times: int = 3
-    loop_times: int = 1
+    per_times: int = 10
     tmp_dir: Path = Path(__file__).parent.joinpath("tmp_dir")
 
     pending_gravitas: List[Gravitas] = field(default_factory=list)
@@ -158,20 +157,23 @@ class Collector:
 
     task_queue: asyncio.Queue | None = None
 
+    link2collected: Dict[str, Any] = field(default_factory=dict)
+
     def __post_init__(self):
         cpt = os.getenv("COLLECTOR_PER_TIMES", "")
         self.per_times = int(cpt) if cpt.isdigit() else self.per_times
         logger.debug("init collector parameter", per_times=self.per_times)
 
-        clt = os.getenv("COLLECTOR_LOOP_TIMES", "")
-        self.loop_times = int(clt) if clt.isdigit() else self.loop_times
-        logger.debug("init collector parameter", loop_times=self.loop_times)
-
         if os.getenv("GITHUB_TOKEN"):
             self.pending_gravitas = load_gravitas_from_issues()
 
+        self.task_queue = asyncio.Queue()
+
     @logger.catch
     async def _collete_datasets(self, context: ASyncContext, sitelink: str):
+        if not self.link2collected.get(sitelink):
+            self.link2collected[sitelink] = {}
+
         page = await context.new_page()
         agent = AgentT.from_page(page=page, tmp_dir=self.tmp_dir)
 
@@ -180,50 +182,69 @@ class Collector:
         await agent.handle_checkbox()
 
         for pth in range(1, self.per_times + 1):
-            try:
+            with suppress(Exception):
                 label = await agent.collect()
-            except (httpx.HTTPError, httpx.ConnectTimeout) as err:
-                logger.warning(f"Collection speed is too fast", reason=err)
-                await page.wait_for_timeout(500)
-            except FileNotFoundError:
-                pass
-            except Exception as err:
-                print(err)
-            else:
+
                 probe = list(agent.qr.requester_restricted_answer_set.keys())
                 print(f">> COLLETE - progress=[{pth}/{self.per_times}] {label=} {probe=}")
+
+                mixed_label = probe[0] if len(probe) > 0 else label
+                if mixed_label in self.link2collected[sitelink]:
+                    self.link2collected[sitelink][mixed_label] += 1
+                else:
+                    self.link2collected[sitelink][mixed_label] = 1
 
             await page.wait_for_timeout(500)
             fl = page.frame_locator(agent.HOOK_CHALLENGE)
             await fl.locator("//div[@class='refresh button']").click()
+
+    async def _step_preheat(self, context: ASyncContext):
+        for i, gravitas in enumerate(self.sitelink2gravitas.values()):
+            logger.debug(
+                "processing",
+                qsize=f"[{i + 1} / {len(self.sitelink2gravitas)}]",
+                sitelink=gravitas.sitelink,
+            )
+            await self._collete_datasets(context, gravitas.sitelink)
+
+    async def _step_reorganize(self):
+        for gravitas in self.sitelink2gravitas.values():
+            gs = self.all_right(gravitas)
+            if gs.done:
+                logger.success("task done", mixed_label=gravitas.mixed_label, nums=gs.cases_num)
+            else:
+                for sitelink, collected in self.link2collected.items():
+                    if gravitas.mixed_label in collected:
+                        await self.task_queue.put((sitelink, gravitas))
+                        logger.info(
+                            "recur task", mixed_label=gravitas.mixed_label, nums=gs.cases_num
+                        )
+
+    async def _step_focus(self, context: ASyncContext):
+        max_qsize = self.task_queue.qsize()
+
+        while not self.task_queue.empty():
+            sitelink, gravitas = self.task_queue.get_nowait()
+            logger.debug(
+                "focusing",
+                qsize=f"[{self.task_queue.qsize()} / {max_qsize}]",
+                sitelink=gravitas.sitelink,
+            )
+            await self._collete_datasets(context, gravitas.sitelink)
 
     async def startup_collector(self):
         if not self.sitelink2gravitas:
             logger.info("exits", reseon="No pending tasks")
             return
 
-        self.task_queue = asyncio.Queue()
-        for item in self.sitelink2gravitas.items():
-            self.task_queue.put_nowait(item)
-
-        link2outdated = {}
-
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(locale="en-US")
             await Malenia.apply_stealth(context)
 
-            while not self.task_queue.empty():
-                sitelink, gravitas = self.task_queue.get_nowait()
-                await self._collete_datasets(context, sitelink)
-                gs = self.all_right(gravitas)
-                if not gs.done:
-                    if sitelink not in link2outdated:
-                        link2outdated[sitelink] = 1
-                    else:
-                        link2outdated[sitelink] += 1
-                    if link2outdated[sitelink] < 3:
-                        self.task_queue.put_nowait((sitelink, gravitas))
+            await self._step_preheat(context)
+            await self._step_reorganize()
+            await self._step_focus(context)
 
             await context.close()
 
