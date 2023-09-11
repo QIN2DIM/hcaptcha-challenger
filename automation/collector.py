@@ -150,6 +150,8 @@ class GravitasState:
 @dataclass
 class Collector:
     per_times: int = 10
+    max_batch_times: int = 60
+
     tmp_dir: Path = Path(__file__).parent.joinpath("tmp_dir")
 
     pending_gravitas: List[Gravitas] = field(default_factory=list)
@@ -201,21 +203,31 @@ class Collector:
     async def _step_preheat(self, context: ASyncContext):
         for i, gravitas in enumerate(self.sitelink2gravitas.values()):
             logger.debug(
-                "processing",
-                qsize=f"[{i + 1} / {len(self.sitelink2gravitas)}]",
+                "preprocessing",
+                progress=f"[{i + 1} / {len(self.sitelink2gravitas)}]",
                 sitelink=gravitas.sitelink,
             )
             await self._collete_datasets(context, gravitas.sitelink)
 
     async def _step_reorganize(self):
+        logger.info("Reorganize task queue")
+
         for gravitas in self.sitelink2gravitas.values():
             gs = self.all_right(gravitas)
             if gs.done:
                 logger.success("task done", mixed_label=gravitas.mixed_label, nums=gs.cases_num)
             else:
+                max_value = 0
+                best_sitelink = ""
                 for sitelink, collected in self.link2collected.items():
-                    if gravitas.mixed_label in collected:
-                        await self.task_queue.put((sitelink, gravitas))
+                    if collected.get(gravitas.mixed_label, 0) > max_value:
+                        max_value = collected[gravitas.mixed_label]
+                        best_sitelink = sitelink
+                if best_sitelink:
+                    loop_times = int((self.max_batch_times - self.per_times) / self.per_times) + 1
+                    loop_times = min(loop_times, 2)
+                    for _ in range(loop_times):
+                        await self.task_queue.put(best_sitelink)
                         logger.info(
                             "recur task", mixed_label=gravitas.mixed_label, nums=gs.cases_num
                         )
@@ -224,13 +236,11 @@ class Collector:
         max_qsize = self.task_queue.qsize()
 
         while not self.task_queue.empty():
-            sitelink, gravitas = self.task_queue.get_nowait()
+            sitelink = self.task_queue.get_nowait()
             logger.debug(
-                "focusing",
-                qsize=f"[{self.task_queue.qsize()} / {max_qsize}]",
-                sitelink=gravitas.sitelink,
+                "focusing", qsize=f"[{self.task_queue.qsize()}/{max_qsize}]", sitelink=sitelink
             )
-            await self._collete_datasets(context, gravitas.sitelink)
+            await self._collete_datasets(context, sitelink)
 
     async def startup_collector(self):
         if not self.sitelink2gravitas:
