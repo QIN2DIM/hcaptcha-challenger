@@ -4,24 +4,30 @@
 # Github     : https://github.com/QIN2DIM
 # Description:
 import asyncio
+import logging
 import os
+import sys
+from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal, Set
 from urllib.parse import urlparse
 
-import httpx
 from bs4 import BeautifulSoup
-from httpx import AsyncClient
-from loguru import logger
+from httpx import AsyncClient, ConnectTimeout
 
+logging.basicConfig(
+    level=logging.INFO, stream=sys.stdout, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+# fmt: off
 UNDEFINED = "undefined"
-
 MediaType = Literal["photography", "illustration", "illustration&assetfiletype=eps", "undefined"]
-Orientations = Literal[
-    "square", "vertical", "horizontal", "panoramicvertical", "panoramichorizontal", "undefined"
-]
+Orientations = Literal["square", "vertical", "horizontal", "panoramicvertical", "panoramichorizontal", "undefined"]
 NumberOfPeople = Literal["none", "one", "two", "group", "undefined"]
+
+
+# fmt: on
 
 
 @dataclass
@@ -70,7 +76,7 @@ class Istock:
     api = "https://www.istockphoto.com/search/2/image"
 
     def __post_init__(self):
-        logger.debug(f"Container preload - phrase={self.phrase}")
+        logging.debug(f"Container preload - phrase={self.phrase}")
 
         self.work_queue = asyncio.Queue()
 
@@ -104,7 +110,7 @@ class Istock:
             params += f"&orientations={self.orientations}"
 
         img_index_urls = [f"{self.api}{params}&page={i}" for i in range(1, self.pages + 1)]
-        logger.info(f"preload - size={len(img_index_urls)}")
+        logging.info(f"preload - size={len(img_index_urls)}")
 
         return img_index_urls
 
@@ -118,14 +124,10 @@ class Istock:
 
     async def get_image_urls(self, url: str):
         """Get download links for all images in the page"""
-        try:
+        with suppress(ConnectTimeout):
             response = await self.client.get(url)
-        except httpx.ConnectTimeout:
-            pass
-        else:
             soup = BeautifulSoup(response.text, "html.parser")
-            gallery = soup.find("div", attrs={"data-testid": "gallery-items-container"})
-            if gallery:
+            if gallery := soup.find("div", attrs={"data-testid": "gallery-items-container"}):
                 img_tags = gallery.find_all("img")
                 for tag in img_tags:
                     self.work_queue.put_nowait(tag["src"])
@@ -154,7 +156,7 @@ class Istock:
         self.api = similar_match[similar]
         response = await self.client.get(self.api)
         if not response:
-            logger.error(f"Could not find source image in istock by the istock_id({istock_id})")
+            logging.error(f"Could not find source image in istock by the istock_id({istock_id})")
             raise
 
         return self
@@ -162,14 +164,35 @@ class Istock:
     async def mining(self):
         urls = await self.preload()
 
-        logger.info("matching index")
+        startup_params = {
+            "phrase": self.phrase,
+            "mediatype": self.mediatype,
+            "number_of_people": self.number_of_people,
+            "orientations": self.orientations,
+            "pages": self.pages,
+            "store_dir": str(self.store_dir),
+        }
+
+        logging.info(f"{startup_params=}")
+
+        logging.info("matching index")
         await asyncio.gather(*[self.get_image_urls(url) for url in urls])
 
-        logger.info("running adaptor...")
+        logging.info("running adaptor")
         await asyncio.gather(*[self.adaptor() for _ in range(32)])
 
 
-if __name__ == "__main__":
-    istock = Istock.from_phrase("squirrel")
-    istock.pages = 4
+def run(phrase: str, pages: int = 5):
+    # pages: 60 images per page, default to 5.
+    pages = min(5, pages)
+
+    istock = Istock.from_phrase(phrase)
+    istock.pages = pages
     asyncio.run(istock.mining())
+
+    if "win32" in sys.platform:
+        os.startfile(istock.store_dir)
+
+
+if __name__ == "__main__":
+    run(phrase="boat", pages=4)
