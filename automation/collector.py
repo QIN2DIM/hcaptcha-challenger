@@ -210,7 +210,7 @@ class Collector:
             await self._collete_datasets(context, gravitas.sitelink)
 
     async def _step_reorganize(self):
-        logger.info("Reorganize task queue")
+        logger.info("Reorganize task queue", artifact=self.link2collected)
 
         for gravitas in self.sitelink2gravitas.values():
             gs = self.all_right(gravitas)
@@ -234,6 +234,7 @@ class Collector:
 
     async def _step_focus(self, context: ASyncContext):
         max_qsize = self.task_queue.qsize()
+        logger.info("focus on the mission", max_qsize=max_qsize)
 
         while not self.task_queue.empty():
             sitelink = self.task_queue.get_nowait()
@@ -265,9 +266,9 @@ class Collector:
             if gravitas.mixed_label != root_dir.name:
                 continue
             cases_num = len(os.listdir(root))
-            if "binary" in gravitas.request_type and cases_num > 300:
+            if "binary" in gravitas.request_type and cases_num > 1:
                 return GravitasState(typed_dir=root_dir, done=True, cases_num=cases_num)
-            if "area_select" in gravitas.request_type and cases_num > 50:
+            if "area_select" in gravitas.request_type and cases_num > 1:
                 return GravitasState(typed_dir=root_dir, done=True, cases_num=cases_num)
         return GravitasState(done=False, cases_num=cases_num)
 
@@ -288,6 +289,8 @@ class Collector:
     def post_datasets(self):
         if not self.pending_gravitas:
             return
+
+        logger.info("posting datasets", pending_gravitas=self.pending_gravitas)
 
         archive_release = get_archive_release()
         for gravitas in self.pending_gravitas:
