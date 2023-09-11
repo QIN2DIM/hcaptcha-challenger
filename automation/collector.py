@@ -266,10 +266,14 @@ class Collector:
             if gravitas.mixed_label != root_dir.name:
                 continue
             cases_num = len(os.listdir(root))
-            if "binary" in gravitas.request_type and cases_num > 1:
-                return GravitasState(typed_dir=root_dir, done=True, cases_num=cases_num)
-            if "area_select" in gravitas.request_type and cases_num > 1:
-                return GravitasState(typed_dir=root_dir, done=True, cases_num=cases_num)
+            if "binary" in gravitas.request_type:
+                return GravitasState(
+                    typed_dir=root_dir, done=bool(cases_num > 300), cases_num=cases_num
+                )
+            if "area_select" in gravitas.request_type:
+                return GravitasState(
+                    typed_dir=root_dir, done=bool(cases_num > 20), cases_num=cases_num
+                )
         return GravitasState(done=False, cases_num=cases_num)
 
     def prelude_tasks(self):
