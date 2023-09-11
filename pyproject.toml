@@ -3,7 +3,7 @@
 
 [tool.poetry]
 name = "hcaptcha-challenger"
-version = "0.7.9"
+version = "0.7.9-post1"
 description = "🥂 Gracefully face hCaptcha challenge with MoE(ONNX) embedded solution."
 license = "GPL-3.0-or-later"
 authors = ["QIN2DIM <yaoqinse@gmail.com>", "Bingjie Yan <bj.yan.pa@qq.com>"]
@@ -48,10 +48,16 @@ webdriver-manager = { version = "^4.0.0", optional = true }
 selenium = { version = "*", optional = true }
 playwright = { version = "*", optional = true }
 PyGithub = { version = "^1.59.1", optional = true }
+bs4 = { version = "*", optional = true }
+jupyterlab = { version = "^4.0.5", optional = true }
+notebook = { version = "^7.0.3", optional = true }
+onnx = { version = "*", optional = true }
+ultralytics = { version = "8.0.134", optional = true }
+roboflow = { version = "*", optional = true }
 
 [tool.poetry.group.test.dependencies]
 pytest = "*"
-black = "*"
+black = { version = "*", extras = ["jupyter"] }
 memory-profiler = "*"
 
 [tool.poetry.extras]
@@ -74,6 +80,11 @@ playwright = ["playwright"]
 
 # Developer: `poetry install -E sentinel`
 sentinel = ["playwright", "PyGithub"]
+
+istock = ["bs4"]
+
+# Developer: `poetry install -E lab`
+# lab = ["jupyterlab", "noteboook", "PyGithub", "onnx", "ultralytics", "roboflow"]
 
 [build-system]
 requires = ["poetry-core"]
