@@ -267,13 +267,11 @@ class Collector:
                 continue
             cases_num = len(os.listdir(root))
             if "binary" in gravitas.request_type:
-                return GravitasState(
-                    typed_dir=root_dir, done=bool(cases_num > 300), cases_num=cases_num
-                )
+                done = bool(cases_num > 300)
+                return GravitasState(typed_dir=root_dir, done=done, cases_num=cases_num)
             if "area_select" in gravitas.request_type:
-                return GravitasState(
-                    typed_dir=root_dir, done=bool(cases_num > 20), cases_num=cases_num
-                )
+                done = bool(cases_num > 20)
+                return GravitasState(typed_dir=root_dir, done=done, cases_num=cases_num)
         return GravitasState(done=False, cases_num=cases_num)
 
     def prelude_tasks(self):
