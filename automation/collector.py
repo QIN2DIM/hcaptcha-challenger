@@ -10,7 +10,7 @@ import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Set, Dict
+from typing import List, Dict
 
 import httpx
 from github import Auth, Github
@@ -156,7 +156,7 @@ class Collector:
     pending_gravitas: List[Gravitas] = field(default_factory=list)
     sitelink2gravitas: Dict[str, Gravitas] = field(default_factory=dict)
 
-    typed_dirs: Set[Path] = field(default_factory=set)
+    task_queue: asyncio.Queue | None = None
 
     def __post_init__(self):
         cpt = os.getenv("COLLECTOR_PER_TIMES", "")
@@ -190,7 +190,6 @@ class Collector:
             except Exception as err:
                 print(err)
             else:
-                self.typed_dirs.add(agent.typed_dir)
                 probe = list(agent.qr.requester_restricted_answer_set.keys())
                 print(f">> COLLETE - progress=[{pth}/{self.per_times}] {label=} {probe=}")
 
@@ -203,17 +202,28 @@ class Collector:
             logger.info("exits", reseon="No pending tasks")
             return
 
+        self.task_queue = asyncio.Queue()
+        for item in self.sitelink2gravitas.items():
+            self.task_queue.put_nowait(item)
+
+        link2outdated = {}
+
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(locale="en-US")
             await Malenia.apply_stealth(context)
 
-            while self.sitelink2gravitas:
-                sitelink, gravitas = self.sitelink2gravitas.popitem()
+            while not self.task_queue.empty():
+                sitelink, gravitas = self.task_queue.get_nowait()
                 await self._collete_datasets(context, sitelink)
                 gs = self.all_right(gravitas)
                 if not gs.done:
-                    self.sitelink2gravitas[sitelink] = gravitas
+                    if sitelink not in link2outdated:
+                        link2outdated[sitelink] = 1
+                    else:
+                        link2outdated[sitelink] += 1
+                    if link2outdated[sitelink] < 3:
+                        self.task_queue.put_nowait((sitelink, gravitas))
 
             await context.close()
 

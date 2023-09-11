@@ -18,7 +18,9 @@ from loguru import logger
 UNDEFINED = "undefined"
 
 MediaType = Literal["photography", "illustration", "illustration&assetfiletype=eps", "undefined"]
-Orientations = Literal["square", "vertical", "horizontal", "panoramicvertical", "panoramichorizontal", "undefined"]
+Orientations = Literal[
+    "square", "vertical", "horizontal", "panoramicvertical", "panoramichorizontal", "undefined"
+]
 NumberOfPeople = Literal["none", "one", "two", "group", "undefined"]
 
 
@@ -78,7 +80,7 @@ class Istock:
 
         headers = {
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.76"
+            "Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.76"
         }
         self.client = AsyncClient(headers=headers)
 
@@ -137,7 +139,7 @@ class Istock:
             img_path.write_bytes(res.content)
 
     async def more_like_this(
-            self, istock_id: str | int, similar: Literal["content", "color"] = "content"
+        self, istock_id: str | int, similar: Literal["content", "color"] = "content"
     ):
         """
 
@@ -167,7 +169,7 @@ class Istock:
         await asyncio.gather(*[self.adaptor() for _ in range(32)])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     istock = Istock.from_phrase("squirrel")
     istock.pages = 4
     asyncio.run(istock.mining())
