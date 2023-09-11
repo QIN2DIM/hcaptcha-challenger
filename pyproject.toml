@@ -24,8 +24,8 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 
-# https://python-poetry.org/docs/configuration/#virtualenvsin-project
 [virtualenvs]
+# https://python-poetry.org/docs/configuration/#virtualenvsin-project
 # Create a `.venv` virtual environment in the project root
 in-project = true
 
@@ -48,9 +48,17 @@ webdriver-manager = { version = "^4.0.0", optional = true }
 selenium = { version = "*", optional = true }
 playwright = { version = "*", optional = true }
 PyGithub = { version = "^1.59.1", optional = true }
-bs4 = { version = "*", optional = true }
-jupyterlab = { version = "^4.0.5", optional = true }
-notebook = { version = "^7.0.3", optional = true }
+bs4 = { version = "*", optional = true, source = "pypi" }
+torch = [
+    { platform = "win32", url = "https://download.pytorch.org/whl/cu118/torch-2.0.1%2Bcu118-cp310-cp310-win_amd64.whl", optional = true },
+    { platform = "linux", url = "https://download.pytorch.org/whl/cu118/torch-2.0.1%2Bcu118-cp310-cp310-linux_x86_64.whl", optional = true }
+]
+torchvision = [
+    { platform = "win32", url = "https://download.pytorch.org/whl/cu118/torchvision-0.15.2%2Bcu118-cp310-cp310-win_amd64.whl", optional = true },
+    { platform = "linux", url = "https://download.pytorch.org/whl/cu118/torchvision-0.15.2%2Bcu118-cp310-cp310-win_amd64.whl", optional = true }
+]
+jupyterlab = { version = "*", optional = true }
+notebook = { version = "*", optional = true }
 onnx = { version = "*", optional = true }
 ultralytics = { version = "==8.0.134", optional = true }
 roboflow = { version = "*", optional = true }
@@ -79,12 +87,17 @@ selenium = ["selenium", "undetected-chromedriver", "webdriver-manager"]
 playwright = ["playwright"]
 
 # Developer: `poetry install -E sentinel`
+# --> ci: sentinel
+# --> ci: collector
 sentinel = ["playwright", "PyGithub"]
 
+# Developer: `poetry install -E istock`
+# --> pull open source datasets
 istock = ["bs4"]
 
-# Developer: `poetry install -E lab`
-# lab = ["jupyterlab", "noteboook", "PyGithub", "onnx", "ultralytics", "roboflow"]
+# Developer: `poetry install -E pytorch -E  lab`
+pytorch = ["torch", "torchvision"]
+lab = ["jupyterlab", "notebook", "PyGithub", "onnx", "ultralytics", "roboflow"]
 
 [build-system]
 requires = ["poetry-core"]
