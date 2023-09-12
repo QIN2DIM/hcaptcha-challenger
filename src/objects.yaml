@@ -150,3 +150,6 @@ label_alias:
   something_you_can_eat2309:
     zh: [ "你可以吃的东西" ]
     en: [ "something you can eat" ]
+  boat2309:
+    zh: [ "船" ]
+    en: [ "boat" ]
