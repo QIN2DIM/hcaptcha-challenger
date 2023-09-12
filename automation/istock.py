@@ -4,19 +4,32 @@
 # Github     : https://github.com/QIN2DIM
 # Description:
 import asyncio
-import os
-import sys
 from pathlib import Path
+from typing import Tuple
 
+import pytest
 from istockphoto import Istock
 
-phrase = "llama on a garden"
 tmp_dir = Path(__file__).parent
 
-if __name__ == "__main__":
+phrases = ["airplane", "boat", "coffee"]
+name2similar = [("hummingbird", "108176594")]
+
+
+@pytest.mark.parametrize("phrase", phrases)
+def test_select_phrase(phrase: str):
     istock = Istock.from_phrase(phrase, tmp_dir)
-    istock.pages = 4
+    istock.pages = 2
     asyncio.run(istock.mining())
 
-    if "win32" in sys.platform:
-        os.startfile(istock.store_dir)
+
+@pytest.mark.parametrize("phrase_with_id", name2similar)
+def test_similar_phrase(phrase_with_id: Tuple[str, str] | None):
+    if not phrase_with_id:
+        return
+
+    phrase, istock_id = phrase_with_id
+    istock = Istock.from_phrase(phrase, tmp_dir)
+    istock.pages = 2
+    istock.more_like_this(istock_id)
+    asyncio.run(istock.mining())
