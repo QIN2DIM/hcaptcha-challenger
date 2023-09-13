@@ -16,7 +16,7 @@ from hcaptcha_challenger import Malenia, AgentT
 from hcaptcha_challenger.utils import SiteKey
 
 collected = []
-per_times = 10
+per_times = 80
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 sitekey = SiteKey.user_easy
 
@@ -34,10 +34,10 @@ async def collete_datasets(context: ASyncContext):
         with suppress(Exception):
             t0 = time.time()
             label = await agent.collect()
+            te = f"{time.time() - t0:.2f}s"
             probe = list(agent.qr.requester_restricted_answer_set.keys())
             mixed_label = probe[0] if len(probe) > 0 else label
             collected.append(mixed_label)
-            te = f"{time.time() - t0:.2f}s"
             print(f">> COLLETE - progress=[{pth}/{per_times}] timeit={te} {label=} {probe=}")
 
         await page.wait_for_timeout(500)
