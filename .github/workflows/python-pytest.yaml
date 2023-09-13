@@ -1,0 +1,41 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Pytest
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [ "main" ]
+    paths: [ "**.py", "pyproject.toml" ]
+  pull_request:
+    branches: [ "main" ]
+    paths: [ "**.py", "pyproject.toml" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+          pipx install poetry
+          poetry export -o requirements.txt --all-extras
+          pip install -r requirements.txt
+          playwright install chromium --with-deps
+      - name: Test with pytest
+        run: |
+          pytest --disable-warnings
