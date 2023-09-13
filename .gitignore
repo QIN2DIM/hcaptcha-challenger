@@ -129,7 +129,6 @@ dmypy.json
 .pyre/
 .idea
 database/
-tests/
 .pypirc
 *.dat
 
@@ -143,3 +142,4 @@ examples/*.png
 **/tmp_dir
 **/istock_tmp
 docs/*.xmind
+tests_private/

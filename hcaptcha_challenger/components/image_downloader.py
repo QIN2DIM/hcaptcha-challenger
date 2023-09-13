@@ -81,24 +81,14 @@ def download_images(container: DownloadList):
 class Cirilla:
     def __init__(self):
         self.client = AsyncClient()
-        self.queue = asyncio.Queue()
 
-    async def elder_blood(self):
-        img_path, url = self.queue.get_nowait()
-        resp = await self.client.get(url)
-        img_path.write_bytes(resp.content)
-        self.queue.task_done()
-
-
-async def async_download_images(container: DownloadList):
-    ciri = Cirilla()
-
-    while container:
-        ciri.queue.put_nowait(container.pop())
-        if not ciri.queue.empty():
-            asyncio.create_task(ciri.elder_blood())
-
-    await ciri.queue.join()
+    async def elder_blood(self, context):
+        img_path, url = context
+        try:
+            resp = await self.client.get(url, timeout=10)
+            img_path.write_bytes(resp.content)
+        except httpx.ConnectTimeout:
+            pass
 
 
 def common_download(container: DownloadList):

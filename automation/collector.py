@@ -146,7 +146,6 @@ class GravitasState:
     typed_dir: Path | None = None
 
 
-# noinspection DuplicatedCode
 @dataclass
 class Collector:
     per_times: int = 10
