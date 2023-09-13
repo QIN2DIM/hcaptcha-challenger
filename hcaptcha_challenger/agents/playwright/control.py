@@ -10,7 +10,6 @@ import hashlib
 import json
 import random
 import shutil
-import threading
 import time
 import uuid
 from contextlib import suppress
@@ -22,7 +21,7 @@ from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response
 from playwright.async_api import TimeoutError
 
-from hcaptcha_challenger.components.image_downloader import download_images
+from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
@@ -284,7 +283,7 @@ class Radagon:
         _label = split_prompt_message(self._prompt, lang="en")
         self._label = label_cleaning(_label)
 
-    def _download_images(self):
+    async def _download_images(self):
         request_type = self.qr.request_type
         ks = list(self.qr.requester_restricted_answer_set.keys())
         if len(ks) > 0:
@@ -293,14 +292,16 @@ class Radagon:
             self.typed_dir = self.tmp_dir.joinpath(request_type, self._label)
         self.typed_dir.mkdir(parents=True, exist_ok=True)
 
+        ciri = Cirilla()
         container = []
+        tasks = []
         for i, tk in enumerate(self.qr.tasklist):
             challenge_img_path = self.typed_dir.joinpath(f"{time.time()}.{i}.png")
-            container.append((challenge_img_path, tk["datapoint_uri"]))
+            context = (challenge_img_path, tk["datapoint_uri"])
+            container.append(context)
+            tasks.append(asyncio.create_task(ciri.elder_blood(context)))
 
-        job = threading.Thread(target=download_images, kwargs={"container": container})
-        job.start()
-        job.join()
+        await asyncio.gather(*tasks)
 
         # Optional deduplication
         self._img_paths = []
@@ -519,7 +520,7 @@ class AgentT(Radagon):
 
         self._parse_label()
 
-        self._download_images()
+        await self._download_images()
 
         # Match: image_label_binary
         if self.qr.request_type == "image_label_binary":
@@ -549,5 +550,5 @@ class AgentT(Radagon):
         if not self.qr.requester_question.keys():
             return
         self._parse_label()
-        self._download_images()
+        await self._download_images()
         return self._label
