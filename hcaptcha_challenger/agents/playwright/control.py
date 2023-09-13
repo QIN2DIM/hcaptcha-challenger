@@ -175,8 +175,9 @@ class Radagon:
     Project directory of Skeleton Agents
     """
 
-    tmp_dir: Path = this_dir.joinpath("temp_cache")
-    challenge_dir = tmp_dir.joinpath("_challenge")
+    tmp_dir: Path = this_dir.joinpath("tmp_dir")
+    challenge_dir: Path = field(default=Path)
+    record_json_dir: Path = field(default=Path)
     """
     Runtime cache
     """
@@ -218,6 +219,10 @@ class Radagon:
     HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
 
     def __post_init__(self):
+        self.challenge_dir = self.tmp_dir.joinpath("_challenge")
+        self.record_json_dir = self.tmp_dir.joinpath("record_json")
+        self.record_json_dir.mkdir(parents=True, exist_ok=True)
+
         self.label_alias = self.modelhub.label_alias
 
         self.qr_queue = asyncio.Queue()
@@ -230,7 +235,7 @@ class Radagon:
             with suppress(Exception):
                 data = await response.json()
                 qr = QuestionResp.from_json(data)
-                qr.save_example(tmp_dir=self.tmp_dir)
+                qr.save_example(tmp_dir=self.record_json_dir)
                 self.qr_queue.put_nowait(qr)
         if response.url.startswith("https://hcaptcha.com/checkcaptcha/"):
             with suppress(Exception):
@@ -250,7 +255,6 @@ class Radagon:
 
         if tmp_dir and isinstance(tmp_dir, Path):
             self.tmp_dir = tmp_dir
-            self.challenge_dir = tmp_dir.joinpath("_challenge")
 
         return self
 
