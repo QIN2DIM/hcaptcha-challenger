@@ -33,7 +33,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pytest
           pipx install poetry
-          poetry export -o requirements.txt --all-extras
+          $ poetry export -o requirements.txt -E playwright -E sentinel -E istock
           pip install -r requirements.txt
           playwright install chromium --with-deps
       - name: Test with pytest
