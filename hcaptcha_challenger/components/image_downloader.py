@@ -8,16 +8,18 @@ from __future__ import annotations
 import asyncio
 import sys
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Tuple, Iterable
+from typing import Any, Tuple, List
 
+import httpx
 from httpx import AsyncClient
 
+DownloadList = List[Tuple[Path, str]]
 
-@dataclass
+
 class AshFramework(ABC):
-    container: Iterable
+    def __init__(self, container: DownloadList):
+        self.container = container
 
     @classmethod
     def from_container(cls, container):
@@ -42,7 +44,6 @@ class AshFramework(ABC):
         asyncio.run(self.subvert())
 
 
-@dataclass
 class ImageDownloader(AshFramework):
     async def control_driver(self, context: Any, client: AsyncClient):
         (img_path, url) = context
@@ -50,7 +51,7 @@ class ImageDownloader(AshFramework):
         img_path.write_bytes(resp.content)
 
 
-def download_images(container: Iterable[Tuple[Path, str]]):
+def download_images(container: DownloadList):
     """
     Download Challenge Image
 
@@ -75,3 +76,32 @@ def download_images(container: Iterable[Tuple[Path, str]]):
     :return:
     """
     ImageDownloader(container).execute()
+
+
+class Cirilla:
+    def __init__(self):
+        self.client = AsyncClient()
+        self.queue = asyncio.Queue()
+
+    async def elder_blood(self):
+        img_path, url = self.queue.get_nowait()
+        resp = await self.client.get(url)
+        img_path.write_bytes(resp.content)
+        self.queue.task_done()
+
+
+async def async_download_images(container: DownloadList):
+    ciri = Cirilla()
+
+    while container:
+        ciri.queue.put_nowait(container.pop())
+        if not ciri.queue.empty():
+            asyncio.create_task(ciri.elder_blood())
+
+    await ciri.queue.join()
+
+
+def common_download(container: DownloadList):
+    for img_path, url in container:
+        resp = httpx.get(url)
+        img_path.write_bytes(resp.content)
