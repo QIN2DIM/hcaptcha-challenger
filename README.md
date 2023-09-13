@@ -1,9 +1,9 @@
 <div align="center">
     <h1> hCaptcha Challenger</h1>
     <p>🚀 Gracefully face hCaptcha challenge with MoE(ONNX) embedded solution.</p>
-    <img src="https://img.shields.io/static/v1?message=reference&color=blue&style=for-the-badge&logo=micropython&label=python">
-    <img src="https://img.shields.io/github/license/QIN2DIM/hcaptcha-challenger?style=for-the-badge">
-    <a href="https://github.com/QIN2DIM/hcaptcha-challenger/releases"><img src="https://img.shields.io/github/downloads/qin2dim/hcaptcha-challenger/total?style=for-the-badge"></a>
+    <img src="https://img.shields.io/pypi/v/hcaptcha-challenger?style=flat-square&logo=python&logoColor=white">
+    <img src="https://img.shields.io/pypi/dw/hcaptcha-challenger?style=flat-square&logo=aiqfome&label=downloads%40PyPI">
+    <a href="https://github.com/QIN2DIM/hcaptcha-challenger/releases"><img src="https://img.shields.io/github/downloads/QIN2DIM/hcaptcha-challenger/model/total?style=flat-square&logo=github"></a>
 	<br>
 	<a href="https://discord.gg/m9ZRBTZvbr"><img alt="Discord" src="https://img.shields.io/discord/978108215499816980?style=social&logo=discord&label=echosec"></a>
  	<a href = "https://t.me/+Cn-KBOTCaWNmNGNh"><img src="https://img.shields.io/static/v1?style=social&logo=telegram&label=chat&message=studio" ></a>
@@ -37,7 +37,7 @@ Just implement some interfaces to make `AI vs AI` possible.
 | `ci: collector`               | [![hCAPTCHA Collector](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/collector.yaml/badge.svg)](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/collector.yaml) |
 | `datasets: VCS, annoate`      | [#roboflow](hcaptcha-challenger), [#model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
 | `model: ResNet - train / val` | [#model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
-| `model: YOLOv8 - train / val` | [#ultralytics](https://github.com/ultralytics/ultralytics)   |
+| `model: YOLOv8 - train / val` |  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/QIN2DIM/hcaptcha-challenger/blob/main/automation/roboflow_yolov8.ipynb)  |
 | `model: upload, upgrade`      | [#objects](https://github.com/QIN2DIM/hcaptcha-challenger/tree/main/src), [#modelhub](https://github.com/QIN2DIM/hcaptcha-challenger/releases/tag/model) |
 | `datasets: public, archive`   | [#roboflow-universe](https://universe.roboflow.com/qin2dim/), [#captcha-datasets](https://github.com/captcha-challenger/hcaptcha-whistleblower) |
 
