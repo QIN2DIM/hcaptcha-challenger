@@ -51,12 +51,11 @@ PyGithub = { version = "^1.59.1", optional = true }
 istockphoto = { version = "*", optional = true }
 
 [tool.poetry.group.test.dependencies]
-# pytest test/ -n auto --timeout=300
+# pytest test/ -n auto --disable-warnings
 pytest = "*"
 pytest-asyncio = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
-pytest-timeout = "*"
 black = { version = "*", extras = ["jupyter"] }
 memory-profiler = "*"
 

@@ -63,4 +63,4 @@ jobs:
       - name: Test with pytest
         run: |
           source .venv/bin/activate
-          pytest test/ -n auto --timeout=300 --disable-warnings
+          pytest test/ -n auto --disable-warnings
