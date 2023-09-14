@@ -16,9 +16,9 @@ from hcaptcha_challenger import Malenia, AgentT
 from hcaptcha_challenger.utils import SiteKey
 
 collected = []
-per_times = 10
+per_times = 50
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
-sitekey = SiteKey.user_easy
+sitekey = SiteKey.epic
 
 
 async def collete_datasets(context: ASyncContext):

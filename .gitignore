@@ -143,3 +143,4 @@ examples/*.png
 **/istock_tmp
 docs/*.xmind
 tests_private/
+.run/
