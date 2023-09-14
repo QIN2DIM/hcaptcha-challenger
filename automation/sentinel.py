@@ -60,8 +60,8 @@ class Pigeon:
     sitekey: str
     canvas_path: Path
 
-    issue_repo: Repository | None = field(default=Repository)
-    asset_repo: Repository | None = field(default=Repository)
+    issue_repo = None
+    asset_repo = None
 
     issue_prompt: str = field(default=str)
     """
@@ -77,9 +77,9 @@ class Pigeon:
 
     def __post_init__(self):
         auth = Auth.Token(os.getenv("GITHUB_TOKEN"))
-        self.issue_repo = Github(auth=auth).get_repo("QIN2DIM/hcaptcha-challenger")
+        self.issue_repo: Repository = Github(auth=auth).get_repo("QIN2DIM/hcaptcha-challenger")
         # self.issue_repo = Github(auth=auth).get_repo("QIN2DIM/cdn-relay")
-        self.asset_repo = Github(auth=auth).get_repo("QIN2DIM/cdn-relay")
+        self.asset_repo: Repository = Github(auth=auth).get_repo("QIN2DIM/cdn-relay")
 
         self.request_type = self.qr.request_type
         if shape_type := self.qr.request_config.get("shape_type"):
