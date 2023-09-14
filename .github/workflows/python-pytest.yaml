@@ -60,4 +60,3 @@ jobs:
           source .venv/bin/activate
           playwright install chromium --with-deps
           pytest tests/ --disable-warnings
-          coverage report
