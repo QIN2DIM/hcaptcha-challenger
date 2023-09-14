@@ -52,6 +52,7 @@ istockphoto = { version = "*", optional = true }
 
 [tool.poetry.group.test.dependencies]
 pytest = "*"
+pytest-asyncio = "*"
 black = { version = "*", extras = ["jupyter"] }
 memory-profiler = "*"
 
