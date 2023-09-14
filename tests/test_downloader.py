@@ -13,7 +13,7 @@ from hcaptcha_challenger.utils import SiteKey
 
 
 async def test_downloader():
-    tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
+    tmp_dir = Path(__file__).parent.joinpath("tmp_dir2")
     shutil.rmtree(tmp_dir, ignore_errors=True)
 
     async with async_playwright() as p:

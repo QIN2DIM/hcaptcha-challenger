@@ -64,6 +64,7 @@ jobs:
           SITEKEY_DISCORD: f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34
           SITEKEY_EPIC: 91e4137f-95af-4bc9-97af-cdcedce21c8c
           SITEKEY_USER_EASY: c86d730b-300a-444c-a8c5-5312e7a93628
+        timeout-minutes: 10
         run: |
           source .venv/bin/activate
-          pytest tests/ -n auto
+          pytest -n logical
