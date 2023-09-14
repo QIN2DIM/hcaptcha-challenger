@@ -31,8 +31,10 @@ jobs:
       - name: Install dependencies
         run: |
           pipx install poetry
-          poetry lock --no-update
+          python -m venv .venv
           poetry install --all-extras
+      - name: Flush Playwright context
+        run: | 
           playwright install chromium --with-deps
       - name: Test with pytest
         run: |
