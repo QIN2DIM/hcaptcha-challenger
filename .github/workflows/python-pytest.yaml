@@ -1,0 +1,70 @@
+# https://github.com/marketplace/actions/install-poetry-action
+name: Pytest
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+
+    steps:
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      #----------------------------------------------
+      #  -----  install & configure poetry  -----
+      #----------------------------------------------
+      - name: Install Poetry
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+      #----------------------------------------------
+      #       load cached venv if cache exists
+      #----------------------------------------------
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      #----------------------------------------------
+      # install dependencies if cache does not exist
+      #----------------------------------------------
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root --all-extras
+      - name: Install project
+        run: poetry install --no-interaction --all-extras
+      #----------------------------------------------
+      #              run test suite
+      #----------------------------------------------
+      - name: Install Playwright
+        run: |
+          source .venv/bin/activate
+          playwright install chromium --with-deps
+      - name: Test with pytest
+        env:
+          GITHUB_TOKEN: ${{ secrets.SENTINEL_ACCESS_TOKEN }}
+          SITEKEY_DISCORD: f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34
+          SITEKEY_EPIC: 91e4137f-95af-4bc9-97af-cdcedce21c8c
+          SITEKEY_USER_EASY: c86d730b-300a-444c-a8c5-5312e7a93628
+        timeout-minutes: 10
+        run: |
+          source .venv/bin/activate
+          pytest

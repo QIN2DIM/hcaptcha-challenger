@@ -6,22 +6,16 @@
 import shutil
 from pathlib import Path
 
-import pytest
 from playwright.async_api import async_playwright
 
 from hcaptcha_challenger import Malenia, AgentT
 from hcaptcha_challenger.utils import SiteKey
 
-pytest_plugins = ("pytest_asyncio",)
 
-tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
-shutil.rmtree(tmp_dir, ignore_errors=True)
-
-sitekey = SiteKey.user_easy
-
-
-@pytest.mark.asyncio
 async def test_downloader():
+    tmp_dir = Path(__file__).parent.joinpath("tmp_dir2")
+    shutil.rmtree(tmp_dir, ignore_errors=True)
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(locale="en-US")
@@ -30,7 +24,7 @@ async def test_downloader():
 
         agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
 
-        sitelink = SiteKey.as_sitelink(sitekey)
+        sitelink = SiteKey.as_sitelink(SiteKey.user_easy)
         await page.goto(sitelink)
 
         await agent.handle_checkbox()

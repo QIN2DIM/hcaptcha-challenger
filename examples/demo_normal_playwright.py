@@ -20,7 +20,7 @@ solver.install(upgrade=True, flush_yolo=False)
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
-sitekey = SiteKey.user_easy
+sitekey = SiteKey.epic
 
 
 @logger.catch
