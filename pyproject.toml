@@ -51,13 +51,25 @@ PyGithub = { version = "^1.59.1", optional = true }
 istockphoto = { version = "*", optional = true }
 
 [tool.poetry.group.test.dependencies]
-# pytest test/ -n auto --disable-warnings
+# https://docs.pytest.org/en/stable/reference/plugin_list.html#plugin-list
+# https://docs.pytest.org/en/stable/contents.html
 pytest = "*"
+# https://pytest-asyncio.readthedocs.io/en/latest/
 pytest-asyncio = "*"
+# https://pytest-cov.readthedocs.io/en/latest/readme.html
 pytest-cov = "*"
-pytest-xdist = "*"
+# https://pytest-xdist.readthedocs.io/en/stable/
+pytest-xdist = { version = "*", extras = ["psutil"] }
+# https://black.readthedocs.io/en/stable/
 black = { version = "*", extras = ["jupyter"] }
+# https://github.com/pythonprofilers/memory_profiler
 memory-profiler = "*"
+
+[tool.pytest.ini_options]
+# https://docs.pytest.org/en/stable/reference/reference.html#configuration-options
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = "ignore::DeprecationWarning"
 
 [tool.poetry.extras]
 # 1. Running `poetry install -E [extras]` will install the general dependencies

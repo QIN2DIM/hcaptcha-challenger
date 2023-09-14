@@ -11,13 +11,10 @@ from playwright.async_api import async_playwright
 import hcaptcha_challenger as solver
 from hcaptcha_challenger.utils import SiteKey
 
-pytest_plugins = ("pytest_asyncio",)
-
 # Init local-side of the ModelHub
 solver.install(upgrade=True, flush_yolo=False)
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("sitekey", [SiteKey.epic, SiteKey.discord, SiteKey.user_easy])
 @pytest.mark.parametrize("times", [3])
 async def test_normal_playwright(sitekey: str, times: int):
@@ -31,12 +28,15 @@ async def test_normal_playwright(sitekey: str, times: int):
 
         await agent.handle_checkbox()
 
+        state = agent.status.CHALLENGE_BACKCALL
+        msg = ""
         for pth in range(1, times):
             result = await agent()
+            state = result
             if result in [agent.status.CHALLENGE_SUCCESS]:
                 return
             if result in [agent.status.CHALLENGE_RETRY]:
                 continue
-            assert (
-                result != agent.status.CHALLENGE_BACKCALL
-            ), f">> {pth} - Challenge Result: {result} - question={agent.qr.requester_question}"
+            probe = list(agent.qr.requester_restricted_answer_set.keys())
+            msg = f"{result=} label={agent._label} {probe=}"
+        assert state == agent.status.CHALLENGE_BACKCALL, msg
