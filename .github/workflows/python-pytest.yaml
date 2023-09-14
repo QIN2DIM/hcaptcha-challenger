@@ -55,8 +55,11 @@ jobs:
       #----------------------------------------------
       #              run test suite
       #----------------------------------------------
-      - name: Test with pytest
+      - name: Install Playwright
         run: |
           source .venv/bin/activate
           playwright install chromium --with-deps
+      - name: Test with pytest
+        run: |
+          source .venv/bin/activate
           pytest tests/ --disable-warnings
