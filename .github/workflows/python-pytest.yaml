@@ -67,4 +67,4 @@ jobs:
         timeout-minutes: 10
         run: |
           source .venv/bin/activate
-          pytest -n logical
+          pytest
