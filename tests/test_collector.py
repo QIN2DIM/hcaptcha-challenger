@@ -3,11 +3,17 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-import asyncio
+
+import pytest
 
 from automation.collector import Collector
 
+pytest_plugins = ("pytest_asyncio",)
 
-def test_collector():
+
+@pytest.mark.asyncio
+async def test_collector():
     collector = Collector()
-    asyncio.run(collector.bytedance())
+    collector.prelude_tasks()
+    await collector.startup_collector()
+    collector.post_datasets()

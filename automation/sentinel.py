@@ -47,9 +47,6 @@ TEMPLATE_BINARY_CHALLENGE = """
 
 """
 
-# Find new binary challenge from here
-PENDING_SITEKEY = [SiteKey.epic]
-
 
 @dataclass
 class Pigeon:
@@ -190,7 +187,7 @@ class Sentinel:
     lookup_labels: Set[str] = field(default_factory=set)
     pending_pigeon: asyncio.Queue[Pigeon] = None
 
-    pending_sitekey = PENDING_SITEKEY
+    pending_sitekey: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         self.nt_screenshot_dir.mkdir(parents=True, exist_ok=True)
@@ -206,7 +203,6 @@ class Sentinel:
                 self.pending_sitekey.append(sk)
 
         self.pending_sitekey = list(set(self.pending_sitekey))
-        logger.info("create tasks", pending_sitekey=self.pending_sitekey)
 
     async def register_pigeon(self, page: Page, mixed_label: str, agent, sitekey):
         fl = page.frame_locator(agent.HOOK_CHALLENGE)
@@ -271,6 +267,7 @@ class Sentinel:
         if not self.pending_sitekey:
             logger.info("No pending tasks, sentinel exits", tasks=self.pending_sitekey)
             return
+        logger.info("create tasks", pending_sitekey=self.pending_sitekey)
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)

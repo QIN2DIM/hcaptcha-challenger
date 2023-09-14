@@ -3,11 +3,18 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-import asyncio
+
+import pytest
 
 from automation.sentinel import Sentinel
+from hcaptcha_challenger.utils import SiteKey
+
+pytest_plugins = ("pytest_asyncio",)
 
 
-def test_sentinel():
+@pytest.mark.asyncio
+@pytest.mark.parametrize("sitekey", [SiteKey.epic, SiteKey.discord, SiteKey.user_easy])
+async def test_sentinel(sitekey: str):
     sentinel = Sentinel()
-    asyncio.run(sentinel.bytedance())
+    sentinel.pending_sitekey.append(sitekey)
+    await sentinel.bytedance()
