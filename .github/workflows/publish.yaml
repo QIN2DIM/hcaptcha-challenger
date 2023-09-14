@@ -41,4 +41,4 @@ jobs:
       #----------------------------------------------
       - name: Build && Publish
         run: |
-          poetry build && poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
+          poetry build && poetry publish -u __token__ -p ${{ secrets.PYPI_API_TOKEN }}
