@@ -6,11 +6,7 @@ name: Pytest
 on:
   workflow_dispatch:
 
-  push:
-    branches: [ "main" ]
-    paths: [ "**.py", "pyproject.toml" ]
   pull_request:
-    branches: [ "main" ]
     paths: [ "**.py", "pyproject.toml" ]
 
 jobs:
@@ -23,19 +19,47 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
 
     steps:
-      - uses: actions/checkout@v3
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      #----------------------------------------------
+      #  -----  install & configure poetry  -----
+      #----------------------------------------------
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+      #----------------------------------------------
+      #       load cached venv if cache exists
+      #----------------------------------------------
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      #----------------------------------------------
+      # install dependencies if cache does not exist
+      #----------------------------------------------
       - name: Install dependencies
-        run: |
-          pipx install poetry
-          python -m venv .venv
-          poetry install --all-extras
-      - name: Flush Playwright context
-        run: | 
-          playwright install chromium --with-deps
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root --all-extras
+      - name: Install project
+        run: poetry install --no-interaction --all-extras
+      #----------------------------------------------
+      #              run test suite
+      #----------------------------------------------
       - name: Test with pytest
         run: |
-          pytest --disable-warnings
+          source .venv/
+          playwright install chromium --with-deps
+          pytest tests/ --disable-warnings
+          coverage report
