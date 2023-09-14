@@ -32,5 +32,5 @@ def similar_phrase(phrase_with_id: Tuple[str, str] | None):
     asyncio.run(istock.mining())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     select_phrase("elephant")

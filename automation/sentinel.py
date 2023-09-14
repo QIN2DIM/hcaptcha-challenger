@@ -160,10 +160,10 @@ class Pigeon:
         :return:
         """
         for issue in self.issue_repo.get_issues(
-                labels=self.issue_labels,
-                state="all",
-                since=datetime.now() - timedelta(days=14),
-                assignee=self.assignees[0],
+            labels=self.issue_labels,
+            state="all",
+            since=datetime.now() - timedelta(days=14),
+            assignee=self.assignees[0],
         ):
             mixed_label = split_prompt_message(self.issue_prompt, lang="en")
             if issue.created_at + timedelta(hours=24) > datetime.now():
@@ -246,7 +246,7 @@ class Sentinel:
                     # probe --> one-step model
                     mixed_label = f"{probe[0]} @ {label}"
                     if mixed_label not in self.lookup_labels and not any(
-                            is_matched_ash_of_war(agent.ash, c) for c in agent.modelhub.yolo_names
+                        is_matched_ash_of_war(agent.ash, c) for c in agent.modelhub.yolo_names
                     ):
                         logger.info(f"lookup new challenge", label=mixed_label, sitelink=sitelink)
                         await self.register_pigeon(page, mixed_label, agent, sitekey)
