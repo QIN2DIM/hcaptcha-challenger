@@ -8,7 +8,8 @@ on:
 
 jobs:
   build:
-
+    env:
+      GITHUB_TOKEN: ${{ secrets.SENTINEL_ACCESS_TOKEN }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
