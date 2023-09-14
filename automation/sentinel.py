@@ -60,8 +60,8 @@ class Pigeon:
     sitekey: str
     canvas_path: Path
 
-    issue_repo: Repository | None = None
-    asset_repo: Repository | None = None
+    issue_repo: Repository | None = field(default=Repository)
+    asset_repo: Repository | None = field(default=Repository)
 
     issue_prompt: str = field(default=str)
     """

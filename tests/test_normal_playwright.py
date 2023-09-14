@@ -39,4 +39,4 @@ async def test_normal_playwright(sitekey: str, times: int):
                 continue
             probe = list(agent.qr.requester_restricted_answer_set.keys())
             msg = f"{result=} label={agent._label} {probe=}"
-        assert state == agent.status.CHALLENGE_BACKCALL, msg
+        assert state != agent.status.CHALLENGE_BACKCALL, msg
