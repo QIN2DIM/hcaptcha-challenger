@@ -169,3 +169,9 @@ label_alias:
   plant2313:
     zh: [ "植物" ]
     en: [ "plant" ]
+  train2309:
+    zh: [ "火车" ]
+    en: [ "train" ]
+  truck2309:
+    zh: [ "卡车" ]
+    en: [ "truck2309" ]
