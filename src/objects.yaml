@@ -67,7 +67,7 @@ label_alias:
   flower:
     zh: [ "花" ]
     en: [ "flower" ]
-  sports_stadium:
+  sports_stadium2310:
     zh: [ "体育场" ]
     en: [ "sports stadium" ]
   color_pencil:
@@ -175,3 +175,6 @@ label_alias:
   truck2309:
     zh: [ "卡车" ]
     en: [ "truck2309" ]
+  castle2309:
+    zh: [ "城堡" ]
+    en: [ "castle" ]
