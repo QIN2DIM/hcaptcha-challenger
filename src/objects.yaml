@@ -3,6 +3,7 @@ branches:
     release_url: https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 ashes_of_war:
+  animal_fox_yolov8n.onnx: [ "fox" ]
   fantasia_elephant_yolov8s.onnx: [ "elephant" ]
   fantasia_cat_yolov8n.onnx: [ "cat" ]
   fantasia_shark_yolov8n.onnx: [ "shark" ]
