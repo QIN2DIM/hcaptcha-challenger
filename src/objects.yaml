@@ -4,7 +4,7 @@ branches:
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 ashes_of_war:
   treasurechest2309_yolov8n.onnx: [ "treasurechest" ]
-  animalhead_zebra_yolov8n.onnx: [ "zebra-head" ]
+  animalhead_zebra_yolov8s.onnx: [ "zebra-head" ]
   animalhead_fox_yolov8n.onnx: [ "fox-head" ]
   fantasia_elephant_yolov8s.onnx: [ "elephant" ]
   fantasia_cat_yolov8n.onnx: [ "cat" ]
