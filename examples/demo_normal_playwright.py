@@ -20,7 +20,7 @@ solver.install(upgrade=True, flush_yolo=False)
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
-sitekey = SiteKey.user_easy
+sitekey = SiteKey.epic
 
 
 @logger.catch
@@ -33,7 +33,9 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
 
     for pth in range(1, times):
         result = await agent()
-        print(f">> {pth} - Challenge Result: {result} - question={agent.qr.requester_question}")
+        probe = list(agent.qr.requester_restricted_answer_set.keys())
+        question = agent.qr.requester_question
+        print(f">> {pth} - Challenge Result: {result} - {question=} {probe=}")
         match result:
             case agent.status.CHALLENGE_BACKCALL:
                 await page.wait_for_timeout(500)
