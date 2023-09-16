@@ -5,7 +5,7 @@ branches:
 ashes_of_war:
   treasurechest2309_yolov8n.onnx: [ "treasurechest" ]
   animalhead_zebra_yolov8s.onnx: [ "zebra-head" ]
-  animalhead_fox_yolov8n.onnx: [ "fox-head" ]
+  animalhead_fox_yolov8s.onnx: [ "fox-head" ]
   fantasia_elephant_yolov8s.onnx: [ "elephant" ]
   fantasia_cat_yolov8n.onnx: [ "cat" ]
   fantasia_shark_yolov8n.onnx: [ "shark" ]
