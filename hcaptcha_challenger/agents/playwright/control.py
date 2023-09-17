@@ -251,12 +251,9 @@ class Radagon:
         modelhub = ModelHub.from_github_repo(**kwargs)
         modelhub.parse_objects()
 
-        self = cls(page=page, modelhub=modelhub)
-
         if tmp_dir and isinstance(tmp_dir, Path):
-            self.tmp_dir = tmp_dir
-
-        return self
+            return cls(page=page, modelhub=modelhub, tmp_dir=tmp_dir)
+        return cls(page=page, modelhub=modelhub)
 
     @property
     def status(self):
