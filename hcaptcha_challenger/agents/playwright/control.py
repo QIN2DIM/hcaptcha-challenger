@@ -375,7 +375,7 @@ class Radagon:
                 await self.page.wait_for_timeout(1000)
 
     async def _keypoint_default_challenge(self, frame_challenge: FrameLocator):
-        def _lookup_solution(threshold: float = 0.7, deep: int = 6) -> Position[str, str] | None:
+        def _lookup_yolo(threshold: float = 0.7, deep: int = 6) -> Position[str, str] | None:
             count = 0
             for focus_name, classes in self.modelhub.lookup_ash_of_war(self.ash):
                 count += 1
@@ -407,11 +407,11 @@ class Radagon:
             path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
             image = await locator.screenshot(path=path, type="png")
 
-            if position := _lookup_solution(threshold=0.7):
+            if position := _lookup_yolo(threshold=0.7):
                 await locator.click(delay=500, position=position)
             else:
                 await locator.click(delay=500)
-            input("selected")  # fixme
+            input(f"selected - {position=}")  # fixme
 
             # {{< Verify >}}
             with suppress(TimeoutError):
@@ -572,6 +572,9 @@ class AgentT(Radagon):
         self._parse_label()
 
         await self._download_images()
+
+        if "default" not in self.ash:  # fixme
+            return self.status.CHALLENGE_BACKCALL
 
         # Match: image_label_binary
         if self.qr.request_type == "image_label_binary":
