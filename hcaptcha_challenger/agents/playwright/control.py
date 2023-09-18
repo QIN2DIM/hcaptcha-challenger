@@ -412,7 +412,7 @@ class Radagon:
                 await locator.click(delay=500, position=position)
             else:
                 await locator.click(delay=500)
-            input("selected")
+            input("selected")  # fixme
 
             # {{< Verify >}}
             with suppress(TimeoutError):
@@ -573,10 +573,6 @@ class AgentT(Radagon):
         self._parse_label()
 
         await self._download_images()
-
-        if "default" not in self.ash:
-            return self.status.CHALLENGE_BACKCALL
-        print(f"into default, {self.ash=}")
 
         # Match: image_label_binary
         if self.qr.request_type == "image_label_binary":
