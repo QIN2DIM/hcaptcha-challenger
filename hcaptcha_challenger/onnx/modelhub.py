@@ -377,27 +377,31 @@ class ModelHub:
         # catch-all rules
         return DEFAULT_KEYPOINT_MODEL, self.ashes_of_war[DEFAULT_KEYPOINT_MODEL]
 
-    def lookup_ash_of_war(self, ash: str):
-        for model_name, covered_class in self.ashes_of_war.items():
-            if "not an animal" in ash and "notanimal" not in model_name:
-                continue
-
-            if "head of " in ash and "animal" in ash:
-                if "head" not in model_name:
-                    continue
-                if "default" not in ash:
-                    for class_name in covered_class:
-                        if class_name.replace("-head", "") in ash:
-                            return model_name, covered_class
-                else:
+    def lookup_ash_of_war(self, ash: str):  # fixme
+        """catch-all default cases"""
+        if "not an animal" in ash:
+            for model_name, covered_class in self.ashes_of_war.items():
+                if "notanimal" in model_name:
                     yield model_name, covered_class
 
-            if "default" not in ash:
-                for class_name in covered_class:
-                    if class_name in ash:
-                        return model_name, covered_class
-            else:
-                yield model_name, covered_class
+        if "head of " in ash and "animal" in ash:
+            for model_name, covered_class in self.ashes_of_war.items():
+                if "head" in model_name:
+                    yield model_name, covered_class
+
+        if "animal" in ash and "not belong to the sea" in ash:
+            for model_name, covered_class in self.ashes_of_war.items():
+                if (
+                    "notseaanimal" in model_name
+                    or "fantasia_elephant" in model_name
+                    or "fantasia_cat" in model_name
+                ):
+                    yield model_name, covered_class
+
+        for model_name, covered_class in self.ashes_of_war.items():
+            for class_name in covered_class:
+                if class_name in ash:
+                    yield model_name, covered_class
 
 
 class ChallengeStyle:
