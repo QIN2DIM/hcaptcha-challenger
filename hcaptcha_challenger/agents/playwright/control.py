@@ -111,11 +111,10 @@ class QuestionResp:
     def save_example(self, tmp_dir: Path = None):
         shape_type = self.request_config.get("shape_type", "")
 
-        requester_question = self.requester_question.get("en")
-        requester_question = label_cleaning(requester_question)
+        requester_question = label_cleaning(self.requester_question.get("en", ""))
         answer_keys = list(self.requester_restricted_answer_set.keys())
         ak = f".{answer_keys[0]}" if len(answer_keys) > 0 else ""
-        fn = f"{self.request_type}.{shape_type}{ak}.{requester_question}.json"
+        fn = f"{self.request_type}.{shape_type}.{requester_question}{ak}.json"
         if tmp_dir and tmp_dir.exists():
             fn = tmp_dir.joinpath(fn)
 
