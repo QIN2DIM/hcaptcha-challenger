@@ -378,19 +378,6 @@ class ModelHub:
         return DEFAULT_KEYPOINT_MODEL, self.ashes_of_war[DEFAULT_KEYPOINT_MODEL]
 
     def lookup_ash_of_war(self, ash: str):
-        """catch-all unknown objects"""
-        if "head of " in ash and "animal" in ash:
-            for model_name, covered_class in self.ashes_of_war.items():
-                if "head" not in model_name:
-                    continue
-                yield model_name, covered_class
-
-        for model_name, covered_class in self.ashes_of_war.items():
-            yield model_name, covered_class
-
-        return DEFAULT_KEYPOINT_MODEL, self.ashes_of_war[DEFAULT_KEYPOINT_MODEL]
-
-    def lookup_ash_of_war(self, ash: str):
         """
         catch-all unknown objects
         # Please click on the head of the animal

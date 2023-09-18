@@ -376,60 +376,6 @@ class Radagon:
                 await self.page.wait_for_timeout(1000)
 
     async def _keypoint_default_challenge(self, frame_challenge: FrameLocator):
-        logger.warning("INTO CATCH-ALL keypoint challenge")
-
-        times = int(len(self.qr.tasklist))
-        for pth in range(times):
-            locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
-            await locator.wait_for(state="visible")
-
-            path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
-            image = await locator.screenshot(path=path, type="png")
-
-            res = []
-            for focus_name, classes in self.modelhub.lookup_ash_of_war(self.ash):
-                session = self.modelhub.match_net(focus_name=focus_name)
-                detector = YOLOv8.from_pluggable_model(session, classes)
-                res = detector(image, shape_type="point")
-                if res:
-                    logger.debug("catch model", yolo=focus_name, ash=self.ash)
-                    break
-
-            alts = []
-            for name, (center_x, center_y), score in res:
-                # Bypass unfocused objects
-                if not is_matched_ash_of_war(ash=self.ash, class_name=name):
-                    continue
-                # Bypass invalid area
-                if center_y < 20 or center_y > 520 or center_x < 91 or center_x > 400:
-                    continue
-                center_x, center_y = finetune_keypoint(name, [center_x, center_y])
-                alt = {"name": name, "position": {"x": center_x, "y": center_y}, "score": score}
-                alts.append(alt)
-
-            # Get best result
-            if len(alts) > 1:
-                alts = sorted(alts, key=lambda x: x["score"])
-            # Click canvas
-            if len(alts) > 0:
-                best = alts[-1]
-                await locator.click(delay=500, position=best["position"])
-                # print(f">> Click on the object - position={best['position']} name={best['name']}")
-            # Catch-all rule
-            else:
-                await locator.click(delay=500)
-                # print(">> click on the center of the canvas")
-
-            # {{< Verify >}}
-            with suppress(TimeoutError):
-                fl = frame_challenge.locator("//div[@class='button-submit button']")
-                await fl.click(delay=200)
-
-            # {{< Done | Continue >}}
-            if pth == 0:
-                await self.page.wait_for_timeout(1000)
-
-    async def _keypoint_default_challenge(self, frame_challenge: FrameLocator):
         def _lookup_solution(threshold: float = 0.7, deep: int = 6) -> Position[str, str] | None:
             count = 0
             for focus_name, classes in self.modelhub.lookup_ash_of_war(self.ash):
