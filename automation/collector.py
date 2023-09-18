@@ -21,7 +21,7 @@ from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
 from hcaptcha_challenger import AgentT, Malenia
-from hcaptcha_challenger import split_prompt_message, diagnose_task
+from hcaptcha_challenger import split_prompt_message, label_cleaning
 
 TEMPLATE_BINARY_DATASETS = """
 > Automated deployment @ utc {now}
@@ -76,25 +76,26 @@ class Gravitas:
     def from_issue(cls, issue: Issue):
         return cls(issue=issue)
 
-    @property
-    def zip_path(self) -> Path:
-        asset_name = f"{self.typed_dir.name}_{self.typed_dir.parent.name}"
-        label_diagnose_name = diagnose_task(asset_name)
+    def zip(self):
+        asset_name = f"{self.typed_dir.parent.name}.{self.typed_dir.name}"
+        label_diagnose_name = label_cleaning(asset_name)
         __formats = ("%Y-%m-%d %H:%M:%S.%f", "%Y%m%d%H%M%f")
         now = datetime.strptime(str(datetime.now()), __formats[0]).strftime(__formats[1])
-        zip_path = self.typed_dir.parent.joinpath(f"{label_diagnose_name}.{now}.zip")
-        return zip_path
 
-    def zip(self):
-        logger.info("pack datasets", mixed=self.zip_path.name)
-        with zipfile.ZipFile(self.zip_path, "w") as zip_file:
+        zip_path = self.typed_dir.parent.joinpath(f"{label_diagnose_name}.{now}.zip")
+        logger.info("pack datasets", mixed=zip_path.name)
+
+        with zipfile.ZipFile(zip_path, "w") as zip_file:
             for root, dirs, files in os.walk(self.typed_dir):
                 for file in files:
                     zip_file.write(os.path.join(root, file), file)
 
-    def to_asset(self, archive_release: GitRelease) -> GitReleaseAsset:
-        logger.info("upload datasets", mixed=self.zip_path.name)
-        res = archive_release.upload_asset(path=str(self.zip_path))
+        return zip_path
+
+    @staticmethod
+    def to_asset(archive_release: GitRelease, zip_path: Path) -> GitReleaseAsset:
+        logger.info("upload datasets", mixed=zip_path.name)
+        res = archive_release.upload_asset(path=str(zip_path))
         return res
 
 
@@ -122,7 +123,7 @@ def load_gravitas_from_issues() -> List[Gravitas]:
     for issue in issue_repo.get_issues(
         labels=issue_labels,
         state="open",  # fixme `open`
-        since=datetime.now() - timedelta(hours=24),  # fixme `24hours`
+        since=datetime.now() - timedelta(days=7),  # fixme `24hours`
     ):
         if "Automated deployment @" not in issue.body:
             continue
@@ -293,19 +294,18 @@ class Collector:
         if not self.pending_gravitas:
             return
 
-        logger.info("posting datasets", pending_gravitas=self.pending_gravitas)
-
         archive_release = get_archive_release()
         for gravitas in self.pending_gravitas:
             gs = self.all_right(gravitas)
             if not gs.typed_dir:
                 continue
+            logger.info("posting datasets", pending_gravitas=gravitas)
             gravitas.typed_dir = gs.typed_dir
             gravitas.cases_num = gs.cases_num
-            gravitas.zip()
-            asset = gravitas.to_asset(archive_release)
+            zip_path = gravitas.zip()
+            asset = gravitas.to_asset(archive_release, zip_path)
             create_comment(asset, gravitas, sign_label=gs.done)
-            shutil.rmtree(gravitas.zip_path, ignore_errors=True)
+            shutil.rmtree(zip_path, ignore_errors=True)
 
     async def bytedance(self):
         self.prelude_tasks()
