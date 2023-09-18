@@ -382,6 +382,7 @@ class Radagon:
                 session = self.modelhub.match_net(focus_name=focus_name)
                 detector = YOLOv8.from_pluggable_model(session, classes)
                 res = detector(image, shape_type="point")
+                self.modelhub.unplug()
                 for name, (center_x, center_y), score in res:
                     if center_y < 20 or center_y > 520 or center_x < 91 or center_x > 400:
                         continue
