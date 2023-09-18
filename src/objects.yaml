@@ -3,6 +3,7 @@ branches:
     release_url: https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 ashes_of_war:
+  notanimal2309_yolov8n.onnx: [ "not-animal" ]
   treasurechest2309_yolov8n.onnx: [ "treasurechest" ]
   animalhead_zebra_yolov8s.onnx: [ "zebra-head" ]
   animalhead_fox_yolov8s.onnx: [ "fox-head" ]
@@ -154,7 +155,7 @@ label_alias:
   ladder2309:
     zh: [ "梯子" ]
     en: [ "ladder" ]
-  electronic_device2311:
+  electronic_device2312:
     zh: [ "电子设备" ]
     en: [ "electronic device" ]
   something_you_can_eat2309:
