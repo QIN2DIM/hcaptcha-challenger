@@ -52,6 +52,7 @@ class Gravitas:
     binary --> challenge_prompt
     area_select --> model_name
     """
+    parent_prompt: str = field(default=str)
 
     typed_dir: Path = None
     """
@@ -69,8 +70,10 @@ class Gravitas:
         self.sitelink = body[6]
         if "@" in self.issue.title:
             self.mixed_label = self.issue.title.split(" ")[1].strip()
+            self.parent_prompt = self.issue.title.split("@")[-1].strip()
         else:
             self.mixed_label = split_prompt_message(self.challenge_prompt, lang="en")
+            self.parent_prompt = "image_label_binary"
 
     @classmethod
     def from_issue(cls, issue: Issue):
@@ -231,7 +234,9 @@ class Collector:
                     for _ in range(loop_times):
                         await self.task_queue.put(best_sitelink)
                         logger.info(
-                            "recur task", mixed_label=gravitas.mixed_label, nums=gs.cases_num
+                            "recur task",
+                            challenge_prompt=gravitas.challenge_prompt,
+                            nums=gs.cases_num,
                         )
 
     async def _step_focus(self, context: ASyncContext):
@@ -265,7 +270,10 @@ class Collector:
         cases_num = 0
         for root, _, _ in os.walk(self.tmp_dir):
             root_dir = Path(root)
-            if gravitas.mixed_label != root_dir.name:
+            if (
+                gravitas.mixed_label != root_dir.name
+                or gravitas.parent_prompt not in root_dir.parent.name
+            ):
                 continue
             cases_num = len(os.listdir(root))
             if "binary" in gravitas.request_type:
