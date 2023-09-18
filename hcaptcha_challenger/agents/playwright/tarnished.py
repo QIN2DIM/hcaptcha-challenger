@@ -57,6 +57,11 @@ class Tarnished:
 
         return context
 
+    @staticmethod
+    def apply_mouse_tracer(context: SyncContext):
+        js_path = Path(__file__).parent.joinpath("debug-tools/mouse_tracer.js")
+        context.add_init_script(path=js_path)
+
     def storage_state(self, context: SyncContext):
         if self.state_path:
             logger.info("Storage ctx_cookie", path=self.state_path)
@@ -125,6 +130,11 @@ class Malenia:
             await context.add_init_script(evasion_code)
 
         return context
+
+    @staticmethod
+    async def apply_mouse_tracer(context: ASyncContext):
+        js_path = Path(__file__).parent.joinpath("debug-tools/mouse_tracer.js")
+        await context.add_init_script(path=js_path)
 
     async def storage_state(self, context: ASyncContext):
         if self.state_path:

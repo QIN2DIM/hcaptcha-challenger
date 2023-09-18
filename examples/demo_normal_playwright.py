@@ -13,6 +13,7 @@ from playwright.async_api import BrowserContext as ASyncContext, async_playwrigh
 
 import hcaptcha_challenger as solver
 from hcaptcha_challenger.utils import SiteKey
+from hcaptcha_challenger import Malenia
 
 # Init local-side of the ModelHub
 solver.install(upgrade=True, flush_yolo=False)
@@ -51,6 +52,7 @@ async def bytedance():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
         context = await browser.new_context(locale="en-US")
+        await Malenia.apply_mouse_tracer(context)
         await hit_challenge(context)
 
 
