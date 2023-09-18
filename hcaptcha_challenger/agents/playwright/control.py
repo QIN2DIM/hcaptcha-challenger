@@ -382,8 +382,8 @@ class Radagon:
                 session = self.modelhub.match_net(focus_name=focus_name)
                 detector = YOLOv8.from_pluggable_model(session, classes)
                 res = detector(image, shape_type="point")
+                print(f"{focus_name=} {classes=} {res=}")
                 for name, (center_x, center_y), score in res:
-                    print(name, (center_x, center_y), score)
                     if (
                         center_y < 20
                         or center_y > 520
@@ -396,8 +396,6 @@ class Radagon:
                     return {"x": center_x, "y": center_y}
                 if count > deep:
                     return
-
-        logger.warning("INTO CATCH-ALL keypoint challenge")
 
         times = int(len(self.qr.tasklist))
         for pth in range(times):
