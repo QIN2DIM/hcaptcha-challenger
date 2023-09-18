@@ -415,7 +415,6 @@ class ModelHub:
                 yield model_name, covered_class
 
         # catch-all rules
-        yield DEFAULT_KEYPOINT_MODEL, self.ashes_of_war[DEFAULT_KEYPOINT_MODEL]
         for model_name, covered_class in self.ashes_of_war.items():
             if model_name not in seen:
                 yield model_name, covered_class

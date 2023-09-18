@@ -375,7 +375,7 @@ class Radagon:
                 await self.page.wait_for_timeout(1000)
 
     async def _keypoint_default_challenge(self, frame_challenge: FrameLocator):
-        def _lookup_yolo(threshold: float = 0.7, deep: int = 6) -> Position[str, str] | None:
+        def _lookup_yolo(deep: int = 6) -> Position[str, str] | None:
             count = 0
             for focus_name, classes in self.modelhub.lookup_ash_of_war(self.ash):
                 count += 1
@@ -384,13 +384,7 @@ class Radagon:
                 res = detector(image, shape_type="point")
                 print(f"{focus_name=} {classes=} {res=}")
                 for name, (center_x, center_y), score in res:
-                    if (
-                        center_y < 20
-                        or center_y > 520
-                        or center_x < 91
-                        or center_x > 400
-                        or score < threshold
-                    ):
+                    if center_y < 20 or center_y > 520 or center_x < 91 or center_x > 400:
                         continue
                     logger.debug("catch model", yolo=focus_name, ash=self.ash)
                     return {"x": center_x, "y": center_y}
@@ -405,7 +399,7 @@ class Radagon:
             path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
             image = await locator.screenshot(path=path, type="png")
 
-            if position := _lookup_yolo(threshold=0.7):
+            if position := _lookup_yolo():
                 await locator.click(delay=500, position=position)
             else:
                 await locator.click(delay=500)
