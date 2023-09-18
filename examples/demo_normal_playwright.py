@@ -47,8 +47,7 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
 
 
 async def bytedance():
-    # playwright install chromium
-    # playwright install-deps chromium
+    # playwright install chromium --with-deps
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
         context = await browser.new_context(locale="en-US")

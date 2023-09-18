@@ -78,8 +78,11 @@ class Gravitas:
 
     @property
     def zip_path(self) -> Path:
-        label_diagnose_name = diagnose_task(self.typed_dir.name)
-        now = datetime.strptime(str(datetime.now()), "%Y-%m-%d %H:%M:%S.%f").strftime("%Y%m%d%H%M")
+        asset_name = f"{self.typed_dir.name}_{self.typed_dir.parent.name}"
+        label_diagnose_name = diagnose_task(asset_name)
+        now = datetime.strptime(str(datetime.now()), "%Y-%m-%d %H:%M:%S.%f").strftime(
+            "%Y%m%d%H%M%f"
+        )
         zip_path = self.typed_dir.parent.joinpath(f"{label_diagnose_name}.{now}.zip")
         return zip_path
 

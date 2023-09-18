@@ -390,6 +390,49 @@ class ModelHub:
 
         return DEFAULT_KEYPOINT_MODEL, self.ashes_of_war[DEFAULT_KEYPOINT_MODEL]
 
+    def lookup_ash_of_war(self, ash: str):
+        """
+        catch-all unknown objects
+        # Please click on the head of the animal
+        # please click on the thumbnail that is not an animal
+        # please click on the thumbnail of the animal that is unique
+        # please click on the thumbnail of the animal that does not belong to the sea
+        # please click on the X
+        :param ash:
+        :return:
+        """
+        seen = set()
+
+        # Prelude - pending DensePose
+        for model_name, covered_class in self.ashes_of_war.items():
+            if "not an animal" in ash and "notanimal" not in model_name:
+                continue
+
+            if "head of " in ash and "animal" in ash:
+                if "head" not in model_name:
+                    continue
+                if "default" not in ash:
+                    for class_name in covered_class:
+                        if class_name.replace("-head", "") in ash:
+                            return model_name, covered_class
+                else:
+                    seen.add(model_name)
+                    yield model_name, covered_class
+
+            if "default" not in ash:
+                for class_name in covered_class:
+                    if class_name in ash:
+                        return model_name, covered_class
+            else:
+                seen.add(model_name)
+                yield model_name, covered_class
+
+        # catch-all rules
+        yield DEFAULT_KEYPOINT_MODEL, self.ashes_of_war[DEFAULT_KEYPOINT_MODEL]
+        for model_name, covered_class in self.ashes_of_war.items():
+            if model_name not in seen:
+                yield model_name, covered_class
+
 
 class ChallengeStyle:
     WATERMARK = 144  # onTrigger 128x128

@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Literal
 
 from loguru import logger
-from playwright.async_api import Page, FrameLocator, Response
+from playwright.async_api import Page, FrameLocator, Response, Position
 from playwright.async_api import TimeoutError
 
 from hcaptcha_challenger.components.image_downloader import Cirilla
@@ -112,7 +112,10 @@ class QuestionResp:
         shape_type = self.request_config.get("shape_type", "")
 
         requester_question = self.requester_question.get("en")
-        fn = f"{self.request_type}.{shape_type}.{requester_question}.json"
+        requester_question = label_cleaning(requester_question)
+        answer_keys = list(self.requester_restricted_answer_set.keys())
+        ak = f".{answer_keys[0]}" if len(answer_keys) > 0 else ""
+        fn = f"{self.request_type}.{shape_type}{ak}.{requester_question}.json"
         if tmp_dir and tmp_dir.exists():
             fn = tmp_dir.joinpath(fn)
 
@@ -426,6 +429,54 @@ class Radagon:
             if pth == 0:
                 await self.page.wait_for_timeout(1000)
 
+    async def _keypoint_default_challenge(self, frame_challenge: FrameLocator):
+        def _lookup_solution(threshold: float = 0.7, deep: int = 6) -> Position[str, str] | None:
+            count = 0
+            for focus_name, classes in self.modelhub.lookup_ash_of_war(self.ash):
+                count += 1
+                session = self.modelhub.match_net(focus_name=focus_name)
+                detector = YOLOv8.from_pluggable_model(session, classes)
+                res = detector(image, shape_type="point")
+                for name, (center_x, center_y), score in res:
+                    print(name, (center_x, center_y), score)
+                    if (
+                        center_y < 20
+                        or center_y > 520
+                        or center_x < 91
+                        or center_x > 400
+                        or score < threshold
+                    ):
+                        continue
+                    logger.debug("catch model", yolo=focus_name, ash=self.ash)
+                    return {"x": center_x, "y": center_y}
+                if count > deep:
+                    return
+
+        logger.warning("INTO CATCH-ALL keypoint challenge")
+
+        times = int(len(self.qr.tasklist))
+        for pth in range(times):
+            locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
+            await locator.wait_for(state="visible")
+
+            path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
+            image = await locator.screenshot(path=path, type="png")
+
+            if position := _lookup_solution(threshold=0.7):
+                await locator.click(delay=500, position=position)
+            else:
+                await locator.click(delay=500)
+            input("selected")
+
+            # {{< Verify >}}
+            with suppress(TimeoutError):
+                fl = frame_challenge.locator("//div[@class='button-submit button']")
+                await fl.click(delay=200)
+
+            # {{< Done | Continue >}}
+            if pth == 0:
+                await self.page.wait_for_timeout(1000)
+
     async def _keypoint_challenge(self, frame_challenge: FrameLocator):
         # Load YOLOv8 model from local or remote repo
         detector: YOLOv8 = self._match_solution(select="yolo")
@@ -505,7 +556,7 @@ class Radagon:
 
             # {{< Done | Continue >}}
             if pth == 0:
-                await self.page.wait_for_timeout(1000)
+                await self.page.wait_for_timeout(300)
 
     async def _is_success(self):
         self.cr = await self.cr_queue.get()
