@@ -375,14 +375,13 @@ class Radagon:
                 await self.page.wait_for_timeout(1000)
 
     async def _keypoint_default_challenge(self, frame_challenge: FrameLocator):
-        def _lookup_yolo(deep: int = 6) -> Position[str, str] | None:
+        def lookup_objects(deep: int = 6) -> Position[str, str] | None:
             count = 0
             for focus_name, classes in self.modelhub.lookup_ash_of_war(self.ash):
                 count += 1
                 session = self.modelhub.match_net(focus_name=focus_name)
                 detector = YOLOv8.from_pluggable_model(session, classes)
                 res = detector(image, shape_type="point")
-                print(f"{focus_name=} {classes=} {res=}")
                 for name, (center_x, center_y), score in res:
                     if center_y < 20 or center_y > 520 or center_x < 91 or center_x > 400:
                         continue
@@ -399,11 +398,10 @@ class Radagon:
             path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
             image = await locator.screenshot(path=path, type="png")
 
-            if position := _lookup_yolo():
+            if position := lookup_objects():
                 await locator.click(delay=500, position=position)
             else:
                 await locator.click(delay=500)
-            input(f"selected - {position=}")  # fixme
 
             # {{< Verify >}}
             with suppress(TimeoutError):
@@ -564,9 +562,6 @@ class AgentT(Radagon):
         self._parse_label()
 
         await self._download_images()
-
-        if "default" not in self.ash:  # fixme
-            return self.status.CHALLENGE_BACKCALL
 
         # Match: image_label_binary
         if self.qr.request_type == "image_label_binary":
