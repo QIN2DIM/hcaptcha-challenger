@@ -377,6 +377,32 @@ class ModelHub:
         # catch-all rules
         return DEFAULT_KEYPOINT_MODEL, self.ashes_of_war[DEFAULT_KEYPOINT_MODEL]
 
+    def lookup_ash_of_war(self, ash: str):  # fixme
+        """catch-all default cases"""
+        if "not an animal" in ash:
+            for model_name, covered_class in self.ashes_of_war.items():
+                if "notanimal" in model_name:
+                    yield model_name, covered_class
+
+        if "head of " in ash and "animal" in ash:
+            for model_name, covered_class in self.ashes_of_war.items():
+                if "head" in model_name:
+                    yield model_name, covered_class
+
+        if "animal" in ash and "not belong to the sea" in ash:
+            for model_name, covered_class in self.ashes_of_war.items():
+                if (
+                    "notseaanimal" in model_name
+                    or "fantasia_elephant" in model_name
+                    or "fantasia_cat" in model_name
+                ):
+                    yield model_name, covered_class
+
+        for model_name, covered_class in self.ashes_of_war.items():
+            for class_name in covered_class:
+                if class_name in ash:
+                    yield model_name, covered_class
+
 
 class ChallengeStyle:
     WATERMARK = 144  # onTrigger 128x128
