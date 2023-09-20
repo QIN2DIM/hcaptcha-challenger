@@ -41,9 +41,15 @@ Just implement some interfaces to make `AI vs AI` possible.
 | `model: upload, upgrade`      | [#objects](https://github.com/QIN2DIM/hcaptcha-challenger/tree/main/src), [#modelhub](https://github.com/QIN2DIM/hcaptcha-challenger/releases/tag/model) |
 | `datasets: public, archive`   | [#roboflow-universe](https://universe.roboflow.com/qin2dim/), [#captcha-datasets](https://github.com/captcha-challenger/hcaptcha-whistleblower) |
 
+## Contributors
+I would like to express my sincere gratitude to all the contributors.
+
+[![](https://opencollective.com/hcaptcha-challenger/contributors.svg?width=890&button=false)](https://github.com/QIN2DIM/hcaptcha-challenger/graphs/contributors)
+
 ## What's next
 
 - [Dislock](https://github.com/Vinyzu/DiscordGenerator), the most advanced Discord Browser Generator. Powered by hCaptcha Solving AI.
+- [undetected-playwright](https://github.com/QIN2DIM/undetected-playwright), stash the fingerprint of playwright-based web agents.
 
 ## Reference
 
