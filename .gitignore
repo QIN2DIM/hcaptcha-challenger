@@ -141,3 +141,6 @@ examples/user_data_dir
 poetry.lock
 examples/*.png
 **/istock_tmp
+**/tmp_**/
+tests_private
+.run
