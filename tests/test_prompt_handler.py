@@ -29,3 +29,27 @@ def test_split_prompt_message(prompt: str):
 def test_is_illegal_chars(prompt: str):
     result = label_cleaning(prompt)
     assert not pattern.search(result)
+
+
+def test_split_area_select_prompt():
+    prompt = "Please click on the thumbnail of something that can be eaten"
+    model_name = "can_be_eaten_2309_yolov8s.onnx"
+    binder = " ".join(model_name.split("_")[:-2])
+    assert binder in prompt
+
+
+@pytest.mark.parametrize(
+    "model_name",
+    [
+        "can_be_eaten_2309_yolov8s.onnx",
+        "notanimal2310_yolov8s.onnx",
+        "animalhead_zebra_yolov8s.onnx",
+        "fantasia_starfish_yolov8n.onnx",
+        "COCO2020_yolov8m.onnx",
+    ],
+)
+def test_prefix_binder(model_name: str):
+    binder = model_name.split("_")
+    if len(binder) > 2 and binder[-2].isdigit():
+        binder = " ".join(model_name.split("_")[:-2])
+        assert " " in binder

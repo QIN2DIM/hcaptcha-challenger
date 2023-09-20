@@ -379,6 +379,11 @@ class ModelHub:
 
     def lookup_ash_of_war(self, ash: str):  # fixme
         """catch-all default cases"""
+        if "can be eaten" in ash:
+            for model_name, covered_class in self.ashes_of_war.items():
+                if "can_be_eaten" in model_name:
+                    yield model_name, covered_class
+
         if "not an animal" in ash:
             for model_name, covered_class in self.ashes_of_war.items():
                 if "notanimal" in model_name:
@@ -399,9 +404,15 @@ class ModelHub:
                     yield model_name, covered_class
 
         for model_name, covered_class in self.ashes_of_war.items():
-            for class_name in covered_class:
-                if class_name in ash:
+            binder = model_name.split("_")
+            if len(binder) > 2 and binder[-2].isdigit():
+                binder = " ".join(model_name.split("_")[:-2])
+                if binder in ash:
                     yield model_name, covered_class
+            else:
+                for class_name in covered_class:
+                    if class_name in ash:
+                        yield model_name, covered_class
 
 
 class ChallengeStyle:
