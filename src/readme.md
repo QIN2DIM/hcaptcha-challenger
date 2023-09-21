@@ -24,12 +24,12 @@ graph TD;
 ```yaml
 # Template
 diagnosed_label[version]:
-	zh: ["用中文表达的被清洗过的短语或单词"]
-	en: ["cleaning phrase in English"]
+  zh: ["用中文表达的被清洗过的短语或单词"]
+  en: ["cleaning phrase in English"]
 # Examples
 food_or_beverage_item2309:
-	zh: ["食物或饮料"]
-	en: ["food or beverage item"]
+  zh: ["食物或饮料"]
+  en: ["food or beverage item"]
 ```
 
 ## 編排合法的模型名 Area Select Challenge 
