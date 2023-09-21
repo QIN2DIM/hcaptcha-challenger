@@ -413,9 +413,3 @@ class ModelHub:
                 for class_name in covered_class:
                     if class_name in ash:
                         yield model_name, covered_class
-
-
-class ChallengeStyle:
-    WATERMARK = 144  # onTrigger 128x128
-    GENERAL = 128
-    GAN = 144

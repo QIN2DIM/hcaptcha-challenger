@@ -13,7 +13,11 @@ import numpy as np
 from cv2.dnn import Net
 from loguru import logger
 
-from hcaptcha_challenger.onnx.modelhub import ChallengeStyle
+
+class ChallengeStyle:
+    WATERMARK = 144  # onTrigger 128x128
+    GENERAL = 128
+    GAN = 144
 
 
 @dataclass
