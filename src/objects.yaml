@@ -186,7 +186,7 @@ label_alias:
     en: [ "castle" ]
   industrial_tool_or_machinery2310:
     zh: [ "工业工具或机械" ]
-    en: [ "industrial tool or machinery" ]
+    en: [ "industrial tool or machinery", "industrial tool or heavy machinery" ]
   food_or_beverage_item2309:
     zh: [ "食品或饮料项目" ]
     en: [ "food or beverage item" ]
