@@ -4,15 +4,20 @@
 # GitHub     : https://github.com/QIN2DIM
 # Description:
 import asyncio
+import hashlib
 import os
 import shutil
+import time
 import zipfile
 from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
+from urllib.parse import quote
 from typing import List, Dict, Any
 
+import cv2
+import numpy as np
 from github import Auth, Github
 from github.GitRelease import GitRelease
 from github.GitReleaseAsset import GitReleaseAsset
@@ -33,6 +38,8 @@ TEMPLATE_BINARY_DATASETS = """
 | cases      | {cases_num}                  |
 | statistics | [#asset]({statistics})       |
 | assets     | [{zip_name}]({download_url}) |
+
+![]({montage_url})
 
 """
 
@@ -79,6 +86,29 @@ class Gravitas:
     def from_issue(cls, issue: Issue):
         return cls(issue=issue)
 
+    def montage(self):
+        asset_name = f"{self.typed_dir.parent.name}.{self.typed_dir.name}"
+        label_diagnose_name = label_cleaning(asset_name)
+        __formats = ("%Y-%m-%d %H:%M:%S.%f", "%Y%m%d%H%M%f")
+        now = datetime.strptime(str(datetime.now()), __formats[0]).strftime(__formats[1])
+
+        thumbnail_path = self.typed_dir.parent.joinpath(
+            f"thumbnail.{label_diagnose_name}.{now}.png"
+        )
+
+        images = []
+        for img_name in os.listdir(self.typed_dir):
+            img_path = self.typed_dir.joinpath(img_name)
+            image = cv2.imread(str(img_path))
+            image = cv2.resize(image, (256, 256))
+            images.append(image)
+            if len(images) == 9:
+                break
+        thumbnail = np.hstack(images)
+        cv2.imwrite(str(thumbnail_path), thumbnail)
+
+        return thumbnail_path
+
     def zip(self):
         asset_name = f"{self.typed_dir.parent.name}.{self.typed_dir.name}"
         label_diagnose_name = label_cleaning(asset_name)
@@ -102,7 +132,40 @@ class Gravitas:
         return res
 
 
-def create_comment(asset: GitReleaseAsset, gravitas: Gravitas, sign_label: bool = False):
+@dataclass
+class GravitasState:
+    done: bool
+    cases_num: int
+    typed_dir: Path | None = None
+
+
+def upload_thumbnail(canvas_path: Path, mixed_label: str) -> str | None:
+    auth = Auth.Token(os.getenv("GITHUB_TOKEN"))
+    asset_repo = Github(auth=auth).get_repo("QIN2DIM/cdn-relay")
+
+    asset_path = f"challenge-thumbnail/{time.time()}.{mixed_label}.png"
+    branch = "main"
+    content = canvas_path.read_bytes()
+
+    asset_repo.update_file(
+        path=asset_path,
+        message="Automated deployment @ 2023-09-03 01:30:15 Asia/Shanghai",
+        content=content,
+        sha=hashlib.sha256(content).hexdigest(),
+        branch=branch,
+    )
+    asset_quote_path = quote(asset_path)
+    asset_url = (
+        f"https://github.com/{asset_repo.full_name}/blob/{branch}/{asset_quote_path}?raw=true"
+    )
+    logger.info(f"upload challenge-thumbnail", asset_url=asset_url)
+    return asset_url
+
+
+def create_comment(asset: GitReleaseAsset, gravitas: Gravitas, gs: GravitasState):
+    montage_path = gravitas.montage()
+    montage_url = upload_thumbnail(canvas_path=montage_path, mixed_label=gravitas.mixed_label)
+
     body = TEMPLATE_BINARY_DATASETS.format(
         now=str(datetime.now()),
         prompt=gravitas.challenge_prompt,
@@ -111,10 +174,11 @@ def create_comment(asset: GitReleaseAsset, gravitas: Gravitas, sign_label: bool 
         zip_name=asset.name,
         download_url=asset.browser_download_url,
         statistics=asset.url,
+        montage_url=montage_url,
     )
     comment = gravitas.issue.create_comment(body=body)
     logger.success(f"create comment", html_url=comment.html_url)
-    if sign_label:
+    if gs.done:
         gravitas.issue.add_to_labels(issue_post_label)
 
 
@@ -143,13 +207,6 @@ def get_archive_release() -> GitRelease:
         .get_release(120534711)
     )
     return archive_release
-
-
-@dataclass
-class GravitasState:
-    done: bool
-    cases_num: int
-    typed_dir: Path | None = None
 
 
 @dataclass
@@ -312,7 +369,7 @@ class Collector:
             gravitas.cases_num = gs.cases_num
             zip_path = gravitas.zip()
             asset = gravitas.to_asset(archive_release, zip_path)
-            create_comment(asset, gravitas, sign_label=gs.done)
+            create_comment(asset, gravitas, gs)
             shutil.rmtree(zip_path, ignore_errors=True)
 
     async def bytedance(self):
