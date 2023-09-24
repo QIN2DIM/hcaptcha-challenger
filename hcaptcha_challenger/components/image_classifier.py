@@ -9,6 +9,7 @@ import re
 from pathlib import Path
 from typing import List
 
+import cv2
 from loguru import logger
 
 from hcaptcha_challenger.components.prompt_handler import label_cleaning, split_prompt_message
@@ -21,7 +22,9 @@ class Classifier:
         self.modelhub = ModelHub.from_github_repo()
         self.modelhub.parse_objects()
 
-    def execute(self, prompt: str, images: List[Path | bytes]) -> List[bool | None]:
+    def execute(
+        self, prompt: str, images: List[Path | bytes], model_path: str | None = None
+    ) -> List[bool | None]:
         response = []
 
         lang = "zh" if re.compile("[\u4e00-\u9fa5]+").search(prompt) else "en"
@@ -34,7 +37,11 @@ class Classifier:
             return response
 
         focus_name = focus_label if focus_label.endswith(".onnx") else f"{focus_label}.onnx"
-        net = self.modelhub.match_net(focus_name)
+        net = (
+            self.modelhub.match_net(focus_name)
+            if not model_path
+            else cv2.dnn.readNetFromONNX(model_path)
+        )
         control = ResNetControl.from_pluggable_model(net)
 
         for image in images:

@@ -9,7 +9,7 @@ from pathlib import Path
 import hcaptcha_challenger as solver
 
 # Init local-side of the ModelHub
-solver.install()
+solver.install(upgrade=True)
 
 prompt = "diamond bracelet"
 

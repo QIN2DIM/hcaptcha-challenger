@@ -17,7 +17,7 @@ from hcaptcha_challenger.components.prompt_handler import (
     label_cleaning,
     diagnose_task,
     split_prompt_message,
-    prompt2task
+    prompt2task,
 )
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
@@ -38,7 +38,7 @@ __all__ = [
     "label_cleaning",
     "diagnose_task",
     "split_prompt_message",
-    "prompt2task"
+    "prompt2task",
 ]
 
 
