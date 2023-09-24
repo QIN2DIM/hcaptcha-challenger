@@ -73,3 +73,10 @@ def diagnose_task(words: str) -> str:
     words = words.strip()
 
     return words
+
+
+def prompt2task(prompt: str, lang: str = "en") -> str:
+    prompt = split_prompt_message(prompt, lang)
+    prompt = label_cleaning(prompt)
+    prompt = diagnose_task(prompt)
+    return prompt
