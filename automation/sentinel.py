@@ -20,7 +20,8 @@ from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright, Page
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger import AgentT, QuestionResp, Malenia, label_cleaning, split_prompt_message
+from hcaptcha_challenger import label_cleaning, split_prompt_message
+from hcaptcha_challenger.agents import AgentT, QuestionResp, Malenia
 from hcaptcha_challenger.onnx.yolo import is_matched_ash_of_war
 from hcaptcha_challenger.utils import SiteKey
 

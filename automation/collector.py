@@ -13,8 +13,8 @@ from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from urllib.parse import quote
 from typing import List, Dict, Any
+from urllib.parse import quote
 
 import cv2
 import numpy as np
@@ -25,8 +25,8 @@ from github.Issue import Issue
 from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
-from hcaptcha_challenger import AgentT, Malenia
 from hcaptcha_challenger import split_prompt_message, label_cleaning
+from hcaptcha_challenger.agents import AgentT, Malenia
 
 TEMPLATE_BINARY_DATASETS = """
 > Automated deployment @ utc {now}
