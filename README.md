@@ -50,6 +50,7 @@ I would like to express my sincere gratitude to all the contributors.
 
 - [Dislock](https://github.com/Vinyzu/DiscordGenerator), the most advanced Discord Browser Generator. Powered by hCaptcha Solving AI.
 - [undetected-playwright](https://github.com/QIN2DIM/undetected-playwright), stash the fingerprint of playwright-based web agents.
+- [epic-awesome-gamer](https://github.com/QIN2DIM/epic-awesome-gamer), gracefully claim weekly free games from Epic Store.
 
 ## Reference
 
