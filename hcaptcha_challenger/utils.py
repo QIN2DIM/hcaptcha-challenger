@@ -69,7 +69,7 @@ def from_dict_to_model(cls, data: Dict[str, Any]):
 
 
 class SiteKey:
-    discord = "f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34"
+    discord = "4c672d35-0701-42b2-88c3-78380b0db560"
     epic = "91e4137f-95af-4bc9-97af-cdcedce21c8c"
     hcaptcha = "a5f74b19-9e45-40e0-b45d-47ff91b7a6c2"
     hcaptcha_signup = "13257c82-e129-4f09-a733-2a7cb3102832"
