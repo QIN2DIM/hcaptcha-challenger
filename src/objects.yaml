@@ -3,220 +3,440 @@ branches:
     release_url: https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 ashes_of_war:
-  head_of_the_animal_2309_yolov8s.onnx: [ "animal-head" ]
-  can_be_eaten_2310_yolov8s.onnx: [ "x-eaten" ]
-  notanimal2310_yolov8s.onnx: [ "not-animal" ]
-  treasurechest2309_yolov8n.onnx: [ "treasure" ]
-  animalhead_zebra_yolov8s.onnx: [ "zebra-head" ]
-  animalhead_fox_yolov8s.onnx: [ "fox-head" ]
-  fantasia_elephant_yolov8s.onnx: [ "elephant" ]
-  fantasia_cat_yolov8n.onnx: [ "cat" ]
-  fantasia_shark_yolov8n.onnx: [ "shark" ]
-  fantasia_starfish_yolov8n.onnx: [ "starfish" ]
-  animalhead2315_yolov8s.onnx: [ "rabbit-head" ]
-  animalhead2314_yolov8s.onnx: [ "goat-head" ]
-  animalhead2312_yolov8s.onnx: [ "hummingbird-head" ]
-  animalhead2311_yolov8s.onnx: [ "llama-head" ]
-  animalhead2310_yolov8s.onnx: [ "koala-head", "owl-head" ]
-  animalhead2309_yolov8s.onnx: [ "cat-head", "cow-head", "horse-head", "panda-head", "turtle-head" ]
-  fruit0903_yolov8s.onnx: [ "orange", "pineapple", "strawberries" ]
-  animal2309_yolov8s.onnx: [ "parrot", "squirrel" ]
-  #  animal0903_yolov8s.onnx: [ "parrot" ]
-  animal0831_yolov8s.onnx: [ "elephant", "raccoon" ]
-  animalhead_yolov8s.onnx: [ "duck-head", "parrot-head" ]
-  # onclick_yolov8m.onnx: [ 'bat', 'bear', 'cat', 'elephant', 'hedgehog', 'lighthouse', 'lion', 'parrot', 'penguin', 'raccoon', 'squirrel' ]
-  digit2_yolov8s.onnx: [ "2" ]
-  digit9_yolov8s.onnx: [ "9" ]
-  # digit_yolov8m.onnx: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-  COCO2020_yolov8m.onnx: [ 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
-                           'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat',
-                           'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack',
-                           'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
-                           'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-                           'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
-                           'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair',
-                           'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse',
-                           'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink',
-                           'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier',
-                           'toothbrush' ]
+  head_of_the_animal_2309_yolov8s.onnx:
+  - animal-head
+  can_be_eaten_2310_yolov8s.onnx:
+  - x-eaten
+  notanimal2310_yolov8s.onnx:
+  - not-animal
+  treasurechest2309_yolov8n.onnx:
+  - treasure
+  animalhead_zebra_yolov8s.onnx:
+  - zebra-head
+  animalhead_fox_yolov8s.onnx:
+  - fox-head
+  fantasia_elephant_yolov8s.onnx:
+  - elephant
+  fantasia_cat_yolov8n.onnx:
+  - cat
+  fantasia_shark_yolov8n.onnx:
+  - shark
+  fantasia_starfish_yolov8n.onnx:
+  - starfish
+  animalhead2315_yolov8s.onnx:
+  - rabbit-head
+  animalhead2314_yolov8s.onnx:
+  - goat-head
+  animalhead2312_yolov8s.onnx:
+  - hummingbird-head
+  animalhead2311_yolov8s.onnx:
+  - llama-head
+  animalhead2310_yolov8s.onnx:
+  - koala-head
+  - owl-head
+  animalhead2309_yolov8s.onnx:
+  - cat-head
+  - cow-head
+  - horse-head
+  - panda-head
+  - turtle-head
+  fruit0903_yolov8s.onnx:
+  - orange
+  - pineapple
+  - strawberries
+  animal2309_yolov8s.onnx:
+  - parrot
+  - squirrel
+  animal0831_yolov8s.onnx:
+  - elephant
+  - raccoon
+  animalhead_yolov8s.onnx:
+  - duck-head
+  - parrot-head
+  digit2_yolov8s.onnx:
+  - '2'
+  digit9_yolov8s.onnx:
+  - '9'
+  COCO2020_yolov8m.onnx:
+  - person
+  - bicycle
+  - car
+  - motorcycle
+  - airplane
+  - bus
+  - train
+  - truck
+  - boat
+  - traffic light
+  - fire hydrant
+  - stop sign
+  - parking meter
+  - bench
+  - bird
+  - cat
+  - dog
+  - horse
+  - sheep
+  - cow
+  - elephant
+  - bear
+  - zebra
+  - giraffe
+  - backpack
+  - umbrella
+  - handbag
+  - tie
+  - suitcase
+  - frisbee
+  - skis
+  - snowboard
+  - sports ball
+  - kite
+  - baseball bat
+  - baseball glove
+  - skateboard
+  - surfboard
+  - tennis racket
+  - bottle
+  - wine glass
+  - cup
+  - fork
+  - knife
+  - spoon
+  - bowl
+  - banana
+  - apple
+  - sandwich
+  - orange
+  - broccoli
+  - carrot
+  - hot dog
+  - pizza
+  - donut
+  - cake
+  - chair
+  - couch
+  - potted plant
+  - bed
+  - dining table
+  - toilet
+  - tv
+  - laptop
+  - mouse
+  - remote
+  - keyboard
+  - cell phone
+  - microwave
+  - oven
+  - toaster
+  - sink
+  - refrigerator
+  - book
+  - clock
+  - vase
+  - scissors
+  - teddy bear
+  - hair drier
+  - toothbrush
 label_alias:
   dolphin:
-    zh: [ "海豚" ]
-    en: [ "dolphin" ]
+    zh:
+    - 海豚
+    en:
+    - dolphin
   diamond_bracelet:
-    zh: [ "钻石手链" ]
-    en: [ "diamond bracelet" ]
+    zh:
+    - 钻石手链
+    en:
+    - diamond bracelet
   camera:
-    zh: [ "相机" ]
-    en: [ "camera" ]
+    zh:
+    - 相机
+    en:
+    - camera
   palm_tree:
-    zh: [ "棕榈树" ]
-    en: [ "palm tree" ]
+    zh:
+    - 棕榈树
+    en:
+    - palm tree
   item_of_office_equipment:
-    zh: [ "办公设备项目" ]
-    en: [ "item of office equipment" ]
+    zh:
+    - 办公设备项目
+    en:
+    - item of office equipment
   headphones:
-    zh: [ "耳机" ]
-    en: [ "headphones" ]
+    zh:
+    - 耳机
+    en:
+    - headphones
   musical_instrument:
-    zh: [ "乐器" ]
-    en: [ "musical instrument" ]
+    zh:
+    - 乐器
+    en:
+    - musical instrument
   violin:
-    zh: [ "小提琴" ]
-    en: [ "violin" ]
+    zh:
+    - 小提琴
+    en:
+    - violin
   guitar:
-    zh: [ "吉他" ]
-    en: [ "guitar" ]
+    zh:
+    - 吉他
+    en:
+    - guitar
   chair_sketch2309:
-    zh: [ "椅子" ]
-    en: [ "chair" ]
+    zh:
+    - 椅子
+    en:
+    - chair
   flower:
-    zh: [ "花" ]
-    en: [ "flower" ]
+    zh:
+    - 花
+    en:
+    - flower
   sports_stadium2312:
-    zh: [ "体育场" ]
-    en: [ "sports stadium" ]
+    zh:
+    - 体育场
+    en:
+    - sports stadium
   color_pencil:
-    zh: [ "彩色铅笔" ]
-    en: [ "color pencil" ]
+    zh:
+    - 彩色铅笔
+    en:
+    - color pencil
   bonsai_tree:
-    zh: [ "盆景树" ]
-    en: [ "bonsai tree" ]
+    zh:
+    - 盆景树
+    en:
+    - bonsai tree
   car0903:
-    zh: [ "汽车" ]
-    en: [ "car" ]
+    zh:
+    - 汽车
+    en:
+    - car
   door:
-    zh: [ "门" ]
-    en: [ "door" ]
+    zh:
+    - 门
+    en:
+    - door
   tractor0903:
-    zh: [ "拖拉机" ]
-    en: [ "tractor" ]
+    zh:
+    - 拖拉机
+    en:
+    - tractor
   crumpled_paper_ball:
-    zh: [ "皱纸球" ]
-    en: [ "crumpled paper ball" ]
+    zh:
+    - 皱纸球
+    en:
+    - crumpled paper ball
   river:
-    zh: [ "河" ]
-    en: [ "river" ]
+    zh:
+    - 河
+    en:
+    - river
   clothing:
-    zh: [ "衣服" ]
-    en: [ "clothing" ]
+    zh:
+    - 衣服
+    en:
+    - clothing
   cat2311:
-    zh: [ "猫" ]
-    en: [ "cat" ]
+    zh:
+    - 猫
+    en:
+    - cat
   mountain2309:
-    zh: [ "山" ]
-    en: [ "mountain" ]
+    zh:
+    - 山
+    en:
+    - mountain
   motorcycle2309:
-    zh: [ "摩托车" ]
-    en: [ "motorcycle" ]
+    zh:
+    - 摩托车
+    en:
+    - motorcycle
   excavator2309:
-    zh: [ "挖掘机" ]
-    en: [ "excavator" ]
+    zh:
+    - 挖掘机
+    en:
+    - excavator
   outdoor_gear2310:
-    zh: [ "户外装备" ]
-    en: [ "outdoor gear" ]
+    zh:
+    - 户外装备
+    en:
+    - outdoor gear
   vending_machine2309:
-    zh: [ "售货机" ]
-    en: [ "vending machine" ]
+    zh:
+    - 售货机
+    en:
+    - vending machine
   cup_of_hot_chocolate2309:
-    zh: [ "一杯热巧克力" ]
-    en: [ "cup of hot chocolate" ]
+    zh:
+    - 一杯热巧克力
+    en:
+    - cup of hot chocolate
   fox2310:
-    zh: [ "狐狸" ]
-    en: [ "fox" ]
+    zh:
+    - 狐狸
+    en:
+    - fox
   furniture2309:
-    zh: [ "家具" ]
-    en: [ "furniture" ]
+    zh:
+    - 家具
+    en:
+    - furniture
   helicopter2310:
-    zh: [ "直升机" ]
-    en: [ "helicopter" ]
+    zh:
+    - 直升机
+    en:
+    - helicopter
   motor_vehicle2309:
-    zh: [ "机动车" ]
-    en: [ "motor vehicle" ]
+    zh:
+    - 机动车
+    en:
+    - motor vehicle
   chess_piece2309:
-    zh: [ "棋子" ]
-    en: [ "chess piece" ]
+    zh:
+    - 棋子
+    en:
+    - chess piece
   robot2312:
-    zh: [ "机器人" ]
-    en: [ "robot" ]
+    zh:
+    - 机器人
+    en:
+    - robot
   dog2312:
-    zh: [ "狗" ]
-    en: [ "dog" ]
+    zh:
+    - 狗
+    en:
+    - dog
   seaplane:
-    zh: [ "水上飞机" ]
-    en: [ "seaplane" ]
+    zh:
+    - 水上飞机
+    en:
+    - seaplane
   rollercoaster2309:
-    zh: [ "过山车" ]
-    en: [ "rollercoaster" ]
+    zh:
+    - 过山车
+    en:
+    - rollercoaster
   goose2309:
-    zh: [ "鹅" ]
-    en: [ "goose" ]
+    zh:
+    - 鹅
+    en:
+    - goose
   cup_of_iced_tea2309:
-    zh: [ "一杯冰茶" ]
-    en: [ "cup of iced tea" ]
+    zh:
+    - 一杯冰茶
+    en:
+    - cup of iced tea
   ladder2309:
-    zh: [ "梯子" ]
-    en: [ "ladder" ]
+    zh:
+    - 梯子
+    en:
+    - ladder
   electronic_device2312:
-    zh: [ "电子设备" ]
-    en: [ "electronic device" ]
+    zh:
+    - 电子设备
+    en:
+    - electronic device
   something_you_can_eat2313:
-    zh: [ "你可以吃的东西" ]
-    en: [ "something you can eat" ]
+    zh:
+    - 你可以吃的东西
+    en:
+    - something you can eat
   boat2309:
-    zh: [ "船" ]
-    en: [ "boat" ]
+    zh:
+    - 船
+    en:
+    - boat
   cup_of_orange_juice2309:
-    zh: [ "一杯橙汁" ]
-    en: [ "cup of orange juice" ]
+    zh:
+    - 一杯橙汁
+    en:
+    - cup of orange juice
   airplane2309:
-    zh: [ "飞机" ]
-    en: [ "airplane" ]
+    zh:
+    - 飞机
+    en:
+    - airplane
   plant2314:
-    zh: [ "植物" ]
-    en: [ "plant" ]
+    zh:
+    - 植物
+    en:
+    - plant
   train2309:
-    zh: [ "火车" ]
-    en: [ "train" ]
+    zh:
+    - 火车
+    en:
+    - train
   truck2309:
-    zh: [ "卡车" ]
-    en: [ "truck2309" ]
+    zh:
+    - 卡车
+    en:
+    - truck2309
   castle2309:
-    zh: [ "城堡" ]
-    en: [ "castle" ]
+    zh:
+    - 城堡
+    en:
+    - castle
   industrial_tool_or_machinery2310:
-    zh: [ "工业工具或机械" ]
-    en: [ "industrial tool or machinery", "industrial tool or heavy machinery" ]
+    zh:
+    - 工业工具或机械
+    en:
+    - industrial tool or machinery
+    - industrial tool or heavy machinery
   food_or_beverage_item2309:
-    zh: [ "食品或饮料项目" ]
-    en: [ "food or beverage item" ]
+    zh:
+    - 食品或饮料项目
+    en:
+    - food or beverage item
   elephant2309:
-    zh: [ "大象" ]
-    en: [ "elephant" ]
+    zh:
+    - 大象
+    en:
+    - elephant
   gaming_tool_or_accessory2311:
-    zh: [ "游戏工具或配件" ]
-    en: [ "gaming tool or accessory" ]
+    zh:
+    - 游戏工具或配件
+    en:
+    - gaming tool or accessory
   road_traffic2309:
-    zh: [ "道路交通" ]
-    en: [ "road traffic" ]
+    zh:
+    - 道路交通
+    en:
+    - road traffic
   entertainment_venue2310:
-    zh: [ "娱乐场所" ]
-    en: [ "entertainment venue" ]
+    zh:
+    - 娱乐场所
+    en:
+    - entertainment venue
   natural_landscape2312:
-    zh: [ "自然景观" ]
-    en: [ "natural landscape" ]
+    zh:
+    - 自然景观
+    en:
+    - natural landscape
   coffee_beans2309:
-    zh: [ "咖啡豆" ]
-    en: [ "coffee beans" ]
+    zh:
+    - 咖啡豆
+    en:
+    - coffee beans
   cranberry2309:
-    zh: [ "蔓越莓" ]
-    en: [ "cranberry" ]
+    zh:
+    - 蔓越莓
+    en:
+    - cranberry
   jacket2309:
-    zh: [ "夹克" ]
-    en: [ "jacket" ]
+    zh:
+    - 夹克
+    en:
+    - jacket
   trousers2309:
-    zh: [ "裤子" ]
-    en: [ "trousers" ]
-  industrial_scene2309:
-    zh: [ "工业场景" ]
-    en: [ "industrial scene" ]
+    zh:
+    - 裤子
+    en:
+    - trousers
+  industrial_scene2310:
+    zh:
+    - 工业场景
+    en:
+    - industrial scene
