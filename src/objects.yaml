@@ -405,11 +405,6 @@ label_alias:
     - 道路交通
     en:
     - road traffic
-  entertainment_venue2310:
-    zh:
-    - 娱乐场所
-    en:
-    - entertainment venue
   natural_landscape2312:
     zh:
     - 自然景观
@@ -435,8 +430,13 @@ label_alias:
     - 裤子
     en:
     - trousers
-  industrial_scene2310:
+  industrial_scene2309:
     zh:
     - 工业场景
     en:
     - industrial scene
+  entertainment_venue2311:
+    zh:
+    - 娱乐场所
+    en:
+    - entertainment venue
