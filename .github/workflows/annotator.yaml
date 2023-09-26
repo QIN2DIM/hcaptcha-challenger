@@ -1,0 +1,23 @@
+name: hCAPTCHA Annotator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  annotate:
+    env:
+      GITHUB_TOKEN: ${{ secrets.SENTINEL_ACCESS_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout environment
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+      - name: Startup Annotator
+        continue-on-error: true
+        timeout-minutes: 5
+        run: |
+          cd automation && python3 annotator.py
