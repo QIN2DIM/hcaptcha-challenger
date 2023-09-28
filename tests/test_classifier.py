@@ -12,10 +12,12 @@ import pytest
 from hcaptcha_challenger import BinaryClassifier
 from hcaptcha_challenger import LocalBinaryClassifier
 
+this_dir = Path(__file__).parent
+
 
 def test_lbc():
-    model_path = Path("goose2309.onnx")
-    image_dir = Path("goose")
+    model_path = this_dir.joinpath("goose2309.onnx")
+    image_dir = this_dir.joinpath("goose")
     lbc = LocalBinaryClassifier(model_path)
     for i, image_name in enumerate(os.listdir(image_dir)):
         image = image_dir.joinpath(image_name).read_bytes()
@@ -34,13 +36,16 @@ def test_lbc_model_path(model_path):
 
 @pytest.mark.parametrize("image", [b"goose"])
 def test_lbc_image_type(image):
-    model_path = Path("goose2309.onnx")
+    model_path = this_dir.joinpath("goose2309.onnx")
     lbc = LocalBinaryClassifier(model_path)
     result = lbc.parse_once(image)
     assert result is None
 
 
-@pytest.mark.parametrize("prompt2images", [{"desert": Path("desert")}, {"goose": Path("goose")}])
+@pytest.mark.parametrize("prompt2images", [
+    {"desert": this_dir.joinpath("desert")},
+    {"goose": this_dir.joinpath("goose")}
+])
 def test_rbc(prompt2images: Dict[str, Path]):
     for prompt, image_dir in prompt2images.items():
         images = [image_dir.joinpath(image_name) for image_name in os.listdir(image_dir)]
