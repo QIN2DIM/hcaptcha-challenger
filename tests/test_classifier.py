@@ -9,7 +9,7 @@ from typing import Dict
 
 import pytest
 
-from hcaptcha_challenger import BinaryClassifier
+import hcaptcha_challenger as solver
 from hcaptcha_challenger import LocalBinaryClassifier
 
 this_dir = Path(__file__).parent
@@ -42,16 +42,16 @@ def test_lbc_image_type(image):
     assert result is None
 
 
-@pytest.mark.parametrize("prompt2images", [
-    {"desert": this_dir.joinpath("desert")},
-    {"goose": this_dir.joinpath("goose")}
-])
+@pytest.mark.parametrize(
+    "prompt2images",
+    [{"desert": this_dir.joinpath("desert")}, {"goose": this_dir.joinpath("goose")}],
+)
 def test_rbc(prompt2images: Dict[str, Path]):
+    solver.install(upgrade=True)
+    classifier = solver.BinaryClassifier()
+
     for prompt, image_dir in prompt2images.items():
         images = [image_dir.joinpath(image_name) for image_name in os.listdir(image_dir)]
-
-        classifier = BinaryClassifier()
-
         results = classifier.execute(prompt, images)
         assert results
 
