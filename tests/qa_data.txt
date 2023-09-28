@@ -1,3 +1,10 @@
+Please click on the thumbnail of the animal that does not belong to the sea
+Please click on the thumbnail that is not an аnimаl.
+Please click on the thumbnail that is not an animаl
+Please click on the treasure
+Please click each image containing a plant
+Please click on the digit 9.
+Please click on the elephant
 Please click on the head of the animal
 Please click on the head of the animаl
 Please click on the head of the anіmal
@@ -6,113 +13,8 @@ Please click on the head of the аnimal
 Please click on the head of the аnimаl
 Please click on the head of the аnіmal
 Please click on the head of the аnіmаl
-Please click on the number twο.
-Please click on the thumbnail that is not an animal
-Please click on the ѕquirrel
-Please click on the ѕquіrrеl
-Please click each image containing a car
-Please click each image containing a chess piece
-Please click each image containing a chess piеcе
-Please click each image containing a chess pіeсе
-Please click each image containing a river
-Please click each image containing a rіver
-Please click each image containing a сar
-Please click each image containing a саr
-Please click on all images containing a furniture
-Please click on all images containing a furnіture
-Please click on all images containing a furnіturе
-Please click each image containing a boat
-Please click each image containing a bοat
-Please click each image containing a bοаt
-Please click each image containing a cat
-Please click each image containing a computer mouse
-Please click each image containing a cup of iced tea
-Please click each image containing a cup of iced teа
-Please click each image containing a cаt
-Please click each image containing a dog
-Please click each image containing a plant
-Please click each image containing a plаnt
-Please click each image containing a seaplane
-Please click each image containing a train
-Please click each image containing a truck
-Please click each image containing a truсk
-Please click each image containing a ѕеаplаne
-Please click each image containing a рlant
-Please click each image containing a рlаnt
-Please click each image containing a сat
-Please click each image containing a саt
-Please click each image containing a ԁog
-Please click each image containing a ԁοg
-Please click each image containing an airplane
-Please click each image containing an aіrрlаne
-Please click each image containing an electronic device
-Please click each image containing an electronic devicе
-Please click each image containing an electronic deviсe
-Please click each image containing an electronic deviсе
-Please click each image containing an electronic devіce
-Please click each image containing an electronic devіcе
-Please click each image containing an electronic devісe
-Please click each image containing an electronic devісе
-Please click each image containing an electronic dеvice
-Please click each image containing an electronic dеvicе
-Please click each image containing an electronic dеviсe
-Please click each image containing an electronic dеviсе
-Please click each image containing an electronic dеvіce
-Please click each image containing an electronic dеvіcе
-Please click each image containing an electronic dеvісe
-Please click each image containing an electronic dеvісе
-Please click each image containing an electronic ԁevice
-Please click each image containing an electronic ԁevicе
-Please click each image containing an electronic ԁeviсe
-Please click each image containing an electronic ԁeviсе
-Please click each image containing an electronic ԁevіce
-Please click each image containing an electronic ԁevіcе
-Please click each image containing an electronic ԁevісe
-Please click each image containing an electronic ԁevісе
-Please click each image containing an electronic ԁеvice
-Please click each image containing an electronic ԁеvicе
-Please click each image containing an electronic ԁеviсe
-Please click each image containing an electronic ԁеviсе
-Please click each image containing an electronic ԁеvіce
-Please click each image containing an electronic ԁеvіcе
-Please click each image containing an electronic ԁеvісe
-Please click each image containing an electronic ԁеvісе
-Please click each image containing an outdoor gear
-Please click each image containing an аіrplаnе
-Please click each image containing an аіrрlаne
-Please click each image containing an аіrрlаnе
-Please click each image containing something you can eat
-Please click each image containing something you can eаt
-Please click each image containing something you can еat
-Please click each image containing something you can еаt
-Please click on all images containing a motor vehicle
-Please click on all images containing a motor vehіclе
-Please click on all images containing a motor vеһісle
-Please click on the squirrel
-Please click on the thumbnail that is not a fruіt
-Please click each image containing a chair
-Please click each image containing a chaіr
-Please click each image containing a chаir
-Please click each image containing a chаіr
-Please click each image containing a cup of iced tеa
-Please click each image containing a cup of iced tеа
-Please click each image containing a cһair
-Please click each image containing a cһaіr
-Please click each image containing a cһаir
-Please click each image containing a cһаіr
-Please click each image containing a goose
-Please click each image containing a rollercoaster
-Please click each image containing a сhair
-Please click each image containing a сhaіr
-Please click each image containing a сhаir
-Please click each image containing a сhаіr
-Please click each image containing a сһair
-Please click each image containing a сһaіr
-Please click each image containing a сһаir
-Please click each image containing a сһаіr
-Please click on the digit 9.
-Please click on the elephant
 Please click on the number two.
+Please click on the number twο.
 Please click on the raccoon
 Please click on the raccoοn
 Please click on the raccοon
@@ -144,13 +46,17 @@ Please click on the rассoon
 Please click on the rассoοn
 Please click on the rассοon
 Please click on the rассοοn
+Please click on the squirrel
 Please click on the squirrеl
 Please click on the squіrrel
 Please click on the squіrrеl
 Please click on the thumbnail that is not a fruit
+Please click on the thumbnail that is not a fruіt
+Please click on the thumbnail that is not an animal
 Please click on the thumbnail that is not an anіmal
 Please click on the thumbnail that is not an anіmаl
 Please click on the thumbnail that is not an аnimаl
+Please click on the ѕquirrel
 Please click on the ѕquirrеl
 Please click on the ѕquіrrel
 Please click on the еlephant
@@ -163,6 +69,13 @@ Please click each image containing a bеԁ
 Please click each image containing a camera
 Please click each image containing a camerа
 Please click each image containing a camеra
+Please click each image containing a car
+Please click each image containing a cat
+Please click each image containing a chair
+Please click each image containing a chaіr
+Please click each image containing a chess piece
+Please click each image containing a chаir
+Please click each image containing a chаіr
 Please click each image containing a color pencil
 Please click each image containing a crown
 Please click each image containing a crumpled paper bаll
@@ -209,6 +122,11 @@ Please click each image containing a cup of hot сһοсοlate
 Please click each image containing a cup of hot сһοсοlatе
 Please click each image containing a cаmеra
 Please click each image containing a cаr
+Please click each image containing a cаt
+Please click each image containing a cһair
+Please click each image containing a cһaіr
+Please click each image containing a cһаir
+Please click each image containing a cһаіr
 Please click each image containing a dolphin
 Please click each image containing a door
 Please click each image containing a flower
@@ -228,6 +146,7 @@ Please click each image containing a mountaіn
 Please click each image containing a mountаіn
 Please click each image containing a mοuntаin
 Please click each image containing a palm tree
+Please click each image containing a river
 Please click each image containing a rіvеr
 Please click each image containing a sports stadium.
 Please click each image containing a suitcase
@@ -279,16 +198,32 @@ Please click each image containing a vіolіn
 Please click each image containing a vіοlin
 Please click each image containing a vіοlіn
 Please click each image containing a сamera
+Please click each image containing a сar
+Please click each image containing a сat
+Please click each image containing a сhair
+Please click each image containing a сhaіr
+Please click each image containing a сhаir
+Please click each image containing a сhаіr
+Please click each image containing a саr
+Please click each image containing a саt
+Please click each image containing a сһair
+Please click each image containing a сһaіr
+Please click each image containing a сһаir
+Please click each image containing a сһаіr
 Please click each image containing a һelicoрter
 Please click each image containing a һelіcoрter
 Please click each image containing a һelісoрter
 Please click each image containing an exсаvаtor
 Please click each image containing an eхсаvator
+Please click each image containing an outdoor gear
 Please click each image containing an еxсavаtor
 Please click each image containing an еxсаvаtor
 Please click each image containing an еxсаvаtοr
 Please click each image containing an ехсavatοr
+Please click on all images containing a furniture
 Please click on all images containing a furniturе
+Please click on all images containing a furnіture
+Please click on all images containing a furnіturе
 Please click on all images containing a motor vehісle
 Please click on all images containing a motor vehісlе
 Please click on all images containing a motor veһicle
@@ -305,10 +240,10 @@ Please click on all images containing a motor vеhісle
 Please click on all images containing a motor vеһiclе
 Please click on all images containing a motor vеһiсle
 Please click on all images containing a motor vеһіcle
+Please click on all images containing a motor vеһісle
 Please click on all images containing clothing
 Draw a tight bounding box around the car.
 Draw a tight bounding box around the guitar.
-Please click on the thumbnail that is not an animаl
 Please click on the thumbnail that is not an аnіmal
 Please click each image containing a cup of hot chocolаte
 Please click each image containing a cup of hot chocοlate
@@ -343,12 +278,35 @@ Please click each image containing a cup of hot сһocolаtе
 Please click each image containing a cup of hot сһoсοlate
 Please click each image containing a cup of hot сһοcοlаte
 Please click each image containing a cup of hot сһοсοlаtе
+Please click each image containing a cup of iced teа
+Please click each image containing a cup of iced tеa
+Please click each image containing a dog
 Please click each image containing a mοuntain
 Please click each image containing a mοuntaіn
-Please click on the thumbnail of the animal that does not belong to the sea
+Please click each image containing a rollercoaster
+Please click each image containing a seaplane
+Please click each image containing an electronic devicе
+Please click each image containing an electronic deviсe
+Please click each image containing an electronic devіcе
+Please click each image containing an electronic dеvicе
+Please click each image containing an electronic dеvіcе
+Please click each image containing an electronic dеvісе
+Please click each image containing an electronic ԁevicе
+Please click each image containing an electronic ԁeviсe
+Please click each image containing an electronic ԁeviсе
+Please click each image containing an electronic ԁevіce
+Please click each image containing an electronic ԁevіcе
+Please click each image containing an electronic ԁеviсe
+Please click each image containing an electronic ԁеviсе
+Please click each image containing an electronic ԁеvісe
+Please click each image containing something you can eat
+Please click each image containing something you can eаt
+Please click each image containing something you can еat
+Please click each image containing something you can еаt
 Please click on the thumbnail of the animal that does not belong to the seа
 Please click on the thumbnail of the animal that does not belong to the sеa
 Please click on the thumbnail of the animal that does not belong to the sеа
+Please click on the thumbnail of the animal that does not belong to the ѕea
 Please click on the thumbnail of the animal that does not belong to the ѕeа
 Please click on the thumbnail of the animal that does not belong to the ѕеa
 Please click on the thumbnail of the animal that does not belong to the ѕеа
@@ -356,7 +314,71 @@ Please click on the thumbnail of the animal that is unique
 Please click on the thumbnail of the animal that is uniquе
 Please click on the thumbnail of the animal that is unіque
 Please click on the thumbnail of the animal that is unіquе
+Please click each image containing a chess рieсe
+Please click each image containing a chess рiеcе
+Please click each image containing a rivеr
+Please click each image containing a rіver
+Please click each image containing a boаt
+Please click each image containing a bοаt
 Please click each image containing a dοg
+Please click each image containing a plаnt
+Please click each image containing a seaplanе
+Please click each image containing a seaрlаne
+Please click each image containing a seаplаne
+Please click each image containing a traіn
+Please click each image containing a truсk
+Please click each image containing a рlant
+Please click each image containing a рlаnt
+Please click each image containing a ԁog
+Please click each image containing a ԁοg
+Please click each image containing an electronic device
+Please click each image containing an electronic deviсе
+Please click each image containing an electronic devіce
+Please click each image containing an electronic devісe
+Please click each image containing an electronic devісе
+Please click each image containing an electronic dеvice
+Please click each image containing an electronic dеviсe
+Please click each image containing an electronic dеviсе
+Please click each image containing an electronic dеvіce
+Please click each image containing an electronic dеvісe
+Please click each image containing an electronic ԁevice
+Please click each image containing an electronic ԁevісe
+Please click each image containing an electronic ԁevісе
+Please click each image containing an electronic ԁеvice
+Please click each image containing an electronic ԁеvicе
+Please click each image containing an electronic ԁеvіce
+Please click each image containing an electronic ԁеvіcе
+Please click each image containing an electronic ԁеvісе
+Please click each image containing an аirрlanе
+Click where the head of the animal should be.
+Please click on the thumbnail of something that can be eaten
+Please click on the thumbnail that is not an animal.
+Please click each image containing a food or beverage item
+Please click each image containing a gaming tool or acсеssοrу
+Please click each image containing a robot
+Please click each image containing an еleрһant
+Please click each image containing an industrial tool or machinery
+Please click each image containing entertainment venue
+Please click each image containing natural landscape
 Draw a tight bounding box around the concept stated in the text below. If there is more than one, choose frеely.
 Is the bounding box correctly drawn around the concept stated in the іmage?
 What object is shown in the image below?
+Please click on the ѕquіrrеl
+Please click each image containing a chess piеcе
+Please click each image containing a chess pіeсе
+Please click each image containing a boat
+Please click each image containing a bοat
+Please click each image containing a computer mouse
+Please click each image containing a cup of iced tea
+Please click each image containing a train
+Please click each image containing a truck
+Please click each image containing a ѕеаplаne
+Please click each image containing an airplane
+Please click each image containing an aіrрlаne
+Please click each image containing an аіrplаnе
+Please click each image containing an аіrрlаne
+Please click each image containing an аіrрlаnе
+Please click on all images containing a motor vehicle
+Please click on all images containing a motor vehіclе
+Please click each image containing a cup of iced tеа
+Please click each image containing a goose
