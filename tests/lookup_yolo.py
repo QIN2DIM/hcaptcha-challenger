@@ -7,7 +7,7 @@ from hcaptcha_challenger.onnx.modelhub import ModelHub
 
 ash_samples = [
     "please click on the head of the animal catonacoach",
-    "please click on the head of the animal default",  # fixme
+    "please click on the head of the animal default",  # Fixme
     "please click on the head of the animal foxonthesnow",
     "please click on the head of the animal goatonthesand",
     "please click on the head of the animal horseonagrassfield",
