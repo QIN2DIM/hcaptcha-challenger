@@ -356,11 +356,6 @@ label_alias:
     - 飞机
     en:
     - airplane
-  plant2314:
-    zh:
-    - 植物
-    en:
-    - plant
   train2309:
     zh:
     - 火车
@@ -454,3 +449,8 @@ label_alias:
     - 河
     en:
     - river
+  plant2316:
+    zh:
+    - 植物
+    en:
+    - plant
