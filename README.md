@@ -7,6 +7,7 @@
 	<br>
 	<a href="https://discord.gg/m9ZRBTZvbr"><img alt="Discord" src="https://img.shields.io/discord/978108215499816980?style=social&logo=discord&label=echosec"></a>
  	<a href = "https://t.me/+Cn-KBOTCaWNmNGNh"><img src="https://img.shields.io/static/v1?style=social&logo=telegram&label=chat&message=studio" ></a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2FQIN2DIM%2Fhcaptcha-challenger?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FQIN2DIM%2Fhcaptcha-challenger.svg?type=shield"/></a>
 	<br>
 	<br>
 </div>
@@ -57,3 +58,7 @@ I would like to express my sincere gratitude to all the contributors.
 - [microsoft/playwright-python](https://github.com/microsoft/playwright-python)
 - [ultrafunkamsterdam/undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
 - hCaptcha challenge template site [@maximedrn](https://github.com/maximedrn/hcaptcha-solver-python-selenium)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQIN2DIM%2Fhcaptcha-challenger.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FQIN2DIM%2Fhcaptcha-challenger?ref=badge_large)
