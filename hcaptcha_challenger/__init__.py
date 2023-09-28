@@ -25,13 +25,14 @@ from hcaptcha_challenger.utils import init_log
 __all__ = [
     "BinaryClassifier",
     "AreaSelector",
-    "install",
-    "YOLOv8",
-    "ResNetControl",
     "label_cleaning",
     "diagnose_task",
     "split_prompt_message",
     "prompt2task",
+    "ModelHub",
+    "ResNetControl",
+    "YOLOv8",
+    "install",
 ]
 
 

@@ -3,7 +3,7 @@
 
 [tool.poetry]
 name = "hcaptcha-challenger"
-version = "0.8.2"
+version = "0.8.2-post1"
 description = "🥂 Gracefully face hCaptcha challenge with MoE(ONNX) embedded solution."
 license = "GPL-3.0-or-later"
 authors = ["QIN2DIM <yaoqinse@gmail.com>", "Bingjie Yan <bj.yan.pa@qq.com>"]
@@ -35,20 +35,20 @@ python = "^3.8"
 
 # Run `poetry install` in the project root
 opencv-python = "^4.8.0.76"
-numpy = "^1.21.5"
-httpx = "^0.24.1"
-onnxruntime = "^1.15.1"
+numpy = "^1.24.4"
+httpx = { version = "*", extras = ["http2"] }
+onnxruntime = "^1.16.0"
 loguru = "*"
 pyyaml = "*"
 
 # The following dependencies will not be installed
 # when you just run `poetry install` or `pip install hcaptcha-challenger`
-undetected-chromedriver = { version = "^3.5.2", optional = true }
-webdriver-manager = { version = "^4.0.0", optional = true }
+undetected-chromedriver = { version = "^3.5.3", optional = true }
+webdriver-manager = { version = "^4.0.1", optional = true }
 selenium = { version = "*", optional = true }
 playwright = { version = "*", optional = true }
 PyGithub = { version = "^1.59.1", optional = true }
-istockphoto = { version = "*", optional = true }
+istockphoto = { version = "0.1.2", optional = true }
 
 [tool.poetry.group.test.dependencies]
 # https://docs.pytest.org/en/stable/reference/plugin_list.html#plugin-list
