@@ -231,11 +231,6 @@ label_alias:
     - 皱纸球
     en:
     - crumpled paper ball
-  river:
-    zh:
-    - 河
-    en:
-    - river
   clothing:
     zh:
     - 衣服
@@ -454,3 +449,8 @@ label_alias:
   desert2310:
     en:
     - desert
+  river2310:
+    zh:
+    - 河
+    en:
+    - river
