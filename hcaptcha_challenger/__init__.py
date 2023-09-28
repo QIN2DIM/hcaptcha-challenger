@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from hcaptcha_challenger.components.image_classifier import Classifier as BinaryClassifier
+from hcaptcha_challenger.components.image_classifier import LocalBinaryClassifier
 from hcaptcha_challenger.components.image_label_area_select import AreaSelector
 from hcaptcha_challenger.components.prompt_handler import (
     label_cleaning,
@@ -24,6 +25,7 @@ from hcaptcha_challenger.utils import init_log
 
 __all__ = [
     "BinaryClassifier",
+    "LocalBinaryClassifier",
     "AreaSelector",
     "label_cleaning",
     "diagnose_task",
