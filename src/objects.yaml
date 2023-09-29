@@ -361,11 +361,6 @@ label_alias:
     - 火车
     en:
     - train
-  truck2309:
-    zh:
-    - 卡车
-    en:
-    - truck
   castle2309:
     zh:
     - 城堡
@@ -463,3 +458,8 @@ label_alias:
   snowman2310:
     en:
     - snowman
+  truck2310:
+    zh:
+    - 卡车
+    en:
+    - truck
