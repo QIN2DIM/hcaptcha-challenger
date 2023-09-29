@@ -7,7 +7,7 @@ ashes_of_war:
   - bear-head
   head_of_the_animal_2310_yolov8s.onnx:
   - animal-head
-  can_be_eaten_2311_yolov8s.onnx:
+  can_be_eaten_2312_yolov8s.onnx:
   - x-eaten
   notanimal2310_yolov8s.onnx:
   - not-animal
