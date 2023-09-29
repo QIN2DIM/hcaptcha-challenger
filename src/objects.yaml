@@ -417,11 +417,6 @@ label_alias:
     - 工业场景
     en:
     - industrial scene
-  entertainment_venue2311:
-    zh:
-    - 娱乐场所
-    en:
-    - entertainment venue
   skyscraper2309:
     en:
     - skyscraper
@@ -466,3 +461,8 @@ label_alias:
     - 植物
     en:
     - plant
+  entertainment_venue2312:
+    zh:
+    - 娱乐场所
+    en:
+    - entertainment venue
