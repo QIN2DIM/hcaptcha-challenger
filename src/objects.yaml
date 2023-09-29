@@ -439,11 +439,6 @@ label_alias:
     - 河
     en:
     - river
-  plant2316:
-    zh:
-    - 植物
-    en:
-    - plant
   crane2309:
     en:
     - crane
@@ -463,3 +458,8 @@ label_alias:
     - 电子设备
     en:
     - electronic device
+  plant2317:
+    zh:
+    - 植物
+    en:
+    - plant
