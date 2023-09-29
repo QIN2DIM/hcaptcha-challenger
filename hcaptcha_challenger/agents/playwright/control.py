@@ -21,6 +21,7 @@ from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position
 from playwright.async_api import TimeoutError
 
+from hcaptcha_challenger.components.cv_toolkit import find_unique_object
 from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub
@@ -371,6 +372,33 @@ class Radagon:
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click(delay=200)
 
+            if pth == 0:
+                await self.page.wait_for_timeout(1000)
+
+    async def _keypoint_unique_challenge(self, frame_challenge: FrameLocator):
+        def lookup_unique_object():
+            x, y = find_unique_object(str(path))
+            return {"x": x, "y": y}
+
+        times = int(len(self.qr.tasklist))
+        for pth in range(times):
+            locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
+            await locator.wait_for(state="visible")
+
+            path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
+            await locator.screenshot(path=path, type="png")
+
+            if position := lookup_unique_object():
+                await locator.click(delay=500, position=position)
+            else:
+                await locator.click(delay=500)
+
+            # {{< Verify >}}
+            with suppress(TimeoutError):
+                fl = frame_challenge.locator("//div[@class='button-submit button']")
+                await fl.click(delay=200)
+
+            # {{< Done | Continue >}}
             if pth == 0:
                 await self.page.wait_for_timeout(1000)
 
