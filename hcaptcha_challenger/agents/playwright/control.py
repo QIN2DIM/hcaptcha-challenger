@@ -375,33 +375,6 @@ class Radagon:
             if pth == 0:
                 await self.page.wait_for_timeout(1000)
 
-    async def _keypoint_unique_challenge(self, frame_challenge: FrameLocator):
-        def lookup_unique_object():
-            x, y = find_unique_object(str(path))
-            return {"x": x, "y": y}
-
-        times = int(len(self.qr.tasklist))
-        for pth in range(times):
-            locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
-            await locator.wait_for(state="visible")
-
-            path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
-            await locator.screenshot(path=path, type="png")
-
-            if position := lookup_unique_object():
-                await locator.click(delay=500, position=position)
-            else:
-                await locator.click(delay=500)
-
-            # {{< Verify >}}
-            with suppress(TimeoutError):
-                fl = frame_challenge.locator("//div[@class='button-submit button']")
-                await fl.click(delay=200)
-
-            # {{< Done | Continue >}}
-            if pth == 0:
-                await self.page.wait_for_timeout(1000)
-
     async def _keypoint_default_challenge(self, frame_challenge: FrameLocator):
         def lookup_objects(deep: int = 6) -> Position[str, str] | None:
             count = 0
@@ -419,6 +392,10 @@ class Radagon:
                 if count > deep:
                     return
 
+        def lookup_unique_object() -> Position[str, str] | None:
+            x, y = find_unique_object(str(path))
+            return {"x": x, "y": y}
+
         times = int(len(self.qr.tasklist))
         for pth in range(times):
             locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
@@ -427,7 +404,12 @@ class Radagon:
             path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
             image = await locator.screenshot(path=path, type="png")
 
-            if position := lookup_objects():
+            if "appears only once" in self.ash or "never repeated" in self.ash:
+                position = lookup_unique_object()
+            else:
+                position = lookup_objects()
+
+            if position:
                 await locator.click(delay=500, position=position)
             else:
                 await locator.click(delay=500)
