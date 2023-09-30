@@ -21,7 +21,7 @@ from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position
 from playwright.async_api import TimeoutError
 
-from hcaptcha_challenger.components.cv_toolkit import find_unique_object
+from hcaptcha_challenger.components.cv_toolkit import find_unique_object, annotate_objects
 from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub
@@ -392,14 +392,18 @@ class Radagon:
                 if count > deep:
                     return
 
-        def lookup_unique_object() -> Position[str, str] | None:
-            x, y = find_unique_object(str(path))
-            return {"x": x, "y": y}
+        def lookup_unique_object() -> Position[int, int] | None:
+            img, circles = annotate_objects(str(path))
+            if circles is None:
+                return
+            x, y, _ = find_unique_object(img, circles)
+            return {"x": int(x), "y": int(y)}
 
         times = int(len(self.qr.tasklist))
         for pth in range(times):
             locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
             await locator.wait_for(state="visible")
+            await self.page.wait_for_timeout(800)
 
             path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
             image = await locator.screenshot(path=path, type="png")
