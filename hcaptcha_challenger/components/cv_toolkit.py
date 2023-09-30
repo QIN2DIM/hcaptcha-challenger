@@ -20,7 +20,7 @@ def annotate_objects(image_path: str):
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     burl = cv2.bilateralFilter(gray, 30, 50, 10)
-    canny = cv2.Canny(burl, 15, 200)
+    canny = cv2.Canny(burl, 15, 100)
 
     _, thresh = cv2.threshold(canny, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
@@ -42,7 +42,7 @@ def annotate_objects(image_path: str):
     img[markers == -1] = [255, 0, 0]
 
     circles = cv2.HoughCircles(
-        gray, cv2.HOUGH_GRADIENT, 1, 65, param1=100, param2=40, minRadius=5, maxRadius=65
+        canny, cv2.HOUGH_GRADIENT, 1, 65, param1=100, param2=40, minRadius=5, maxRadius=65
     )
     if np.all(circles):
         circles = np.uint16(np.around(circles))
@@ -65,7 +65,7 @@ def find_unique_object(img: np.ndarray, circles: List[List[int]]) -> Tuple[int, 
         hist = cv2.normalize(hist, hist).flatten()
         regions.append(hist)
 
-    dist = cdist(regions, regions, metric="chebyshev")
+    dist = cdist(regions, regions)
 
     i, j = np.unravel_index(np.argmax(dist), dist.shape)
     the_x, the_y = circles[i][:2]
