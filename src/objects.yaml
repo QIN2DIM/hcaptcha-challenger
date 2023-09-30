@@ -435,9 +435,6 @@ label_alias:
   crow2309:
     en:
     - crow
-  snowman2310:
-    en:
-    - snowman
   truck2310:
     zh:
     - 卡车
@@ -466,3 +463,6 @@ label_alias:
     - 飞机
     en:
     - airplane
+  snowman2311:
+    en:
+    - snowman
