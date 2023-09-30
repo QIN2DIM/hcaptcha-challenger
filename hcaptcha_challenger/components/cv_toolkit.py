@@ -39,7 +39,7 @@ def annotate_objects(image_path: str):
     return img, None
 
 
-def find_unique_object(img: np.ndarray, circles: List[List[int]]) -> Tuple[int, int, int] | None:
+def find_unique_object(img: np.ndarray, circles: List[List[int]]) -> Tuple[int, int, int]:
     def spectral_clustering():
         num_clusters = 2
 
