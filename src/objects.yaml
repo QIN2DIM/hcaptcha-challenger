@@ -346,11 +346,6 @@ label_alias:
     - 一杯橙汁
     en:
     - cup of orange juice
-  airplane2309:
-    zh:
-    - 飞机
-    en:
-    - airplane
   train2309:
     zh:
     - 火车
@@ -466,3 +461,8 @@ label_alias:
     - 娱乐场所
     en:
     - entertainment venue
+  airplane2310:
+    zh:
+    - 飞机
+    en:
+    - airplane
