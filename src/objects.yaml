@@ -382,11 +382,6 @@ label_alias:
     - 道路交通
     en:
     - road traffic
-  natural_landscape2312:
-    zh:
-    - 自然景观
-    en:
-    - natural landscape
   coffee_beans2309:
     zh:
     - 咖啡豆
@@ -466,3 +461,8 @@ label_alias:
     - 娱乐场所
     en:
     - entertainment venue
+  natural_landscape2313:
+    zh:
+    - 自然景观
+    en:
+    - natural landscape
