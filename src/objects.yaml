@@ -435,11 +435,6 @@ label_alias:
     - 卡车
     en:
     - truck
-  electronic_device2313:
-    zh:
-    - 电子设备
-    en:
-    - electronic device
   animal_statue2309:
     en:
     - animal statue
@@ -466,3 +461,8 @@ label_alias:
     - 娱乐场所
     en:
     - entertainment venue
+  electronic_device2314:
+    zh:
+    - 电子设备
+    en:
+    - electronic device
