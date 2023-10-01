@@ -26,7 +26,7 @@ context_dir = user_data_dir.joinpath("context")
 record_dir = user_data_dir.joinpath("record")
 record_har_path = record_dir.joinpath(f"eg-{int(time.time())}.har")
 
-sitekey = SiteKey.user_easy
+sitekey = "a010c060-9eb5-498c-a7b9-9204c881f9dc"
 
 
 @logger.catch
@@ -36,6 +36,10 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
     await page.goto(SiteKey.as_sitelink(sitekey))
 
     await agent.handle_checkbox()
+
+    if rqdata_path := agent.export_rq():
+        print(f"View RQdata path={rqdata_path}")
+        return rqdata_path
 
     for pth in range(1, times):
         result = await agent()
@@ -48,7 +52,7 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
             case agent.status.CHALLENGE_SUCCESS:
                 rqdata_path = agent.export_rq()
                 print(f"View RQdata path={rqdata_path}")
-                return
+                return rqdata_path
 
 
 async def bytedance():
