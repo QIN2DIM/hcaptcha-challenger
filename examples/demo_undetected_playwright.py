@@ -37,9 +37,13 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
 
     await agent.handle_checkbox()
 
-    if rqdata_path := agent.export_rq():
-        print(f"View RQdata path={rqdata_path}")
-        return rqdata_path
+    if not agent.cr_queue.empty():
+        cr = agent.cr_queue.get_nowait()
+        if cr.is_pass:
+            agent.cr = cr
+            rqdata_path = agent.export_rq()
+            print(f"View RQdata path={rqdata_path}")
+            return rqdata_path
 
     for pth in range(1, times):
         result = await agent()
@@ -52,7 +56,7 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
             case agent.status.CHALLENGE_SUCCESS:
                 rqdata_path = agent.export_rq()
                 print(f"View RQdata path={rqdata_path}")
-                return rqdata_path
+                return
 
 
 async def bytedance():
