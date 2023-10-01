@@ -26,7 +26,7 @@ context_dir = user_data_dir.joinpath("context")
 record_dir = user_data_dir.joinpath("record")
 record_har_path = record_dir.joinpath(f"eg-{int(time.time())}.har")
 
-sitekey = "a010c060-9eb5-498c-a7b9-9204c881f9dc"
+sitekey = SiteKey.user_easy
 
 
 @logger.catch
