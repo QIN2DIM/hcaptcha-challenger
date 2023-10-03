@@ -331,11 +331,6 @@ label_alias:
     - 梯子
     en:
     - ladder
-  something_you_can_eat2313:
-    zh:
-    - 你可以吃的东西
-    en:
-    - something you can eat
   boat2309:
     zh:
     - 船
@@ -478,3 +473,8 @@ label_alias:
   main_course2309:
     en:
     - main course
+  something_you_can_eat2314:
+    zh:
+    - 你可以吃的东西
+    en:
+    - something you can eat
