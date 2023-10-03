@@ -433,11 +433,6 @@ label_alias:
   animal_statue2309:
     en:
     - animal statue
-  plant2318:
-    zh:
-    - 植物
-    en:
-    - plant
   airplane2310:
     zh:
     - 飞机
@@ -478,3 +473,8 @@ label_alias:
     - 你可以吃的东西
     en:
     - something you can eat
+  plant2319:
+    zh:
+    - 植物
+    en:
+    - plant
