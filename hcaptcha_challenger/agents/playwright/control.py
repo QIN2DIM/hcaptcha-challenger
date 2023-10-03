@@ -404,6 +404,9 @@ class Radagon:
         def lookup_unique_object() -> Position[int, int] | None:
             img, circles = annotate_objects(str(path))
             if circles:
+                if len(circles) == 1:
+                    x, y, _ = circles[0]
+                    return {"x": int(x), "y": int(y)}
                 if result := find_unique_object(img, circles):
                     x, y, _ = result
                     return {"x": int(x), "y": int(y)}
