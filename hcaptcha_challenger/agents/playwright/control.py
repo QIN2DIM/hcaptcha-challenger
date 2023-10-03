@@ -240,6 +240,9 @@ class Radagon:
                 qr = QuestionResp.from_json(data)
                 qr.save_example(tmp_dir=self.record_json_dir)
                 self.qr_queue.put_nowait(qr)
+                if data.get("pass"):
+                    cr = ChallengeResp.from_json(data)
+                    self.cr_queue.put_nowait(cr)
         if response.url.startswith("https://hcaptcha.com/checkcaptcha/"):
             with suppress(Exception):
                 metadata = await response.json()
@@ -281,6 +284,12 @@ class Radagon:
     async def _reset_state(self):
         self.cr = None
         self.qr = await self.qr_queue.get()
+
+    def _recover_state(self):
+        if not self.cr_queue.empty():
+            cr = self.cr_queue.get_nowait()
+            if cr.is_pass:
+                self.cr = cr
 
     def _parse_label(self):
         self._prompt = self.qr.requester_question.get("en")
@@ -572,6 +581,7 @@ class AgentT(Radagon):
 
         # Match: ChallengePassed
         if not self.qr.requester_question.keys():
+            self._recover_state()
             return self.status.CHALLENGE_SUCCESS
 
         self._parse_label()
