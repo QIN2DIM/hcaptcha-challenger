@@ -55,6 +55,10 @@ def find_unique_object(img: np.ndarray, circles: List[List[int]]) -> Tuple[int, 
 
         return kmeans.labels_
 
+    if len(circles) == 1:
+        x, y, r = circles[0]
+        return x, y, r
+
     feature_vectors = []
     for x, y, r in circles:
         roi = img[y - r : y + r, x - r : x + r]
