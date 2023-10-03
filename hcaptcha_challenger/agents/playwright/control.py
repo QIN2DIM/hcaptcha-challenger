@@ -24,7 +24,7 @@ from playwright.async_api import TimeoutError
 from hcaptcha_challenger.components.cv_toolkit import find_unique_object, annotate_objects
 from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
-from hcaptcha_challenger.onnx.modelhub import ModelHub
+from hcaptcha_challenger.onnx.modelhub import ModelHub, DEFAULT_KEYPOINT_MODEL
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8, is_matched_ash_of_war, finetune_keypoint
 from hcaptcha_challenger.utils import from_dict_to_model
@@ -402,7 +402,14 @@ class Radagon:
                     return
 
         def lookup_unique_object() -> Position[int, int] | None:
+            classes = self.modelhub.ashes_of_war.get(DEFAULT_KEYPOINT_MODEL)
+            session = self.modelhub.match_net(focus_name=DEFAULT_KEYPOINT_MODEL)
+            detector = YOLOv8.from_pluggable_model(session, classes)
+            results = detector(path, shape_type="point")
+            self.modelhub.unplug()
             img, circles = annotate_objects(str(path))
+            if results:
+                circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
             if circles:
                 if result := find_unique_object(img, circles):
                     x, y, _ = result
