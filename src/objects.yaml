@@ -357,11 +357,6 @@ label_alias:
     en:
     - industrial tool or machinery
     - industrial tool or heavy machinery
-  food_or_beverage_item2309:
-    zh:
-    - 食品或饮料项目
-    en:
-    - food or beverage item
   elephant2309:
     zh:
     - 大象
@@ -487,3 +482,8 @@ label_alias:
   gnome2310:
     en:
     - gnome
+  food_or_beverage_item2310:
+    zh:
+    - 食品或饮料项目
+    en:
+    - food or beverage item
