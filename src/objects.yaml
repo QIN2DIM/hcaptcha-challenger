@@ -451,9 +451,6 @@ label_alias:
     - 电子设备
     en:
     - electronic device
-  sushi2309:
-    en:
-    - sushi
   pizza2300:
     en:
     - pizza
@@ -481,3 +478,6 @@ label_alias:
     - 工业场景
     en:
     - industrial scene
+  sushi2310:
+    en:
+    - sushi
