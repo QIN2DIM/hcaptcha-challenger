@@ -397,11 +397,6 @@ label_alias:
     - 裤子
     en:
     - trousers
-  industrial_scene2310:
-    zh:
-    - 工业场景
-    en:
-    - industrial scene
   skyscraper2309:
     en:
     - skyscraper
@@ -481,3 +476,8 @@ label_alias:
   steak2310:
     en:
     - steak
+  industrial_scene2311:
+    zh:
+    - 工业场景
+    en:
+    - industrial scene
