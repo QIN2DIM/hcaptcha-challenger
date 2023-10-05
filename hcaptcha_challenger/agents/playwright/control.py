@@ -407,6 +407,7 @@ class Radagon:
             detector = YOLOv8.from_pluggable_model(session, classes)
             results = detector(path, shape_type="point")
             self.modelhub.unplug()
+            logger.debug("select model", yolo=DEFAULT_KEYPOINT_MODEL, ash=self.ash)
             img, circles = annotate_objects(str(path))
             if results:
                 circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
