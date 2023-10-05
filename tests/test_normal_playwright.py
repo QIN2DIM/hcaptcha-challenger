@@ -34,9 +34,4 @@ async def test_normal_instance():
             probe = list(agent.qr.requester_restricted_answer_set.keys())
             question = agent.qr.requester_question
             print(f">> {pth} - Challenge Result: {result} - {question=} {probe=}")
-            if result in [agent.status.CHALLENGE_BACKCALL]:
-                await page.wait_for_timeout(500)
-                fl = page.frame_locator(agent.HOOK_CHALLENGE)
-                await fl.locator("//div[@class='refresh button']").click()
-            elif result in [agent.status.CHALLENGE_SUCCESS]:
-                return
+            assert result

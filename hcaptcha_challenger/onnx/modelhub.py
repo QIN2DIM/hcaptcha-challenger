@@ -160,7 +160,6 @@ class Assets:
 
         # Request assets index from remote repository
         if upgrade is True or not assets_paths or is_outdated:
-            logger.debug(f"Pulling Assets index file", url=self.release_url)
             try:
                 resp = httpx.get(self.release_url, timeout=3)
                 data = resp.json()[0]
