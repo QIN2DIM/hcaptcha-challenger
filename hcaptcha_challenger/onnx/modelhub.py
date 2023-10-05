@@ -24,6 +24,7 @@ import yaml
 from cv2.dnn import Net
 from loguru import logger
 from onnxruntime import InferenceSession
+from tqdm import tqdm
 
 from hcaptcha_challenger.utils import from_dict_to_model
 
@@ -43,10 +44,22 @@ def request_resource(url: str, save_path: Path):
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.203"
     }
-    logger.debug(f"Downloading resource", url=url, to=str(save_path))
-    with httpx.Client(headers=headers, follow_redirects=True) as client:
-        resp = client.get(url)
-        save_path.write_bytes(resp.content)
+    with open(save_path, "wb") as download_file:
+        with httpx.Client(headers=headers, follow_redirects=True) as client:
+            with client.stream("GET", url) as response:
+                total = int(response.headers["Content-Length"])
+                with tqdm(
+                    total=total,
+                    unit_scale=True,
+                    unit_divisor=1024,
+                    unit="B",
+                    desc=f"Installing {save_path.parent.name}/{save_path.name}",
+                ) as progress:
+                    num_bytes_downloaded = response.num_bytes_downloaded
+                    for chunk in response.iter_bytes():
+                        download_file.write(chunk)
+                        progress.update(response.num_bytes_downloaded - num_bytes_downloaded)
+                        num_bytes_downloaded = response.num_bytes_downloaded
 
 
 @dataclass
@@ -134,9 +147,8 @@ class Assets:
         self._name2asset = {}
 
         if upgrade is True:
-            logger.info("Reloading the local cache of Assets", assets_dir=str(self._assets_dir))
             shutil.rmtree(self._assets_dir, ignore_errors=True)
-            self._assets_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
+            self._assets_dir.mkdir(parents=True, exist_ok=True)
 
         assets_paths = [self._assets_dir.joinpath(i) for i in os.listdir(self._assets_dir)]
         is_outdated = False
