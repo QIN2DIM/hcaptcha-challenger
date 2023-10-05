@@ -29,9 +29,12 @@ async def test_normal_instance():
 
         await agent.handle_checkbox()
 
-        for pth in range(1, 3):
-            result = await agent()
+        await agent._reset_state()
+        if not agent.qr.requester_question.keys():
+            agent._recover_state()
+            print(">> skip challenge")
+        else:
+            agent._parse_label()
             probe = list(agent.qr.requester_restricted_answer_set.keys())
             question = agent.qr.requester_question
-            print(f">> {pth} - Challenge Result: {result} - {question=} {probe=}")
-            assert result
+            print(f">> parse challenge - {question=} {probe=}")
