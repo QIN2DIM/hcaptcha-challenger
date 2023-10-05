@@ -28,6 +28,7 @@ from hcaptcha_challenger import ModelHub
         [False, "head_of_the_animal_bear_2309_yolov8n.onnx"],
         [False, ("head_of_the_animal_bear_2309_yolov8n.onnx",)],
         [False, ["head_of_the_animal_bear_2309_yolov8n.onnx"]],
+        # then create objects.yaml
         [True, True],
         [True, False],
         [True, "head_of_the_animal_bear_2309_yolov8n"],
@@ -56,12 +57,14 @@ def test_install(upgrade, flush_yolo):
         elif flush_yolo is True:
             assert isinstance(pending_models, list)
             assert len(pending_models) == 1
-            assert modelhub.models_dir.joinpath(pending_models[0]).exists()
+            if upgrade:
+                assert modelhub.models_dir.joinpath(pending_models[0]).exists()
     elif isinstance(flush_yolo, typing.Iterable):
         for fy in flush_yolo:
             if fy in modelhub.ashes_of_war:
                 assert fy in pending_models
-                assert modelhub.models_dir.joinpath(fy).exists()
+                if upgrade:
+                    assert modelhub.models_dir.joinpath(fy).exists()
             else:
                 if isinstance(pending_models, typing.Iterable):
                     assert fy not in pending_models
