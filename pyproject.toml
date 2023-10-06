@@ -51,6 +51,8 @@ selenium = { version = "*", optional = true }
 playwright = { version = "*", optional = true }
 PyGithub = { version = "^1.59.1", optional = true }
 istockphoto = { version = "0.1.2", optional = true }
+fastapi = {version = "*", optional = true}
+uvicorn = {version = "*", extras = ["standard"], optional = true}
 
 [tool.poetry.group.test.dependencies]
 # https://docs.pytest.org/en/stable/reference/plugin_list.html#plugin-list
@@ -99,6 +101,12 @@ sentinel = ["playwright", "PyGithub"]
 # Developer: `poetry install -E istock`
 # --> pull open source datasets
 istock = ["istockphoto"]
+
+# Developer: `poetry install -E server`
+# User: `pip install hcaptcha-challenger[server]`
+# https://fastapi.tiangolo.com/tutorial/
+# https://www.uvicorn.org/#quickstart
+server = ["fastapi", "uvicorn", "playwright", "PyGithub"]
 
 [build-system]
 requires = ["poetry-core"]
