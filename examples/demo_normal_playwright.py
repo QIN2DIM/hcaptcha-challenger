@@ -33,7 +33,7 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
     await agent.handle_checkbox()
 
     for pth in range(1, times):
-        result = await agent.execute(unsupervised=True)
+        result = await agent()
         probe = list(agent.qr.requester_restricted_answer_set.keys())
         question = agent.qr.requester_question
         print(f">> {pth} - Challenge Result: {result} - {question=} {probe=}")

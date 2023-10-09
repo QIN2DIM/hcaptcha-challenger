@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import List
 
 import cv2
-import matplotlib.pyplot as plt
 from skimage.feature import graycomatrix, graycoprops
 from sklearn.cluster import SpectralClustering
 
@@ -21,28 +20,9 @@ def get_2d_image(path: Path):
 def extract_features(img):
     feats = []
     glcm = graycomatrix(img, [5], [0], 256, symmetric=True, normed=True)
-    feats.append(graycoprops(glcm, 'contrast')[0, 0])
-    feats.append(graycoprops(glcm, 'dissimilarity')[0, 0])
+    feats.append(graycoprops(glcm, "contrast")[0, 0])
+    feats.append(graycoprops(glcm, "dissimilarity")[0, 0])
     return feats
-
-
-def draw():
-    # 假设similar_img_sequence包含6张图像
-    num_imgs = len(similar_img_sequence)
-
-    # 创建2行3列的子图
-    fig, axs = plt.subplots(3, 3, figsize=(12, 8))
-
-    # 遍历图像并绘制到子图中
-    for i in range(num_imgs):
-        img = similar_img_sequence[i]
-        row = i // 3
-        col = i % 3
-        axs[row, col].imshow(img)
-        axs[row, col].axis('off')
-
-    plt.tight_layout()
-    plt.show()
 
 
 def find_similar_objects(example_paths: List[Path], challenge_paths: List[Path]):
@@ -64,7 +44,7 @@ def find_similar_objects(example_paths: List[Path], challenge_paths: List[Path])
 
     X = [extract_features(img) for img in images_merged]
 
-    clf = SpectralClustering(n_clusters=3, affinity='nearest_neighbors', n_neighbors=5)
+    clf = SpectralClustering(n_clusters=2, affinity="nearest_neighbors", n_neighbors=5)
     y = clf.fit_predict(X)
 
     ref_img_idx = 0

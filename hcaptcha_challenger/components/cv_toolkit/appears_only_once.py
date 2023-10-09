@@ -61,7 +61,7 @@ def find_unique_object(img: np.ndarray, circles: List[List[int]]) -> Tuple[int, 
 
     feature_vectors = []
     for x, y, r in circles:
-        roi = img[y - r: y + r, x - r: x + r]
+        roi = img[y - r : y + r, x - r : x + r]
         hist = cv2.calcHist([roi], [0, 1, 2], None, [16, 16, 16], [0, 256, 0, 256, 0, 256])
         hist = cv2.normalize(hist, hist).flatten()
         feature_vectors.append(hist)

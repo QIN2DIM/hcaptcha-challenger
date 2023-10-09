@@ -21,7 +21,11 @@ from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position
 from playwright.async_api import TimeoutError
 
-from hcaptcha_challenger.components.cv_toolkit import find_unique_object, annotate_objects, find_similar_objects
+from hcaptcha_challenger.components.cv_toolkit import (
+    find_unique_object,
+    annotate_objects,
+    find_similar_objects,
+)
 from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DEFAULT_KEYPOINT_MODEL
@@ -428,10 +432,10 @@ class Radagon:
             detector = YOLOv8.from_pluggable_model(session, classes)
             results = detector(path, shape_type="point")
             self.modelhub.unplug()
-            logger.debug("select model", yolo=DEFAULT_KEYPOINT_MODEL, ash=self.ash)
             img, circles = annotate_objects(str(path))
             if results:
                 circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
+                logger.debug("select model", yolo=DEFAULT_KEYPOINT_MODEL, ash=self.ash)
             if circles:
                 if result := find_unique_object(img, circles):
                     x, y, _ = result
@@ -480,7 +484,6 @@ class Radagon:
 
             # {{< Please click on the X >}}
             res = detector(Path(path), shape_type="point")
-            # print(res)
 
             alts = []
             for name, (center_x, center_y), score in res:
@@ -564,6 +567,8 @@ class Radagon:
                         time.sleep(random.uniform(0.1, 0.3))
                         await sample.click(delay=200)
 
+            input("continue")
+
             with suppress(TimeoutError):
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
@@ -625,7 +630,7 @@ class AgentT(Radagon):
 
     async def execute(self, **kwargs) -> str | None:
         window = kwargs.get("window", "login")
-        unsupervised = kwargs.get("unsupervised", False)
+        unsupervised = kwargs.get("unsupervised", True)
 
         frame_challenge = self._switch_to_challenge_frame(self.page, window)
 
