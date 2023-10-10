@@ -169,7 +169,7 @@ class Pigeon:
             mixed_label = split_prompt_message(self.issue_prompt, lang="en")
             if issue.created_at + timedelta(hours=24) > datetime.now():
                 issue.add_to_labels("🏹 ci: sentinel")
-            if mixed_label in issue.title:
+            if mixed_label in issue.title.lower():
                 return True
 
     def notify(self):
