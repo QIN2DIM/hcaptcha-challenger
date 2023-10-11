@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import List
 
 import cv2
-from skimage.feature import graycomatrix, graycoprops
 from sklearn.cluster import SpectralClustering
 
 
@@ -18,11 +17,9 @@ def get_2d_image(path: Path):
 
 
 def extract_features(img):
-    feats = []
-    glcm = graycomatrix(img, [5], [0], 256, symmetric=True, normed=True)
-    feats.append(graycoprops(glcm, "contrast")[0, 0])
-    feats.append(graycoprops(glcm, "dissimilarity")[0, 0])
-    return feats
+    hog = cv2.HOGDescriptor()
+    h = hog.compute(img)
+    return h
 
 
 def find_similar_objects(example_paths: List[Path], challenge_paths: List[Path]):
