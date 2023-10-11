@@ -529,7 +529,7 @@ class Radagon:
             samples = frame_challenge.locator("//div[@class='task-image']")
             count = await samples.count()
             # Remember you are human not a robot
-            await self.page.wait_for_timeout(1700)
+            await self.page.wait_for_timeout(600)
             # Classify and Click on the right image
             for i in range(count):
                 sample = samples.nth(i)
@@ -545,13 +545,8 @@ class Radagon:
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
 
-            # {{< Done | Continue >}}
-            if pth == 0:
-                await self.page.wait_for_timeout(300)
-
     async def _unsupervised_challenge(self, frame_challenge: FrameLocator):
         results = find_similar_objects(self._example_paths, self._img_paths)
-        print(results)
 
         times = int(len(self.qr.tasklist) / 9)
         for pth in range(times):
@@ -566,8 +561,6 @@ class Radagon:
                     with suppress(TimeoutError):
                         time.sleep(random.uniform(0.1, 0.3))
                         await sample.click(delay=200)
-
-            input("continue")
 
             with suppress(TimeoutError):
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
@@ -630,7 +623,7 @@ class AgentT(Radagon):
 
     async def execute(self, **kwargs) -> str | None:
         window = kwargs.get("window", "login")
-        unsupervised = kwargs.get("unsupervised", True)
+        unsupervised = kwargs.get("unsupervised", False)
 
         frame_challenge = self._switch_to_challenge_frame(self.page, window)
 
