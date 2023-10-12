@@ -482,11 +482,6 @@ label_alias:
   gnome2310:
     en:
     - gnome
-  food_or_beverage_item2310:
-    zh:
-    - 食品或饮料项目
-    en:
-    - food or beverage item
   fresh_fruit2311:
     en:
     - fresh fruit
@@ -499,3 +494,8 @@ label_alias:
   please_click_on_the_largest_animal2309:
     en:
     - please click on the largest animal
+  food_or_beverage_item2311:
+    zh:
+    - 食品或饮料项目
+    en:
+    - food or beverage item
