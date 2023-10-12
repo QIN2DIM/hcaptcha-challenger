@@ -331,11 +331,6 @@ label_alias:
     - 梯子
     en:
     - ladder
-  boat2309:
-    zh:
-    - 船
-    en:
-    - boat
   cup_of_orange_juice2309:
     zh:
     - 一杯橙汁
@@ -499,3 +494,8 @@ label_alias:
   main_course2311:
     en:
     - main course
+  boat2310:
+    zh:
+    - 船
+    en:
+    - boat
