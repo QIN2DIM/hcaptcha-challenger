@@ -480,9 +480,6 @@ label_alias:
   owl2309:
     en:
     - owl
-  beverage2309:
-    en:
-    - beverage
   please_click_on_the_largest_animal2309:
     en:
     - please click on the largest animal
@@ -499,3 +496,6 @@ label_alias:
     - 船
     en:
     - boat
+  beverage2310:
+    en:
+    - beverage
