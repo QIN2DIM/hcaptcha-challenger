@@ -465,10 +465,6 @@ class Radagon:
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click(delay=200)
 
-            # {{< Done | Continue >}}
-            if pth == 0:
-                await self.page.wait_for_timeout(1000)
-
     async def _keypoint_challenge(self, frame_challenge: FrameLocator):
         # Load YOLOv8 model from local or remote repo
         detector: YOLOv8 = self._match_solution(select="yolo")
