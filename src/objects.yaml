@@ -449,9 +449,6 @@ label_alias:
   pizza2300:
     en:
     - pizza
-  main_course2309:
-    en:
-    - main course
   something_you_can_eat2314:
     zh:
     - 你可以吃的东西
@@ -499,3 +496,6 @@ label_alias:
     - 食品或饮料项目
     en:
     - food or beverage item
+  main_course2310:
+    en:
+    - main course
