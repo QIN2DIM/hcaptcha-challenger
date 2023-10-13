@@ -238,6 +238,8 @@ class ModelHub:
     yolo_names: List[str] = field(default_factory=list)
     ashes_of_war: Dict[str, List[str]] = field(default_factory=dict)
 
+    nested_categories: Dict[str, List[str]] = field(default_factory=dict)
+
     release_url: str = ""
     objects_url: str = ""
 
@@ -294,6 +296,10 @@ class ModelHub:
         if yolo2names:
             self.yolo_names = [cl for cc in yolo2names.values() for cl in cc]
             self.ashes_of_war = yolo2names
+
+        nested_categories = data.get("nested_categories", {})
+        if nested_categories:
+            self.nested_categories = nested_categories
 
     def pull_model(self, focus_name: str):
         """
