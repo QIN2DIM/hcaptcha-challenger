@@ -2,6 +2,12 @@ branches:
   qin2dim:
     release_url: https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
+nested_categories:
+  "please click on the largest animal":
+    - nested_largest_elephant2309.onnx
+    - nested_largest_rabbit2309.onnx
+  "please click on the smallest animal":
+    - nested_smallest_rabbit2309.onnx
 ashes_of_war:
   head_of_the_animal_bear_2309_yolov8n.onnx:
   - bear-head
