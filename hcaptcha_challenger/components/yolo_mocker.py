@@ -99,6 +99,7 @@ class CcYOLO:
         ```
         :return:
         """
+
         def draw():
             alts = sorted(results, key=lambda x: x[-1])
             text, ps, pe, _ = alts[-1]

@@ -47,7 +47,7 @@ class Classifier:
                         continue
                     image = image.read_bytes()
                 if isinstance(image, bytes):
-                    result = control.binary_classify(image)
+                    result = control.execute(image)
                     response.append(result)
                 else:
                     response.append(None)
@@ -68,4 +68,4 @@ class LocalBinaryClassifier:
 
     def parse_once(self, image: bytes) -> bool | None:
         with suppress(Exception):
-            return self.model.binary_classify(image)
+            return self.model.execute(image)
