@@ -370,6 +370,30 @@ class Radagon:
         control = ResNetControl.from_pluggable_model(net)
         return control
 
+    def _rank_models(self) -> ResNetControl | None:
+        nested_models = self.nested_categories.get(self._label, [])
+        if not nested_models:
+            return
+        rank_ladder = []
+        # {{< Rank ResNet Models >}}
+        for example_path in self._example_paths:
+            img_stream = example_path.read_bytes()
+            for model_name in nested_models:
+                net = self.modelhub.match_net(focus_name=model_name)
+                control = ResNetControl.from_pluggable_model(net)
+                result_, proba = control.execute(img_stream, proba=True)
+                if result_:
+                    rank_ladder.append([control, model_name, proba])
+                    if proba[0] > 0.87:
+                        break
+
+        # {{< Catch-all Rules >}}
+        if rank_ladder:
+            alts = sorted(rank_ladder, key=lambda x: x[-1][0], reverse=True)
+            best_model, model_name = alts[0][0], alts[0][1]
+            logger.debug("rank model", resnet=model_name, prompt=self._prompt)
+            return best_model
+
     async def _bounding_challenge(self, frame_challenge: FrameLocator):
         detector: YOLOv8 = self._match_solution(select="yolo")
         times = int(len(self.qr.tasklist))
@@ -515,10 +539,8 @@ class Radagon:
             if pth == 0:
                 await self.page.wait_for_timeout(1000)
 
-    async def _binary_challenge(
-        self, frame_challenge: FrameLocator, classifier: ResNetControl | None = None
-    ):
-        classifier = classifier or self._match_solution(select="resnet")
+    async def _binary_challenge(self, frame_challenge: FrameLocator, model: ResNetControl = None):
+        classifier = model or self._match_solution(select="resnet")
 
         # {{< IMAGE CLASSIFICATION >}}
         times = int(len(self.qr.tasklist) / 9)
@@ -542,26 +564,6 @@ class Radagon:
             with suppress(TimeoutError):
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
-
-    async def _binary_nested_challenge(self, frame_challenge: FrameLocator):
-        classifier = None
-        nested_models = self.nested_categories.get(self._label, [])
-
-        for example_path in self._example_paths:
-            img_stream = example_path.read_bytes()
-            # {{< Rank ResNet Models >}}
-            for model_name in nested_models:
-                net = self.modelhub.match_net(focus_name=model_name)
-                control = ResNetControl.from_pluggable_model(net)
-                result = control.execute(img_stream)
-                if result:
-                    logger.debug("match model", resnet=model_name, prompt=self._prompt)
-                    classifier = control
-                    break
-            # {{< Insert Binary Challenge >}}
-            if classifier:
-                await self._binary_challenge(frame_challenge, classifier)
-                break
 
     async def _is_success(self):
         self.cr = await self.cr_queue.get()
@@ -637,7 +639,10 @@ class AgentT(Radagon):
         # Match: image_label_binary
         if self.qr.request_type == "image_label_binary":
             if self.nested_categories.get(self._label):
-                await self._binary_nested_challenge(frame_challenge)
+                if model := self._rank_models():
+                    await self._binary_challenge(frame_challenge, model)
+                else:
+                    return self.status.CHALLENGE_BACKCALL
             elif self.label_alias.get(self._label):
                 await self._binary_challenge(frame_challenge)
             else:

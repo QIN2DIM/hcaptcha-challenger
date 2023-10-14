@@ -18,7 +18,7 @@ def run():
         "head_of_the_animal_2310_yolov8s.onnx": [
             "image_label_area_select/please click on the head of the animal/default",
             "image_label_area_select/please click on the head of the animal/polarbearonthesnow",
-            "image_label_area_select/please click on the head of the animal/zebraonthedesert"
+            "image_label_area_select/please click on the head of the animal/zebraonthedesert",
         ]
     }
 
