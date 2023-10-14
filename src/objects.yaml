@@ -11,6 +11,8 @@ nested_categories:
   please click on the smallest animal:
   - nested_smallest_rabbit2309.onnx
 ashes_of_war:
+  appears_only_once_2309_yolov8s-seg.onnx:
+  - the-one-piece
   head_of_the_animal_bear_2309_yolov8n.onnx:
   - bear-head
   head_of_the_animal_2310_yolov8s.onnx:
