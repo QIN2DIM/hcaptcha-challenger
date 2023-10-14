@@ -192,6 +192,8 @@ def load_gravitas_from_issues() -> List[Gravitas]:
         state="all",  # fixme `open`
         since=datetime.now() - timedelta(days=9),  # fixme `24hours`
     ):
+        if not isinstance(issue.body, str):
+            continue
         if "Automated deployment @" not in issue.body:
             continue
         tasks.append(Gravitas.from_issue(issue))
