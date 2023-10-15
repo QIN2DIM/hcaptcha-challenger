@@ -556,14 +556,18 @@ class Radagon:
             # Remember you are human not a robot
             await self.page.wait_for_timeout(600)
             # Classify and Click on the right image
+            positive_cases = 0
             for i in range(count):
                 sample = samples.nth(i)
                 await sample.wait_for()
                 result = classifier.execute(img_stream=self._img_paths[i + pth * 9].read_bytes())
                 if result:
+                    positive_cases += 1
                     with suppress(TimeoutError):
                         time.sleep(random.uniform(0.1, 0.3))
                         await sample.click(delay=200)
+                elif positive_cases == 0 and pth == times - 1 and i == count - 1:
+                    await sample.click(delay=200)
 
             # {{< Verify >}}
             with suppress(TimeoutError):
