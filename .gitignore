@@ -138,6 +138,7 @@ hcaptcha_challenger/logs
 examples/tmp_dir
 examples/user_data_dir
 examples/yolo_mocker/
+examples/figs-seg-out/
 poetry.lock
 examples/*.png
 **/tmp_dir**
