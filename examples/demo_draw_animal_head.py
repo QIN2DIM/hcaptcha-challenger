@@ -7,7 +7,10 @@ import os
 import sys
 from pathlib import Path
 
+import hcaptcha_challenger as solver
 from hcaptcha_challenger.components.yolo_mocker import CcYOLO
+
+solver.install(upgrade=True)
 
 
 def run():

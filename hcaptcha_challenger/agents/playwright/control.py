@@ -379,8 +379,9 @@ class Radagon:
         nested_models = self.nested_categories.get(self._label, [])
         if not nested_models:
             return
-        rank_ladder = []
+
         # {{< Rank ResNet Models >}}
+        rank_ladder = []
         for example_path in self._example_paths:
             img_stream = example_path.read_bytes()
             for model_name in nested_models:

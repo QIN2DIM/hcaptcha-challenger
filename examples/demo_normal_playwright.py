@@ -16,7 +16,7 @@ from hcaptcha_challenger.agents import AgentT
 from hcaptcha_challenger.utils import SiteKey
 
 # Init local-side of the ModelHub
-solver.install(upgrade=True, flush_yolo=[solver.DEFAULT_KEYPOINT_MODEL])
+solver.install(upgrade=True)
 
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
