@@ -143,6 +143,7 @@ poetry.lock
 examples/*.png
 **/tmp_dir**
 **/istock_tmp
+**/figs-seg-out**
 docs/*.xmind
 tests_private/
 .run/
