@@ -26,7 +26,12 @@ from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DEFAULT_KEYPOINT_MODEL
 from hcaptcha_challenger.onnx.resnet import ResNetControl
-from hcaptcha_challenger.onnx.yolo import YOLOv8, is_matched_ash_of_war, finetune_keypoint
+from hcaptcha_challenger.onnx.yolo import (
+    YOLOv8,
+    YOLOv8Seg,
+    is_matched_ash_of_war,
+    finetune_keypoint,
+)
 from hcaptcha_challenger.utils import from_dict_to_model
 
 
@@ -451,19 +456,19 @@ class Radagon:
                     return
 
         def lookup_unique_object() -> Position[int, int] | None:
-            classes = self.modelhub.ashes_of_war.get(DEFAULT_KEYPOINT_MODEL)
-            session = self.modelhub.match_net(focus_name=DEFAULT_KEYPOINT_MODEL)
-            detector = YOLOv8.from_pluggable_model(session, classes)
-            results = detector(path, shape_type="point")
-            self.modelhub.unplug()
-            img, circles = annotate_objects(str(path))
-            if results:
-                circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
-                logger.debug("select model", yolo=DEFAULT_KEYPOINT_MODEL, ash=self.ash)
-            if circles:
-                if result := find_unique_object(img, circles):
-                    x, y, _ = result
-                    return {"x": int(x), "y": int(y)}
+            for model_name, classes in self.modelhub.lookup_ash_of_war(self.ash):
+                session = self.modelhub.match_net(model_name)
+                detector = YOLOv8Seg.from_pluggable_model(session, classes)
+                results = detector(path, shape_type="point")
+                self.modelhub.unplug()
+                img, circles = annotate_objects(str(path))
+                if results:
+                    circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
+                    logger.debug("select model", yolo=DEFAULT_KEYPOINT_MODEL, ash=self.ash)
+                if circles:
+                    if result := find_unique_object(img, circles):
+                        x, y, _ = result
+                        return {"x": int(x), "y": int(y)}
 
         times = int(len(self.qr.tasklist))
         for pth in range(times):
