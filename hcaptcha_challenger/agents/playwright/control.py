@@ -21,7 +21,7 @@ from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position
 from playwright.async_api import TimeoutError
 
-from hcaptcha_challenger.components.cv_toolkit import find_unique_object, annotate_objects
+from hcaptcha_challenger.components.cv_toolkit import find_unique_object_v2, annotate_objects
 from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DEFAULT_KEYPOINT_MODEL
@@ -467,7 +467,7 @@ class Radagon:
                     circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
                     logger.debug("select model", yolo=DEFAULT_KEYPOINT_MODEL, ash=self.ash)
                 if circles:
-                    if result := find_unique_object(img, circles):
+                    if result := find_unique_object_v2(img, circles):
                         x, y, _ = result
                         return {"x": int(x), "y": int(y)}
 
