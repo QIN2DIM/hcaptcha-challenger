@@ -46,7 +46,7 @@ def _build_mask(img: np.ndarray, circles: List[List[int]], lookup: Literal["colo
         mask = np.zeros(img.shape[:2], dtype=np.uint8)
         mask = cv2.circle(mask, (x, y), r, (255, 255, 0), -1)
         mask_img = cv2.bitwise_and(img, img, mask=mask)
-        mask_img = mask_img[y - r: y + r, x - r: x + r]
+        mask_img = mask_img[y - r : y + r, x - r : x + r]
         if lookup == "color":
             mask_img[np.where((mask_img == [0, 0, 0]).all(axis=2))] = [255, 255, 255]
         mask_images.append(mask_img)
