@@ -112,6 +112,7 @@ def find_unique_color(img: np.ndarray, circles: List[List[int]]) -> Tuple[int, i
         scores.append(score)
 
     unique_index = np.argmin(scores)
+
     unique_circle = circles[unique_index]
 
     return unique_circle[0], unique_circle[1], unique_circle[2]
