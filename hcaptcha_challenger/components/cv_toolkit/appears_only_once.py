@@ -7,6 +7,7 @@ from typing import Tuple, List
 
 import cv2
 import numpy as np
+from skimage.metrics import structural_similarity as compare_ssim
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import rbf_kernel
 
@@ -75,3 +76,37 @@ def find_unique_object(img: np.ndarray, circles: List[List[int]]) -> Tuple[int, 
         if label == car_1_label:
             x, y, r = circles[i][0:3]
             return x, y, r
+
+
+def find_unique_object_v2(img: np.ndarray, circles: List[List[int]]) -> Tuple[int, int, int]:
+    mask_images = []
+
+    for circle in circles:
+        x, y, r = circle
+        mask = np.zeros(img.shape[:2], dtype=np.uint8)
+        mask = cv2.circle(mask, (x, y), r, (255, 255, 0), -1)
+        mask_img = cv2.bitwise_and(img, img, mask=mask)
+        mask_img = mask_img[y - r : y + r, x - r : x + r]
+        mask_images.append(mask_img)
+
+    max_size = max([mask_img.shape[0] for mask_img in mask_images])
+    mask_images = [cv2.resize(mask_img, (max_size, max_size)) for mask_img in mask_images]
+
+    similarity = []
+
+    for i, mask_img in enumerate(mask_images):
+        sig_sim = []
+        for j, mask_img_ in enumerate(mask_images):
+            if i == j:
+                sig_sim.append(0)
+                continue
+            score, _ = compare_ssim(mask_img, mask_img_, win_size=3, full=True)
+            sig_sim.append(score)
+        similarity.append(np.array(sig_sim))
+
+    similarity = np.array(similarity)
+    sum_similarity = np.sum(similarity, axis=0)
+    unique_index = np.argmin(sum_similarity)
+    unique_circle = circles[unique_index]
+
+    return unique_circle[0], unique_circle[1], unique_circle[2]
