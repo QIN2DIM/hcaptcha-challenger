@@ -41,7 +41,7 @@ def yolov8_segment():
             yoloseg(image_path, shape_type="point")
 
             img = cv2.imread(str(image_path))
-            combined_img = yoloseg.draw_masks(img)
+            combined_img = yoloseg.draw_masks(img, mask_alpha=0.3)
             output_path = figs_out_dir.joinpath(image_path.name)
             cv2.imwrite(str(output_path), combined_img)
 

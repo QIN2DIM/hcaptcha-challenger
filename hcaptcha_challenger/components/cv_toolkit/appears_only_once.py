@@ -3,12 +3,11 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-from typing import Tuple, List
+from typing import Tuple, List, Literal
 
 import cv2
 import numpy as np
-from sklearn.cluster import KMeans
-from sklearn.metrics.pairwise import rbf_kernel
+from skimage.metrics import structural_similarity as compare_ssim
 
 
 def limited_radius(img) -> int:
@@ -39,39 +38,80 @@ def annotate_objects(image_path: str):
     return img, None
 
 
+def _build_mask(img: np.ndarray, circles: List[List[int]], lookup: Literal["color", "object"]):
+    mask_images = []
+
+    for circle in circles:
+        x, y, r = circle
+        mask = np.zeros(img.shape[:2], dtype=np.uint8)
+        mask = cv2.circle(mask, (x, y), r, (255, 255, 0), -1)
+        mask_img = cv2.bitwise_and(img, img, mask=mask)
+        mask_img = mask_img[y - r: y + r, x - r: x + r]
+        if lookup == "color":
+            mask_img[np.where((mask_img == [0, 0, 0]).all(axis=2))] = [255, 255, 255]
+        mask_images.append(mask_img)
+
+    # uniform size, brightness, contrast, etc.
+    max_size = max([mask_img.shape[0] for mask_img in mask_images])
+    mask_images = [cv2.resize(mask_img, (max_size, max_size)) for mask_img in mask_images]
+
+    return mask_images
+
+
 def find_unique_object(img: np.ndarray, circles: List[List[int]]) -> Tuple[int, int, int]:
-    def spectral_clustering():
-        num_clusters = 2
+    mask_images = _build_mask(img, circles, lookup="object")
 
-        S = rbf_kernel(feature_vectors)
-        D = np.diag(np.sum(S, axis=1))
-        L = D - S
+    similarity = []
 
-        eigvals, eigvecs = np.linalg.eigh(L)
-        eigvecs = eigvecs[:, :num_clusters]
+    for i, mask_img in enumerate(mask_images):
+        sig_sim = []
+        for j, mask_img_ in enumerate(mask_images):
+            if i == j:
+                sig_sim.append(0)
+                continue
+            score, _ = compare_ssim(mask_img, mask_img_, win_size=3, full=True)
+            sig_sim.append(score)
+        similarity.append(np.array(sig_sim))
 
-        kmeans = KMeans(n_clusters=num_clusters, n_init=10)
-        kmeans.fit(eigvecs)
+    similarity = np.array(similarity)
+    sum_similarity = np.sum(similarity, axis=0)
+    unique_index = np.argmin(sum_similarity)
+    unique_circle = circles[unique_index]
 
-        return kmeans.labels_
+    return unique_circle[0], unique_circle[1], unique_circle[2]
 
-    if len(circles) == 1:
-        x, y, r = circles[0]
-        return x, y, r
 
-    feature_vectors = []
-    for x, y, r in circles:
-        roi = img[y - r : y + r, x - r : x + r]
-        hist = cv2.calcHist([roi], [0, 1, 2], None, [16, 16, 16], [0, 256, 0, 256, 0, 256])
-        hist = cv2.normalize(hist, hist).flatten()
-        feature_vectors.append(hist)
+def find_unique_color(img: np.ndarray, circles: List[List[int]]) -> Tuple[int, int, int]:
+    mask_images = _build_mask(img, circles, lookup="color")
 
-    labels = spectral_clustering()
+    original_mask_images = mask_images.copy()
+    original_mask_images = np.array(original_mask_images)
 
-    unique, counts = np.unique(labels, return_counts=True)
-    car_1_label = unique[np.argmin(counts)]
+    mask_images = [cv2.convertScaleAbs(mask_img, alpha=1.5, beta=0) for mask_img in mask_images]
 
-    for i, label in enumerate(labels):
-        if label == car_1_label:
-            x, y, r = circles[i][0:3]
-            return x, y, r
+    scores = []
+
+    for original_mask_img, mask_img in zip(original_mask_images, mask_images):
+        gray = cv2.cvtColor(mask_img, cv2.COLOR_BGR2GRAY)
+        center_color = gray[gray.shape[0] // 2, gray.shape[1] // 2]
+        gray[gray < min(200, int(center_color))] = 0
+
+        # remove noise
+        kernel = np.ones((3, 3), np.uint8)
+        gray = cv2.morphologyEx(gray, cv2.MORPH_OPEN, kernel)
+
+        # binary
+        threshold = 255
+        gray[gray < threshold] = 0
+        gray[gray >= threshold] = 255
+
+        colors = original_mask_img[gray == 0]
+        colors = np.array(colors).reshape(-1, 3)
+        score = np.var(colors, axis=0).sum()
+
+        scores.append(score)
+
+    unique_index = np.argmin(scores)
+    unique_circle = circles[unique_index]
+
+    return unique_circle[0], unique_circle[1], unique_circle[2]

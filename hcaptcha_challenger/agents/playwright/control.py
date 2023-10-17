@@ -21,10 +21,14 @@ from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position
 from playwright.async_api import TimeoutError
 
-from hcaptcha_challenger.components.cv_toolkit import find_unique_object, annotate_objects
+from hcaptcha_challenger.components.cv_toolkit import (
+    find_unique_object,
+    annotate_objects,
+    find_unique_color,
+)
 from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
-from hcaptcha_challenger.onnx.modelhub import ModelHub, DEFAULT_KEYPOINT_MODEL
+from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import (
     YOLOv8,
@@ -456,7 +460,7 @@ class Radagon:
                 if count > deep:
                     return
 
-        def lookup_unique_object() -> Position[int, int] | None:
+        def lookup_unique_object(trident) -> Position[int, int] | None:
             for model_name, classes in self.modelhub.lookup_ash_of_war(self.ash):
                 session = self.modelhub.match_net(model_name)
                 detector = YOLOv8Seg.from_pluggable_model(session, classes)
@@ -465,9 +469,9 @@ class Radagon:
                 img, circles = annotate_objects(str(path))
                 if results:
                     circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
-                    logger.debug("select model", yolo=DEFAULT_KEYPOINT_MODEL, ash=self.ash)
+                    logger.debug("select model", yolo=model_name, ash=self.ash)
                 if circles:
-                    if result := find_unique_object(img, circles):
+                    if result := trident(img, circles):
                         x, y, _ = result
                         return {"x": int(x), "y": int(y)}
 
@@ -481,7 +485,9 @@ class Radagon:
             image = await locator.screenshot(path=path, type="png")
 
             if "appears only once" in self.ash or "never repeated" in self.ash:
-                position = lookup_unique_object()
+                position = lookup_unique_object(trident=find_unique_object)
+            elif "shapes are of the same color" in self.ash:
+                position = lookup_unique_object(trident=find_unique_color)
             else:
                 position = lookup_objects()
 
