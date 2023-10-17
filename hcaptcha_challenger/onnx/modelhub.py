@@ -239,6 +239,7 @@ class ModelHub:
     ashes_of_war: Dict[str, List[str]] = field(default_factory=dict)
 
     nested_categories: Dict[str, List[str]] = field(default_factory=dict)
+    circle_segment_model: str = field(default=str)
 
     release_url: str = ""
     objects_url: str = ""
@@ -300,6 +301,10 @@ class ModelHub:
         nested_categories = data.get("nested_categories", {})
         if nested_categories:
             self.nested_categories = nested_categories
+
+        self.circle_segment_model = data.get(
+            "circle_seg", "appears_only_once_2309_yolov8s-seg.onnx"
+        )
 
     def pull_model(self, focus_name: str):
         """

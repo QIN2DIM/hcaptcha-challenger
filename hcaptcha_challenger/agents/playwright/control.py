@@ -461,19 +461,22 @@ class Radagon:
                     return
 
         def lookup_unique_object(trident) -> Position[int, int] | None:
-            for model_name, classes in self.modelhub.lookup_ash_of_war(self.ash):
-                session = self.modelhub.match_net(model_name)
-                detector = YOLOv8Seg.from_pluggable_model(session, classes)
-                results = detector(path, shape_type="point")
-                self.modelhub.unplug()
-                img, circles = annotate_objects(str(path))
-                if results:
-                    circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
-                    logger.debug("select model", yolo=model_name, ash=self.ash)
-                if circles:
-                    if result := trident(img, circles):
-                        x, y, _ = result
-                        return {"x": int(x), "y": int(y)}
+            model_name = self.modelhub.circle_segment_model
+            classes = self.modelhub.ashes_of_war.get(model_name)
+            session = self.modelhub.match_net(model_name)
+            detector = YOLOv8Seg.from_pluggable_model(session, classes)
+            results = detector(path, shape_type="point")
+            self.modelhub.unplug()
+            img, circles = annotate_objects(str(path))
+            if results:
+                circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
+                logger.debug(
+                    "select model", yolo=model_name, trident=trident.__name__, ash=self.ash
+                )
+            if circles:
+                if result := trident(img, circles):
+                    x, y, _ = result
+                    return {"x": int(x), "y": int(y)}
 
         times = int(len(self.qr.tasklist))
         for pth in range(times):
