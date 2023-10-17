@@ -9,7 +9,7 @@ from pathlib import Path
 import hcaptcha_challenger as solver
 
 # Init local-side of the ModelHub
-solver.install(flush_yolo=True)
+solver.install(upgrade=True)
 
 # please click on the elephant
 # please click on the raccoon

@@ -2,7 +2,19 @@ branches:
   qin2dim:
     release_url: https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
+circle_seg: appears_only_once_2309_yolov8s-seg.onnx
+nested_categories:
+  electronic device:
+    - nested_electronic_device2309.onnx
+    - electronic_device2315.onnx
+  please click on the largest animal:
+  - nested_largest_rabbit2310.onnx
+  - nested_largest_hedgehog2309.onnx
+  - nested_largest_raccoon2309.onnx
+  - nested_largest_elephant2309.onnx
 ashes_of_war:
+  appears_only_once_2309_yolov8s-seg.onnx:
+  - the-one-piece
   head_of_the_animal_bear_2309_yolov8n.onnx:
   - bear-head
   head_of_the_animal_2310_yolov8s.onnx:
@@ -331,11 +343,6 @@ label_alias:
     - 梯子
     en:
     - ladder
-  boat2309:
-    zh:
-    - 船
-    en:
-    - boat
   cup_of_orange_juice2309:
     zh:
     - 一杯橙汁
@@ -449,9 +456,6 @@ label_alias:
   pizza2300:
     en:
     - pizza
-  main_course2309:
-    en:
-    - main course
   something_you_can_eat2314:
     zh:
     - 你可以吃的东西
@@ -482,8 +486,46 @@ label_alias:
   gnome2310:
     en:
     - gnome
-  food_or_beverage_item2310:
+  fresh_fruit2311:
+    en:
+    - fresh fruit
+  owl2309:
+    en:
+    - owl
+  food_or_beverage_item2312:
     zh:
     - 食品或饮料项目
     en:
     - food or beverage item
+  main_course2311:
+    en:
+    - main course
+  boat2310:
+    zh:
+    - 船
+    en:
+    - boat
+  beverage2311:
+    en:
+    - beverage
+  bird2309:
+    en:
+    - bird
+  drone2309:
+    en:
+    - drone
+  meerkat2309:
+    en:
+    - meerkat
+  indoor_vertical_farm2309:
+    en:
+    - indoor vertical farm
+  smartwatch2309:
+    en:
+    - smartwatch
+  vineyard2309:
+    en:
+    - vineyard
+  hat2310:
+    en:
+    - hat

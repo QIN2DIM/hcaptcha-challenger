@@ -137,10 +137,13 @@ hcaptcha_challenger/logs
 **/models/
 examples/tmp_dir
 examples/user_data_dir
+examples/yolo_mocker/
+examples/figs-seg-out/
 poetry.lock
 examples/*.png
 **/tmp_dir**
 **/istock_tmp
+**/figs-seg-out**
 docs/*.xmind
 tests_private/
 .run/

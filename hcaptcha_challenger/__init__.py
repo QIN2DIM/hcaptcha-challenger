@@ -23,6 +23,7 @@ from hcaptcha_challenger.onnx.modelhub import DEFAULT_KEYPOINT_MODEL
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8
+from hcaptcha_challenger.onnx.yolo import YOLOv8Seg
 from hcaptcha_challenger.utils import init_log
 
 __all__ = [
@@ -37,6 +38,7 @@ __all__ = [
     "DEFAULT_KEYPOINT_MODEL",
     "ResNetControl",
     "YOLOv8",
+    "YOLOv8Seg",
     "install",
 ]
 

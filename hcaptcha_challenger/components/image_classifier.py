@@ -23,39 +23,91 @@ class Classifier:
         self.modelhub = ModelHub.from_github_repo()
         self.modelhub.parse_objects()
 
-    def execute(self, prompt: str, images: List[Path | bytes]) -> List[bool | None]:
-        response = []
+        self.response: List[bool | None] = []
+        self.prompt: str = ""
+        self.label: str = ""
+        self.model_name: str = ""
 
+    def _parse_label(self, prompt: str):
+        self.prompt = prompt
         lang = "zh" if re.compile("[\u4e00-\u9fa5]+").search(prompt) else "en"
-        _label = split_prompt_message(prompt, lang=lang)
-        label = label_cleaning(_label)
+        _label = label_cleaning(prompt)
+        _label = split_prompt_message(_label, lang=lang)
+        self.label = _label
 
-        focus_label = self.modelhub.label_alias.get(label)
-        if not focus_label:
-            logger.debug("Types of challenges not yet scheduled", label=label, prompt=prompt)
-            return response
+    def rank_models(
+        self, nested_models: List[str], example_paths: List[Path | bytes]
+    ) -> ResNetControl | None:
+        # {{< Rank ResNet Models >}}
+        rank_ladder = []
+        for example_path in example_paths:
+            if isinstance(example_path, bytes):
+                img_stream = example_path
+            elif isinstance(example_path, Path):
+                img_stream = example_path.read_bytes()
+            else:
+                continue
 
-        focus_name = focus_label if focus_label.endswith(".onnx") else f"{focus_label}.onnx"
-        net = self.modelhub.match_net(focus_name)
-        control = ResNetControl.from_pluggable_model(net)
+            for model_name in nested_models:
+                net = self.modelhub.match_net(focus_name=model_name)
+                control = ResNetControl.from_pluggable_model(net)
+                result_, proba = control.execute(img_stream, proba=True)
+                if result_:
+                    rank_ladder.append([control, model_name, proba])
+                    if proba[0] > 0.87:
+                        break
 
+        # {{< Catch-all Rules >}}
+        if rank_ladder:
+            alts = sorted(rank_ladder, key=lambda x: x[-1][0], reverse=True)
+            best_model, model_name = alts[0][0], alts[0][1]
+            self.model_name = model_name
+            return best_model
+
+    def inference(self, images: List[Path | bytes], control: ResNetControl):
         for image in images:
             try:
                 if isinstance(image, Path):
                     if not image.exists():
-                        response.append(None)
+                        self.response.append(None)
                         continue
                     image = image.read_bytes()
                 if isinstance(image, bytes):
-                    result = control.binary_classify(image)
-                    response.append(result)
+                    result = control.execute(image)
+                    self.response.append(result)
                 else:
-                    response.append(None)
+                    self.response.append(None)
             except Exception as err:
-                logger.debug(str(err), label=focus_label, prompt=prompt)
-                response.append(None)
+                logger.debug(str(err), prompt=self.prompt)
+                self.response.append(None)
 
-        return response
+    def execute(
+        self,
+        prompt: str,
+        images: List[Path | bytes],
+        example_paths: List[Path | bytes] | None = None,
+    ) -> List[bool | None]:
+        self.response = []
+
+        self._parse_label(prompt)
+
+        # Match: model ranker
+        if nested_models := self.modelhub.nested_categories.get(self.label, []):
+            if model := self.rank_models(nested_models, example_paths):
+                self.inference(images, model)
+        # Match: common binary classification
+        elif focus_label := self.modelhub.label_alias.get(self.label):
+            self.model_name = (
+                focus_label if focus_label.endswith(".onnx") else f"{focus_label}.onnx"
+            )
+            net = self.modelhub.match_net(self.model_name)
+            control = ResNetControl.from_pluggable_model(net)
+            self.inference(images, control)
+        # Match: Unknown cases
+        else:
+            logger.debug("Types of challenges not yet scheduled", label=self.label, prompt=prompt)
+
+        return self.response
 
 
 class LocalBinaryClassifier:
@@ -68,4 +120,4 @@ class LocalBinaryClassifier:
 
     def parse_once(self, image: bytes) -> bool | None:
         with suppress(Exception):
-            return self.model.binary_classify(image)
+            return self.model.execute(image)

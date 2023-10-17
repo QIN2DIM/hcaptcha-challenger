@@ -6,12 +6,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Tuple
 
 import cv2
 import numpy as np
 from cv2.dnn import Net
 from loguru import logger
+from scipy.special import expit
 
 
 class ChallengeStyle:
@@ -28,7 +29,7 @@ class ResNetControl:
     def from_pluggable_model(cls, net: Net):
         return cls(net=net)
 
-    def binary_classify(self, img_stream: Any):
+    def binary_classify(self, img_stream: Any) -> bool | Tuple[bool, np.ndarray]:
         img_arr = np.frombuffer(img_stream, np.uint8)
         img = cv2.imdecode(img_arr, flags=1)
 
@@ -45,10 +46,20 @@ class ResNetControl:
             return False
         self.net.setInput(blob)
         out = self.net.forward()
+        logit = out[0]
+        proba = expit(logit)
         if not np.argmax(out, axis=1)[0]:
-            return True
-        return False
+            return True, proba
+        return False, proba
 
-    def execute(self, img_stream: bytes, **kwargs) -> bool | None:
+    def execute(self, img_stream: bytes, **kwargs) -> bool | Tuple[bool, np.ndarray]:
         """Implementation process of solution"""
-        return self.binary_classify(img_stream)
+        get_proba = kwargs.get("proba", False)
+        result = self.binary_classify(img_stream)
+        if result is None or isinstance(result, bool):
+            return result
+        if isinstance(result, tuple):
+            prediction, confidence = result
+            if get_proba is True:
+                return prediction, confidence
+            return prediction
