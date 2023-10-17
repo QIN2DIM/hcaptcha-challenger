@@ -4,13 +4,14 @@ branches:
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 circle_seg: appears_only_once_2309_yolov8s-seg.onnx
 nested_categories:
+  electronic device:
+    - nested_electronic_device2309.onnx
+    - electronic_device2315.onnx
   please click on the largest animal:
   - nested_largest_rabbit2310.onnx
   - nested_largest_hedgehog2309.onnx
   - nested_largest_raccoon2309.onnx
   - nested_largest_elephant2309.onnx
-  please click on the smallest animal:
-  - nested_smallest_rabbit2309.onnx
 ashes_of_war:
   appears_only_once_2309_yolov8s-seg.onnx:
   - the-one-piece
