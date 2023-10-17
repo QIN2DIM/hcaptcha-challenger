@@ -468,13 +468,25 @@ class Radagon:
             results = detector(path, shape_type="point")
             self.modelhub.unplug()
             img, circles = annotate_objects(str(path))
+            # Extract point coordinates
             if results:
                 circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
                 logger.debug(
                     "select model", yolo=model_name, trident=trident.__name__, ash=self.ash
                 )
-            if circles:
-                if result := trident(img, circles):
+            # Filter points outside the bounding box
+            edge_circles = []
+            if len(self._example_paths) == 0:
+                edge_circles = circles
+            else:
+                for circle in circles:
+                    x, y, r = circle
+                    if y < 20 or y > 520 or x < 91 or x > 400:
+                        continue
+                    edge_circles.append([x, y, r])
+            # Find targets with special semantics
+            if edge_circles:
+                if result := trident(img, edge_circles):
                     x, y, _ = result
                     return {"x": int(x), "y": int(y)}
 
