@@ -5,8 +5,8 @@ branches:
 circle_seg: appears_only_once_2309_yolov8s-seg.onnx
 nested_categories:
   electronic device:
-    - nested_electronic_device2309.onnx
-    - electronic_device2315.onnx
+  - nested_electronic_device2309.onnx
+  - electronic_device2315.onnx
   please click on the largest animal:
   - nested_largest_rabbit2310.onnx
   - nested_largest_hedgehog2309.onnx
@@ -529,3 +529,6 @@ label_alias:
   hat2310:
     en:
     - hat
+  3d_printer2309:
+    en:
+    - ''
