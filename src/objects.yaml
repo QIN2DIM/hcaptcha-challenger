@@ -533,4 +533,7 @@ label_alias:
     - hat
   3d_printer2309:
     en:
-    - '3d printer'
+    - 3d printer
+  vr_headset2309:
+    en:
+    - vr headset
