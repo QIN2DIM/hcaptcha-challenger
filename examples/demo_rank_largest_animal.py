@@ -12,15 +12,16 @@ solver.install(upgrade=True)
 
 prompt = "Please click on the largest animal."
 
-data_dir = Path(__file__).parent.joinpath("largest_animal")
+assets_dir = Path(__file__).parent.parent.joinpath("assets")
 
 pending_keys = ["hedgehog", "rabbit", "raccoon"]
 
 
 def bytedance():
     for pk in pending_keys:
-        example_paths = [data_dir.joinpath(f"example_{pk}.png")]
-        images_dir = data_dir.joinpath(pk)
+        images_dir = assets_dir.joinpath("please click on the largest animal")
+        example_paths = [images_dir.joinpath(f"example_{pk}.png")]
+        images_dir = images_dir.joinpath(pk)
         image_paths = [images_dir.joinpath(image_name) for image_name in os.listdir(images_dir)]
 
         classifier = solver.BinaryClassifier()
