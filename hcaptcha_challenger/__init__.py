@@ -19,7 +19,6 @@ from hcaptcha_challenger.components.prompt_handler import (
     split_prompt_message,
     prompt2task,
 )
-from hcaptcha_challenger.onnx.modelhub import DEFAULT_KEYPOINT_MODEL
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8
@@ -35,7 +34,6 @@ __all__ = [
     "split_prompt_message",
     "prompt2task",
     "ModelHub",
-    "DEFAULT_KEYPOINT_MODEL",
     "ResNetControl",
     "YOLOv8",
     "YOLOv8Seg",
@@ -63,18 +61,23 @@ def install(
     username: str = "QIN2DIM",
     lang: str = "en",
     flush_yolo: bool | Iterable[str] = False,
+    pypi: bool = False,
+    **kwargs,
 ):
+    if pypi is True:
+        from hcaptcha_challenger.utils import PyPI
+
+        PyPI("hcaptcha-challenger").install()
+
     modelhub = ModelHub.from_github_repo(username=username, lang=lang)
     modelhub.pull_objects(upgrade=upgrade)
     modelhub.assets.flush_runtime_assets(upgrade=upgrade)
 
     if flush_yolo is not None:
-        from hcaptcha_challenger.onnx.modelhub import DEFAULT_KEYPOINT_MODEL
-
         modelhub.parse_objects()
 
         if isinstance(flush_yolo, bool) and flush_yolo:
-            flush_yolo = [DEFAULT_KEYPOINT_MODEL]
+            flush_yolo = [modelhub.circle_segment_model]
         if isinstance(flush_yolo, Iterable):
             pending_models = []
             for model_name in flush_yolo:

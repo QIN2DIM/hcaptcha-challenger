@@ -7,8 +7,10 @@ from __future__ import annotations
 
 import inspect
 import random
+import subprocess
 import sys
 import uuid
+from shlex import quote
 from typing import Dict, Any, Literal
 
 from loguru import logger
@@ -118,3 +120,18 @@ class SiteKey:
         ]
         k = random.choice(ks)
         return f"https://accounts.hcaptcha.com/demo?sitekey={k}"
+
+
+class PyPI:
+    _prefix = f"{sys.executable} -m pip "
+
+    def __init__(self, pkg: str):
+        self.pkg = quote(pkg)
+
+    def install(self):
+        cmd = f"{self._prefix} install -q -U {self.pkg}".split()
+        subprocess.check_call(cmd)
+
+    def uninstall(self):
+        cmd = f"{self._prefix} uninstall -q -y {self.pkg}".split()
+        subprocess.check_call(cmd)
