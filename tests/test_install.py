@@ -57,6 +57,7 @@ def test_install(upgrade, flush_yolo):
         elif flush_yolo is True:
             assert isinstance(pending_models, list)
             assert len(pending_models) == 1
+            assert pending_models[0] == modelhub.circle_segment_model
             if upgrade:
                 assert modelhub.models_dir.joinpath(pending_models[0]).exists()
     elif isinstance(flush_yolo, typing.Iterable):

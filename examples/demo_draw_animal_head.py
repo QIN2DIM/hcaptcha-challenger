@@ -22,10 +22,10 @@ def spawn(model_name, images_dir, output_dir):
 
 def demo():
     groups = [
-            ("please click on the head of the animal", "default"),
-            ("please click on the head of the animal", "polarbearonthesnow"),
-            ("please click on the head of the animal", "zebraonthedesert"),
-        ]
+        ("please click on the head of the animal", "default"),
+        ("please click on the head of the animal", "polarbearonthesnow"),
+        ("please click on the head of the animal", "zebraonthedesert"),
+    ]
     assets_dir = Path(__file__).parent.parent.joinpath("assets", "image_label_area_select")
     model_name = "head_of_the_animal_2310_yolov8s.onnx"
 
