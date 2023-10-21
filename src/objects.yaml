@@ -7,9 +7,6 @@ nested_categories:
   plant:
   - nested_plant2311.onnx
   - plant2319.onnx
-  electronic device:
-  - nested_electronic_device2309.onnx
-  - electronic_device2315.onnx
   please click on the largest animal:
   - nested_largest_horse2309.onnx
   - nested_largest_rabbit2310.onnx
