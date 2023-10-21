@@ -17,6 +17,8 @@ nested_categories:
   - nested_largest_raccoon2309.onnx
   - nested_largest_elephant2309.onnx
 ashes_of_war:
+  burl_head_of_the_lion_2309_yolov8s.onnx:
+  - animal-head
   can_run_2309_yolov8s.onnx:
   - can-run
   appears_only_once_2309_yolov8s-seg.onnx:
