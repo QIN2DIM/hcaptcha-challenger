@@ -13,11 +13,7 @@ nested_categories:
   - nested_largest_hedgehog2309.onnx
   - nested_largest_raccoon2309.onnx
   - nested_largest_elephant2309.onnx
-#  please click on the lion's head:
-#  - burl_head_of_the_lion_2309_yolov8s.onnx
 ashes_of_war:
-#  burl_head_of_the_lion_2309_yolov8s.onnx:
-#  - animal-head
   can_run_2309_yolov8s.onnx:
   - can-run
   appears_only_once_2309_yolov8s-seg.onnx:
@@ -450,11 +446,6 @@ label_alias:
     - 娱乐场所
     en:
     - entertainment venue
-  electronic_device2315:
-    zh:
-    - 电子设备
-    en:
-    - electronic device
   pizza2300:
     en:
     - pizza
@@ -545,6 +536,11 @@ label_alias:
     - motorized machine
   natural_landscape2314:
     zh:
-      - 自然景观
+    - 自然景观
     en:
-      - natural landscape
+    - natural landscape
+  electronic_device2316:
+    zh:
+    - 电子设备
+    en:
+    - electronic device
