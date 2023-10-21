@@ -1,2 +1,3 @@
 *.png binary
 *.js linguist-language=Python
+*.yaml text eol=crlf
