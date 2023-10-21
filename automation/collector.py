@@ -3,6 +3,8 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
+from __future__ import annotations
+
 import asyncio
 import hashlib
 import os
@@ -190,7 +192,7 @@ def load_gravitas_from_issues() -> List[Gravitas]:
     for issue in issue_repo.get_issues(
         labels=issue_labels,
         state="all",  # fixme `open`
-        since=datetime.now() - timedelta(days=9),  # fixme `24hours`
+        since=datetime.now() - timedelta(days=90),  # fixme `24hours`
     ):
         if not isinstance(issue.body, str):
             continue
