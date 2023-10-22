@@ -535,9 +535,6 @@ label_alias:
   pair_of_roller_skates2310:
     en:
     - pair of roller skates
-  motorized_machine2310:
-    en:
-    - motorized machine
   natural_landscape2314:
     zh:
     - 自然景观
@@ -548,3 +545,6 @@ label_alias:
     - 电子设备
     en:
     - electronic device
+  motorized_machine2311:
+    en:
+    - motorized machine
