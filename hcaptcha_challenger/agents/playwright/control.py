@@ -15,7 +15,7 @@ import uuid
 from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Any, Literal
+from typing import List, Dict, Any, Literal, Iterable
 
 from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position
@@ -313,7 +313,7 @@ class Radagon:
         _label = split_prompt_message(_label, lang="en")
         self._label = _label
 
-    async def _download_images(self):
+    async def _download_images(self, ignore_examples: bool = False):
         request_type = self.qr.request_type
         ks = list(self.qr.requester_restricted_answer_set.keys())
         if len(ks) > 0:
@@ -332,12 +332,13 @@ class Radagon:
             tasks.append(asyncio.create_task(ciri.elder_blood(context)))
 
         examples = []
-        with suppress(Exception):
-            for i, uri in enumerate(self.qr.requester_question_example):
-                example_img_path = self.typed_dir.joinpath(f"{time.time()}.exp.{i}.png")
-                context = (example_img_path, uri)
-                examples.append(context)
-                tasks.append(asyncio.create_task(ciri.elder_blood(context)))
+        if not ignore_examples:
+            with suppress(Exception):
+                for i, uri in enumerate(self.qr.requester_question_example):
+                    example_img_path = self.typed_dir.joinpath(f"{time.time()}.exp.{i}.png")
+                    context = (example_img_path, uri)
+                    examples.append(context)
+                    tasks.append(asyncio.create_task(ciri.elder_blood(context)))
 
         await asyncio.gather(*tasks)
 
@@ -444,9 +445,9 @@ class Radagon:
                 await self.page.wait_for_timeout(1000)
 
     async def _keypoint_default_challenge(self, frame_challenge: FrameLocator):
-        def lookup_objects(deep: int = 6) -> Position[str, str] | None:
+        def lookup_objects(_iter_launcher: Iterable, deep: int = 6) -> Position[str, str] | None:
             count = 0
-            for focus_name, classes in self.modelhub.lookup_ash_of_war(self.ash):
+            for focus_name, classes in _iter_launcher:
                 count += 1
                 session = self.modelhub.match_net(focus_name=focus_name)
                 detector = YOLOv8.from_pluggable_model(session, classes)
@@ -499,12 +500,22 @@ class Radagon:
             path = self.tmp_dir.joinpath("_challenge", f"{uuid.uuid4()}.png")
             image = await locator.screenshot(path=path, type="png")
 
-            if "appears only once" in self.ash or "never repeated" in self.ash:
+            position = None
+            launcher = []
+
+            if nested_models := self.nested_categories.get(self._label, []):
+                for model_name in nested_models:
+                    element = model_name, self.modelhub.ashes_of_war.get(model_name, [])
+                    launcher.append(element)
+                if launcher:
+                    position = lookup_objects(launcher)
+            elif "appears only once" in self.ash or "never repeated" in self.ash:
                 position = lookup_unique_object(trident=find_unique_object)
             elif "shapes are of the same color" in self.ash:
                 position = lookup_unique_object(trident=find_unique_color)
             else:
-                position = lookup_objects()
+                launcher = self.modelhub.lookup_ash_of_war(self.ash)
+                position = lookup_objects(launcher)
 
             if position:
                 await locator.click(delay=500, position=position)
@@ -707,5 +718,5 @@ class AgentT(Radagon):
         if not self.qr.requester_question.keys():
             return
         self._parse_label()
-        await self._download_images()
+        await self._download_images(ignore_examples=True)
         return self._label
