@@ -5,16 +5,22 @@
 # Description:
 
 
-def test_common_classifier():
-    from examples import demo_common_classifier
+def test_demo_classifier_common():
+    from examples import demo_classifier_common
 
-    demo_common_classifier.bytedance()
+    demo_classifier_common.bytedance()
 
 
-def test_common_detector():
-    from examples import demo_common_detector
+def test_demo_classifier_clip():
+    from examples import demo_classifier_clip
 
-    demo_common_detector.bytedance()
+    demo_classifier_clip.auto_labeling()
+
+
+def test_demo_detector_common():
+    from examples import demo_detector_common
+
+    demo_detector_common.bytedance()
 
 
 def test_draw_animal_head():

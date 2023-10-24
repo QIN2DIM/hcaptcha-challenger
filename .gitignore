@@ -149,3 +149,5 @@ examples/*.png
 docs/*.xmind
 tests_private/
 .run/
+assets/image_label_binary/off_road_vehicle/yes
+assets/image_label_binary/off_road_vehicle/bad
