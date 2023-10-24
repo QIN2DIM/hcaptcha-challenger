@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import List, Union, Iterable
 
-import cv2 as cv
+import cv2
 import ftfy
 import numpy as np
 import regex as re
@@ -225,7 +225,7 @@ class Preprocessor:
             img_pil = img_pil.resize((resized_w, resized_h), resample=Image.BICUBIC)
             img = np.array(img_pil).astype(np.float32) / 255
         else:
-            img = cv.resize(img, (resized_w, resized_h), interpolation=cv.INTER_CUBIC)
+            img = cv2.resize(img, (resized_w, resized_h), interpolation=cv2.INTER_CUBIC)
 
         # Now crop to a square
         y_from = (resized_h - target_size) // 2
