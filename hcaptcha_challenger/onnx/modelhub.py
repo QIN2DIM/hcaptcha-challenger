@@ -241,6 +241,9 @@ class ModelHub:
     nested_categories: Dict[str, List[str]] = field(default_factory=dict)
     circle_segment_model: str = field(default=str)
 
+    DEFAULT_CLIP_VISUAL_MODEL: str = "visual_CLIP-ViT-L-14-DataComp.XL-s13B-b90K.onnx"
+    DEFAULT_CLIP_TEXTUAL_MODEL: str = "textual_CLIP-ViT-L-14-DataComp.XL-s13B-b90K.onnx"
+
     release_url: str = ""
     objects_url: str = ""
 
@@ -342,7 +345,7 @@ class ModelHub:
             and model_path.stat().st_size
             and not self.assets.is_outdated(focus_name)
         ):
-            if "yolo" in focus_name:
+            if "yolo" in focus_name.lower() or "clip" in focus_name.lower():
                 net = onnxruntime.InferenceSession(
                     model_path, providers=onnxruntime.get_available_providers()
                 )

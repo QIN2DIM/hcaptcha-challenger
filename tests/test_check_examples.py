@@ -6,13 +6,13 @@
 
 
 def test_common_classifier():
-    from examples import demo_common_classifier
+    from examples import demo_classifier_common
 
     demo_common_classifier.bytedance()
 
 
 def test_common_detector():
-    from examples import demo_common_detector
+    from examples import demo_detector_common
 
     demo_common_detector.bytedance()
 
