@@ -35,7 +35,7 @@ python = "^3.8"
 
 # Run `poetry install` in the project root
 opencv-python = "^4.8.0.76"
-numpy = "^1.26.1"
+numpy = "^1.24.4"
 httpx = { version = "*", extras = ["http2"] }
 onnxruntime = "^1.16.1"
 loguru = "*"
