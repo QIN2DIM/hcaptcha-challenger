@@ -16,14 +16,13 @@ from hcaptcha_challenger.agents import AgentT
 from hcaptcha_challenger.utils import SiteKey
 
 # Init local-side of the ModelHub
-solver.install(upgrade=True)
+clip_available = True
+solver.install(upgrade=True, clip=clip_available)
 
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
 sitekey = SiteKey.user_easy
-
-clip_available = True
 
 
 @logger.catch
