@@ -552,7 +552,7 @@ label_alias:
     - furniture
   off_road_vehicle2310:
     en:
-    - off road vehicle
+    - off-road vehicle
 datalake:
   furniture:
     positive_labels:
