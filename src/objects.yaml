@@ -295,11 +295,11 @@ label_alias:
     - 狐狸
     en:
     - fox
-  furniture2309:
-    zh:
-    - 家具
-    en:
-    - furniture
+#  furniture2309:
+#    zh:
+#    - 家具
+#    en:
+#    - furniture
   helicopter2310:
     zh:
     - 直升机
