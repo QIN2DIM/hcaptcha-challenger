@@ -8,4 +8,4 @@ from __future__ import annotations
 import hcaptcha_challenger as solver
 
 if __name__ == "__main__":
-    solver.install(upgrade=False, pypi=False, flush_yolo=False)
+    solver.install(upgrade=False, pypi=False, flush_yolo=False, clip=False)

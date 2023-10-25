@@ -55,7 +55,7 @@ def auto_labeling():
 
     # !! IMPORT !!
     # Prompt: "Please click each image containing an off-road vehicle"
-    data_lake = DataLake.from_prompts(
+    data_lake = DataLake.from_binary_labels(
         positive_labels=["off-road vehicle"], negative_labels=["bicycle", "car"]
     )
 
@@ -76,7 +76,7 @@ def auto_labeling():
             results = tool(model, image)
 
             # we're only dealing with binary classification tasks here
-            if results[0]["label"] in data_lake.positive_labels:
+            if results[0]["label"] in tool.positive_labels:
                 output_path = yes_dir.joinpath(image_name)
             else:
                 output_path = bad_dir.joinpath(image_name)

@@ -551,3 +551,17 @@ label_alias:
   off_road_vehicle2309:
     en:
     - off road vehicle
+datalake:
+  off-road vehicle:
+    positive_labels:
+      - off-road vehicle
+    negative_labels:
+      - car
+      - bicycle
+  pair of headphones:
+    positive_labels:
+      - pair of headphones
+    negative_labels:
+      - elephant
+      - car
+      - cat

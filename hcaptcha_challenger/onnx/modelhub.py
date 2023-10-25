@@ -240,6 +240,7 @@ class ModelHub:
 
     nested_categories: Dict[str, List[str]] = field(default_factory=dict)
     circle_segment_model: str = field(default=str)
+    datalake: Dict[str, DataLake] = field(default_factory=dict)
 
     DEFAULT_CLIP_VISUAL_MODEL: str = "visual_CLIP-ViT-L-14-DataComp.XL-s13B-b90K.onnx"
     DEFAULT_CLIP_TEXTUAL_MODEL: str = "textual_CLIP-ViT-L-14-DataComp.XL-s13B-b90K.onnx"
@@ -308,6 +309,12 @@ class ModelHub:
         self.circle_segment_model = data.get(
             "circle_seg", "appears_only_once_2309_yolov8s-seg.onnx"
         )
+
+        datalake = data.get("datalake", {})
+        if datalake:
+            for prompt, serialized_binary in datalake.items():
+                datalake[prompt] = DataLake.from_serialized(serialized_binary)
+        self.datalake = datalake
 
     def pull_model(self, focus_name: str):
         """
@@ -438,3 +445,55 @@ class ModelHub:
                 for class_name in covered_class:
                     if class_name in ash:
                         yield model_name, covered_class
+
+
+@dataclass
+class DataLake:
+    positive_labels: List[str] = field(default_factory=list)
+    """
+    Indicate the label with the meaning "True", 
+    preferably an independent noun or clause
+    """
+
+    negative_labels: List[str] = field(default_factory=list)
+    """
+    Indicate the label with the meaning "False", 
+    preferably an independent noun or clause
+    """
+
+    joined_dirs: List[str] | None = None
+    """
+    Attributes reserved for AutoLabeling
+    Used to indicate the directory where the dataset is located
+
+    input_dir = db_dir.joinpath(*joined_dirs).absolute()
+    """
+
+    raw_prompt: str = ""
+    """
+    Challenge prompt or keywords after being divided
+    
+    !! IMPORT !!
+    Only for unsupervised challenges.
+    Please do not read in during the initialization phase.
+    """
+
+    @classmethod
+    def from_challenge_prompt(cls, raw_prompt: str):
+        return cls(raw_prompt=raw_prompt)
+
+    @classmethod
+    def from_serialized(cls, fields: Dict[str, List[str]]):
+        positive_labels = []
+        negative_labels = []
+        for kb, labels in fields.items():
+            kb = kb.lower()
+            if "pos" in kb or kb.startswith("t"):
+                positive_labels = labels
+            elif "neg" in kb or kb.startswith("f"):
+                negative_labels = labels
+        return cls(positive_labels=positive_labels, negative_labels=negative_labels)
+
+    @classmethod
+    def from_binary_labels(cls, positive_labels: List[str], negative_labels: List[str]):
+        return cls(positive_labels=positive_labels, negative_labels=negative_labels)
