@@ -13,6 +13,7 @@ nested_categories:
   - nested_largest_hedgehog2309.onnx
   - nested_largest_raccoon2309.onnx
   - nested_largest_elephant2309.onnx
+  - nested_largest_turtle2309.onnx
   please click on the turtle's head:
   - head_of_the_animal_turtle_2309_yolov8s.onnx
 ashes_of_war:
@@ -546,9 +547,6 @@ label_alias:
   off_road_vehicle2309:
     en:
     - off road vehicle
-  nested_largest_turtle2309:
-    en:
-    - nested largest turtle
 datalake:
   furniture:
     positive_labels:
