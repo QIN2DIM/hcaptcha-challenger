@@ -70,6 +70,7 @@ def install(
     lang: str = "en",
     flush_yolo: bool | Iterable[str] = False,
     pypi: bool = False,
+    clip: bool = False,
     **kwargs,
 ):
     if pypi is True:
@@ -80,6 +81,11 @@ def install(
     modelhub = ModelHub.from_github_repo(username=username, lang=lang)
     modelhub.pull_objects(upgrade=upgrade)
     modelhub.assets.flush_runtime_assets(upgrade=upgrade)
+
+    if clip is True:
+        from hcaptcha_challenger.components.zero_shot_image_classifier import register_pipline
+
+        register_pipline(modelhub)
 
     if flush_yolo is not None:
         modelhub.parse_objects()

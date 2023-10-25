@@ -20,7 +20,7 @@ from typing import List, Dict, Any, Literal, Iterable
 from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position
 from playwright.async_api import TimeoutError
-
+from PIL import Image
 from hcaptcha_challenger.components.cv_toolkit import (
     find_unique_object,
     annotate_objects,
@@ -28,8 +28,12 @@ from hcaptcha_challenger.components.cv_toolkit import (
 )
 from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
-from hcaptcha_challenger.onnx.modelhub import ModelHub
+from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
+from hcaptcha_challenger.components.zero_shot_image_classifier import (
+    ZeroShotImageClassifier,
+    register_pipline,
+)
 from hcaptcha_challenger.onnx.yolo import (
     YOLOv8,
     YOLOv8Seg,
@@ -607,6 +611,37 @@ class Radagon:
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
 
+    async def _binary_challenge_clip(self, frame_challenge: FrameLocator, model=None):
+        dl = self.modelhub.datalake.get(self._label)
+        if not dl:
+            dl = DataLake.from_challenge_prompt(raw_prompt=self._label)
+        tool = ZeroShotImageClassifier.from_datalake(dl)
+        model = model or register_pipline(self.modelhub)
+
+        # {{< IMAGE CLASSIFICATION >}}
+        times = int(len(self.qr.tasklist) / 9)
+        for pth in range(times):
+            samples = frame_challenge.locator("//div[@class='task-image']")
+            count = await samples.count()
+            await self.page.wait_for_timeout(600)
+            positive_cases = 0
+            for i in range(count):
+                sample = samples.nth(i)
+                await sample.wait_for()
+                results = tool(model, image=Image.open(self._img_paths[i + pth * 9]))
+                if results[0]["label"] in tool.positive_labels:
+                    positive_cases += 1
+                    with suppress(TimeoutError):
+                        time.sleep(random.uniform(0.1, 0.3))
+                        await sample.click(delay=200)
+                elif positive_cases == 0 and pth == times - 1 and i == count - 1:
+                    await sample.click(delay=200)
+
+            # {{< Verify >}}
+            with suppress(TimeoutError):
+                fl = frame_challenge.locator("//div[@class='button-submit button']")
+                await fl.click()
+
     async def _is_success(self):
         self.cr = await self.cr_queue.get()
         if not self.cr or not self.cr.is_pass:
@@ -664,6 +699,7 @@ class AgentT(Radagon):
 
     async def execute(self, **kwargs) -> str | None:
         window = kwargs.get("window", "login")
+        unsupervised = kwargs.get("unsupervised", False)
 
         frame_challenge = self._switch_to_challenge_frame(self.page, window)
 
@@ -687,6 +723,8 @@ class AgentT(Radagon):
                     return self.status.CHALLENGE_BACKCALL
             elif self.label_alias.get(self._label):
                 await self._binary_challenge(frame_challenge)
+            elif unsupervised is True:
+                await self._binary_challenge_clip(frame_challenge)
             else:
                 return self.status.CHALLENGE_BACKCALL
         # Match: image_label_area_select
