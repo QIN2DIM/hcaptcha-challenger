@@ -544,15 +544,15 @@ label_alias:
   motorized_machine2311:
     en:
     - motorized machine
-  off_road_vehicle2309:
-    en:
-    - off road vehicle
   pair_of_headphones2309:
     en:
     - pair of headphones
   furniture2310:
     en:
     - furniture
+  off_road_vehicle2310:
+    en:
+    - off road vehicle
 datalake:
   furniture:
     positive_labels:
