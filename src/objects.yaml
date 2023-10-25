@@ -547,6 +547,9 @@ label_alias:
   off_road_vehicle2309:
     en:
     - off road vehicle
+  pair_of_headphones2309:
+    en:
+    - pair of headphones
 datalake:
   furniture:
     positive_labels:
