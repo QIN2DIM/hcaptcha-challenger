@@ -461,7 +461,7 @@ class DataLake:
     preferably an independent noun or clause
     """
 
-    joined_dirs: List[str] | None = None
+    joined_dirs: List[str] | Path | None = None
     """
     Attributes reserved for AutoLabeling
     Used to indicate the directory where the dataset is located
