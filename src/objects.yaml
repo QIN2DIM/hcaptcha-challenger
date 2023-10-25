@@ -295,11 +295,6 @@ label_alias:
     - 狐狸
     en:
     - fox
-#  furniture2309:
-#    zh:
-#    - 家具
-#    en:
-#    - furniture
   helicopter2310:
     zh:
     - 直升机
@@ -551,25 +546,28 @@ label_alias:
   off_road_vehicle2309:
     en:
     - off road vehicle
+  nested_largest_turtle2309:
+    en:
+    - nested largest turtle
 datalake:
   furniture:
     positive_labels:
-      - furniture
+    - furniture
     negative_labels:
-      - headphones
-      - guitar
-      - game tool
-      - keyboard
+    - headphones
+    - guitar
+    - game tool
+    - keyboard
   off-road vehicle:
     positive_labels:
-      - off-road vehicle
+    - off-road vehicle
     negative_labels:
-      - car
-      - bicycle
+    - car
+    - bicycle
   pair of headphones:
     positive_labels:
-      - pair of headphones
+    - pair of headphones
     negative_labels:
-      - elephant
-      - car
-      - cat
+    - elephant
+    - car
+    - cat
