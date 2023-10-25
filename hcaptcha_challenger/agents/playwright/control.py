@@ -640,7 +640,6 @@ class Radagon:
         for pth in range(times):
             samples = frame_challenge.locator("//div[@class='task-image']")
             count = await samples.count()
-            await self.page.wait_for_timeout(600)
             positive_cases = 0
             for i in range(count):
                 sample = samples.nth(i)
@@ -649,7 +648,6 @@ class Radagon:
                 if results[0]["label"] in tool.positive_labels:
                     positive_cases += 1
                     with suppress(TimeoutError):
-                        time.sleep(random.uniform(0.1, 0.3))
                         await sample.click(delay=200)
                 elif positive_cases == 0 and pth == times - 1 and i == count - 1:
                     await sample.click(delay=200)
