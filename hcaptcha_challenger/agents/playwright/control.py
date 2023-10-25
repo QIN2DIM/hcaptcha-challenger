@@ -17,10 +17,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Dict, Any, Literal, Iterable
 
+from PIL import Image
 from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position
 from playwright.async_api import TimeoutError
-from PIL import Image
+
 from hcaptcha_challenger.components.cv_toolkit import (
     find_unique_object,
     annotate_objects,
@@ -28,12 +29,12 @@ from hcaptcha_challenger.components.cv_toolkit import (
 )
 from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
-from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
-from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.components.zero_shot_image_classifier import (
     ZeroShotImageClassifier,
     register_pipline,
 )
+from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
+from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import (
     YOLOv8,
     YOLOv8Seg,
@@ -240,6 +241,9 @@ class Radagon:
     HOOK_CHECKBOX = "//iframe[contains(@title, 'checkbox for hCaptcha')]"
     HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
 
+    self_supervised: bool = False
+    clip_model = None
+
     def __post_init__(self):
         self.challenge_dir = self.tmp_dir.joinpath("_challenge")
         self.record_json_dir = self.tmp_dir.joinpath("record_json")
@@ -252,6 +256,9 @@ class Radagon:
         self.cr_queue = asyncio.Queue()
 
         self.handle_question_resp(self.page)
+
+        if self.self_supervised is True:
+            self.clip_model = register_pipline(self.modelhub)
 
     async def handler(self, response: Response):
         if response.url.startswith("https://hcaptcha.com/getcaptcha/"):
@@ -274,12 +281,16 @@ class Radagon:
 
     @classmethod
     def from_page(cls, page: Page, tmp_dir=None, **kwargs):
+        self_supervised = kwargs.get("self_supervised", False)
+
         modelhub = ModelHub.from_github_repo(**kwargs)
         modelhub.parse_objects()
 
         if tmp_dir and isinstance(tmp_dir, Path):
-            return cls(page=page, modelhub=modelhub, tmp_dir=tmp_dir)
-        return cls(page=page, modelhub=modelhub)
+            return cls(
+                page=page, modelhub=modelhub, tmp_dir=tmp_dir, self_supervised=self_supervised
+            )
+        return cls(page=page, modelhub=modelhub, self_supervised=self_supervised)
 
     @property
     def status(self):
@@ -611,12 +622,18 @@ class Radagon:
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
 
-    async def _binary_challenge_clip(self, frame_challenge: FrameLocator, model=None):
+    async def _binary_challenge_clip(self, frame_challenge: FrameLocator, model):
         dl = self.modelhub.datalake.get(self._label)
         if not dl:
             dl = DataLake.from_challenge_prompt(raw_prompt=self._label)
         tool = ZeroShotImageClassifier.from_datalake(dl)
-        model = model or register_pipline(self.modelhub)
+
+        logger.debug(
+            "unsupervised",
+            type="binary",
+            candidate_labels=tool.candidate_labels,
+            prompt=self._prompt,
+        )
 
         # {{< IMAGE CLASSIFICATION >}}
         times = int(len(self.qr.tasklist) / 9)
@@ -699,7 +716,6 @@ class AgentT(Radagon):
 
     async def execute(self, **kwargs) -> str | None:
         window = kwargs.get("window", "login")
-        unsupervised = kwargs.get("unsupervised", False)
 
         frame_challenge = self._switch_to_challenge_frame(self.page, window)
 
@@ -723,8 +739,8 @@ class AgentT(Radagon):
                     return self.status.CHALLENGE_BACKCALL
             elif self.label_alias.get(self._label):
                 await self._binary_challenge(frame_challenge)
-            elif unsupervised is True:
-                await self._binary_challenge_clip(frame_challenge)
+            elif self.clip_model:
+                await self._binary_challenge_clip(frame_challenge, self.clip_model)
             else:
                 return self.status.CHALLENGE_BACKCALL
         # Match: image_label_area_select

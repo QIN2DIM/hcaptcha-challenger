@@ -23,17 +23,19 @@ tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
 sitekey = SiteKey.user_easy
 
+clip_available = True
+
 
 @logger.catch
 async def hit_challenge(context: ASyncContext, times: int = 8):
     page = await context.new_page()
-    agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
+    agent = AgentT.from_page(page=page, tmp_dir=tmp_dir, self_supervised=clip_available)
     await page.goto(SiteKey.as_sitelink(sitekey))
 
     await agent.handle_checkbox()
 
     for pth in range(1, times):
-        result = await agent.execute(unsupervised=True)
+        result = await agent.execute()
         probe = list(agent.qr.requester_restricted_answer_set.keys())
         question = agent.qr.requester_question
         print(f">> {pth} - Challenge Result: {result} - {question=} {probe=}")
