@@ -550,6 +550,9 @@ label_alias:
   pair_of_headphones2309:
     en:
     - pair of headphones
+  furniture2310:
+    en:
+    - furniture
 datalake:
   furniture:
     positive_labels:
