@@ -552,6 +552,13 @@ label_alias:
     en:
     - off road vehicle
 datalake:
+  furniture:
+    positive_labels:
+      - furniture
+    negative_labels:
+      - headphones
+      - guitar
+      - game tool
   off-road vehicle:
     positive_labels:
       - off-road vehicle
