@@ -553,6 +553,9 @@ label_alias:
   off_road_vehicle2310:
     en:
     - off-road vehicle
+  sedan_car2309:
+    en:
+    - sedan car
 datalake:
   furniture:
     positive_labels:
