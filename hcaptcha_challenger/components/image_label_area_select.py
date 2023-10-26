@@ -10,7 +10,7 @@ from typing import List, Literal
 
 from loguru import logger
 
-from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
+from hcaptcha_challenger.components.prompt_handler import handle
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.yolo import YOLOv8
 
@@ -48,9 +48,7 @@ class AreaSelector:
         """
         response = []
 
-        _label = split_prompt_message(prompt, lang="en")
-        label = label_cleaning(_label)
-        ash = f"{label} {answer_key}"
+        ash = f"{handle(prompt)} {answer_key}"
 
         focus_name, classes = self.modelhub.apply_ash_of_war(ash=ash)
         session = self.modelhub.match_net(focus_name=focus_name)

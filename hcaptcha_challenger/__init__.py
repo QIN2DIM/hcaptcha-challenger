@@ -18,6 +18,7 @@ from hcaptcha_challenger.components.prompt_handler import (
     diagnose_task,
     split_prompt_message,
     prompt2task,
+    handle,
 )
 from hcaptcha_challenger.components.zero_shot_image_classifier import (
     ZeroShotImageClassifier,
@@ -41,6 +42,7 @@ __all__ = [
     "diagnose_task",
     "split_prompt_message",
     "prompt2task",
+    "handle",
     "ModelHub",
     "ResNetControl",
     "YOLOv8",

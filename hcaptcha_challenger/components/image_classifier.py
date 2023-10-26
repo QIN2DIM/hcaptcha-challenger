@@ -5,7 +5,6 @@
 # Description:
 from __future__ import annotations
 
-import re
 from contextlib import suppress
 from pathlib import Path
 from typing import List
@@ -13,7 +12,7 @@ from typing import List
 import cv2
 from loguru import logger
 
-from hcaptcha_challenger.components.prompt_handler import label_cleaning, split_prompt_message
+from hcaptcha_challenger.components.prompt_handler import handle
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 
@@ -30,10 +29,7 @@ class Classifier:
 
     def _parse_label(self, prompt: str):
         self.prompt = prompt
-        lang = "zh" if re.compile("[\u4e00-\u9fa5]+").search(prompt) else "en"
-        _label = label_cleaning(prompt)
-        _label = split_prompt_message(_label, lang=lang)
-        self.label = _label
+        self.label = handle(self.prompt)
 
     def rank_models(
         self, nested_models: List[str], example_paths: List[Path | bytes]

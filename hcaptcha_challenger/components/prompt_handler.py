@@ -80,3 +80,7 @@ def prompt2task(prompt: str, lang: str = "en") -> str:
     prompt = label_cleaning(prompt)
     prompt = diagnose_task(prompt)
     return prompt
+
+
+def handle(x):
+    return split_prompt_message(label_cleaning(x), "en")
