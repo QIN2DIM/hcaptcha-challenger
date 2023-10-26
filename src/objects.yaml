@@ -560,6 +560,7 @@ datalake:
   furniture:
     positive_labels:
     - furniture
+    - chair
     negative_labels:
     - headphones
     - guitar
