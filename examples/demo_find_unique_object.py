@@ -90,7 +90,7 @@ def execute(images_dir: Path, trident: Callable, output_dir: Path):
 
             progress.update(1)
 
-    if "win32" in sys.platform:
+    if "win32" in sys.platform and "PYTEST_RUN_CONFIG" not in os.environ:
         os.startfile(output_dir)
     print(f">> View at {output_dir}")
 

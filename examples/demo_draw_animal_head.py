@@ -34,7 +34,7 @@ def demo():
         output_dir = Path(__file__).parent.joinpath("figs-detect-out")
         output_dir = spawn(model_name, images_dir, output_dir)
 
-        if "win32" in sys.platform:
+        if "win32" in sys.platform and "PYTEST_RUN_CONFIG" not in os.environ:
             os.startfile(output_dir)
 
 
