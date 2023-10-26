@@ -151,3 +151,5 @@ tests_private/
 .run/
 assets/image_label_binary/off_road_vehicle/yes
 assets/image_label_binary/off_road_vehicle/bad
+profile_pluggable_model.md
+*.png

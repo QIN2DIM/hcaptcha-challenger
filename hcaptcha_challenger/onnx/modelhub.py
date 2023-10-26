@@ -242,8 +242,20 @@ class ModelHub:
     circle_segment_model: str = field(default=str)
     datalake: Dict[str, DataLake] = field(default_factory=dict)
 
+    DEFAULT_CLIP_VISUAL_MODEL: str = "visual_CLIP_RN50.openai.onnx"
+    DEFAULT_CLIP_TEXTUAL_MODEL: str = "textual_CLIP_RN50.openai.onnx"
+    """
+    Available Model
+    --- 1180+ MiB
+    DEFAULT_CLIP_VISUAL_MODEL: str = "visual_CLIP_ViT-B-32.openai.onnx"
+    DEFAULT_CLIP_TEXTUAL_MODEL: str = "textual_CLIP_ViT-B-32.openai.onnx"
+    --- 658.3 MiB
+    DEFAULT_CLIP_VISUAL_MODEL: str = "visual_CLIP_RN50.openai.onnx"
+    DEFAULT_CLIP_TEXTUAL_MODEL: str = "textual_CLIP_RN50.openai.onnx"
+    --- 3300+ MiB
     DEFAULT_CLIP_VISUAL_MODEL: str = "visual_CLIP-ViT-L-14-DataComp.XL-s13B-b90K.onnx"
     DEFAULT_CLIP_TEXTUAL_MODEL: str = "textual_CLIP-ViT-L-14-DataComp.XL-s13B-b90K.onnx"
+    """
 
     release_url: str = ""
     objects_url: str = ""
@@ -401,6 +413,11 @@ class ModelHub:
                 continue
             del self._name2net[ash]
             gc.collect()
+
+        for m in [self.DEFAULT_CLIP_TEXTUAL_MODEL, self.DEFAULT_CLIP_VISUAL_MODEL]:
+            if m in self._name2net:
+                del self._name2net[m]
+                gc.collect()
 
     def apply_ash_of_war(self, ash: str) -> Tuple[str, List[str]]:
         # Prelude - pending DensePose
