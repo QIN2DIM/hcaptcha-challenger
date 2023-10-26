@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-# Time       : 2023/10/15 23:55
-# Author     : QIN2DIM
-# GitHub     : https://github.com/QIN2DIM
-# Description:
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -22,8 +18,7 @@ modelhub.parse_objects()
 
 
 def yolov8_segment(images_dir: Path, output_dir: Path):
-    # Load model (automatic download, 51MB)
-    model_name = "appears_only_once_2309_yolov8s-seg.onnx"
+    model_name = "star_with_a_texture_of_bricks_2309_yolov8s-seg.onnx"
     classes = modelhub.ashes_of_war.get(model_name)
     session = modelhub.match_net(model_name)
     yoloseg = YOLOv8Seg.from_pluggable_model(session, classes)
@@ -41,7 +36,7 @@ def yolov8_segment(images_dir: Path, output_dir: Path):
 
             # Draw a bounding box and mask region for all circles
             img = cv2.imread(str(image_path))
-            combined_img = yoloseg.draw_masks(img, mask_alpha=0.3)
+            combined_img = yoloseg.draw_masks(img, mask_alpha=0.5)
             output_path = output_dir.joinpath(image_path.name)
             cv2.imwrite(str(output_path), combined_img)
 
@@ -53,20 +48,14 @@ def yolov8_segment(images_dir: Path, output_dir: Path):
 
 
 def demo():
-    # fmt:off
-    groups = [
-        ("please click the center of a circle where all the shapes are of the same color", "default"),
-        ("please click the center of the object that is never repeated", "default"),
-        ("please click on the object that appears only once", "default"),
-    ]
-    # fmt:on
     assets_dir = Path(__file__).parent.parent.joinpath("assets", "image_label_area_select")
+    images_dir = assets_dir.joinpath("please click on the star with a texture of bricks")
 
-    for group in groups:
-        images_dir = assets_dir.joinpath(*group)
-        output_dir = Path(__file__).parent.joinpath("figs-seg-out", group[0])
-        output_dir.mkdir(parents=True, exist_ok=True)
-        yolov8_segment(images_dir, output_dir)
+    output_dir = Path(__file__).parent.joinpath("figs-star-bricks-seg-out")
+    shutil.rmtree(output_dir, ignore_errors=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    yolov8_segment(images_dir, output_dir)
 
 
 if __name__ == "__main__":

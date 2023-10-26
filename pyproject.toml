@@ -88,6 +88,7 @@ filterwarnings = "ignore::DeprecationWarning"
 # and then try to install the extra you specified
 
 # 3. Install all extra dependencies with `--all-extras`.
+# poetry install --all-extras
 
 # Developer: `poetry install -E selenium`
 # User: `pip install hcaptcha-challenger[selenium]`
