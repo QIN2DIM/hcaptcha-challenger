@@ -36,9 +36,6 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir, self_supervised=clip_available)
     await page.goto(SiteKey.as_sitelink(sitekey))
 
-    if clip_available:
-        agent.label_alias = {}
-
     await agent.handle_checkbox()
 
     for pth in range(1, times):
