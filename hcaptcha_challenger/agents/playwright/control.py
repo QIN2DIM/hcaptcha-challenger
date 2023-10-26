@@ -532,10 +532,11 @@ class Radagon:
                 launcher = self.modelhub.lookup_ash_of_war(self.ash)
                 position = lookup_objects(launcher)
 
+            await self.page.wait_for_timeout(800)
             if position:
-                await locator.click(delay=500, position=position)
+                await locator.click(position=position)
             else:
-                await locator.click(delay=500)
+                await locator.click()
 
             # {{< Verify >}}
             with suppress(TimeoutError):

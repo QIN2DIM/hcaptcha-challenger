@@ -361,26 +361,38 @@ class ModelHub:
             self._name2net[focus_name] = net
             return net
 
-    def match_net(self, focus_name: str) -> Net | InferenceSession | None:
+    def match_net(
+        self, focus_name: str, *, install_only: bool = False
+    ) -> Net | InferenceSession | None:
         """
-        PluggableONNXModel 对象实例化时：
-        - 自动读取并注册 objects.yaml 中注明的且已存在指定目录的模型对象，
-        - 然而，objects.yaml 中表达的标签组所对应的模型文件不一定都已存在。
-        - 初始化时不包含新的网络请求，即，不在初始化阶段下载缺失模型。
+        When a PluggableONNXModel object is instantiated:
+        ---
 
-        match_net 模型被动拉取：
-        - 在挑战进行时被动下载缺失的用于处理特定二分类任务的 ONNX 模型。
-        - 匹配的模型会被自动下载、注册并返回。
-        - 不在 objects.yaml 名单中的模型不会被下载
+        - It automatically reads and registers model objects specified in objects.yaml
+        that already exist in the designated directory.
+        - However, the model files corresponding to the label groups expressed in objects.yaml
+        do not necessarily all exist yet.
+        - No new network requests are made during initialization,
+        i.e. missing models are not downloaded during the initialization phase.
 
-        [?]升级的模型不支持热加载，需要重启程序才能读入，但新插入的模型可直接使用。
+        match_net models are passively pulled:
+        ---
+
+        - Missing ONNX models used for handling specific binary classification tasks are
+        passively downloaded during the challenge.
+        - Matching models are automatically downloaded, registered, and returned.
+        - Models not on the objects.yaml list will not be downloaded.
+
+        [!] The newly inserted model can be used directly.
+        :param install_only:
         :param focus_name: model_name with .onnx suffix
         :return:
         """
         net = self._name2net.get(focus_name)
         if not net:
             self.pull_model(focus_name)
-            net = self.active_net(focus_name)
+            if not install_only:
+                net = self.active_net(focus_name)
         return net
 
     def unplug(self):

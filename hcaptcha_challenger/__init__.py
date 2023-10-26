@@ -85,7 +85,7 @@ def install(
     if clip is True:
         from hcaptcha_challenger.components.zero_shot_image_classifier import register_pipline
 
-        register_pipline(modelhub)
+        register_pipline(modelhub, install_only=True)
 
     if flush_yolo is not None:
         modelhub.parse_objects()
@@ -96,7 +96,7 @@ def install(
             pending_models = []
             for model_name in flush_yolo:
                 if model_name in modelhub.ashes_of_war:
-                    modelhub.pull_model(model_name)
+                    modelhub.match_net(model_name, install_only=True)
                     pending_models.append(model_name)
             return pending_models
 

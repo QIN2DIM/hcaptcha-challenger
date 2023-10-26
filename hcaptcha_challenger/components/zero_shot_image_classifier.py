@@ -19,12 +19,19 @@ from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.utils import is_cuda_pipline_available
 
 
-def register_pipline(modelhub: ModelHub, *, fmt: Literal["onnx", "transformers"] = None, **kwargs):
+def register_pipline(
+    modelhub: ModelHub,
+    *,
+    fmt: Literal["onnx", "transformers"] = None,
+    install_only: bool = False,
+    **kwargs,
+):
     """
     Ace Model:
         - laion/CLIP-ViT-L-14-DataComp.XL-s13B-b90K --> ONNX 1.7GB
         - QuanSun/EVA-CLIP/EVA02_CLIP_L_psz14_224to336 --> ONNX
 
+    :param install_only:
     :param modelhub:
     :param fmt:
     :param kwargs:
@@ -62,13 +69,14 @@ def register_pipline(modelhub: ModelHub, *, fmt: Literal["onnx", "transformers"]
 
         if not v_net:
             visual_model = kwargs.get("visual_model", modelhub.DEFAULT_CLIP_VISUAL_MODEL)
-            v_net = modelhub.match_net(visual_model)
+            v_net = modelhub.match_net(visual_model, install_only=install_only)
         if not t_net:
             textual_model = kwargs.get("textual_model", modelhub.DEFAULT_CLIP_TEXTUAL_MODEL)
-            t_net = modelhub.match_net(textual_model)
+            t_net = modelhub.match_net(textual_model, install_only=install_only)
 
-        _pipeline = MossCLIP.from_pluggable_model(v_net, t_net)
-        return _pipeline
+        if not install_only:
+            _pipeline = MossCLIP.from_pluggable_model(v_net, t_net)
+            return _pipeline
 
     if fmt in ["transformers"]:
         from transformers import pipeline  # type:ignore
