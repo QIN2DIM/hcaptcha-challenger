@@ -13,7 +13,7 @@ from typing import List, Literal, Iterable, Tuple
 import onnxruntime
 from PIL.Image import Image
 
-from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
+from hcaptcha_challenger.components.prompt_handler import handle
 from hcaptcha_challenger.onnx.clip import MossCLIP
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.utils import is_cuda_pipline_available
@@ -99,7 +99,7 @@ def format_datalake(dl: DataLake) -> Tuple[List[str], List[str]]:
     if dl.raw_prompt:
         prompt = dl.raw_prompt
         prompt = prompt.replace("_", " ")
-        true_label = split_prompt_message(label_cleaning(prompt), "en")
+        true_label = handle(prompt)
         if true_label not in positive_labels:
             positive_labels.append(true_label)
         if not negative_labels:

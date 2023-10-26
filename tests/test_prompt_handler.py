@@ -42,6 +42,7 @@ def test_split_binary_prompt():
     prompts_ = [
         "Please click each image containing a pair of headphones",
         "Please click each image containing an off-road vehicle",
+        "Please click on the STAR with a texture of BRICKS",
     ]
     for p in prompts_:
         label = split_prompt_message(label_cleaning(p), "en")

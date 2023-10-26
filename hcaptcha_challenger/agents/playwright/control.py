@@ -28,7 +28,7 @@ from hcaptcha_challenger.components.cv_toolkit import (
     find_unique_color,
 )
 from hcaptcha_challenger.components.image_downloader import Cirilla
-from hcaptcha_challenger.components.prompt_handler import split_prompt_message, label_cleaning
+from hcaptcha_challenger.components.prompt_handler import handle, label_cleaning
 from hcaptcha_challenger.components.zero_shot_image_classifier import (
     ZeroShotImageClassifier,
     register_pipline,
@@ -320,9 +320,7 @@ class Radagon:
 
     def _parse_label(self):
         self._prompt = self.qr.requester_question.get("en")
-        _label = label_cleaning(self._prompt)
-        _label = split_prompt_message(_label, lang="en")
-        self._label = _label
+        self._label = handle(self._prompt)
 
     async def _download_images(self, ignore_examples: bool = False):
         request_type = self.qr.request_type
