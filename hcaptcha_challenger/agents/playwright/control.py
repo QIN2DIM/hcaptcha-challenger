@@ -242,7 +242,6 @@ class Radagon:
     HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
 
     self_supervised: bool = False
-    clip_model = None
 
     def __post_init__(self):
         self.challenge_dir = self.tmp_dir.joinpath("_challenge")
@@ -256,9 +255,6 @@ class Radagon:
         self.cr_queue = asyncio.Queue()
 
         self.handle_question_resp(self.page)
-
-        if self.self_supervised is True:
-            self.clip_model = register_pipline(self.modelhub)
 
     async def handler(self, response: Response):
         if response.url.startswith("https://hcaptcha.com/getcaptcha/"):
@@ -623,17 +619,23 @@ class Radagon:
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
 
-    async def _binary_challenge_clip(self, frame_challenge: FrameLocator, model):
+    async def _binary_challenge_clip(self, frame_challenge: FrameLocator):
         dl = self.modelhub.datalake.get(self._label)
         if not dl:
             dl = DataLake.from_challenge_prompt(raw_prompt=self._label)
         tool = ZeroShotImageClassifier.from_datalake(dl)
+
+        # Default to `RESNET.OPENAI` perf_counter 1.794s
+        t0 = time.perf_counter()
+        model = register_pipline(self.modelhub)
+        te = time.perf_counter()
 
         logger.debug(
             "unsupervised",
             type="binary",
             candidate_labels=tool.candidate_labels,
             prompt=self._prompt,
+            timit=f"{te - t0:.3f}s",
         )
 
         # {{< IMAGE CLASSIFICATION >}}
@@ -738,8 +740,8 @@ class AgentT(Radagon):
                     return self.status.CHALLENGE_BACKCALL
             elif self.label_alias.get(self._label):
                 await self._binary_challenge(frame_challenge)
-            elif self.clip_model:
-                await self._binary_challenge_clip(frame_challenge, self.clip_model)
+            elif self.self_supervised:
+                await self._binary_challenge_clip(frame_challenge)
             else:
                 return self.status.CHALLENGE_BACKCALL
         # Match: image_label_area_select

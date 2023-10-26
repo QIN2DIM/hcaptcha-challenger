@@ -17,7 +17,7 @@ from hcaptcha_challenger.agents import AgentT, Malenia
 from hcaptcha_challenger.utils import SiteKey
 
 # Init local-side of the ModelHub
-clip_available = False
+clip_available = True
 solver.install(upgrade=True, clip=clip_available)
 
 # Save dataset to current working directory
