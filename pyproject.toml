@@ -3,7 +3,7 @@
 
 [tool.poetry]
 name = "hcaptcha-challenger"
-version = "0.9.1-post5"
+version = "0.9.1-post6"
 description = "🥂 Gracefully face hCaptcha challenge with MoE(ONNX) embedded solution."
 license = "GPL-3.0-or-later"
 authors = ["QIN2DIM <yaoqinse@gmail.com>", "Bingjie Yan <bj.yan.pa@qq.com>"]
@@ -75,7 +75,7 @@ memory-profiler = "*"
 
 [tool.pytest.ini_options]
 # https://docs.pytest.org/en/stable/reference/reference.html#configuration-options
-testpaths = ["tests"]
+testpaths = ["tests", "examples"]
 asyncio_mode = "auto"
 filterwarnings = "ignore::DeprecationWarning"
 
