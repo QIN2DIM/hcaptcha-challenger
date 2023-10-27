@@ -18,6 +18,7 @@ images_dir = assets_dir.joinpath("image_label_binary", "off_road_vehicle")
 
 prompt = "Please click each image containing a sedan car"
 
+# Patch datalake maps not updated in time
 datalake_post = {
     # => prompt: sedan car
     handle(prompt): {
