@@ -27,8 +27,8 @@ class Classifier:
         self,
         *,
         modelhub: ModelHub | None = None,
-        datalake_post: Dict[str, Dict[str, List[str]]] | None = None,
         clip_model=None,
+        datalake_post: Dict[str, Dict[str, List[str]]] | None = None,
         **kwargs,
     ):
         self.modelhub = modelhub or ModelHub.from_github_repo()
@@ -96,7 +96,7 @@ class Classifier:
                 logger.debug(str(err), prompt=self.prompt)
                 self.response.append(None)
 
-    def inference_by_clip(self, images: List[Path | bytes]):
+    def inference_by_clip(self, image_paths: List[Path]):
         dl = self.modelhub.datalake.get(self.label)
         if not dl:
             dl = DataLake.from_challenge_prompt(raw_prompt=self.label)
@@ -106,19 +106,20 @@ class Classifier:
         model = self.clip_model or register_pipline(self.modelhub)
         self.model_name = self.modelhub.DEFAULT_CLIP_VISUAL_MODEL
 
-        for image in images:
+        for image_path in image_paths:
             try:
-                if isinstance(image, Path):
-                    if not image.exists():
-                        self.response.append(None)
-                        continue
-                    image = image.read_bytes()
-                if isinstance(image, bytes):
-                    results = tool(model, image=Image.open(image))
-                    trusted = results[0]["label"] in tool.positive_labels
-                    self.response.append(trusted)
-                else:
-                    self.response.append(None)
+                if not isinstance(image_path, Path):
+                    raise TypeError(
+                        "Please pass in the pathlib.Path object, "
+                        f"you don't need to set it specifically for bytes in advance. "
+                        f"- type={type(image_path)}"
+                    )
+                if not image_path.exists():
+                    raise FileNotFoundError(f"ChallengeImage not found - path={image_path}")
+                # self-supervised image classification
+                results = tool(model, image=Image.open(image_path))
+                trusted = results[0]["label"] in tool.positive_labels
+                self.response.append(trusted)
             except Exception as err:
                 logger.debug(str(err), prompt=self.prompt)
                 self.response.append(None)
@@ -130,7 +131,7 @@ class Classifier:
     def execute(
         self,
         prompt: str,
-        images: List[Path | bytes],
+        image_paths: List[Path],
         example_paths: List[Path | bytes] | None = None,
         *,
         self_supervised: bool | None = True,
@@ -142,7 +143,7 @@ class Classifier:
         # Match: model ranker
         if nested_models := self.modelhub.nested_categories.get(self.label, []):
             if model := self.rank_models(nested_models, example_paths):
-                self.inference(images, model)
+                self.inference(image_paths, model)
         # Match: common binary classification
         elif focus_label := self.modelhub.label_alias.get(self.label):
             if focus_label.endswith(".onnx"):
@@ -151,9 +152,9 @@ class Classifier:
                 self.model_name = f"{focus_label}.onnx"
             net = self.modelhub.match_net(self.model_name)
             control = ResNetControl.from_pluggable_model(net)
-            self.inference(images, control)
+            self.inference(image_paths, control)
         elif self_supervised:
-            self.inference_by_clip(images)
+            self.inference_by_clip(image_paths)
         # Match: Unknown cases
         else:
             logger.debug("Types of challenges not yet scheduled", label=self.label, prompt=prompt)
