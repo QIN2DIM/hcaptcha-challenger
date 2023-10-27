@@ -73,4 +73,3 @@ def test_self_supervised_image_classification(modelhub, image_paths, self_superv
     elif self_supervised is False:
         assert classifier.model_name == ""
         assert len(results) == 0
- 
