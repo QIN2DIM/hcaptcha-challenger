@@ -7,20 +7,39 @@ from __future__ import annotations
 
 from contextlib import suppress
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
 import cv2
+from PIL import Image
 from loguru import logger
 
 from hcaptcha_challenger.components.prompt_handler import handle
-from hcaptcha_challenger.onnx.modelhub import ModelHub
+from hcaptcha_challenger.components.zero_shot_image_classifier import (
+    ZeroShotImageClassifier,
+    register_pipline,
+)
+from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 
 
 class Classifier:
-    def __init__(self):
-        self.modelhub = ModelHub.from_github_repo()
-        self.modelhub.parse_objects()
+    def __init__(
+        self,
+        *,
+        modelhub: ModelHub | None = None,
+        datalake_post: Dict[str, Dict[str, List[str]]] | None = None,
+        clip_model=None,
+        **kwargs,
+    ):
+        self.modelhub = modelhub or ModelHub.from_github_repo()
+        if not self.modelhub.label_alias:
+            self.modelhub.parse_objects()
+
+        if isinstance(datalake_post, dict):
+            for prompt, serialized_binary in datalake_post.items():
+                self.modelhub.datalake[prompt] = DataLake.from_serialized(serialized_binary)
+
+        self.clip_model = clip_model
 
         self.response: List[bool | None] = []
         self.prompt: str = ""
@@ -77,11 +96,44 @@ class Classifier:
                 logger.debug(str(err), prompt=self.prompt)
                 self.response.append(None)
 
+    def inference_by_clip(self, images: List[Path | bytes]):
+        dl = self.modelhub.datalake.get(self.label)
+        if not dl:
+            dl = DataLake.from_challenge_prompt(raw_prompt=self.label)
+        tool = ZeroShotImageClassifier.from_datalake(dl)
+
+        # Default to `RESNET.OPENAI` perf_counter 1.794s
+        model = self.clip_model or register_pipline(self.modelhub)
+        self.model_name = self.modelhub.DEFAULT_CLIP_VISUAL_MODEL
+
+        for image in images:
+            try:
+                if isinstance(image, Path):
+                    if not image.exists():
+                        self.response.append(None)
+                        continue
+                    image = image.read_bytes()
+                if isinstance(image, bytes):
+                    results = tool(model, image=Image.open(image))
+                    trusted = results[0]["label"] in tool.positive_labels
+                    self.response.append(trusted)
+                else:
+                    self.response.append(None)
+            except Exception as err:
+                logger.debug(str(err), prompt=self.prompt)
+                self.response.append(None)
+
+        # Pop the temporarily inserted model and free up memory
+        if not self.clip_model:
+            self.modelhub.unplug()
+
     def execute(
         self,
         prompt: str,
         images: List[Path | bytes],
         example_paths: List[Path | bytes] | None = None,
+        *,
+        self_supervised: bool | None = True,
     ) -> List[bool | None]:
         self.response = []
 
@@ -93,12 +145,15 @@ class Classifier:
                 self.inference(images, model)
         # Match: common binary classification
         elif focus_label := self.modelhub.label_alias.get(self.label):
-            self.model_name = (
-                focus_label if focus_label.endswith(".onnx") else f"{focus_label}.onnx"
-            )
+            if focus_label.endswith(".onnx"):
+                self.model_name = focus_label
+            else:
+                self.model_name = f"{focus_label}.onnx"
             net = self.modelhub.match_net(self.model_name)
             control = ResNetControl.from_pluggable_model(net)
             self.inference(images, control)
+        elif self_supervised:
+            self.inference_by_clip(images)
         # Match: Unknown cases
         else:
             logger.debug("Types of challenges not yet scheduled", label=self.label, prompt=prompt)

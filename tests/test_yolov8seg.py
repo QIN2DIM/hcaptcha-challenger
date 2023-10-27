@@ -2,11 +2,7 @@ from typing import Tuple
 
 import pytest
 
-import hcaptcha_challenger as solver
-from hcaptcha_challenger import handle
-from hcaptcha_challenger.onnx.modelhub import ModelHub
-
-solver.install(upgrade=True)
+from hcaptcha_challenger import handle, ModelHub
 
 modelhub = ModelHub.from_github_repo()
 modelhub.parse_objects()

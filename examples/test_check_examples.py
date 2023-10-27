@@ -46,6 +46,6 @@ def test_find_unique_object():
 
 
 def test_rank_largest_animal():
-    import demo_rank_largest_animal
+    import demo_classifier_rank_largest_animal
 
-    demo_rank_largest_animal.bytedance()
+    demo_classifier_rank_largest_animal.demo()
