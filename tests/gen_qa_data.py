@@ -1,60 +1,61 @@
 # -*- coding: utf-8 -*-
-# Time       : 2023/9/14 18:46
+# Time       : 2023/10/27 23:46
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
-# Description:
+# Description: 合并工厂和挑战者的 record_json
 import json
 import os
-from dataclasses import dataclass, field
+import shutil
 from pathlib import Path
-from typing import List
+
+output_dir = Path(__file__).parent.joinpath("record_json")
+output_dir.mkdir(parents=True, exist_ok=True)
+
+input_dirs = [os.environ[i] for i in os.environ if i.lower().startswith("input_dir_")]
 
 
-@dataclass(slots=True)
-class QADataGenerator:
-    project_dir: Path = Path(__file__).parent.parent
-    qa_data_path: Path = Path("qa_data.txt")
-    prompts: List[str] = field(default_factory=list)
+def copy_from_factory():
+    count = 0
 
-    def _unicode_dedup(self):
-        result = []
-        str_dict = {}
+    for idr in input_dirs:
+        if not (input_dir := Path(idr)).exists():
+            print(f"Directory does not exist - {input_dir=}")
+            continue
 
-        for prompt in self.prompts:
-            utf8_str = prompt.encode("utf-8")
-            if utf8_str not in str_dict:
-                str_dict[utf8_str] = prompt
-                result.append(prompt)
+        print(f"MIGRATE DIRECTORY - {input_dir=}")
+        for jn in os.listdir(input_dir):
+            jp = input_dir.joinpath(jn)
+            if not jp.is_file() or not jp.name.endswith(".json") or len(jn) < 10:
+                continue
+            output_path = output_dir.joinpath(jn)
+            if output_path.exists():
+                continue
+            shutil.copyfile(jp, output_path)
+            count += 1
+            print(f"Merge Files[{count}] --> {jn=}")
 
-        return result
 
-    def _load_cache(self):
-        if not self.project_dir.exists():
-            return
+def merge_prompts():
+    prompts = []
 
-        for root, _, files in os.walk(self.project_dir):
-            for file in files:
-                if not (file.endswith(".json") and file.startswith("image_label")):
-                    continue
-                json_path = Path(root, file)
-                data = json.loads(json_path.read_text(encoding="utf8"))
-                rq = data.get("requester_question", {})
-                if "en" not in rq:
-                    continue
-                question = rq["en"]
-                self.prompts.append(question)
+    if (prompts_json := Path(__file__).parent.joinpath("prompts.json")).exists():
+        prompts = json.loads(prompts_json.read_text(encoding="utf8"))
 
-    def _merge_qa_data(self):
-        if self.qa_data_path.exists():
-            self.prompts.extend(self.qa_data_path.read_text(encoding="utf8").split("\n"))
-        prompts = self._unicode_dedup()
-        self.qa_data_path.write_text("\n".join(prompts), encoding="utf8")
+    if (json_dir := output_dir).exists():
+        for json_name in os.listdir(json_dir):
+            jf = json_dir.joinpath(json_name)
+            data = json.loads(jf.read_text(encoding="utf8"))
+            prompt: str = data["requester_question"].get("en", "")
+            prompts.append(prompt)
 
-    def run(self):
-        self._load_cache()
-        self._merge_qa_data()
+    if prompts:
+        prompts = list(set(prompts))
+        df = json.dumps(prompts, indent=2, ensure_ascii=True, sort_keys=True)
+        prompts_json.write_text(df, encoding="utf8")
+
+    print(f"Extract prompt - {len(prompts)}")
 
 
 if __name__ == "__main__":
-    gen = QADataGenerator()
-    gen.run()
+    copy_from_factory()
+    merge_prompts()

@@ -154,3 +154,4 @@ assets/image_label_binary/off_road_vehicle/bad
 assets/image_label_binary/off_road_vehicle/20**
 profile_pluggable_model.md
 ./*.png
+tests/record_json
