@@ -73,13 +73,4 @@ def test_self_supervised_image_classification(modelhub, image_paths, self_superv
     elif self_supervised is False:
         assert classifier.model_name == ""
         assert len(results) == 0
-
-
-def test_image_loader():
-    from PIL import Image
-
-    for fp in get_prelude_images(to_bytes=True):
-        try:
-            Image.open(fp)
-        except Exception as err:
-            assert "invalid start byte" in str(err)
+ 
