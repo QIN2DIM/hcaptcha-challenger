@@ -9,17 +9,17 @@ images_dir = Path(__file__).parent.joinpath("largest_animal")
 prompt = handle("Please click on the largest animal.")
 
 
-def get_prelude_image_paths():
-    unexpected_challenge_images = [
-        images_dir.joinpath(image_name) for image_name in os.listdir(images_dir)
-    ]
-    return unexpected_challenge_images
+def get_prelude_images(to_bytes: bool):
+    unexpected_challenge_images = []
+    for image_name in os.listdir(images_dir):
+        image_path = images_dir.joinpath(image_name)
+        if not image_path.is_file():
+            continue
+        if not to_bytes:
+            unexpected_challenge_images.append(image_path)
+        else:
+            unexpected_challenge_images.append(image_path.read_bytes())
 
-
-def get_prelude_image_bytes():
-    unexpected_challenge_images = [
-        images_dir.joinpath(image_name).read_bytes() for image_name in os.listdir(images_dir)
-    ]
     return unexpected_challenge_images
 
 
@@ -44,7 +44,9 @@ def get_patched_modelhub():
 
 
 @pytest.mark.parametrize("modelhub", [get_patched_modelhub()])
-@pytest.mark.parametrize("image_paths", [get_prelude_image_paths(), get_prelude_image_bytes()])
+@pytest.mark.parametrize(
+    "image_paths", [get_prelude_images(to_bytes=True), get_prelude_images(to_bytes=False)]
+)
 @pytest.mark.parametrize("self_supervised", [True, False])
 def test_self_supervised_image_classification(modelhub, image_paths, self_supervised):
     classifier = BinaryClassifier(modelhub=modelhub)
@@ -73,14 +75,10 @@ def test_self_supervised_image_classification(modelhub, image_paths, self_superv
         assert len(results) == 0
 
 
-@pytest.mark.xfail(True, raises=UnicodeDecodeError, reason="pass pathlib.Path")
 def test_image_loader():
     from PIL import Image
 
-    images_dir = Path(__file__).parent.joinpath("largest_animal")
-    for image_name in os.listdir(images_dir):
-        image_path = images_dir.joinpath(image_name)
-        if not image_path.is_file():
-            continue
-        # Image.open(image_path)
-        Image.open(image_path.read_bytes())
+    for fp in get_prelude_images(to_bytes=True):
+        with pytest.raises(UnicodeDecodeError) as exc_info:
+            Image.open(fp)
+        assert "invalid start byte" in exc_info.value.reason
