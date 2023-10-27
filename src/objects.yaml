@@ -16,6 +16,8 @@ nested_categories:
   - nested_largest_turtle2309.onnx
   please click on the turtle's head:
   - head_of_the_animal_turtle_2309_yolov8s.onnx
+  please click on the smallest animal:
+  - nested_smallest_turtle2309.onnx
 ashes_of_war:
   star_with_a_texture_of_bricks_2309_yolov8s-seg.onnx:
   - star-bricks

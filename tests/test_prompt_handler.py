@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from hcaptcha_challenger import split_prompt_message, label_cleaning
+from hcaptcha_challenger import split_prompt_message, label_cleaning, handle
 
 pattern = re.compile(r"[^\x00-\x7F]")
 
@@ -43,10 +43,10 @@ def test_split_binary_prompt():
         "Please click each image containing a pair of headphones",
         "Please click each image containing an off-road vehicle",
         "Please click on the STAR with a texture of BRICKS",
+        "Please click on the smallest animal.",
     ]
-    for p in prompts_:
-        label = split_prompt_message(label_cleaning(p), "en")
-        print(label)
+    for prompt in prompts_:
+        print(handle(prompt))
 
 
 @pytest.mark.parametrize(
