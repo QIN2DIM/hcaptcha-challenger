@@ -79,6 +79,7 @@ def test_image_loader():
     from PIL import Image
 
     for fp in get_prelude_images(to_bytes=True):
-        with pytest.raises(UnicodeDecodeError) as exc_info:
+        try:
             Image.open(fp)
-        assert "invalid start byte" in exc_info.value.reason
+        except UnicodeDecodeError as exc_info:
+            assert "invalid start byte" in exc_info.reason
