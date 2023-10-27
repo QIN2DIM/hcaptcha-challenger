@@ -90,12 +90,8 @@ def execute(images_dir: Path, trident: Callable, output_dir: Path):
 
             progress.update(1)
 
-    if "win32" in sys.platform and "PYTEST_RUN_CONFIG" not in os.environ:
-        os.startfile(output_dir)
-    print(f">> View at {output_dir}")
 
-
-def demo():
+def demo(startfile=True):
     prompt2trident = {
         "please click the center of the object that is never repeated": find_unique_object,
         "please click on the object that appears only once": find_unique_object,
@@ -108,6 +104,10 @@ def demo():
         output_dir = Path(__file__).parent.joinpath("figs-unique-out", prompt)
         output_dir.mkdir(parents=True, exist_ok=True)
         execute(images_dir, trident, output_dir)
+
+        if "win32" in sys.platform and startfile:
+            os.startfile(output_dir)
+        print(f">> View at {output_dir}")
 
 
 # pip install -U hcaptcha_challenger

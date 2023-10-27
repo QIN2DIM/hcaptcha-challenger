@@ -47,12 +47,8 @@ def yolov8_segment(images_dir: Path, output_dir: Path):
 
             progress.update(1)
 
-    if "win32" in sys.platform and "PYTEST_RUN_CONFIG" not in os.environ:
-        os.startfile(output_dir)
-    print(f">> View at {output_dir}")
 
-
-def demo():
+def demo(startfile=True):
     # fmt:off
     groups = [
         ("please click the center of a circle where all the shapes are of the same color", "default"),
@@ -67,6 +63,10 @@ def demo():
         output_dir = Path(__file__).parent.joinpath("figs-seg-out", group[0])
         output_dir.mkdir(parents=True, exist_ok=True)
         yolov8_segment(images_dir, output_dir)
+
+        if "win32" in sys.platform and startfile:
+            os.startfile(output_dir)
+        print(f">> View at {output_dir}")
 
 
 if __name__ == "__main__":
