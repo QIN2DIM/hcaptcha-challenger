@@ -9,16 +9,22 @@ def test_demo_auto_labeling():
     demo_auto_labeling.run()
 
 
-def test_demo_draw_star_bricks():
-    import demo_draw_star_bricks
-
-    demo_draw_star_bricks.demo()
-
-
 def test_demo_classifier_common():
     import demo_classifier_common
 
     demo_classifier_common.bytedance()
+
+
+def test_rank_classifier_largest_animal():
+    import demo_classifier_rank_largest_animal
+
+    demo_classifier_rank_largest_animal.demo()
+
+
+def test_demo_classifier_self_supervised():
+    import demo_classifier_self_supervised
+
+    demo_classifier_self_supervised.demo()
 
 
 def test_demo_detector_common():
@@ -39,13 +45,13 @@ def test_draw_segment_masks():
     demo_draw_animal_head.demo()
 
 
+def test_demo_draw_star_bricks():
+    import demo_draw_star_bricks
+
+    demo_draw_star_bricks.demo()
+
+
 def test_find_unique_object():
     import demo_find_unique_object
 
     demo_find_unique_object.demo()
-
-
-def test_rank_largest_animal():
-    import demo_rank_largest_animal
-
-    demo_rank_largest_animal.bytedance()
