@@ -81,5 +81,5 @@ def test_image_loader():
     for fp in get_prelude_images(to_bytes=True):
         try:
             Image.open(fp)
-        except UnicodeDecodeError as exc_info:
+        except (UnicodeDecodeError, ValueError) as exc_info:
             assert "invalid start byte" in exc_info.reason
