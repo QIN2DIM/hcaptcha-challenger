@@ -62,7 +62,8 @@ class AutoLabeling:
     def from_datalake(cls, dl: DataLake, **kwargs):
         if not isinstance(dl.joined_dirs, Path):
             raise TypeError(
-                f"The dataset joined_dirs needs to be passed in for auto-labeling. - {dl.joined_dirs=}"
+                "The dataset joined_dirs needs to be passed in for auto-labeling. -"
+                f" {dl.joined_dirs=}"
             )
         if not dl.joined_dirs.exists():
             raise ValueError(f"Specified dataset path does not exist - {dl.joined_dirs=}")

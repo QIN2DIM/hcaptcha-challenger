@@ -98,9 +98,7 @@ class MotionData:
                 writer.writerow([x2 - x1, y2 - y1])
 
         logger.debug(
-            f">> OFFLOAD [{self.action_name}] Record mouse track - "
-            f"endpoint={endpoint} "
-            f"path={fn}"
+            f">> OFFLOAD [{self.action_name}] Record mouse track - endpoint={endpoint} path={fn}"
         )
 
     def mimic(self, url: str = "http://127.0.0.1:8000"):

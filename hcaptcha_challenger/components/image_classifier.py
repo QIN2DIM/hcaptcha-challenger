@@ -111,7 +111,7 @@ class Classifier:
                 if not isinstance(image_path, Path):
                     raise TypeError(
                         "Please pass in the pathlib.Path object, "
-                        f"you don't need to set it specifically for bytes in advance. "
+                        "you don't need to set it specifically for bytes in advance. "
                         f"- type={type(image_path)}"
                     )
                 if not image_path.exists():

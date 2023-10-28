@@ -55,8 +55,8 @@ selenium = { version = "*", optional = true }
 playwright = { version = "*", optional = true }
 PyGithub = { version = "^1.59.1", optional = true }
 istockphoto = { version = "0.1.2", optional = true }
-fastapi = {version = "*", optional = true}
-uvicorn = {version = "*", extras = ["standard"], optional = true}
+fastapi = { version = "*", optional = true }
+uvicorn = { version = "*", extras = ["standard"], optional = true }
 
 [tool.poetry.group.test.dependencies]
 # https://docs.pytest.org/en/stable/reference/plugin_list.html#plugin-list
@@ -78,6 +78,11 @@ memory-profiler = "*"
 testpaths = ["tests", "examples"]
 asyncio_mode = "auto"
 filterwarnings = "ignore::DeprecationWarning"
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311"]
+skip-magic-trailing-comma = true
 
 [tool.poetry.extras]
 # 1. Running `poetry install -E [extras]` will install the general dependencies

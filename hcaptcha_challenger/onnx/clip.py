@@ -263,11 +263,11 @@ class Preprocessor:
 
         if len(img.shape) > 3:
             raise ValueError(
-                f"The image should have 2 or 3 dimensions but got " f"{len(img.shape)} dimensions"
+                f"The image should have 2 or 3 dimensions but got {len(img.shape)} dimensions"
             )
         if len(img.shape) == 3 and img.shape[2] != 3:
             raise ValueError(
-                f"Expected 3-channel RGB image but got image with " f"{img.shape[2]} channels"
+                f"Expected 3-channel RGB image but got image with {img.shape[2]} channels"
             )
 
         # Handle grayscale
@@ -314,7 +314,7 @@ class Preprocessor:
             assert img.shape[2] == 3
         except AssertionError as e:
             raise RuntimeError(
-                "Internal preprocessing error. " "The image does not have the expected format."
+                "Internal preprocessing error. The image does not have the expected format."
             ) from e
 
         return img

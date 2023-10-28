@@ -51,7 +51,8 @@ def register_pipline(
                 raise ValueError("visual_path should be a pathlib.Path")
             if not visual_path.is_file():
                 raise FileNotFoundError(
-                    f"Select to use visual ONNX model, but the specified model does not exist - {visual_path=}"
+                    "Select to use visual ONNX model, but the specified model does not exist -"
+                    f" {visual_path=}"
                 )
             v_net = onnxruntime.InferenceSession(
                 visual_path, providers=onnxruntime.get_available_providers()
@@ -61,7 +62,8 @@ def register_pipline(
                 raise ValueError("textual_path should be a pathlib.Path")
             if not textual_path.is_file():
                 raise FileNotFoundError(
-                    f"Select to use textual ONNX model, but the specified model does not exist - {textual_path=}"
+                    "Select to use textual ONNX model, but the specified model does not exist -"
+                    f" {textual_path=}"
                 )
             t_net = onnxruntime.InferenceSession(
                 textual_path, providers=onnxruntime.get_available_providers()
