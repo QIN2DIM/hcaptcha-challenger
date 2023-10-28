@@ -584,3 +584,9 @@ datalake:
     - elephant
     - car
     - cat
+  bicycle:
+    positive_labels:
+      - bicycle
+    negative_labels:
+      - car
+      - off-road vehicle
