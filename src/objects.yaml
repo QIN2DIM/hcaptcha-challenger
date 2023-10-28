@@ -15,6 +15,8 @@ nested_categories:
   - nested_largest_elephant2309.onnx
   - nested_largest_turtle2309.onnx
   - nested_largest_dog2309.onnx
+  the largest animal:
+  - nested_largest_fox2309.onnx
   please click on the turtle's head:
   - head_of_the_animal_turtle_2309_yolov8s.onnx
   please click on the smallest animal:
