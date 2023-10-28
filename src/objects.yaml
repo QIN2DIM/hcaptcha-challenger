@@ -561,6 +561,9 @@ label_alias:
   sedan_car2309:
     en:
     - sedan car
+  bicycle2309:
+    en:
+    - bicycle
 datalake:
   furniture:
     positive_labels:
@@ -586,7 +589,7 @@ datalake:
     - cat
   bicycle:
     positive_labels:
-      - bicycle
+    - bicycle
     negative_labels:
-      - car
-      - off-road vehicle
+    - car
+    - off-road vehicle
