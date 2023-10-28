@@ -42,12 +42,8 @@ def yolov8_segment(images_dir: Path, output_dir: Path):
 
             progress.update(1)
 
-    if "win32" in sys.platform and "PYTEST_RUN_CONFIG" not in os.environ:
-        os.startfile(output_dir)
-    print(f">> View at {output_dir}")
 
-
-def demo():
+def demo(startfile=True):
     assets_dir = Path(__file__).parent.parent.joinpath("assets", "image_label_area_select")
     images_dir = assets_dir.joinpath("please click on the star with a texture of bricks")
 
@@ -56,6 +52,10 @@ def demo():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     yolov8_segment(images_dir, output_dir)
+
+    if "win32" in sys.platform and startfile:
+        os.startfile(output_dir)
+    print(f">> View at {output_dir}")
 
 
 if __name__ == "__main__":

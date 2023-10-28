@@ -132,7 +132,7 @@ class AutoLabeling:
                 progress.update(1)
 
 
-def run():
+def run(startfile=True):
     assets_dir = Path(__file__).parent.parent.joinpath("assets")
 
     modelhub = ModelHub.from_github_repo()
@@ -161,11 +161,7 @@ def run():
         al = AutoLabeling.from_datalake(dl)
         al.execute(model)
         # Automatically open output directory
-        if (
-            "win32" in sys.platform
-            and al.output_dir.is_dir()
-            and "PYTEST_RUN_CONFIG" not in os.environ
-        ):
+        if "win32" in sys.platform and al.output_dir.is_dir() and startfile:
             os.startfile(al.output_dir)
 
 

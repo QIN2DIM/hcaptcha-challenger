@@ -3,20 +3,22 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
+import json
 import re
 from pathlib import Path
+from typing import List
 
 import pytest
 
 from hcaptcha_challenger import split_prompt_message, label_cleaning, handle
+from hcaptcha_challenger.components.prompt_handler import BAD_CODE
 
 pattern = re.compile(r"[^\x00-\x7F]")
 
-prompts = []
+prompts: List[str] = []
 
-qa_data_path = Path(__file__).parent.joinpath("qa_data.txt")
-if qa_data_path.exists():
-    prompts = qa_data_path.read_text(encoding="utf8").split("\n")
+if (proj := Path(__file__).parent.joinpath("prompts.json")).exists():
+    prompts = json.loads(proj.read_text(encoding="utf8"))
 
 
 @pytest.mark.parametrize("prompt", prompts)
@@ -29,6 +31,13 @@ def test_split_prompt_message(prompt: str):
 def test_is_illegal_chars(prompt: str):
     result = label_cleaning(prompt)
     assert not pattern.search(result)
+
+
+@pytest.mark.parametrize("prompt", prompts)
+def test_handle_prompt(prompt: str):
+    result = handle(prompt)
+    for char in result:
+        assert char.isascii(), f">> NOT ALPHA {char=}, \\u{ord(char):04x}"
 
 
 def test_split_area_select_prompt():
@@ -64,3 +73,17 @@ def test_prefix_binder(model_name: str):
     if len(binder) > 2 and binder[-2].isdigit():
         binder = " ".join(model_name.split("_")[:-2])
         assert " " in binder
+
+
+def test_new_bad_code():
+    def review_badcode():
+        for char in prompt:
+            if not char.isascii() and char not in BAD_CODE and char not in memo:
+                memo.add(char)
+                print(f">> NOT ALPHA {char=}, \\u{ord(char):04x}")
+
+    memo = set()
+    for prompt in prompts:
+        review_badcode()
+
+    assert len(memo) == 0, memo
