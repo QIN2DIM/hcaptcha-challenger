@@ -566,6 +566,9 @@ label_alias:
   bicycle2309:
     en:
     - bicycle
+  nested_largest_dog2310:
+    en:
+    - nested largest dog
 datalake:
   furniture:
     positive_labels:
@@ -597,10 +600,10 @@ datalake:
     - off-road vehicle
   the largest animal:
     positive_labels:
-      - fox
-      - dog
+    - fox
+    - dog
     negative_labels:
-      - crab
-      - ant
-      - bird
-      - dragonfly
+    - crab
+    - ant
+    - bird
+    - dragonfly
