@@ -593,3 +593,12 @@ datalake:
     negative_labels:
     - car
     - off-road vehicle
+  the largest animal:
+    positive_labels:
+      - fox
+      - dog
+    negative_labels:
+      - crab
+      - ant
+      - bird
+      - dragonfly
