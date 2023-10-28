@@ -5,12 +5,11 @@
 # Description:
 import json
 from pathlib import Path
-from typing import Tuple
 
 import pytest
 
-from hcaptcha_challenger import install
 from hcaptcha_challenger import handle, ModelHub
+from hcaptcha_challenger import install
 
 install(upgrade=True)
 
@@ -23,12 +22,9 @@ if (jp := Path(__file__).parent.joinpath("prompts.json")).exists():
     prompts = json.loads(jp.read_text(encoding="utf8"))
 
 
-@pytest.mark.parametrize(
-    "prompt2m", [("Please click on the head of the animal", "head_of_the_animal_2310_yolov8s.onnx")]
-)
-def test_lookup_model_by_ash(prompt2m: Tuple[str, str]):
-    prompt, target = prompt2m
-    handle(prompt)
+def test_lookup_model_by_ash():
+    prompt = handle("Please click on the head of the animal")
+    target = "head_of_the_animal_2310_yolov8s.onnx"
     ash = f"{handle(prompt)} default"
 
     pending = []
