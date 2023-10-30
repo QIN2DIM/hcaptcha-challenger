@@ -567,6 +567,9 @@ label_alias:
   bicycle2309:
     en:
     - bicycle
+  red_panda2309:
+    en:
+    - red panda
 datalake:
   furniture:
     positive_labels:
