@@ -26,6 +26,7 @@ nested_categories:
   - nested_smallest_turtle2309.onnx
   the smallest animal:
   - nested_smallest_starfish2309.onnx
+  - nested_smallest_bird2309.onnx
 ashes_of_war:
   star_with_a_texture_of_bricks_2309_yolov8s-seg.onnx:
   - star-bricks
