@@ -567,14 +567,14 @@ label_alias:
   bicycle2309:
     en:
     - bicycle
-  red_panda2309:
-    en:
-    - red panda
   natural_landscape2315:
     zh:
     - 自然景观
     en:
     - natural landscape
+  red_panda2310:
+    en:
+    - red panda
 datalake:
   furniture:
     positive_labels:
