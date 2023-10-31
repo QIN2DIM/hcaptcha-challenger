@@ -206,9 +206,7 @@ def load_gravitas_from_issues() -> List[Gravitas]:
 def get_archive_release() -> GitRelease:
     auth = Auth.Token(os.getenv("GITHUB_TOKEN"))
     archive_release = (
-        Github(auth=auth)
-        .get_repo("captcha-challenger/hcaptcha-whistleblower")
-        .get_release(120534711)
+        Github(auth=auth).get_repo("CaptchaAgent/hcaptcha-whistleblower").get_release(120534711)
     )
     return archive_release
 
