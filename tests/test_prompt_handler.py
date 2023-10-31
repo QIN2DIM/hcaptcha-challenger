@@ -75,15 +75,25 @@ def test_prefix_binder(model_name: str):
         assert " " in binder
 
 
-def test_new_bad_code():
-    def review_badcode():
-        for char in prompt:
-            if not char.isascii() and char not in BAD_CODE and char not in memo:
-                memo.add(char)
-                print(f">> NOT ALPHA {char=}, \\u{ord(char):04x}")
+def review_badcode(prompt, memo):
+    for char in prompt:
+        if not char.isascii() and char not in BAD_CODE and char not in memo:
+            memo.add(char)
+            print(f">> NOT ALPHA {char=}, \\u{ord(char):04x}")
 
+
+def test_new_bad_code():
     memo = set()
     for prompt in prompts:
-        review_badcode()
+        review_badcode(prompt, memo)
 
     assert len(memo) == 0, memo
+
+
+def test_special_bad_code():
+    prompt = handle("brlcks")
+    for char in prompt:
+        if not char.isascii() and char not in BAD_CODE:
+            print(f">> NOT ALPHA {char=}, \\u{ord(char):04x}")
+
+    assert "l" == "l"
