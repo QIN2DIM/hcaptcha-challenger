@@ -575,6 +575,9 @@ label_alias:
   red_panda2310:
     en:
     - red panda
+  keyboard2309:
+    en:
+    - keyboard
 datalake:
   furniture:
     positive_labels:
