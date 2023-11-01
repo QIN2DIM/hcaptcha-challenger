@@ -24,6 +24,8 @@ nested_categories:
   - nested_largest_bird2310.onnx
   please click on the turtle's head:
   - head_of_the_animal_turtle_2309_yolov8s.onnx
+  please click on the meerkat's head:
+  - head_of_the_meerkat_2311_yolov8n.onnx
   please click on the smallest animal:
   - nested_smallest_turtle2309.onnx
   the smallest animal:
@@ -33,6 +35,8 @@ nested_categories:
 ashes_of_war:
   star_with_a_texture_of_bricks_2309_yolov8s-seg.onnx:
   - star-bricks
+  head_of_the_meerkat_2311_yolov8n.onnx:
+  - animal-head
   head_of_the_animal_turtle_2309_yolov8s.onnx:
   - animal-head
   can_run_2309_yolov8s.onnx:
