@@ -113,7 +113,7 @@ def format_datalake(dl: DataLake) -> Tuple[List[str], List[str]]:
         for i, label in enumerate(labels):
             if "a photo" in label:
                 continue
-            labels[i] = f"This is a photo of the {label}."
+            labels[i] = dl.premised.format(label)
 
     # Formatting model input
     candidate_labels = positive_labels.copy()
