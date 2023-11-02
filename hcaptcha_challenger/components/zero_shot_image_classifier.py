@@ -105,7 +105,7 @@ def format_datalake(dl: DataLake) -> Tuple[List[str], List[str]]:
         if true_label not in positive_labels:
             positive_labels.append(true_label)
         if not negative_labels:
-            false_label = f"This is a photo that has nothing to do with {true_label}."
+            false_label = dl.PREMISED_BAD.format(true_label)
             negative_labels.append(false_label)
 
     # Insert hypothesis_template
@@ -113,7 +113,7 @@ def format_datalake(dl: DataLake) -> Tuple[List[str], List[str]]:
         for i, label in enumerate(labels):
             if "a photo" in label:
                 continue
-            labels[i] = dl.premised.format(label)
+            labels[i] = dl.PREMISED_YES.format(label)
 
     # Formatting model input
     candidate_labels = positive_labels.copy()

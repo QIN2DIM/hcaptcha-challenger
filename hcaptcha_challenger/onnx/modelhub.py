@@ -275,14 +275,6 @@ class ModelHub:
     Used to generate prompt templates to intensify inserted CLIP model and improve accuracy.
     """
 
-    premised_candidates: List[str] = field(default_factory=list)
-    """
-    self-supervised challenge
-    ---
-    It is used to improve the accuracy of zero-sample image classification tasks. 
-    Most of the time it is useful.
-    """
-
     DEFAULT_CLIP_VISUAL_MODEL: str = "visual_CLIP_RN50.openai.onnx"
     DEFAULT_CLIP_TEXTUAL_MODEL: str = "textual_CLIP_RN50.openai.onnx"
     """
@@ -548,9 +540,10 @@ class DataLake:
     Please do not read in during the initialization phase.
     """
 
-    premised: str = "This is a photo of the {}."
+    PREMISED_YES: str = "This is a picture that looks like {}."
+    PREMISED_BAD: str = "This is a picture that don't look like {}."
     """
-    Insert hypothesis_template
+    Insert self-supervised prompt
     """
 
     @classmethod
