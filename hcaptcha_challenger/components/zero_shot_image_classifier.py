@@ -111,7 +111,7 @@ def format_datalake(dl: DataLake) -> Tuple[List[str], List[str]]:
     # Insert hypothesis_template
     for labels in [positive_labels, negative_labels]:
         for i, label in enumerate(labels):
-            if "a photo" in label:
+            if "This is a" in label:
                 continue
             labels[i] = dl.PREMISED_YES.format(label)
 
