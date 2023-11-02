@@ -233,14 +233,47 @@ class ModelHub:
     objects_path = models_dir.joinpath("objects.yaml")
 
     lang: str = "en"
+
     label_alias: Dict[str, str] = field(default_factory=dict)
+    """
+    Image classification
+    ---
+    The most basic function
+    Storing a series of mappings from model names to short prompts, 
+    I .e., what model to use to handle what challenge is determined by this dictionary.
+    """
 
     yolo_names: List[str] = field(default_factory=list)
     ashes_of_war: Dict[str, List[str]] = field(default_factory=dict)
+    """
+    Object Detection
+    ---
+    Provide a series of object detection models applied to special tasks.
+    The yolo_names stores the label names of all task objects that the model can process.
+    """
 
     nested_categories: Dict[str, List[str]] = field(default_factory=dict)
+    """
+    Model Rank.Strategy
+    ---
+    Provide a string of small model clusters for a prompt to realize 
+    "find the ｛z｝ pictures most similar to ｛y｝ in the ｛x_i｝ pictures"
+    """
+
     circle_segment_model: str = field(default=str)
+    """
+    Image Segmentation
+    ---
+    A model trained specifically for image segmentation tasks 
+    that can separate background and foreground with close to 100 percent accuracy
+    """
+
     datalake: Dict[str, DataLake] = field(default_factory=dict)
+    """
+    ViT zero-shot image classification
+    ---
+    Used to generate prompt templates to intensify inserted CLIP model and improve accuracy.
+    """
 
     DEFAULT_CLIP_VISUAL_MODEL: str = "visual_CLIP_RN50.openai.onnx"
     DEFAULT_CLIP_TEXTUAL_MODEL: str = "textual_CLIP_RN50.openai.onnx"
@@ -505,6 +538,12 @@ class DataLake:
     !! IMPORT !!
     Only for unsupervised challenges.
     Please do not read in during the initialization phase.
+    """
+
+    PREMISED_YES: str = "This is a picture that looks like {}."
+    PREMISED_BAD: str = "This is a picture that don't look like {}."
+    """
+    Insert self-supervised prompt
     """
 
     @classmethod
