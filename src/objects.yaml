@@ -606,32 +606,9 @@ datalake:
     - guitar
     - game tool
     - keyboard
-  off-road vehicle:
+  animal:
     positive_labels:
-    - off-road vehicle
+      - fish
     negative_labels:
-    - car
-    - bicycle
-  pair of headphones:
-    positive_labels:
-    - pair of headphones
-    negative_labels:
-    - elephant
-    - car
-    - cat
-  bicycle:
-    positive_labels:
-    - bicycle
-    negative_labels:
-    - car
-    - off-road vehicle
-  land animal:
-    positive_labels:
-    - kangaroo
-    - lion
-    negative_labels:
-    - butterfly
-    - shark
-    - whale
-    - dolphin
-    - jellyfish
+      - forklift
+      - circuit board
