@@ -615,12 +615,13 @@ datalake:
     negative_labels:
     - car
     - off-road vehicle
-  the largest animal:
+  microwave:
     positive_labels:
-    - fox
-    - dog
+      - microwave
     negative_labels:
-    - crab
-    - ant
-    - bird
-    - dragonfly
+      - goat
+      - headphones
+      - panda
+      - guitar
+      - computer
+      - office places
