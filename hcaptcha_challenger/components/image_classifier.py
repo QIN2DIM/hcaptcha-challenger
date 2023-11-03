@@ -137,7 +137,7 @@ class Classifier:
         self,
         prompt: str,
         image_paths: List[Path],
-        example_paths: List[Path] | None = None,
+        example_paths: List[Path] = None,
         *,
         self_supervised: bool | None = True,
     ) -> List[bool | None]:
