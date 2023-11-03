@@ -619,13 +619,12 @@ datalake:
     negative_labels:
     - car
     - off-road vehicle
-  microwave:
+  land animal:
     positive_labels:
-    - microwave
+      - kangaroo
     negative_labels:
-    - goat
-    - headphones
-    - panda
-    - guitar
-    - computer
-    - office places
+      - butterfly
+      - shark
+      - whale
+      - dolphin
+      - jellyfish
