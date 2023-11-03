@@ -590,6 +590,9 @@ label_alias:
   microwave2309:
     en:
     - microwave
+  industrial_machinery2309:
+    en:
+    - industrial machinery
 datalake:
   furniture:
     positive_labels:
@@ -621,11 +624,11 @@ datalake:
     - off-road vehicle
   land animal:
     positive_labels:
-      - kangaroo
-      - lion
+    - kangaroo
+    - lion
     negative_labels:
-      - butterfly
-      - shark
-      - whale
-      - dolphin
-      - jellyfish
+    - butterfly
+    - shark
+    - whale
+    - dolphin
+    - jellyfish
