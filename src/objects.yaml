@@ -586,6 +586,9 @@ label_alias:
   keyboard2310:
     en:
     - keyboard
+  microwave2309:
+    en:
+    - microwave
 datalake:
   furniture:
     positive_labels:
@@ -617,11 +620,11 @@ datalake:
     - off-road vehicle
   microwave:
     positive_labels:
-      - microwave
+    - microwave
     negative_labels:
-      - goat
-      - headphones
-      - panda
-      - guitar
-      - computer
-      - office places
+    - goat
+    - headphones
+    - panda
+    - guitar
+    - computer
+    - office places
