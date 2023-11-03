@@ -606,9 +606,3 @@ datalake:
     - guitar
     - game tool
     - keyboard
-  animal:
-    positive_labels:
-      - fish
-    negative_labels:
-      - forklift
-      - circuit board
