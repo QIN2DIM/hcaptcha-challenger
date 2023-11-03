@@ -593,6 +593,9 @@ label_alias:
   industrial_machinery2309:
     en:
     - industrial machinery
+  land_animal2309:
+    en:
+    - land animal
 datalake:
   furniture:
     positive_labels:
