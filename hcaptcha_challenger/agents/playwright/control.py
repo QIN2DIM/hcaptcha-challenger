@@ -21,7 +21,7 @@ from PIL import Image
 from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position
 from playwright.async_api import TimeoutError
-
+from hcaptcha_challenger.components.image_classifier import rank_models
 from hcaptcha_challenger.components.cv_toolkit import (
     find_unique_object,
     annotate_objects,
@@ -389,28 +389,10 @@ class Radagon:
         control = ResNetControl.from_pluggable_model(net)
         return control
 
-    def _rank_models(self) -> ResNetControl | None:
-        nested_models = self.nested_categories.get(self._label, [])
-        if not nested_models:
-            return
-
-        # {{< Rank ResNet Models >}}
-        rank_ladder = []
-        for example_path in self._example_paths:
-            img_stream = example_path.read_bytes()
-            for model_name in nested_models:
-                net = self.modelhub.match_net(focus_name=model_name)
-                control = ResNetControl.from_pluggable_model(net)
-                result_, proba = control.execute(img_stream, proba=True)
-                if result_:
-                    rank_ladder.append([control, model_name, proba])
-                    if proba[0] > 0.87:
-                        break
-
-        # {{< Catch-all Rules >}}
-        if rank_ladder:
-            alts = sorted(rank_ladder, key=lambda x: x[-1][0], reverse=True)
-            best_model, model_name = alts[0][0], alts[0][1]
+    def _rank_models(self, nested_models: List[str]) -> ResNetControl | None:
+        result = rank_models(nested_models, self._example_paths, self.modelhub)
+        if result and isinstance(result, tuple):
+            best_model, model_name = result
             logger.debug("rank model", resnet=model_name, prompt=self._prompt)
             return best_model
 
@@ -735,8 +717,8 @@ class AgentT(Radagon):
 
         # Match: image_label_binary
         if self.qr.request_type == "image_label_binary":
-            if self.nested_categories.get(self._label):
-                if model := self._rank_models():
+            if nested_models := self.nested_categories.get(self._label, []):
+                if model := self._rank_models(nested_models):
                     await self._binary_challenge(frame_challenge, model)
                 else:
                     return self.status.CHALLENGE_BACKCALL

@@ -5,6 +5,7 @@
 # Description:
 import os
 from pathlib import Path
+from typing import List
 
 import hcaptcha_challenger as solver
 
@@ -17,7 +18,7 @@ assets_dir = Path(__file__).parent.parent.joinpath("assets")
 pending_keys = ["hedgehog", "rabbit", "raccoon"]
 
 
-def bytedance(image_paths, example_paths):
+def bytedance(image_paths: List[Path], example_paths: List[Path] = None):
     classifier = solver.BinaryClassifier()
     if results := classifier.execute(prompt, image_paths, example_paths):
         for image_path, result in zip(image_paths, results):

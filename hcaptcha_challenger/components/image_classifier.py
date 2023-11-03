@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import cv2
 from PIL import Image
@@ -20,6 +20,31 @@ from hcaptcha_challenger.components.zero_shot_image_classifier import (
 )
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
+
+
+def rank_models(
+    nested_models: List[str], example_paths: List[Path], modelhub: ModelHub
+) -> Tuple[ResNetControl, str] | None:
+    # {{< Rank ResNet Models >}}
+    rank_ladder = []
+
+    for example_path in example_paths:
+        img_stream = example_path.read_bytes()
+        for model_name in reversed(nested_models):
+            if (net := modelhub.match_net(focus_name=model_name)) is None:
+                return
+            control = ResNetControl.from_pluggable_model(net)
+            result_, proba = control.execute(img_stream, proba=True)
+            if result_:
+                rank_ladder.append([control, model_name, proba])
+                if proba[0] > 0.87:
+                    break
+
+    # {{< Catch-all Rules >}}
+    if rank_ladder:
+        alts = sorted(rank_ladder, key=lambda x: x[-1][0], reverse=True)
+        best_model, model_name = alts[0][0], alts[0][1]
+        return best_model, model_name
 
 
 class Classifier:
@@ -51,31 +76,11 @@ class Classifier:
         self.label = handle(self.prompt)
 
     def rank_models(
-        self, nested_models: List[str], example_paths: List[Path | bytes]
+        self, nested_models: List[str], example_paths: List[Path]
     ) -> ResNetControl | None:
-        # {{< Rank ResNet Models >}}
-        rank_ladder = []
-        for example_path in example_paths:
-            if isinstance(example_path, bytes):
-                img_stream = example_path
-            elif isinstance(example_path, Path):
-                img_stream = example_path.read_bytes()
-            else:
-                continue
-
-            for model_name in nested_models:
-                net = self.modelhub.match_net(focus_name=model_name)
-                control = ResNetControl.from_pluggable_model(net)
-                result_, proba = control.execute(img_stream, proba=True)
-                if result_:
-                    rank_ladder.append([control, model_name, proba])
-                    if proba[0] > 0.87:
-                        break
-
-        # {{< Catch-all Rules >}}
-        if rank_ladder:
-            alts = sorted(rank_ladder, key=lambda x: x[-1][0], reverse=True)
-            best_model, model_name = alts[0][0], alts[0][1]
+        result = rank_models(nested_models, example_paths, self.modelhub)
+        if result and isinstance(result, tuple):
+            best_model, model_name = result
             self.model_name = model_name
             return best_model
 
@@ -132,7 +137,7 @@ class Classifier:
         self,
         prompt: str,
         image_paths: List[Path],
-        example_paths: List[Path | bytes] | None = None,
+        example_paths: List[Path] = None,
         *,
         self_supervised: bool | None = True,
     ) -> List[bool | None]:
