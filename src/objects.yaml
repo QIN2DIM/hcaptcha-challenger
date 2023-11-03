@@ -622,6 +622,7 @@ datalake:
   land animal:
     positive_labels:
       - kangaroo
+      - lion
     negative_labels:
       - butterfly
       - shark
