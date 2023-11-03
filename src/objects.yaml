@@ -609,3 +609,13 @@ datalake:
     - guitar
     - game tool
     - keyboard
+  flying animal:
+    positive_labels:
+      - flying animal
+      - bird
+    negative_labels:
+      - elephant
+      - lion
+      - land animal
+      - whale
+      - dolphin
