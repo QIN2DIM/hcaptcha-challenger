@@ -605,6 +605,9 @@ label_alias:
   water_animal2309:
     en:
     - water animal
+  clock2309:
+    en:
+    - clock
 datalake:
   furniture:
     positive_labels:
