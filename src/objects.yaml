@@ -629,3 +629,13 @@ datalake:
       - flying animal
       - bird
       - butterfly
+  clock:
+    positive_labels:
+      - clock
+    negative_labels:
+      - goat
+      - bird
+      - guitar
+      - suitcase
+      - animal
+      - wolf
