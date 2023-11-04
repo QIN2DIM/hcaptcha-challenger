@@ -599,6 +599,9 @@ label_alias:
   animal2309:
     en:
     - animal
+  flying_animal2309:
+    en:
+    - flying animal
 datalake:
   furniture:
     positive_labels:
@@ -611,31 +614,31 @@ datalake:
     - keyboard
   flying animal:
     positive_labels:
-      - flying animal
-      - bird
+    - flying animal
+    - bird
     negative_labels:
-      - elephant
-      - lion
-      - land animal
-      - whale
-      - dolphin
-      - water animal
+    - elephant
+    - lion
+    - land animal
+    - whale
+    - dolphin
+    - water animal
   water animal:
     positive_labels:
-      - water animal
-      - jellyfish
+    - water animal
+    - jellyfish
     negative_labels:
-      - land animal
-      - flying animal
-      - bird
-      - butterfly
+    - land animal
+    - flying animal
+    - bird
+    - butterfly
   clock:
     positive_labels:
-      - clock
+    - clock
     negative_labels:
-      - goat
-      - bird
-      - guitar
-      - suitcase
-      - animal
-      - wolf
+    - goat
+    - bird
+    - guitar
+    - suitcase
+    - animal
+    - wolf
