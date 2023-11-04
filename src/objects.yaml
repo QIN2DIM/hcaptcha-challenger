@@ -619,3 +619,13 @@ datalake:
       - land animal
       - whale
       - dolphin
+      - water animal
+  water animal:
+    positive_labels:
+      - water animal
+      - jellyfish
+    negative_labels:
+      - land animal
+      - flying animal
+      - bird
+      - butterfly
