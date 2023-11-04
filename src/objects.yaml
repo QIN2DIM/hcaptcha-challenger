@@ -642,3 +642,10 @@ datalake:
     - suitcase
     - animal
     - wolf
+  football stadium:
+    positive_labels:
+    - football stadium
+    negative_labels:
+    - mouse
+    - natural landscape
+    - river
