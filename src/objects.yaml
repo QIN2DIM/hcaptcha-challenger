@@ -602,6 +602,9 @@ label_alias:
   flying_animal2309:
     en:
     - flying animal
+  water_animal2309:
+    en:
+    - water animal
 datalake:
   furniture:
     positive_labels:
