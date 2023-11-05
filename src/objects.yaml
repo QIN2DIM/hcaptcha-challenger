@@ -644,3 +644,12 @@ datalake:
     - mouse
     - football stadium
     - basketball
+  electric components:
+    positive_labels:
+    - electric components
+    - cable
+    negative_labels:
+    - animal
+    - boat
+    - bird
+    - butterfly
