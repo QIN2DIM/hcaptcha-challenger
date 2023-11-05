@@ -32,9 +32,9 @@ nested_categories:
   the smallest animal:
   - nested_smallest_starfish2309.onnx
   - nested_smallest_horse2311.onnx
-  - nested_smallest_bird2310.onnx
   - nested_smallest_zebra2309.onnx
   - nested_smallest_turtle2310.onnx
+  - nested_smallest_bird2311.onnx
   please click in the center of a spiral pattern:
   - spiral_pattern_2309_yolov8n.onnx
 ashes_of_war:
