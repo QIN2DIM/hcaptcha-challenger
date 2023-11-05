@@ -613,6 +613,9 @@ label_alias:
   motorized_machine2312:
     en:
     - motorized machine
+  electric_components2309:
+    en:
+    - electric components
 datalake:
   furniture:
     positive_labels:
