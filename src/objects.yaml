@@ -563,9 +563,6 @@ label_alias:
     - 电子设备
     en:
     - electronic device
-  motorized_machine2311:
-    en:
-    - motorized machine
   pair_of_headphones2309:
     en:
     - pair of headphones
@@ -613,6 +610,9 @@ label_alias:
   clock2309:
     en:
     - clock
+  motorized_machine2312:
+    en:
+    - motorized machine
 datalake:
   furniture:
     positive_labels:
