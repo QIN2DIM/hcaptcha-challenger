@@ -22,7 +22,7 @@ solver.install(upgrade=True, clip=clip_available)
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
-sitekey = SiteKey.epic
+sitekey = SiteKey.user_easy
 
 
 @logger.catch
