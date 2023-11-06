@@ -27,6 +27,8 @@ nested_categories:
   - head_of_the_animal_turtle_2309_yolov8s.onnx
   please click on the meerkat's head:
   - head_of_the_meerkat_2311_yolov8n.onnx
+  please click on the jaguar's head:
+  - head_of_the_jaguar_mask_2309_yolov8n.onnx
   please click on the smallest animal:
   - nested_smallest_turtle2309.onnx
   the smallest animal:
@@ -38,6 +40,12 @@ nested_categories:
   please click in the center of a spiral pattern:
   - spiral_pattern_2309_yolov8n.onnx
 ashes_of_war:
+  head_of_the_animal_2310_yolov8s.onnx:
+  - animal-head
+  head_of_the_animal_bear_2309_yolov8n.onnx:
+  - bear-head
+  head_of_the_jaguar_mask_2309_yolov8n.onnx:
+  - animal-head
   spiral_pattern_2309_yolov8n.onnx:
   - spiral-center
   star_with_a_texture_of_bricks_2309_yolov8s-seg.onnx:
@@ -50,10 +58,6 @@ ashes_of_war:
   - can-run
   appears_only_once_2309_yolov8s-seg.onnx:
   - the-one-piece
-  head_of_the_animal_bear_2309_yolov8n.onnx:
-  - bear-head
-  head_of_the_animal_2310_yolov8s.onnx:
-  - animal-head
   can_be_eaten_2312_yolov8s.onnx:
   - x-eaten
   notanimal2310_yolov8s.onnx:
