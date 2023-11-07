@@ -602,6 +602,9 @@ label_alias:
   land_animal2309:
     en:
     - land animal
+  animal2309:
+    en:
+    - animal
   water_animal2309:
     en:
     - water animal
