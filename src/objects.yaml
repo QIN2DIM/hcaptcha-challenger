@@ -618,6 +618,9 @@ label_alias:
   flying_animal2310:
     en:
     - flying animal
+  animal2310:
+    en:
+    - animal
 datalake:
   furniture:
     positive_labels:
