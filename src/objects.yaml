@@ -671,3 +671,4 @@ datalake:
     - bird
     negative_labels:
     - cables
+    - forklift
