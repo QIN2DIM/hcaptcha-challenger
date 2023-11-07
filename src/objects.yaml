@@ -668,7 +668,6 @@ datalake:
   animal:
     positive_labels:
     - animal
-    - bird
     negative_labels:
+    - machine
     - cables
-    - forklift
