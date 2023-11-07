@@ -602,9 +602,6 @@ label_alias:
   land_animal2309:
     en:
     - land animal
-  animal2309:
-    en:
-    - animal
   water_animal2309:
     en:
     - water animal
@@ -668,3 +665,9 @@ datalake:
     - boat
     - butterfly
     - bird
+  animal:
+    positive_labels:
+    - animal
+    - bird
+    negative_labels:
+    - cables
