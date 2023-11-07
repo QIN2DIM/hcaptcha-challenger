@@ -621,6 +621,9 @@ label_alias:
   animal2310:
     en:
     - animal
+  electric_cables2309:
+    en:
+    - electric cables
 datalake:
   furniture:
     positive_labels:
