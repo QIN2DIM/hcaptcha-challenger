@@ -660,3 +660,11 @@ datalake:
     - boat
     - bird
     - butterfly
+  electric cables:
+    positive_labels:
+    - electric cables
+    negative_labels:
+    - animal
+    - boat
+    - butterfly
+    - bird
