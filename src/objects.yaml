@@ -670,5 +670,6 @@ datalake:
     positive_labels:
     - animal
     negative_labels:
-    - machine
+    - forklift
+    - boat
     - cables
