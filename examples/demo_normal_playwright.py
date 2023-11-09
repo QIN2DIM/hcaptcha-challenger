@@ -61,7 +61,6 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
                 fl = page.frame_locator(agent.HOOK_CHALLENGE)
                 await fl.locator("//div[@class='refresh button']").click()
             case agent.status.CHALLENGE_SUCCESS:
-                await page.wait_for_timeout(2000)
                 return
 
 
