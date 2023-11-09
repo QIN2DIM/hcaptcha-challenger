@@ -31,7 +31,8 @@ def patch_datalake(modelhub: solver.ModelHub):
         "animal": {
             "positive_labels": ["animal", "bird"],
             "negative_labels": ["cables", "forklift", "boat"],
-        }
+        },
+        solver.handle("Select all cats."): {"positive_labels": ["cat"], "negative_labels": ["dog"]},
     }
     for prompt_, serialized_binary in datalake_post.items():
         dl = solver.DataLake.from_serialized(serialized_binary)
@@ -60,6 +61,7 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
                 fl = page.frame_locator(agent.HOOK_CHALLENGE)
                 await fl.locator("//div[@class='refresh button']").click()
             case agent.status.CHALLENGE_SUCCESS:
+                await page.wait_for_timeout(2000)
                 return
 
 
@@ -67,7 +69,9 @@ async def bytedance():
     # playwright install chromium --with-deps
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
-        context = await browser.new_context(locale="en-US")
+        context = await browser.new_context(
+            locale="en-US", record_video_dir=Path("user_data_dir/record")
+        )
         await hit_challenge(context)
 
 
