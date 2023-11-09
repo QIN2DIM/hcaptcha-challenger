@@ -22,6 +22,7 @@ solver.install(upgrade=True, clip=clip_available)
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
+# sitekey = "58366d97-3e8c-4b57-a679-4a41c8423be3"
 sitekey = SiteKey.user_easy
 
 
