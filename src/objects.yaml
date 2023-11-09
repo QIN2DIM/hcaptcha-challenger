@@ -626,6 +626,9 @@ label_alias:
   electric_cables2309:
     en:
     - electric cables
+  volcano2309:
+    en:
+    - volcano
 datalake:
   furniture:
     positive_labels:
