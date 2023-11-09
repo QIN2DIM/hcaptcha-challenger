@@ -629,6 +629,9 @@ label_alias:
   volcano2309:
     en:
     - volcano
+  land_vehicle2309:
+    en:
+    - land vehicle
 datalake:
   furniture:
     positive_labels:
