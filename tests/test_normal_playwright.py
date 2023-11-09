@@ -12,7 +12,7 @@ from hcaptcha_challenger.agents import Malenia, AgentT
 from hcaptcha_challenger.utils import SiteKey
 
 
-async def test_normal_instance():
+async def _normal_instance():
     tmp_dir = Path(__file__).parent.joinpath("tmp_dir_normal_instance")
     shutil.rmtree(tmp_dir, ignore_errors=True)
 

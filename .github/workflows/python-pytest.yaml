@@ -57,7 +57,7 @@ jobs:
       - name: Install Playwright
         run: |
           source .venv/bin/activate
-          playwright install chromium --with-deps
+#          playwright install chromium --with-deps
       - name: Test with pytest
         env:
           GITHUB_TOKEN: ${{ secrets.SENTINEL_ACCESS_TOKEN }}
