@@ -37,7 +37,7 @@ python = "^3.8"
 opencv-python = "^4.8.0.76"
 numpy = "^1.24.4"
 httpx = { version = "*", extras = ["http2"] }
-onnxruntime = "^1.16.1"
+onnxruntime = "1.16.1"
 loguru = "*"
 tqdm = "*"
 pyyaml = "*"
