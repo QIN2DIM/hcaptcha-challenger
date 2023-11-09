@@ -626,12 +626,12 @@ label_alias:
   electric_cables2309:
     en:
     - electric cables
-  volcano2309:
-    en:
-    - volcano
   land_vehicle2309:
     en:
     - land vehicle
+  volcano2310:
+    en:
+    - volcano
 datalake:
   furniture:
     positive_labels:
