@@ -669,3 +669,15 @@ datalake:
     negative_labels:
     - water vehicle
     - flying vehicle
+  water vehicle:
+    positive_labels:
+    - water vehicle
+    negative_labels:
+    - flying vehicle
+    - land vehicle
+  flying vehicle:
+    positive_labels:
+      - flying vehicle
+    negative_labels:
+      - water vehicle
+      - land vehicle
