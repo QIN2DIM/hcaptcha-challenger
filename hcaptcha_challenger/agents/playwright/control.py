@@ -19,14 +19,15 @@ from typing import List, Dict, Any, Literal, Iterable
 
 from PIL import Image
 from loguru import logger
-from playwright.async_api import Page, FrameLocator, Response, Position
+from playwright.async_api import Page, FrameLocator, Response, Position, Locator
 from playwright.async_api import TimeoutError
-from hcaptcha_challenger.components.image_classifier import rank_models
+
 from hcaptcha_challenger.components.cv_toolkit import (
     find_unique_object,
     annotate_objects,
     find_unique_color,
 )
+from hcaptcha_challenger.components.image_classifier import rank_models
 from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.prompt_handler import handle, label_cleaning
 from hcaptcha_challenger.components.zero_shot_image_classifier import (
@@ -121,6 +122,8 @@ class QuestionResp:
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]):
+        if isinstance(data.get("requester_question_example"), str):
+            data["requester_question_example"] = [data["requester_question_example"]]
         return from_dict_to_model(cls, data)
 
     def save_example(self, tmp_dir: Path = None):
@@ -644,6 +647,50 @@ class Radagon:
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
 
+    async def _multiple_choice_challenge(self, frame_challenge: FrameLocator):
+        def inject_datalake(img_path: Path) -> Locator | None:
+            candidates = [lb["text"] for lb in label_btn]
+            dl = DataLake.from_binary_labels(
+                positive_labels=candidates[:1], negative_labels=candidates[1:]
+            )
+            tool = ZeroShotImageClassifier.from_datalake(dl)
+            results = tool(model, image=Image.open(img_path))
+            sample_label = results[0]["label"]
+            logger.debug(
+                "unsupervised",
+                type="multiple choice",
+                results=sample_label,
+                candidate_labels=candidates,
+                prompt=self._prompt,
+            )
+            for lb in label_btn:
+                if DataLake.PREMISED_YES.format(lb["text"]) == sample_label:
+                    return lb["btn"]
+
+        model = register_pipline(self.modelhub)
+
+        times = int(len(self.qr.tasklist))
+        for pth in range(times):
+            await self.page.wait_for_timeout(300)
+            label_btn: List[Dict[str, str | Locator]] = []
+            samples = frame_challenge.locator("//div[@class='challenge-answer']")
+            count = await samples.count()
+            for i in range(count):
+                sample = samples.nth(i)
+                await sample.wait_for()
+                text_content = await sample.text_content()
+                label_btn.append({"text": text_content.strip(), "btn": sample})
+
+            if btn := inject_datalake(img_path=self._img_paths[pth]):
+                await btn.click(delay=200)
+            else:
+                await label_btn[-1]["btn"].click(delay=200)
+
+            # {{< Verify >}}
+            with suppress(TimeoutError):
+                fl = frame_challenge.locator("//div[@class='button-submit button']")
+                await fl.click()
+
     async def _is_success(self):
         self.cr = await self.cr_queue.get()
         if not self.cr or not self.cr.is_pass:
@@ -745,6 +792,12 @@ class AgentT(Radagon):
                     await self._keypoint_challenge(frame_challenge)
                 elif shape_type == "bounding_box":
                     await self._bounding_challenge(frame_challenge)
+        # Match: image_label_multiple_choice
+        elif self.qr.request_type == "image_label_multiple_choice":
+            # By default, CLIP is used to process this type of task.
+            if not self.self_supervised:
+                return self.status.CHALLENGE_BACKCALL
+            await self._multiple_choice_challenge(frame_challenge)
 
         self.modelhub.unplug()
 

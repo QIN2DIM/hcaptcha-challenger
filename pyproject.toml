@@ -3,7 +3,7 @@
 
 [tool.poetry]
 name = "hcaptcha-challenger"
-version = "0.9.3"
+version = "0.9.4"
 description = "🥂 Gracefully face hCaptcha challenge with MoE(ONNX) embedded solution."
 license = "GPL-3.0-or-later"
 authors = ["QIN2DIM <yaoqinse@gmail.com>", "Bingjie Yan <bj.yan.pa@qq.com>"]
@@ -37,7 +37,7 @@ python = "^3.8"
 opencv-python = "^4.8.0.76"
 numpy = "^1.24.4"
 httpx = { version = "*", extras = ["http2"] }
-onnxruntime = "^1.16.1"
+onnxruntime = "1.16.1"
 loguru = "*"
 tqdm = "*"
 pyyaml = "*"

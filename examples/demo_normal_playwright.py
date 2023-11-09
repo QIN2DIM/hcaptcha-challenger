@@ -31,7 +31,8 @@ def patch_datalake(modelhub: solver.ModelHub):
         "animal": {
             "positive_labels": ["animal", "bird"],
             "negative_labels": ["cables", "forklift", "boat"],
-        }
+        },
+        solver.handle("Select all cats."): {"positive_labels": ["cat"], "negative_labels": ["dog"]},
     }
     for prompt_, serialized_binary in datalake_post.items():
         dl = solver.DataLake.from_serialized(serialized_binary)
@@ -67,7 +68,9 @@ async def bytedance():
     # playwright install chromium --with-deps
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
-        context = await browser.new_context(locale="en-US")
+        context = await browser.new_context(
+            locale="en-US", record_video_dir=Path("user_data_dir/record")
+        )
         await hit_challenge(context)
 
 
