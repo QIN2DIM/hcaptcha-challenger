@@ -676,9 +676,13 @@ datalake:
     negative_labels:
     - flying vehicle
     - land vehicle
-  flying vehicle:
+  machine that flies:
     positive_labels:
     - flying vehicle
+    - airplane
+    - propeller
     negative_labels:
+    - truck
+    - boat
     - water vehicle
     - land vehicle
