@@ -260,8 +260,8 @@ class Radagon:
         self.handle_question_resp(self.page)
 
     async def handler(self, response: Response):
-        if response.url.startswith("https://hcaptcha.com/getcaptcha/"):
-            with suppress(Exception):
+        if response.url.startswith("https://api.hcaptcha.com/getcaptcha/"):
+            try:
                 data = await response.json()
                 qr = QuestionResp.from_json(data)
                 qr.save_example(tmp_dir=self.record_json_dir)
@@ -269,11 +269,15 @@ class Radagon:
                 if data.get("pass"):
                     cr = ChallengeResp.from_json(data)
                     self.cr_queue.put_nowait(cr)
-        if response.url.startswith("https://hcaptcha.com/checkcaptcha/"):
-            with suppress(Exception):
+            except Exception as err:
+                logger.exception(err)
+        if response.url.startswith("https://api.hcaptcha.com/checkcaptcha/"):
+            try:
                 metadata = await response.json()
                 cr = ChallengeResp.from_json(metadata)
                 self.cr_queue.put_nowait(cr)
+            except Exception as err:
+                logger.exception(err)
 
     def handle_question_resp(self, page: Page):
         page.on("response", self.handler)
