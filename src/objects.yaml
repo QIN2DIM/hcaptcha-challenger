@@ -655,27 +655,9 @@ datalake:
     - mouse
     - football stadium
     - basketball
-  electric components:
+  land vehicle:
     positive_labels:
-    - electric components
-    - cable
+      - land vehicle
     negative_labels:
-    - animal
-    - boat
-    - bird
-    - butterfly
-  electric cables:
-    positive_labels:
-    - electric cables
-    negative_labels:
-    - animal
-    - boat
-    - butterfly
-    - bird
-  animal:
-    positive_labels:
-    - animal
-    negative_labels:
-    - forklift
-    - boat
-    - cables
+      - water vehicle
+      - flying vehicle
