@@ -40,6 +40,8 @@ nested_categories:
   - nested_smallest_bird2312.onnx
   please click in the center of a spiral pattern:
   - spiral_pattern_2309_yolov8n.onnx
+  images that appear warmer in comparison to other:
+  - nested_warmer_cactus2309.onnx
 ashes_of_war:
   head_of_the_animal_2310_yolov8s.onnx:
   - animal-head
@@ -657,7 +659,7 @@ datalake:
     - basketball
   land vehicle:
     positive_labels:
-      - land vehicle
+    - land vehicle
     negative_labels:
-      - water vehicle
-      - flying vehicle
+    - water vehicle
+    - flying vehicle
