@@ -42,6 +42,7 @@ nested_categories:
   - spiral_pattern_2309_yolov8n.onnx
   images that appear warmer in comparison to other:
   - nested_warmer_cactus2309.onnx
+  - nested_warmer_conference_room2309.onnx
 ashes_of_war:
   head_of_the_animal_2310_yolov8s.onnx:
   - animal-head
@@ -677,7 +678,7 @@ datalake:
     - land vehicle
   flying vehicle:
     positive_labels:
-      - flying vehicle
+    - flying vehicle
     negative_labels:
-      - water vehicle
-      - land vehicle
+    - water vehicle
+    - land vehicle
