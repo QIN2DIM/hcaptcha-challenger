@@ -53,6 +53,8 @@ def test_split_binary_prompt():
         "Please click each image containing an off-road vehicle",
         "Please click on the STAR with a texture of BRICKS",
         "Please click on the smallest animal.",
+        "Please select all images that appear warmer in comparison to other images",
+        "Select all cats.",
     ]
     for prompt in prompts_:
         print(handle(prompt))

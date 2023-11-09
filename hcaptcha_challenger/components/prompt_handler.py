@@ -51,6 +51,8 @@ def split_prompt_message(prompt_message: str, lang: str) -> str:
         if "containing" in prompt_message:
             th = re.split(r"containing", prompt_message)[-1][1:].strip()
             return th[2:].strip() if th.startswith("a") else th
+        if prompt_message.startswith("select all") and "images" not in prompt_message:
+            return prompt_message.split("select all")[-1].strip()
         if "select all" in prompt_message:
             return re.split(r"all (.*) images", prompt_message)[1].strip()
     return prompt_message
