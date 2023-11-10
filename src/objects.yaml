@@ -43,6 +43,8 @@ nested_categories:
   images that appear warmer in comparison to other:
   - nested_warmer_cactus2309.onnx
   - nested_warmer_conference_room2309.onnx
+  electronic device:
+  - nested_electronic_device_mouse2309.onnx
 ashes_of_war:
   head_of_the_animal_2310_yolov8s.onnx:
   - animal-head
