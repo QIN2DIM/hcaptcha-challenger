@@ -636,6 +636,9 @@ label_alias:
   server2309:
     en:
     - server
+  movie_theater2309:
+    en:
+    - movie theater
 datalake:
   furniture:
     positive_labels:
