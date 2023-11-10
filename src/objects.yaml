@@ -645,6 +645,9 @@ label_alias:
   server2310:
     en:
     - server
+  business_suit2309:
+    en:
+    - business suit
 datalake:
   football stadium:
     positive_labels:
