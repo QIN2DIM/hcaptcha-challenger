@@ -46,6 +46,8 @@ nested_categories:
   electronic device:
   - electronic_device2316.onnx
   - nested_electronic_device_mouse2309.onnx
+  machine that flies:
+  - machine_that_flies2309.onnx
 ashes_of_war:
   head_of_the_animal_2310_yolov8s.onnx:
   - animal-head
@@ -634,9 +636,6 @@ label_alias:
   movie_theater2309:
     en:
     - movie theater
-  machine_that_flies2309:
-    en:
-    - machine that flies
   smartphone2309:
     en:
     - smartphone
