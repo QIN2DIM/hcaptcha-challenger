@@ -686,3 +686,18 @@ datalake:
     - boat
     - water vehicle
     - land vehicle
+  server:
+    positive_labels:
+    - server
+    negative_labels:
+    - cat
+    - elephant
+    - airplane
+  movie theater:
+    positive_labels:
+    - movie theater
+    negative_labels:
+    - flashlight
+    - house
+    - playground
+    - tape
