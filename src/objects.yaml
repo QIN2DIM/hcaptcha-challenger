@@ -48,6 +48,7 @@ nested_categories:
   - nested_electronic_device_mouse2309.onnx
   machine that flies:
   - machine_that_flies2309.onnx
+  - nested_machine_that_flies_helicopter2309.onnx
 ashes_of_war:
   head_of_the_animal_2310_yolov8s.onnx:
   - animal-head
