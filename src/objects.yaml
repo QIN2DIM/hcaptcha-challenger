@@ -639,6 +639,9 @@ label_alias:
   movie_theater2309:
     en:
     - movie theater
+  machine_that_flies2309:
+    en:
+    - machine that flies
 datalake:
   furniture:
     positive_labels:
