@@ -642,6 +642,9 @@ label_alias:
   machine_that_flies2309:
     en:
     - machine that flies
+  smartphone2309:
+    en:
+    - smartphone
 datalake:
   furniture:
     positive_labels:
