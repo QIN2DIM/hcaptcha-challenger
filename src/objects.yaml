@@ -633,6 +633,9 @@ label_alias:
   volcano2311:
     en:
     - volcano
+  server2309:
+    en:
+    - server
 datalake:
   furniture:
     positive_labels:
