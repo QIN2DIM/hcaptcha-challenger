@@ -646,15 +646,6 @@ label_alias:
     en:
     - server
 datalake:
-  furniture:
-    positive_labels:
-    - furniture
-    - chair
-    negative_labels:
-    - headphones
-    - guitar
-    - game tool
-    - keyboard
   football stadium:
     positive_labels:
     - football stadium
@@ -688,28 +679,3 @@ datalake:
     negative_labels:
     - flying vehicle
     - land vehicle
-  machine that flies:
-    positive_labels:
-    - flying vehicle
-    - airplane
-    - propeller
-    negative_labels:
-    - truck
-    - boat
-    - water vehicle
-    - land vehicle
-  server:
-    positive_labels:
-    - server
-    negative_labels:
-    - cat
-    - elephant
-    - airplane
-  movie theater:
-    positive_labels:
-    - movie theater
-    negative_labels:
-    - flashlight
-    - house
-    - playground
-    - tape
