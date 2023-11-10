@@ -44,6 +44,7 @@ nested_categories:
   - nested_warmer_cactus2309.onnx
   - nested_warmer_conference_room2309.onnx
   electronic device:
+  - electronic_device2316.onnx
   - nested_electronic_device_mouse2309.onnx
 ashes_of_war:
   head_of_the_animal_2310_yolov8s.onnx:
@@ -568,11 +569,6 @@ label_alias:
   pair_of_roller_skates2310:
     en:
     - pair of roller skates
-  electronic_device2316:
-    zh:
-    - 电子设备
-    en:
-    - electronic device
   pair_of_headphones2309:
     en:
     - pair of headphones
