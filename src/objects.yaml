@@ -658,6 +658,9 @@ label_alias:
   dragon2310:
     en:
     - dragon
+  city_street2309:
+    en:
+    - city street
 datalake:
   football stadium:
     positive_labels:
