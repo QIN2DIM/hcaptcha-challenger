@@ -46,7 +46,9 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
     agent = AgentT.from_page(page=page, tmp_dir=tmp_dir, self_supervised=clip_available)
     patch_datalake(agent.modelhub)
 
-    await page.goto(SiteKey.as_sitelink(sitekey))
+    url = SiteKey.as_sitelink(sitekey)
+    await page.goto(url)
+    logger.info("Startup sitelink", url=url)
 
     await agent.handle_checkbox()
 

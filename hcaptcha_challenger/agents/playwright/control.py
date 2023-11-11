@@ -133,6 +133,11 @@ class QuestionResp:
         answer_keys = list(self.requester_restricted_answer_set.keys())
         ak = f".{answer_keys[0]}" if len(answer_keys) > 0 else ""
         fn = f"{self.request_type}.{shape_type}.{requester_question}{ak}.json"
+
+        inv = {"\\", "/", ":", "*", "?", "<", ">", "|"}
+        for c in inv:
+            fn.replace(c, "")
+
         if tmp_dir and tmp_dir.exists():
             fn = tmp_dir.joinpath(fn)
 
@@ -589,8 +594,6 @@ class Radagon:
             # Drop element location
             samples = frame_challenge.locator("//div[@class='task-image']")
             count = await samples.count()
-            # Remember you are human not a robot
-            await self.page.wait_for_timeout(600)
             # Classify and Click on the right image
             positive_cases = 0
             for i in range(count):
@@ -605,6 +608,8 @@ class Radagon:
                 elif positive_cases == 0 and pth == times - 1 and i == count - 1:
                     await sample.click(delay=200)
 
+            # Remember you are human not a robot
+            await self.page.wait_for_timeout(1500)
             # {{< Verify >}}
             with suppress(TimeoutError):
                 fl = frame_challenge.locator("//div[@class='button-submit button']")

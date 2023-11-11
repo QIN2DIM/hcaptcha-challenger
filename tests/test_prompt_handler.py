@@ -55,6 +55,7 @@ def test_split_binary_prompt():
         "Please click on the smallest animal.",
         "Please select all images that appear warmer in comparison to other images",
         "Select all cats.",
+        "please click on the most similar object to the following reference shape:",
     ]
     for prompt in prompts_:
         print(handle(prompt))
