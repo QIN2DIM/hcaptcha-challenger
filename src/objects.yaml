@@ -680,3 +680,29 @@ datalake:
     negative_labels:
     - flying vehicle
     - land vehicle
+  dragon:
+    positive_labels:
+    - dragon
+    negative_labels:
+    - cat
+    - smartphone
+    - tiger
+    - elephant
+    - bird
+  panda:
+    positive_labels:
+    - keyboard
+    - dragon
+    - dog
+    - bird
+    - elephant
+    - suitcase
+    negative_labels:
+  hatchback car:
+    positive_labels:
+    - car
+    - hatchback car
+    negative_labels:
+    - cat
+    - server
+    - elephant
