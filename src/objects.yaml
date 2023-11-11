@@ -699,6 +699,7 @@ datalake:
     - bird
     - elephant
     - suitcase
+    - smartphone
   hatchback car:
     positive_labels:
     - car
