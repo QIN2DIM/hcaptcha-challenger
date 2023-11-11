@@ -691,13 +691,14 @@ datalake:
     - bird
   panda:
     positive_labels:
+    - panda
+    negative_labels:
     - keyboard
     - dragon
     - dog
     - bird
     - elephant
     - suitcase
-    negative_labels:
   hatchback car:
     positive_labels:
     - car
