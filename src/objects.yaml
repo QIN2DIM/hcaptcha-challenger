@@ -649,15 +649,15 @@ label_alias:
   business_suit2309:
     en:
     - business suit
-  dragon2309:
-    en:
-    - dragon
   hatchback_car2309:
     en:
     - hatchback car
   panda2309:
     en:
     - panda
+  dragon2310:
+    en:
+    - dragon
 datalake:
   football stadium:
     positive_labels:
