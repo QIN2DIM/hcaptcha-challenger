@@ -50,6 +50,8 @@ nested_categories:
   machine that flies:
   - machine_that_flies2309.onnx
   - nested_machine_that_flies_helicopter2309.onnx
+  the largest animal in real life:
+  - nested_largest_squirrel2310.onnx
 ashes_of_war:
   head_of_the_animal_2310_yolov8s.onnx:
   - animal-head
