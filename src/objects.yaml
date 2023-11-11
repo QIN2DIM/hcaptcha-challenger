@@ -653,6 +653,9 @@ label_alias:
   hatchback_car2309:
     en:
     - hatchback car
+  panda2309:
+    en:
+    - panda
 datalake:
   football stadium:
     positive_labels:
