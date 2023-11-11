@@ -46,6 +46,7 @@ nested_categories:
   electronic device:
   - electronic_device2316.onnx
   - nested_electronic_device_mouse2309.onnx
+  - nested_electronic_device_circuit_board2309.onnx
   machine that flies:
   - machine_that_flies2309.onnx
   - nested_machine_that_flies_helicopter2309.onnx
@@ -649,9 +650,6 @@ label_alias:
   dragon2309:
     en:
     - dragon
-  hatchback_car2309:
-    en:
-    - hatchback car
 datalake:
   football stadium:
     positive_labels:
