@@ -650,6 +650,9 @@ label_alias:
   dragon2309:
     en:
     - dragon
+  hatchback_car2309:
+    en:
+    - hatchback car
 datalake:
   football stadium:
     positive_labels:
