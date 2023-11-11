@@ -54,7 +54,7 @@ nested_categories:
   - nested_largest_squirrel2310.onnx
   the smallest animal species:
   - nested_smallest_owl2309.onnx
-  "please click on the most similar object to the following reference shape:":
+  'please click on the most similar object to the following reference shape:':
   - most_similar_object_hexagon_2309_yolov8n-seg.onnx
 ashes_of_war:
   most_similar_object_hexagon_2309_yolov8n-seg.onnx:
@@ -281,11 +281,6 @@ label_alias:
     - 盆景树
     en:
     - bonsai tree
-  car0903:
-    zh:
-    - 汽车
-    en:
-    - car
   door:
     zh:
     - 门
@@ -667,6 +662,11 @@ label_alias:
   city_street2309:
     en:
     - city street
+  car2309:
+    zh:
+    - 汽车
+    en:
+    - car
 datalake:
   football stadium:
     positive_labels:
