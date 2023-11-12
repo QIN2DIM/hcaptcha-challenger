@@ -59,6 +59,8 @@ nested_categories:
   - most_similar_object_hexagon_2309_yolov8n-seg.onnx
   please click in the center of an observation wheel:
   - observation_wheel_2309_yolov8n.onnx
+  the smallest animal in real life:
+  - nested_smallest_lion2309.onnx
 ashes_of_war:
   observation_wheel_2309_yolov8n.onnx:
   - observation-wheel
