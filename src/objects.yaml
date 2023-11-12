@@ -667,6 +667,9 @@ label_alias:
     - 汽车
     en:
     - car
+  forest2309:
+    en:
+    - forest
 datalake:
   football stadium:
     positive_labels:
