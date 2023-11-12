@@ -637,9 +637,6 @@ label_alias:
   electric_cables2309:
     en:
     - electric cables
-  land_vehicle2309:
-    en:
-    - land vehicle
   volcano2311:
     en:
     - volcano
@@ -675,6 +672,9 @@ label_alias:
   forest2309:
     en:
     - forest
+  land_vehicle2310:
+    en:
+    - land vehicle
 datalake:
   football stadium:
     positive_labels:
