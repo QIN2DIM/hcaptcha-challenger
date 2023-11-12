@@ -57,7 +57,11 @@ nested_categories:
   - nested_smallest_owl2309.onnx
   'please click on the most similar object to the following reference shape:':
   - most_similar_object_hexagon_2309_yolov8n-seg.onnx
+  please click in the center of an observation wheel:
+  - observation_wheel_2309_yolov8n.onnx
 ashes_of_war:
+  observation_wheel_2309_yolov8n.onnx:
+  - observation-wheel
   most_similar_object_hexagon_2309_yolov8n-seg.onnx:
   - hexagon
   head_of_the_animal_2310_yolov8s.onnx:
