@@ -663,9 +663,6 @@ label_alias:
   dragon2310:
     en:
     - dragon
-  city_street2309:
-    en:
-    - city street
   car2309:
     zh:
     - 汽车
@@ -677,6 +674,9 @@ label_alias:
   land_vehicle2310:
     en:
     - land vehicle
+  city_street2310:
+    en:
+    - city street
 datalake:
   football stadium:
     positive_labels:
