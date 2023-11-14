@@ -61,6 +61,7 @@ nested_categories:
   - observation_wheel_2309_yolov8n.onnx
   the smallest animal in real life:
   - nested_smallest_lion2309.onnx
+  - nested_smallest_horse2312.onnx
   furniture:
   - nested_furniture_chair2309.onnx
 ashes_of_war:
@@ -679,9 +680,6 @@ label_alias:
   city_street2310:
     en:
     - city street
-  sheep2309:
-    en:
-    - sheep
 datalake:
   football stadium:
     positive_labels:
