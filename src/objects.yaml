@@ -680,6 +680,9 @@ label_alias:
   city_street2310:
     en:
     - city street
+  sheep2309:
+    en:
+    - sheep
 datalake:
   football stadium:
     positive_labels:
