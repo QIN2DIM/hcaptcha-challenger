@@ -61,6 +61,8 @@ nested_categories:
   - observation_wheel_2309_yolov8n.onnx
   the smallest animal in real life:
   - nested_smallest_lion2309.onnx
+  furniture:
+  - nested_furniture_chair2309.onnx
 ashes_of_war:
   observation_wheel_2309_yolov8n.onnx:
   - observation-wheel
