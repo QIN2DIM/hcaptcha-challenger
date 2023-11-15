@@ -53,6 +53,7 @@ nested_categories:
   the largest animal in real life:
   - nested_largest_squirrel2310.onnx
   - nested_largest_lion2309.onnx
+  - nested_largest_elephant22309.onnx
   the smallest animal species:
   - nested_smallest_owl2309.onnx
   'please click on the most similar object to the following reference shape:':
