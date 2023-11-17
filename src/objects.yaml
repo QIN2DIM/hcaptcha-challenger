@@ -68,6 +68,8 @@ nested_categories:
   - nested_furniture_chair2309.onnx
   images of one type that appear warmer in comparison to other:
   - nested_warmer_bedroom2309.onnx
+  images of one type that appear colder in comparison to other:
+  - nested_colder_snowman2309.onnx
 ashes_of_war:
   observation_wheel_2309_yolov8n.onnx:
   - observation-wheel
