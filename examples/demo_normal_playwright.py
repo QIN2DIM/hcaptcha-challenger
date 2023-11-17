@@ -12,7 +12,7 @@ from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger.agents import AgentT
+from hcaptcha_challenger.agents import AgentT, Malenia
 from hcaptcha_challenger.utils import SiteKey
 
 # Init local-side of the ModelHub
@@ -53,26 +53,37 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
     await agent.handle_checkbox()
 
     for pth in range(1, times):
+        # Handle challenge
         result = await agent.execute()
-        probe = list(agent.qr.requester_restricted_answer_set.keys())
-        question = agent.qr.requester_question
-        print(f">> {pth} - Challenge Result: {result} - {question=} {probe=}")
+
+        # Log
+        if agent.qr:
+            probe = list(agent.qr.requester_restricted_answer_set.keys())
+            question = agent.qr.requester_question
+            print(f">> {pth} - Challenge Result: {result} - {question=} {probe=}")
+
+        # Post-processing
         match result:
             case agent.status.CHALLENGE_BACKCALL:
                 await page.wait_for_timeout(500)
                 fl = page.frame_locator(agent.HOOK_CHALLENGE)
                 await fl.locator("//div[@class='refresh button']").click()
             case agent.status.CHALLENGE_SUCCESS:
+                rqdata_path = agent.export_rq()
+                print(f"View RQdata path={rqdata_path}")
                 return
 
 
-async def bytedance():
+async def bytedance(undetected: bool = False):
     # playwright install chromium --with-deps
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
         context = await browser.new_context(
             locale="en-US", record_video_dir=Path("user_data_dir/record")
         )
+        if undetected:
+            await Malenia.apply_stealth(context)
+
         await hit_challenge(context)
 
 
