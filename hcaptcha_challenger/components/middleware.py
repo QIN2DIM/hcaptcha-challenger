@@ -3,6 +3,8 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
+from __future__ import annotations
+
 from enum import Enum
 from pathlib import Path
 from typing import List, Dict, Any
