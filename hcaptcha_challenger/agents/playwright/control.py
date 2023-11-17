@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
-import json
 import random
 import shutil
 import time
@@ -15,7 +14,7 @@ import uuid
 from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Any, Literal, Iterable
+from typing import List, Dict, Literal, Iterable
 
 from PIL import Image
 from loguru import logger
@@ -29,7 +28,13 @@ from hcaptcha_challenger.components.cv_toolkit import (
 )
 from hcaptcha_challenger.components.image_classifier import rank_models
 from hcaptcha_challenger.components.image_downloader import Cirilla
-from hcaptcha_challenger.components.prompt_handler import handle, label_cleaning
+from hcaptcha_challenger.components.middleware import (
+    Status,
+    QuestionResp,
+    ChallengeResp,
+    RequestType,
+)
+from hcaptcha_challenger.components.prompt_handler import handle
 from hcaptcha_challenger.components.zero_shot_image_classifier import (
     ZeroShotImageClassifier,
     register_pipline,
@@ -42,143 +47,14 @@ from hcaptcha_challenger.onnx.yolo import (
     is_matched_ash_of_war,
     finetune_keypoint,
 )
-from hcaptcha_challenger.utils import from_dict_to_model
-
-
-@dataclass
-class Status:
-    # <success> Challenge Passed by following the expected
-    CHALLENGE_SUCCESS = "success"
-    # <continue> Continue the challenge
-    CHALLENGE_CONTINUE = "continue"
-    # <crash> Failure of the challenge as expected
-    CHALLENGE_CRASH = "crash"
-    # <retry> Your proxy IP may have been flagged
-    CHALLENGE_RETRY = "retry"
-    # <refresh> Skip the specified label as expected
-    CHALLENGE_REFRESH = "refresh"
-    # <backcall> (New Challenge) Types of challenges not yet scheduled
-    CHALLENGE_BACKCALL = "backcall"
-    # <to-X> NOT MATCH PATTERN
-    CHALLENGE_TO_BINARY = "to_binary"
-    CHALLENGE_TO_AREA_SELECT = "to_area_select"
-
-    AUTH_SUCCESS = "success"
-    AUTH_ERROR = "error"
-    AUTH_CHALLENGE = "challenge"
-
-
-@dataclass
-class QuestionResp:
-    c: Dict[str, str] = field(default_factory=dict)
-    """
-    type: hsw
-    req: eyj0 ...
-    """
-
-    challenge_uri: str = ""
-    """
-    https://hcaptcha.com/challenge/grid/challenge.js
-    """
-
-    key: str = ""
-    """
-    E0_eyj0 ...
-    """
-
-    request_config: Dict[str, Any] = field(default_factory=dict)
-
-    request_type: str = ""
-    """
-    1. image_label_binary
-    2. image_label_area_select
-    """
-
-    requester_question: Dict[str, str] = field(default_factory=dict)
-    """
-    image_label_binary      | { en: Please click on all images containing an animal }
-    image_label_area_select | { en: Please click on the rac\u0441oon }
-    """
-
-    requester_question_example: List[str] = field(default_factory=list)
-    """
-    [
-        "https://imgs.hcaptcha.com/ + base64"
-    ]
-    """
-
-    requester_restricted_answer_set: Dict[str, Any] = field(default_factory=dict)
-    """
-    Not available on the binary challenge
-    """
-
-    tasklist: List[Dict[str, str]] = field(default_factory=list)
-    """
-    [
-        {datapoint_uri: "https://imgs.hcaptcha.com + base64", task_key: "" },
-        {datapoint_uri: "https://imgs.hcaptcha.com + base64", task_key: "" },
-    ]
-    """
-
-    @classmethod
-    def from_json(cls, data: Dict[str, Any]):
-        if isinstance(data.get("requester_question_example"), str):
-            data["requester_question_example"] = [data["requester_question_example"]]
-        return from_dict_to_model(cls, data)
-
-    def save_example(self, tmp_dir: Path = None):
-        shape_type = self.request_config.get("shape_type", "")
-
-        requester_question = label_cleaning(self.requester_question.get("en", ""))
-        answer_keys = list(self.requester_restricted_answer_set.keys())
-        ak = f".{answer_keys[0]}" if len(answer_keys) > 0 else ""
-        fn = f"{self.request_type}.{shape_type}.{requester_question}{ak}.json"
-
-        inv = {"\\", "/", ":", "*", "?", "<", ">", "|"}
-        for c in inv:
-            fn.replace(c, "")
-
-        if tmp_dir and tmp_dir.exists():
-            fn = tmp_dir.joinpath(fn)
-
-        Path(fn).write_text(json.dumps(self.__dict__, indent=2))
-
-
-@dataclass
-class ChallengeResp:
-    c: Dict[str, str] = None
-    """
-    type: hsw
-    req: eyj0 ...
-    """
-
-    is_pass: bool = None
-    """
-    true or false
-    """
-
-    generated_pass_UUID: str = None
-    """
-    P1_eyj0 ...
-    """
-
-    error: str = None
-    """
-    Only available if `pass is False`
-    """
-
-    @classmethod
-    def from_json(cls, metadata: Dict[str, Any]):
-        return cls(
-            c=metadata["c"],
-            is_pass=metadata["pass"],
-            generated_pass_UUID=metadata.get("generated_pass_UUID", ""),
-            error=metadata.get("error", ""),
-        )
 
 
 @dataclass
 class Radagon:
+    HOOK_PURCHASE = "//div[@id='webPurchaseContainer']//iframe"
+    HOOK_CHECKBOX = "//iframe[contains(@title, 'checkbox for hCaptcha')]"
+    HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
+
     page: Page
     """
     Playwright Page
@@ -245,10 +121,6 @@ class Radagon:
 
     nested_categories: Dict[str, List[str]] = field(default_factory=dict)
 
-    HOOK_PURCHASE = "//div[@id='webPurchaseContainer']//iframe"
-    HOOK_CHECKBOX = "//iframe[contains(@title, 'checkbox for hCaptcha')]"
-    HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
-
     self_supervised: bool = False
 
     def __post_init__(self):
@@ -268,18 +140,18 @@ class Radagon:
         if response.url.startswith("https://api.hcaptcha.com/getcaptcha/"):
             try:
                 data = await response.json()
-                qr = QuestionResp.from_json(data)
-                qr.save_example(tmp_dir=self.record_json_dir)
+                qr = QuestionResp(**data)
+                qr.cache(tmp_dir=self.record_json_dir)
                 self.qr_queue.put_nowait(qr)
                 if data.get("pass"):
-                    cr = ChallengeResp.from_json(data)
+                    cr = ChallengeResp(**data)
                     self.cr_queue.put_nowait(cr)
             except Exception as err:
                 logger.exception(err)
         if response.url.startswith("https://api.hcaptcha.com/checkcaptcha/"):
             try:
                 metadata = await response.json()
-                cr = ChallengeResp.from_json(metadata)
+                cr = ChallengeResp(**metadata)
                 self.cr_queue.put_nowait(cr)
             except Exception as err:
                 logger.exception(err)
@@ -320,9 +192,19 @@ class Radagon:
 
         return frame_challenge
 
-    async def _reset_state(self):
+    async def _reset_state(self, timeout: int = 8) -> bool | None:
         self.cr = None
-        self.qr = await self.qr_queue.get()
+
+        delay = 0.3
+        stop = int(timeout / delay)
+
+        for _ in range(stop):
+            try:
+                self.qr = self.qr_queue.get_nowait()
+                return True
+            except asyncio.QueueEmpty:
+                await asyncio.sleep(delay=delay)
+                continue
 
     def _recover_state(self):
         if not self.cr_queue.empty():
@@ -337,10 +219,17 @@ class Radagon:
     async def _download_images(self, ignore_examples: bool = False):
         request_type = self.qr.request_type
         ks = list(self.qr.requester_restricted_answer_set.keys())
+
+        inv = {"\\", "/", ":", "*", "?", "<", ">", "|"}
+        fn = self._label
+        for c in inv:
+            fn = fn.replace(c, "")
+        fn = fn.strip()
+
         if len(ks) > 0:
-            self.typed_dir = self.tmp_dir.joinpath(request_type, self._label, ks[0])
+            self.typed_dir = self.tmp_dir.joinpath(request_type, fn, ks[0])
         else:
-            self.typed_dir = self.tmp_dir.joinpath(request_type, self._label)
+            self.typed_dir = self.tmp_dir.joinpath(request_type, fn)
         self.typed_dir.mkdir(parents=True, exist_ok=True)
 
         ciri = Cirilla()
@@ -348,7 +237,7 @@ class Radagon:
         tasks = []
         for i, tk in enumerate(self.qr.tasklist):
             challenge_img_path = self.typed_dir.joinpath(f"{time.time()}.{i}.png")
-            context = (challenge_img_path, tk["datapoint_uri"])
+            context = (challenge_img_path, tk.datapoint_uri)
             container.append(context)
             tasks.append(asyncio.create_task(ciri.elder_blood(context)))
 
@@ -410,7 +299,7 @@ class Radagon:
 
     async def _bounding_challenge(self, frame_challenge: FrameLocator):
         detector: YOLOv8 = self._match_solution(select="yolo")
-        times = int(len(self.qr.tasklist))
+        times = len(self.qr.tasklist)
         for pth in range(times):
             locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
             await locator.wait_for(state="visible")
@@ -498,7 +387,7 @@ class Radagon:
                     x, y, _ = result
                     return {"x": int(x), "y": int(y)}
 
-        times = int(len(self.qr.tasklist))
+        times = len(self.qr.tasklist)
         for pth in range(times):
             locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
             await locator.wait_for(state="visible")
@@ -540,7 +429,7 @@ class Radagon:
         detector: YOLOv8 = self._match_solution(select="yolo")
 
         # Execute the detection task for twice
-        times = int(len(self.qr.tasklist))
+        times = len(self.qr.tasklist)
         for pth in range(times):
             locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
             await locator.wait_for(state="visible")
@@ -569,12 +458,10 @@ class Radagon:
             # Click canvas
             if len(alts) > 0:
                 best = alts[-1]
-                await locator.click(delay=500, position=best["position"])
-                # print(f">> Click on the object - position={best['position']} name={best['name']}")
+                await locator.click(delay=200, position=best["position"])
             # Catch-all rule
             else:
-                await locator.click(delay=500)
-                # print(">> click on the center of the canvas")
+                await locator.click(delay=200)
 
             # {{< Verify >}}
             with suppress(TimeoutError):
@@ -603,14 +490,12 @@ class Radagon:
                 if result:
                     positive_cases += 1
                     with suppress(TimeoutError):
-                        time.sleep(random.uniform(0.1, 0.3))
                         await sample.click(delay=200)
                 elif positive_cases == 0 and pth == times - 1 and i == count - 1:
                     await sample.click(delay=200)
 
-            # Remember you are human not a robot
-            await self.page.wait_for_timeout(1500)
             # {{< Verify >}}
+            await asyncio.sleep(random.uniform(0.1, 0.3))
             with suppress(TimeoutError):
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
@@ -678,7 +563,7 @@ class Radagon:
 
         model = register_pipline(self.modelhub)
 
-        times = int(len(self.qr.tasklist))
+        times = len(self.qr.tasklist)
         for pth in range(times):
             await self.page.wait_for_timeout(300)
             label_btn: List[Dict[str, str | Locator]] = []
@@ -700,8 +585,19 @@ class Radagon:
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
 
-    async def _is_success(self):
-        self.cr = await self.cr_queue.get()
+    async def _is_success(self, timeout: int = 30):
+        delay = 1
+        stop = int(timeout / delay)
+
+        for _ in range(stop):
+            try:
+                self.cr = self.cr_queue.get_nowait()
+                break
+            except asyncio.QueueEmpty:
+                await asyncio.sleep(delay=delay)
+                continue
+
+        # Match: Timeout / Loss
         if not self.cr or not self.cr.is_pass:
             return self.status.CHALLENGE_RETRY
         if self.cr.is_pass:
@@ -710,8 +606,6 @@ class Radagon:
 
 @dataclass
 class AgentT(Radagon):
-    rqdata: ChallengeResp = None
-
     async def __call__(self, *args, **kwargs):
         return await self.execute(**kwargs)
 
@@ -746,7 +640,7 @@ class AgentT(Radagon):
         _record_dir.joinpath(_flag)
         _rqdata_path = _record_dir.joinpath(_flag)
 
-        _rqdata_path.write_text(json.dumps(self.cr.__dict__, indent=2))
+        _rqdata_path.write_text(self.cr.model_dump_json(indent=2), encoding="utf8")
 
         return _rqdata_path
 
@@ -755,12 +649,19 @@ class AgentT(Radagon):
             checkbox = self.page.frame_locator("//iframe[contains(@title,'checkbox')]")
             await checkbox.locator("#checkbox").click()
 
-    async def execute(self, **kwargs) -> str | None:
+    async def execute(self, **kwargs) -> Status | None:
         window = kwargs.get("window", "login")
 
         frame_challenge = self._switch_to_challenge_frame(self.page, window)
 
-        await self._reset_state()
+        # Match: Failed to obtain challenge task
+        if not await self._reset_state():
+            logger.warning(
+                "task interrupt",
+                reason="Failed to obtain challenge task",
+                status=self.status.CHALLENGE_BACKCALL,
+            )
+            return self.status.CHALLENGE_BACKCALL
 
         # Match: ChallengePassed
         if not self.qr.requester_question.keys():
@@ -772,7 +673,7 @@ class AgentT(Radagon):
         await self._download_images()
 
         # Match: image_label_binary
-        if self.qr.request_type == "image_label_binary":
+        if self.qr.request_type == RequestType.ImageLabelBinary:
             if nested_models := self.nested_categories.get(self._label, []):
                 if model := self._rank_models(nested_models):
                     await self._binary_challenge(frame_challenge, model)
@@ -785,7 +686,7 @@ class AgentT(Radagon):
             else:
                 return self.status.CHALLENGE_BACKCALL
         # Match: image_label_area_select
-        elif self.qr.request_type == "image_label_area_select":
+        elif self.qr.request_type == RequestType.ImageLabelAreaSelect:
             ash = self.ash
             shape_type = self.qr.request_config.get("shape_type", "")
 
@@ -802,11 +703,15 @@ class AgentT(Radagon):
                 elif shape_type == "bounding_box":
                     await self._bounding_challenge(frame_challenge)
         # Match: image_label_multiple_choice
-        elif self.qr.request_type == "image_label_multiple_choice":
+        elif self.qr.request_type == RequestType.ImageLabelMultipleChoice:
             # By default, CLIP is used to process this type of task.
             if not self.self_supervised:
                 return self.status.CHALLENGE_BACKCALL
             await self._multiple_choice_challenge(frame_challenge)
+        # Match: Unknown case
+        else:
+            logger.warning("task interrupt", reason="Unknown type of challenge")
+            return self.status.CHALLENGE_BACKCALL
 
         self.modelhub.unplug()
 

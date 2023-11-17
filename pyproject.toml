@@ -46,6 +46,7 @@ scikit-image = "^0.21.0"
 importlib_metadata = "*"
 ftfy = "*"
 regex = "*"
+pydantic = "^2.5.1"
 
 # The following dependencies will not be installed
 # when you just run `poetry install` or `pip install hcaptcha-challenger`
