@@ -76,6 +76,7 @@ nested_categories:
   - nested_colder_snowman2309.onnx
   - nested_colder_living_room2309.onnx
   - nested_colder_bedroom2309.onnx
+  - nested_colder_house2309.onnx
   please click on the bell:
   - bell_2309_yolov8n.onnx
 ashes_of_war:
