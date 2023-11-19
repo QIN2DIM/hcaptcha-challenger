@@ -65,6 +65,7 @@ nested_categories:
   - nested_smallest_lion2309.onnx
   - nested_smallest_horse2312.onnx
   - nested_smallest_cat2309.onnx
+  - nested_smallest_hummingbird2309.onnx
   furniture:
   - nested_furniture_chair2309.onnx
   images of one type that appear warmer in comparison to other:
