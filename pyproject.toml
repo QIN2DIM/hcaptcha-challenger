@@ -47,7 +47,7 @@ importlib_metadata = "*"
 ftfy = "*"
 regex = "*"
 pydantic = "^2.5.1"
-
+tenacity = "^8.2.3"
 # The following dependencies will not be installed
 # when you just run `poetry install` or `pip install hcaptcha-challenger`
 undetected-chromedriver = { version = "^3.5.3", optional = true }

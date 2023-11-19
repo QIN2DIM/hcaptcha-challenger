@@ -13,6 +13,7 @@ from typing import Any, Tuple, List
 
 import httpx
 from httpx import AsyncClient
+from tenacity import *
 
 DownloadList = List[Tuple[Path, str]]
 
@@ -80,15 +81,18 @@ def download_images(container: DownloadList):
 
 class Cirilla:
     def __init__(self):
-        self.client = AsyncClient()
+        self.client = AsyncClient(http2=True, timeout=3)
 
+    @retry(
+        retry=retry_if_exception_type(httpx.RequestError),
+        wait=wait_random_exponential(multiplier=1, max=60),
+        stop=(stop_after_delay(60) | stop_after_attempt(10)),
+    )
     async def elder_blood(self, context):
         img_path, url = context
-        try:
-            resp = await self.client.get(url, timeout=10)
-            img_path.write_bytes(resp.content)
-        except httpx.ConnectTimeout:
-            pass
+
+        resp = await self.client.get(url)
+        img_path.write_bytes(resp.content)
 
 
 def common_download(container: DownloadList):

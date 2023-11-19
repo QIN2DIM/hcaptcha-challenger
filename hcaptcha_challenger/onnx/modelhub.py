@@ -24,15 +24,21 @@ import yaml
 from cv2.dnn import Net
 from loguru import logger
 from onnxruntime import InferenceSession
+from tenacity import *
 from tqdm import tqdm
 
 from hcaptcha_challenger.utils import from_dict_to_model
 
-this_dir: Path = Path(__file__).parent
 DEFAULT_KEYPOINT_MODEL = "COCO2020_yolov8m.onnx"
 
 
 @logger.catch
+@retry(
+    retry=retry_if_exception_type((httpx.ConnectTimeout, httpx.ConnectError)),
+    wait=wait_random_exponential(multiplier=1, max=60),
+    stop=(stop_after_delay(30) | stop_after_attempt(5)),
+    reraise=True,
+)
 def request_resource(url: str, save_path: Path):
     cdn_prefix = os.environ.get("MODELHUB_CDN_PREFIX", "")
 
@@ -42,10 +48,10 @@ def request_resource(url: str, save_path: Path):
         url = f"{scheme}://{netloc}/{url}"
 
     headers = {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.203"
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0"
     }
     with open(save_path, "wb") as download_file:
-        with httpx.Client(headers=headers, follow_redirects=True) as client:
+        with httpx.Client(headers=headers, follow_redirects=True, http2=True) as client:
             with client.stream("GET", url) as response:
                 total = int(response.headers["Content-Length"])
                 with tqdm(
@@ -83,12 +89,12 @@ class Assets:
     Such as https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
     """
 
-    _assets_dir: Path = this_dir.joinpath("models/_assets")
+    _assets_dir: Path = Path(__file__).parent.joinpath("models/_assets")
     """
     The local path of index file
     """
 
-    _memory_dir: Path = this_dir.joinpath("models/_memory")
+    _memory_dir: Path = Path(__file__).parent.joinpath("models/_memory")
     """
     Archive historical versions of a model
     """
@@ -142,6 +148,13 @@ class Assets:
     def get_focus_asset(self, focus_name: str) -> ReleaseAsset:
         return self._name2asset.get(focus_name)
 
+    @logger.catch
+    @retry(
+        retry=retry_if_exception_type(httpx.ConnectTimeout),
+        wait=wait_random_exponential(multiplier=1, max=60),
+        stop=(stop_after_delay(30) | stop_after_attempt(5)),
+        reraise=True,
+    )
     def flush_runtime_assets(self, upgrade: bool = False):
         """Request assets index from remote repository"""
         self._name2asset = {}
@@ -161,7 +174,11 @@ class Assets:
         # Request assets index from remote repository
         if upgrade is True or not assets_paths or is_outdated:
             try:
-                resp = httpx.get(self.release_url, timeout=3)
+                headers = {
+                    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0"
+                }
+                client = httpx.Client(timeout=3, http2=True, headers=headers)
+                resp = client.get(self.release_url)
                 data = resp.json()[0]
                 assets: List[dict] = data.get("assets", [])
                 for asset in assets:
@@ -228,7 +245,7 @@ class ModelHub:
     such as model download, model cache, and model scheduling.
     """
 
-    models_dir = this_dir.joinpath("models")
+    models_dir = Path(__file__).parent.joinpath("models")
     assets_dir = models_dir.joinpath("_assets")
     objects_path = models_dir.joinpath("objects.yaml")
 
@@ -386,8 +403,12 @@ class ModelHub:
             or model_path.stat().st_size != focus_asset.size
             or self.assets.is_outdated(focus_name)
         ):
-            request_resource(focus_asset.browser_download_url, model_path.absolute())
-            self.assets.archive_memory(focus_name, focus_asset.node_id)
+            try:
+                request_resource(focus_asset.browser_download_url, model_path.absolute())
+            except httpx.ConnectTimeout as err:
+                logger.error("Failed to download resource, try again", err=err)
+            else:
+                self.assets.archive_memory(focus_name, focus_asset.node_id)
 
     def active_net(self, focus_name: str) -> Net | InferenceSession | None:
         """Load and register an existing model"""
