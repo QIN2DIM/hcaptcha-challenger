@@ -16,17 +16,22 @@ from hcaptcha_challenger.agents import AgentT, Malenia
 from hcaptcha_challenger.utils import SiteKey
 
 # Init local-side of the ModelHub
-clip_available = True
-solver.install(upgrade=True, clip=clip_available)
+solver.install(upgrade=True, clip=True)
 
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
 # sitekey = "58366d97-3e8c-4b57-a679-4a41c8423be3"
+# sitekey = "4c672d35-0701-42b2-88c3-78380b0db560"
 sitekey = SiteKey.user_easy
 
 
 def patch_datalake(modelhub: solver.ModelHub):
+    """
+    for patching CLIP prompt
+    :param modelhub:
+    :return:
+    """
     datalake_post = {
         "animal": {
             "positive_labels": ["animal", "bird"],
@@ -43,37 +48,36 @@ def patch_datalake(modelhub: solver.ModelHub):
 async def hit_challenge(context: ASyncContext, times: int = 8):
     page = await context.new_page()
 
-    agent = AgentT.from_page(page=page, tmp_dir=tmp_dir, self_supervised=clip_available)
+    agent = AgentT.from_page(page=page, tmp_dir=tmp_dir, self_supervised=True)
     patch_datalake(agent.modelhub)
 
     url = SiteKey.as_sitelink(sitekey)
     await page.goto(url)
-    logger.info("Startup sitelink", url=url)
+    logger.info("startup sitelink", url=url)
 
     await agent.handle_checkbox()
 
     for pth in range(1, times):
         # Handle challenge
         result = await agent.execute()
-
-        # Log
-        if agent.qr:
-            probe = list(agent.qr.requester_restricted_answer_set.keys())
-            question = agent.qr.requester_question
-            print(f">> {pth} - Challenge Result: {result} - {question=} {probe=}")
+        if not agent.qr:
+            return
 
         # Post-processing
         match result:
-            case agent.status.CHALLENGE_BACKCALL:
+            case agent.status.CHALLENGE_BACKCALL | agent.status.CHALLENGE_RETRY:
+                logger.warning(f"retry", pth=pth, ash=agent.ash)
                 await page.wait_for_timeout(500)
                 fl = page.frame_locator(agent.HOOK_CHALLENGE)
                 await fl.locator("//div[@class='refresh button']").click()
             case agent.status.CHALLENGE_SUCCESS:
+                logger.success(f"task done", pth=pth, ash=agent.ash)
                 rqdata_path = agent.export_rq()
-                print(f"View RQdata path={rqdata_path}")
+                print(f"\n>> View RQdata path={rqdata_path}")
                 return
 
 
+@logger.catch
 async def bytedance(undetected: bool = False):
     # playwright install chromium --with-deps
     async with async_playwright() as p:

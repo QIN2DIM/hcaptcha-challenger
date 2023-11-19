@@ -35,16 +35,10 @@ def test_demo_detector_common():
     demo_detector_common.bytedance()
 
 
-def test_draw_animal_head():
-    import demo_draw_animal_head
-
-    demo_draw_animal_head.demo(startfile=False)
-
-
 def test_draw_segment_masks():
-    import demo_draw_animal_head
+    import demo_draw_segment_masks
 
-    demo_draw_animal_head.demo(startfile=False)
+    demo_draw_segment_masks.demo(startfile=False)
 
 
 def test_demo_draw_star_bricks():

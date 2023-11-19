@@ -6,9 +6,7 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import random
-import shutil
 import time
 import uuid
 from contextlib import suppress
@@ -20,14 +18,16 @@ from PIL import Image
 from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position, Locator
 from playwright.async_api import TimeoutError
+from tenacity import *
 
+from hcaptcha_challenger.components.common import download_challenge_images
+from hcaptcha_challenger.components.common import match_solution
 from hcaptcha_challenger.components.cv_toolkit import (
     find_unique_object,
     annotate_objects,
     find_unique_color,
 )
 from hcaptcha_challenger.components.image_classifier import rank_models
-from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.middleware import (
     Status,
     QuestionResp,
@@ -160,17 +160,16 @@ class Radagon:
         page.on("response", self.handler)
 
     @classmethod
-    def from_page(cls, page: Page, tmp_dir=None, **kwargs):
-        self_supervised = kwargs.get("self_supervised", False)
-
+    def from_page(cls, page: Page, tmp_dir=None, self_supervised: bool | None = True, **kwargs):
         modelhub = ModelHub.from_github_repo(**kwargs)
         modelhub.parse_objects()
 
-        if tmp_dir and isinstance(tmp_dir, Path):
-            return cls(
-                page=page, modelhub=modelhub, tmp_dir=tmp_dir, self_supervised=self_supervised
-            )
-        return cls(page=page, modelhub=modelhub, self_supervised=self_supervised)
+        if not isinstance(tmp_dir, Path):
+            tmp_dir = Path(__file__).parent.parent.joinpath("tmp_dir")
+
+        self_supervised = kwargs.get("clip", self_supervised)
+
+        return cls(page=page, modelhub=modelhub, tmp_dir=tmp_dir, self_supervised=self_supervised)
 
     @property
     def status(self):
@@ -192,19 +191,32 @@ class Radagon:
 
         return frame_challenge
 
-    async def _reset_state(self, timeout: int = 8) -> bool | None:
+    @retry(
+        retry=retry_if_exception_type(asyncio.QueueEmpty),
+        wait=wait_random_exponential(multiplier=1, max=60),
+        stop=(stop_after_delay(30) | stop_after_attempt(15)),
+        reraise=True,
+    )
+    async def _reset_state(self) -> bool | None:
         self.cr = None
+        self.qr = self.qr_queue.get_nowait()
 
-        delay = 0.3
-        stop = int(timeout / delay)
+        return True
 
-        for _ in range(stop):
-            try:
-                self.qr = self.qr_queue.get_nowait()
-                return True
-            except asyncio.QueueEmpty:
-                await asyncio.sleep(delay=delay)
-                continue
+    @retry(
+        retry=retry_if_exception_type(asyncio.QueueEmpty),
+        wait=wait_random_exponential(multiplier=1, max=60),
+        stop=(stop_after_delay(30) | stop_after_attempt(15)),
+        reraise=True,
+    )
+    async def _is_success(self):
+        self.cr = self.cr_queue.get_nowait()
+
+        # Match: Timeout / Loss
+        if not self.cr or not self.cr.is_pass:
+            return self.status.CHALLENGE_RETRY
+        if self.cr.is_pass:
+            return self.status.CHALLENGE_SUCCESS
 
     def _recover_state(self):
         if not self.cr_queue.empty():
@@ -215,86 +227,25 @@ class Radagon:
     def _parse_label(self):
         self._prompt = self.qr.requester_question.get("en")
         self._label = handle(self._prompt)
+        logger.debug("get task", prompt=self._prompt)
 
-    async def _download_images(self, ignore_examples: bool = False):
-        request_type = self.qr.request_type
-        ks = list(self.qr.requester_restricted_answer_set.keys())
-
-        inv = {"\\", "/", ":", "*", "?", "<", ">", "|"}
-        fn = self._label
-        for c in inv:
-            fn = fn.replace(c, "")
-        fn = fn.strip()
-
-        if len(ks) > 0:
-            self.typed_dir = self.tmp_dir.joinpath(request_type, fn, ks[0])
-        else:
-            self.typed_dir = self.tmp_dir.joinpath(request_type, fn)
-        self.typed_dir.mkdir(parents=True, exist_ok=True)
-
-        ciri = Cirilla()
-        container = []
-        tasks = []
-        for i, tk in enumerate(self.qr.tasklist):
-            challenge_img_path = self.typed_dir.joinpath(f"{time.time()}.{i}.png")
-            context = (challenge_img_path, tk.datapoint_uri)
-            container.append(context)
-            tasks.append(asyncio.create_task(ciri.elder_blood(context)))
-
-        examples = []
-        if not ignore_examples:
-            with suppress(Exception):
-                for i, uri in enumerate(self.qr.requester_question_example):
-                    example_img_path = self.typed_dir.joinpath(f"{time.time()}.exp.{i}.png")
-                    context = (example_img_path, uri)
-                    examples.append(context)
-                    tasks.append(asyncio.create_task(ciri.elder_blood(context)))
-
-        await asyncio.gather(*tasks)
-
-        # Optional deduplication
-        self._img_paths = []
-        for src, _ in container:
-            cache = src.read_bytes()
-            dst = self.typed_dir.joinpath(f"{hashlib.md5(cache).hexdigest()}.png")
-            shutil.move(src, dst)
-            self._img_paths.append(dst)
-
-        # Optional deduplication
-        self._example_paths = []
-        if examples:
-            for src, _ in examples:
-                cache = src.read_bytes()
-                dst = self.typed_dir.joinpath(f"{hashlib.md5(cache).hexdigest()}.png")
-                shutil.move(src, dst)
-                self._example_paths.append(dst)
+    async def _download_images(self, *, ignore_examples: bool = False):
+        self._img_paths, self._example_paths = await download_challenge_images(
+            self.qr, self._label, self.tmp_dir, ignore_examples=ignore_examples
+        )
 
     def _match_solution(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
         """match solution after `tactical_retreat`"""
-        focus_label = self.label_alias.get(self._label, "")
+        model = match_solution(self._label, self.ash, self.modelhub, select=select)
+        logger.debug("handle task", match_model=select, prompt=self._prompt)
 
-        # Match YOLOv8 model
-        if not focus_label or select == "yolo":
-            focus_name, classes = self.modelhub.apply_ash_of_war(ash=self.ash)
-            logger.debug("match model", yolo=focus_name, prompt=self._prompt)
-            session = self.modelhub.match_net(focus_name=focus_name)
-            detector = YOLOv8.from_pluggable_model(session, classes)
-            return detector
-
-        # Match ResNet model
-        focus_name = focus_label
-        if not focus_name.endswith(".onnx"):
-            focus_name = f"{focus_name}.onnx"
-            logger.debug("match model", resnet=focus_name, prompt=self._prompt)
-        net = self.modelhub.match_net(focus_name=focus_name)
-        control = ResNetControl.from_pluggable_model(net)
-        return control
+        return model
 
     def _rank_models(self, nested_models: List[str]) -> ResNetControl | None:
         result = rank_models(nested_models, self._example_paths, self.modelhub)
         if result and isinstance(result, tuple):
             best_model, model_name = result
-            logger.debug("rank model", resnet=model_name, prompt=self._prompt)
+            logger.debug("handle task", rank_model=model_name, prompt=self._prompt)
             return best_model
 
     async def _bounding_challenge(self, frame_challenge: FrameLocator):
@@ -352,7 +303,7 @@ class Radagon:
                 for name, (center_x, center_y), score in res:
                     if center_y < 20 or center_y > 520 or center_x < 91 or center_x > 400:
                         continue
-                    logger.debug("catch model", yolo=focus_name, ash=self.ash)
+                    logger.debug("handle task", catch_model=focus_name, ash=self.ash)
                     return {"x": center_x, "y": center_y}
                 if count > deep:
                     return
@@ -369,7 +320,7 @@ class Radagon:
             if results:
                 circles = [[int(result[1][0]), int(result[1][1]), 32] for result in results]
                 logger.debug(
-                    "select model", yolo=model_name, trident=trident.__name__, ash=self.ash
+                    "handle task", select_model=model_name, trident=trident.__name__, ash=self.ash
                 )
             # Filter points outside the bounding box
             edge_circles = []
@@ -512,8 +463,8 @@ class Radagon:
         te = time.perf_counter()
 
         logger.debug(
-            "unsupervised",
-            type="binary",
+            "handle task",
+            unsupervised="binary",
             candidate_labels=tool.candidate_labels,
             prompt=self._prompt,
             timit=f"{te - t0:.3f}s",
@@ -551,8 +502,8 @@ class Radagon:
             results = tool(model, image=Image.open(img_path))
             sample_label = results[0]["label"]
             logger.debug(
-                "unsupervised",
-                type="multiple choice",
+                "handle task",
+                unsupervised="multiple choice",
                 results=sample_label,
                 candidate_labels=candidates,
                 prompt=self._prompt,
@@ -584,24 +535,6 @@ class Radagon:
             with suppress(TimeoutError):
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
-
-    async def _is_success(self, timeout: int = 30):
-        delay = 1
-        stop = int(timeout / delay)
-
-        for _ in range(stop):
-            try:
-                self.cr = self.cr_queue.get_nowait()
-                break
-            except asyncio.QueueEmpty:
-                await asyncio.sleep(delay=delay)
-                continue
-
-        # Match: Timeout / Loss
-        if not self.cr or not self.cr.is_pass:
-            return self.status.CHALLENGE_RETRY
-        if self.cr.is_pass:
-            return self.status.CHALLENGE_SUCCESS
 
 
 @dataclass
@@ -655,11 +588,13 @@ class AgentT(Radagon):
         frame_challenge = self._switch_to_challenge_frame(self.page, window)
 
         # Match: Failed to obtain challenge task
-        if not await self._reset_state():
-            logger.warning(
-                "task interrupt",
+        try:
+            if not await self._reset_state() or not self.qr:
+                raise asyncio.QueueEmpty
+        except asyncio.QueueEmpty:
+            logger.error(
+                f"task interrupt <{self.status.CHALLENGE_BACKCALL}>",
                 reason="Failed to obtain challenge task",
-                status=self.status.CHALLENGE_BACKCALL,
             )
             return self.status.CHALLENGE_BACKCALL
 
@@ -715,8 +650,16 @@ class AgentT(Radagon):
 
         self.modelhub.unplug()
 
-        result = await self._is_success()
-        return result
+        # Match: Failed to obtain challenge response
+        try:
+            result = await self._is_success()
+            return result
+        except asyncio.QueueEmpty:
+            logger.error(
+                f"task interrupt <{self.status.CHALLENGE_BACKCALL}>",
+                reason="Failed to obtain challenge response",
+            )
+            return self.status.CHALLENGE_BACKCALL
 
     async def collect(self) -> str | None:
         """Download datasets"""
