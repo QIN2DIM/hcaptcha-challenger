@@ -19,6 +19,7 @@ from loguru import logger
 from playwright.async_api import Page, FrameLocator, Response, Position, Locator
 from playwright.async_api import TimeoutError
 from tenacity import *
+
 from hcaptcha_challenger.components.common import download_challenge_images
 from hcaptcha_challenger.components.common import match_solution
 from hcaptcha_challenger.components.cv_toolkit import (

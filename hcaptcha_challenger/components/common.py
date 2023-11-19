@@ -3,6 +3,8 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
+from __future__ import annotations
+
 import asyncio
 import hashlib
 import shutil
@@ -12,10 +14,10 @@ from pathlib import Path
 from typing import Literal
 
 from hcaptcha_challenger.components.image_downloader import Cirilla
+from hcaptcha_challenger.components.middleware import QuestionResp
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8
-from hcaptcha_challenger.components.middleware import QuestionResp
 
 
 def match_solution(
