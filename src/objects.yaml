@@ -703,6 +703,9 @@ label_alias:
   desert2311:
     en:
     - desert
+  pirate_ship2309:
+    en:
+    - pirate ship
 datalake:
   football stadium:
     positive_labels:
