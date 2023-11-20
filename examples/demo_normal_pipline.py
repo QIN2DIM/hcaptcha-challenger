@@ -88,7 +88,7 @@ async def main():
 
     # Handle response
     if isinstance(response, agent.status):
-        logger.success(f"task done", response=response)
+        logger.success("task done", response=response)
     elif response and isinstance(response, Answers):
         logger.warning(WARN, answers=response.answers)
         cache_rqdata(agent.tmp_dir, response)
