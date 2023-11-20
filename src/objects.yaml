@@ -486,9 +486,6 @@ label_alias:
   something_you_can_write_with2310:
     en:
     - something you can write with
-  desert2310:
-    en:
-    - desert
   river2310:
     zh:
     - 河
@@ -703,6 +700,9 @@ label_alias:
   sheep2309:
     en:
     - sheep
+  desert2311:
+    en:
+    - desert
 datalake:
   football stadium:
     positive_labels:
