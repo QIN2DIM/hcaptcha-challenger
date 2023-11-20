@@ -134,11 +134,11 @@ class RequestType(str, Enum):
 
 
 class Answers(BaseModel):
-    answers: Dict[str, Any] = Field(default_factory=dict)
-    c: str = ""
+    v: str = "fc6ae83"
     job_mode: str = ""
+    answers: Dict[str, Any] = Field(default_factory=dict)
+    serverdomain: str = ""
+    sitekey: str = ""
     motionData: str = ""
     n: str = ""
-    serverdomain: str = "accounts.hcaptcha.com"
-    sitekey: str = ""
-    v: str = "fc6ae83"
+    c: str = ""

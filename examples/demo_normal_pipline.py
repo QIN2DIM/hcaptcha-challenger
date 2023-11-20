@@ -65,8 +65,18 @@ def get_question_data() -> QuestionResp:
     return QuestionResp(**data)
 
 
+def cache_rqdata(cache_dir: Path, response: Answers):
+    record_json = cache_dir.joinpath("record_json")
+    record_json.mkdir(parents=True, exist_ok=True)
+
+    json_path = record_json.joinpath(f"pipline-{response.job_mode}.json")
+    json_path.write_text(response.model_dump_json(indent=2))
+
+    logger.success("cache rqdata", output=f"{json_path}")
+
+
 async def main():
-    # Obtain challenge tasks in a way you are familiar with
+    # Obtain real-time challenge tasks in a way you are familiar with
     qr = get_question_data()
 
     # An agent instance can run multiple execute tasks,
@@ -76,10 +86,12 @@ async def main():
     # Run multimodal tasks
     response: Answers | Status | None = await agent.execute(qr)
 
+    # Handle response
     if isinstance(response, agent.status):
         logger.success(f"task done", response=response)
-    elif response and hasattr(response, "answers"):
+    elif response and isinstance(response, Answers):
         logger.warning(WARN, answers=response.answers)
+        cache_rqdata(agent.tmp_dir, response)
     else:
         logger.error("response is None", response=response)
 
