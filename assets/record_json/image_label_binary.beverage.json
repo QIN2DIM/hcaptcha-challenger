@@ -1,0 +1,75 @@
+{
+  "c": {
+    "type": "hsw",
+    "req": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJmIjoxLCJzIjoyLCJ0IjoidyIsImQiOiJoOXh3bG9nWkhXckI1amhia3o2UzlHVHI2blNJc1J6OEw4UWpBdXhZWDZsWjU0YitQYmVuVlNTVnN4V1pVSDNrM2h0K1FIRXM5UkYwenFrKytFaFlXeHVmR1RXQnVSV3BkankvS3NRTEhnK3Q3WjZuRGkzSjlnUXlkOENiOXZyK0JJNWNoQmJyOFJDc1Yzc2NpaEtjN296WXhJSUIvS1VUaHdqN1BPUnpUdmFER1ZjaHJZcTVzd28xNkE9PStHK3ZSL1dpQU44bW1TNlAiLCJsIjoiaHR0cHM6Ly9uZXdhc3NldHMuaGNhcHRjaGEuY29tL2MvNzhlZTZmYyIsImkiOiJzaGEyNTYtdEs3YTVnbXE3Wjd1R0w2REh5OW9ReHUvRmsvdW1WdzNlTFBaWitlS2lkdz0iLCJlIjoxNjk3MTI1ODYyLCJuIjoiaHN3IiwiYyI6MTAwMH0.sbubZN3M4RqU_4BcKxo5G_rXsMJgcHKbrcB37ovRj8blg7gwpJ4rYPEndeDjiZs0Tnjbqu5jWDZO4V2cV9YqaWWkFTwysGURxXdpLKPBRWkD1PcEzoenMrY3oaZId8yfxJhnmhL7tMpUBof7TrZMFaEO_GrUFqm6LbJ0QZGN4zY"
+  },
+  "challenge_uri": "https://hcaptcha.com/challenge/grid/challenge.js",
+  "key": "E0_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiQVlzWnJnV1l6R3FDUmE5WnRuNzFrdUNQVVZYbGk5d2hSR05rblcyTmFoK25aT1dVQW9NT0dKZUFhakhxQ3BkeW02SGlLcVN5bmFZc0xCT2JYRDQ3WXNwc0FJR25OK3JMTXVNQlpsdXJydEJFRFp4UE5idUZ5MmhwT1g3SUZtMGlFamQ1YXpxRjdldHIyc1lqQzRKNTYwSWFWb1lKVkF6alIwS0pwaHNoQWtKRFlBeUVRQjlhMy9IcWFyQmJ5OGhrWkhWZDJpRWdYS251OTZHelNvLzRRUkJUTXlqNGdSTEErQm4zTTJBaXlOTjZncUFQclg2WmlZbzJhd3h5ZW11STY0OWFjc25pdCtydUtNQ3liQT09UGVVOTlpOCs2OFB0ekt3RyJ9.lLZQpsaMnruraOQe6WABU3HoM2glU3HWpvQIdE0oajE",
+  "request_config": {
+    "version": 0,
+    "shape_type": null,
+    "min_points": null,
+    "max_points": null,
+    "min_shapes_per_image": null,
+    "max_shapes_per_image": null,
+    "restrict_to_coords": null,
+    "minimum_selection_area_per_shape": null,
+    "multiple_choice_max_choices": 1,
+    "multiple_choice_min_choices": 1,
+    "overlap_threshold": null,
+    "answer_type": "str",
+    "max_value": null,
+    "min_value": null,
+    "max_length": null,
+    "min_length": null,
+    "sig_figs": null,
+    "keep_answers_order": false,
+    "ignore_case": false
+  },
+  "request_type": "image_label_binary",
+  "requester_question": {
+    "en": "Please click each image containing a beverage"
+  },
+  "requester_question_example": [
+    "https://imgs.hcaptcha.com/LRptDkyUQlCQPJRaCIQdJcAxDVOB3XFDXwWJB00ksf9ihEKRJR6QGT0N-D4Je19CoF2gfBVlvBJCnaPdlkMZR6LEaYHi9gvNXBKRArr9iqOk8Ao22t5pEsh4lZqUAvuc2ZwF9nWzB8yQYgB-QWlC4KFp7P6Nczrc9b5VL_ghAdoc0HN2zyx8AlfM46wM7t0W4ZryTgyKTXlTzaWu6vVgDw_MwCJN95k7aM7MpFUCy2cbi1DKUlG5rS-LnvKE6J8yC7jOT0wWfbgMOX72S4HDAvO2Hv-SE9eGoDugyjXm"
+  ],
+  "requester_restricted_answer_set": {},
+  "tasklist": [
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/G6AjO9y7zARsvKZUWgiQtgvqBIiz25ghjB2qv25Qugok9wcYJa0VutcwQ8MNW05Y-DFdY0rkCs5M3RhZCFS_d3vZpD8EhFedtggwJeBynJ7d5fD4xO0MqoGBUJn2wpdfDCVElDSkU02rUljdJr_Ook6Q7Xheo0j8a-d3br9tCWdL6BkXcbowuQwckoKL5qUfCmkoGKOCxuaR-AEedUgZrGGmVNnUbmy-eKgW6hdPhEv8b-U5KusPX1WBgvAMM-K_JDX-4xSY1GprOZo5CZkGxwwHT-qqb11cr0cs21ZS",
+      "task_key": "67a84933-787d-4f63-85d3-97f97a081fb1"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/EgftMPC3ymmwBDPALfQ7SmcZfeDVQJPEFH-_j_HP1cVHoqMinp_fQFKHBkmqjPKto2Rx74fJdxRUNIztbqtw6S1ah-zKkxINk78BMXi1IMly2W76aFikXjo7GlvrUJGbmu9yDpA7aT96Bu4TQKfVxwPLWZ0hRcN6U-DG8LKj2XXzGu4QYclzMhfds_fN_-6GUJiyJzB8r-YOYHNDHNgt3VislOUd5Q3bIQTM6_L37fHjRTl_cOeKeM2oitTk88UL7OcG8E-Gdl3zn3BTaLBjm2T7DKGB6Bo75jsq6Qnj",
+      "task_key": "ea92c29a-002a-4b25-b11c-30e22f9722f9"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/Gb5kn-s-ScS5CN8DGISi8rAlOnY8fwWqZzRR50NY0WFuGWnuU2ebmF79N4j5GTep9ts_D0ya0syk8BHTZetgToSmDi5PLRpXJO1MwfJyaiVQKbklxD4-oRSYWS-Yh9T2JZoj34T5IoINo-_VBk4M081RqtXn5zESFQ-0_7LWJO_khDg5srD8ZOhW8UZiUAgD-uENkDowyxnLZzf85qqtztdFq39CWV0ChmAEhHo50jVIGZ2_36m7pfYAuyA-CjNnBH7myfE6K3d4YWY6cs1rSFMjKtJbh-X2sCvO2Ex7",
+      "task_key": "e2d76fd9-dfe9-47f3-9e44-1ff12b193421"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/x48IYEapR4MppflEMZ-Q4FgnG5RtjGkoyZRGfDALjDfkEBg_s03To_NucYslslAOKp9kWWyiT2gpRkdfqPN0AccVd3dOdcavEy1QkXKX1Av7IMa1DP5_RIRCkfFzG-14PKNdIFirta5fQLE59mz9OTF_ZpN1jHzKcLbPO8ccYEzxRHVS1gxW4pJMfyk-53X5zhz8pxYqr7TTOrhXh7eQ3tyLgQGdL8fnDSHFGsGrb9Mq1MXfjmdXtb0X-z1uayQDnmLDVGpx521soFYiP8_TpAiqCsEFMlv80HDwCXhH",
+      "task_key": "89f6cf98-5d5b-4746-89a1-7edb85e7d716"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/Jxer-CFnwr8r77hgGPYSO9cohiRYTipGwfNr0Bh9DsNeiFjK4iNemmrKTDiHI67Auxr667cjxiQO5QUJVy-8kkMGTBVUoN1aZY6WOPbSgsDKFLXcB1iRDRRcI5ayH9T5WBT1Ne9tCLpc_DuFAV-kbIuJ8z5YH6IUyoGUBotKJHGRxHJhmcHUQV_ccZLFGYokwfZjMMgrQrWRse3iD6wS4HIIgmalkpRKkQaB8-bU3Yk4_V6X6AGXXLNDRP8qX3ppC1SlPWkIrGEzR6O1hND6UvrLOoTpoRDP3rwX0mwa",
+      "task_key": "c251d780-200a-4697-8ab2-247f9891925c"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/UVzmHGD6lPgh3hnGhDVoAVyYt6UMh-buoQXhcDVLE8mphN7JilhIXBtUpsVa6x_BJFKrczZuQZsilhxdP9xDUXQGliwTgAzutSW953-xwQbySxUOpvrKhs7LJoehHWt7L8Zr6OnWAcHXFfcrcwcI-y2S5gE2Q50zokUG0WwziWl0nKV6nUL79l46D2paA8gI9fOJj5yWcPcLF4ewJgM3kjNNfw1OPjtEvwnkVMGyJdxKzuPemTKxnNv-PW-OeVpQeq0SDcAAKjudtniY-AXvmHECLTA2JoXyTWCEVWOr",
+      "task_key": "b95b4f1f-4396-4dc2-a307-8e287e8c5b13"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/s_cTtk4ap8WZy2vv5wRSh0zy2rnK_U2czFB-hVCyk1wi3Ulk57oTZwbyZdKt5b6HRC5deE2Tn9uRTMfsekl4dUqkA4u_4hsGwkocJzU4xM4rteLmPusrhX15Emt75PHsiUq56aBjUEEm9HLjCv8VgfOpKSLgk3LUgGzf2BciuKaNi7LgZEmRFXNkm9skdQqSfZYKAUX6qwY_OAcw7crsY-eGe4Of3tKCDJzqkWuUF9vjEbi8A8z4aJNsBa1TmggqEMFWZM_zILdoiJJuZpI6WfNLMN8O_-5cobpcM4wZ",
+      "task_key": "f4377078-478d-4d74-943d-a475d5f91082"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/i9SCIkDJpJFi_hbaL8VO5J3fNTIoWPp5lvlaV1B7nGr8DNL6Lk4eday9J7N3B_PmnfqM_sLwTn-au4ksULK9OMu6v2QElapXyT213CymeLB6lb6Uvp4Ej0dsSKFwujx-WvC0-Q06VvRNDykocruCEnPWJjz71nTdsM95sE23icpMv_AWGB3XXwj8yqZcD8aApEfjRFCMxH-30C8_efjkqOHEcoIGiRE1phHRcQ2GDiZcscjpKmHaS0MWDg827NCTCUn-RpLUcLynMu7FMxHeoqJt6Xx24TaoEYZxidWv",
+      "task_key": "627cb3fc-4323-4b65-802c-b2ad82dcfce8"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/pSgn_HMVpUEb5txzUSiJ8RgfJmCmMbiCLWTzrDtXZg5U6QVtX8rtlu5KUq8v0C302l2f8zUm6KQgAMtQFOSVG6NKvABS_vVwXXYDb9n0gJ8o_Bx4bpUd2BqTzFkTftT0Eccm8WMIMDhhM0cubWNEAHtYHP6OE9kSbvJqqxKVo2t7Oj3NxfI4S6HdrcP2_yuoXu4x7sA1H9oyDHQx5WK9o7e_hRtQYsa7uMc2gPs6jRBK1ty0fl-3vSmrt0U6c2k5MSrpN0FmwCDNaydR_r37M6_9NeC69YrPBESPRXdJ",
+      "task_key": "fac6169a-4312-4f53-8b7b-00ec94ca20a2"
+    }
+  ]
+}

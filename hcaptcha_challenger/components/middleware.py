@@ -131,3 +131,14 @@ class RequestType(str, Enum):
     ImageLabelBinary = "image_label_binary"
     ImageLabelAreaSelect = "image_label_area_select"
     ImageLabelMultipleChoice = "image_label_multiple_choice"
+
+
+class Answers(BaseModel):
+    answers: Dict[str, Any] = Field(default_factory=dict)
+    c: str = ""
+    job_mode: str = ""
+    motionData: str = ""
+    n: str = ""
+    serverdomain: str = "accounts.hcaptcha.com"
+    sitekey: str = ""
+    v: str = "fc6ae83"

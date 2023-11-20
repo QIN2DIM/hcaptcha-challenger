@@ -3,7 +3,8 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-from hcaptcha_challenger.agents.playwright.control import AgentT, QuestionResp, ChallengeResp
+from hcaptcha_challenger.agents.pipline.control import AgentR
+from hcaptcha_challenger.agents.playwright.control import AgentT
 from hcaptcha_challenger.agents.playwright.tarnished import Malenia, Tarnished
 
-__all__ = ["AgentT", "QuestionResp", "ChallengeResp", "Malenia", "Tarnished"]
+__all__ = ["AgentT", "Malenia", "Tarnished", "AgentR"]
