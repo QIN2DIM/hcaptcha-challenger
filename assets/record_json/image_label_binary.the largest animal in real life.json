@@ -1,0 +1,75 @@
+{
+  "c": {
+    "type": "hsw",
+    "req": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmIjoxLCJzIjoyLCJ0IjoidyIsImQiOiJIdktESGpEcVp5TjhKU3Z1NXV3K0Q1MGwrS0pFRDJNU2RjTkp5Z29sWEFWQmE5Q2VHWXBxYnBoVjJ2a2VXdkwwajNsL1hhSHFGOUUrV1FLYm1qRFNGUFk4VTh0dytDTlBJNVA1ZisvZHJMdVFOKzRwbEM4VHF1Uk1vQllZRHhxbUQvMnF4ZGllbU5XcDIycEtNcDJkM1VjKzdSUVdqcWlpZldTczRzcFp4YTdNZFV6Nk1JNE1aMUVnelE9PUp1bS9uU2ZGQm5nL2hnUkQiLCJsIjoiaHR0cHM6Ly9uZXdhc3NldHMuaGNhcHRjaGEuY29tL2MvYmM4YzBhOCIsImkiOiJzaGEyNTYtbm0yckhLemFPa29INDNUUk5rNEJxaGdvQnNyKzUwSWN4N3pQWEtOSDg5ND0iLCJlIjoxNzAwMzgzMzMyLCJuIjoiaHN3IiwiYyI6MTAwMH0.QvWO6o4FuyEtqciY-9fPjk9YRqaPPlLSDeCwE62rVQg"
+  },
+  "challenge_uri": "https://hcaptcha.com/challenge/grid/challenge.js",
+  "key": "E0_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoia0I2ejR0ZWo4WkFNNUlVVWxIcjRFemJvQjRUWmhkK1U5Y2ZneDJuVjhTckU4b1RQQkFFb0JlNmttUkUwckVzMzVEaFRBM1dXK3FydDFGSC92a2hkVkZBVDNNTERmbXJTay9ycXVWWmJaeDlGWTEvNXc2cXplMkE2Kzd0bGQ4VTRoZzE4UXFPaFhKRlVRa3NjdzdDRys3cTlTYnhGSU1teGsrNnFIOEVqM1hwZmsva0FXcExtcnVGWlVMaitNb2ZicUZqcEVzaHNLRWo5alBLR2tYTVIrN3A3QTh6ZmJiZFNvM3ZuUkpvMTdYOHEzemRnYWNPR2c5azlGQTJjRloxbHpTUFZRSVVlb3FzPStxOFJjQm8xRElEM0FnY3EifQ.fM_8P1pX9GNqwtuYPxMAk3E0mNGnk_YE4HGVAmmbaZw",
+  "request_config": {
+    "version": 0,
+    "shape_type": null,
+    "min_points": null,
+    "max_points": null,
+    "min_shapes_per_image": null,
+    "max_shapes_per_image": null,
+    "restrict_to_coords": null,
+    "minimum_selection_area_per_shape": null,
+    "multiple_choice_max_choices": 1,
+    "multiple_choice_min_choices": 1,
+    "overlap_threshold": null,
+    "answer_type": "str",
+    "max_value": null,
+    "min_value": null,
+    "max_length": null,
+    "min_length": null,
+    "sig_figs": null,
+    "keep_answers_order": null,
+    "ignore_case": false
+  },
+  "request_type": "image_label_binary",
+  "requester_question": {
+    "en": "Please click on all images containing the largest animal in real life"
+  },
+  "requester_question_example": [
+    "https://imgs.hcaptcha.com/k81RW6igcfYbmwWm6LE41cHF4iLzSO5Eic88jT8_-9poYNT4597rAmxaujaabqNLKIG_fbBJqppmlT-TI19TVgvp_YIZEyxA32SWTJcmLmBMNfb0r0JWapkp3u3IgTMEpLX7npqZjP-iXE6OX5nJYlaKZtfY7F4XM0KlBDV20Oir-J-o_s3MfvvSlEJHx54mfniquAGj1oDHZSkLzALJy6rCI0PcJrhqPkLoPy5JRlC2YpDWpIMhupnGcXjzn_66vrygGlGqE-DqCqeQkydriTcvb9i5Nu_30F-F0p4e6SWCQ75izYEB1V0kQiBIXGI5r4k"
+  ],
+  "requester_restricted_answer_set": {},
+  "tasklist": [
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/aZfiMUL6f7E3Td_CIAZlu4UPE8oE1cxh1jeNVxSSHidLOEX2ExU3beRChk3gaoB18L154wJ-pvt11vb0nCakKGJOM4H26SNZgBsJpsN3wFT3zSmAeYFN41GpIVUPehlREkB9LlBg8ZfNik0P6NAYfSsI52znvAsBYLqtJhv0WHsDC4XSIgKCGG0SkNVee46DnHYFYDkAmQdvvNepEEODBvkqTCwCphvWWE35_dPJ_9Fb1HIkELKHOWvZYNGZya3jBVvNjfnt0BCIcGvd2r661EJ_s_yDO0BHVw3VKDi4uf2pc3oTjrCijxRGV509XQn7cEroaM5fUYAceklHfa3SnPYw2YapcvRoRmwZYAQN1eOU",
+      "task_key": "721c1692-e21d-4356-ad79-fd3e2b3e88b9"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/ZM8fMKRkc7Zz3I1sOmX5-nCz17q5R4_geMMH3oR29pRuK0GYFDYir4WXXOR-DTxEi-4q_klngU65OH7WnnGkKyc16oLqkcR47aZU5TJbnnS36I4QWllhuIzvJ-VGLUJsUN0TfuYxoB6JjRx1zkcdol0pljCVo_1MzdTR8hTwqCw567b053jvS5bs48ZUAlbSl9-fF2_sHchlBqJVae_Y0c8ugJXJAHTNmgePWdlnAI1VQHQWhEuZqJ7fl8j_t6BwBBbV2EfP4RsfFmddaXeL6Z7LpQGk-HMl_VAn1WAqUNoZFI5WVpN7bn7TRN6gnLoCCz4drVIU2YR3v9BsxYa454TCEH6MZvWgcoWEFTMyjF0n",
+      "task_key": "c9335835-7328-4425-87e1-a2287cc29cf8"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/-_XyqRVEeTNs6JSCOR2jQS7id_W3ox0to5zwUhlA6SRBwh3_lwNESdDvsTlSuYKf9KB_36VuSwOXbrm6ktf6pvZhmGQMwGZMYhY4S199Mml_w2IGtRPrzZChkxvCH9UKThaHViRefAjsDQkAxV2wc2ETeYlyZBs_-M8-idIZZiPrilWzYq6RiUV1bRErt4FLQFvvwDhFkcWU3Y6HpWdaAUOkKg4udg9DUG6kmYKWisINGczxZKHitfatt81Z-cXCzDIHsdhq5Ibr6qkvEnm-RaQhBfGjHxCsHwfKF93OMiB_uwpJwOyYyIo6XJ6FYiBc92YflBiuUd4Q8WYE-gPP-6lq5rxs-N2mns86ajAgDubp",
+      "task_key": "cc35fb41-432c-46df-9547-5898af09b109"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/wx5Bxmhp8ADWp0qmGDT2zf2OTdvUwkn3VLQbNtTdCbxvZdWBcycD4BA8HX0IUCb-A9qm5sOnHaon4v_tnvzcnK_WOJmiMZUlaithxm5byig9zWNkO1N0dZnhxrOJik3ej5pFtbTB15toua3jqTvndxlUDEWI_biQ8drTzdTo2KPkCpFHnLSKAzD2apW0LCTZSip88gnulsrSwjMzxM-Niqi9nQ0UV6c4DJQLe13cJSclGvCHAT0NjywtVdDDCfO9AuL5CxMyG0c2BE1TXycj1Ol-Xs7r-Y39dn2cY44cU2dcbkibkTPs-KzYIKT6E1WWQd3RSwUyjPugJ_j81wip4jU23xJK6MKZNtVAtLQuPLOj",
+      "task_key": "ca70b88d-139e-4ac0-b397-e0d168e9a138"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/ycOT52_gEekSNuEi19BW_VPGkF1rI0sY8-u1Yue4yCUA4JXUa1_vGbTSG5hsu9s1EOaOg9Nr2_iDRgHzcT1P5nDjWnHRpSKLO70adkjP_riuuEjs6Ma_0O6OEWHyz1W8AHa3L6Pa7sfekCAQ-Z32t3ATo7E-gQVjqn24DiDTgzPeFvpJ8H1U-6dMv3CJWjsZcXzIlKbLHxlzRcj_V0ff2Yp_Eg6hBWHCGkehOHvDFpTuwQKtKZrNKL3jzcRdVw1a34tF0doT1x5m3slHYgA4EPUkcCfNEj_R9blyjj48JC954BpNGXvi2xWQsLd4--CF2nqG8A3kBKIDNmrbsN9XCt3QHMfbgC7wMinn2mg1p5Ev",
+      "task_key": "e328b0c5-7a25-4df3-90eb-3be09ac5fdea"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/AySzUAGm_1tPCjQ9iuZ_6sWCtr9gllycRzDX2Y3LHB-IjbRhR6d1pFpg2eWPSdase2YDYR7IGEqGld7hGoeOmweXXwyd4m2UnNszkcM01AV9mE_AdtHPuMX-rRPmf2xNUl-TwDfAqGZRIxnsfVjDe865laaECvZcCOcM44xy_uNpULv_iJuDOBoYuLwjjRj7G11B7IAacOD1DdVgpqRytBLgH464jZRXvKrxMcNqRray5ytkWGEqERdzCa1qYTvnqO9hAljeTQYKjE5Mzsdk5v0tHu6HSZXKlge2xDufyTUM-TENLWwcSN3ziALT-rBnXR4BKAk0USJb8WkqP5d2nW1C5nZ7zcuEmcYR6CD9r5yP",
+      "task_key": "9af1e0b4-1058-49a3-b372-0277c1601fb0"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/Ij4oMO7RyO_5EcvxoD-t6iJKvqfXuIGBNSOr7oPq6cd0hfm0dniMMXlaePn4EmB8NIJZbHJJ-aVHedRw0frTnOeX4FVR_v7Z2rpOHbHc5Bli08g8QqADKa4jE7GRtomVZ6RgrvEEBzNNRC844GjoKdimByxnLILY4lZLj6m6XzdJC11xlugia1k-ehLlsbAql_FLex_vXDPvH1eaj1MO0ONPAnX8MqY4fCdkF9t6FrvAgJ01yKSl16LFUE0zyByjYD1yNwhXl2mpKhc7s6mto9_3-usGVTUy9NczgZSYNP3fAX5lIAaCmiGtr6JmzYoWuLc0TQcWJGfQfSmD8g4SjDblP7LNzU8rMxqRQTHY-Apj",
+      "task_key": "ba4d4737-d5f8-454c-9298-e3df7d433599"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/QDHZ66hTZcDu3QEazvaewveBxtohYC6_LaWcTz22mgtAXnf_izLGLclmlifQMqiz27spzU1wmkKcEtXqaMFw9ilYcKD-u6hEZWCHLBdeTz-9m-EIh7ha5g_rXggYKlqRlI-HUfBaC9t8dOzr-eO-9hbSOmHd5aF705XeNuvTXpYBHUqEL5oineuQBfsxC42tBmyQXeomQmr2dMqV0EmMjFbpYyE037lIxw92fAF1VndpCxOiYTq2enjR6ph-jufNIFz_ZsXrK0x2Fzg3j4sH-gD67iCiuw-61bbvgYL5EigqLXe0AV12zGlW5jD3nCii16sy6G0uZD6-Eo4AX7umTPKdmzdf3dp2n27lfLnOARRJ",
+      "task_key": "bd4ebbfa-9d5d-4c94-95ba-2bb1be11ea9f"
+    },
+    {
+      "datapoint_uri": "https://imgs.hcaptcha.com/yF7l-La6K2KeNHCBygsTGy36imxhMW_HHTBwtgvywF93n7y-msMKHUm7wYW6o1tliy1bHj_3zaLYCQsyhxJXQWrVnPRFXP5wOwEHAXad5M5lhWDN-8NF0yCVqx89kzI6AXG6sazkC-Vvsk_2uDdg6JErk0AxFUvkCH8laEHOITLUl9BKoQhXcW3CbwUD3b9embAvmuTo1zW_2AiYg6bElMthQ97BrJIQPQR6jgruSm9IDDIIay1HjNAKItjpnXLZbvXDMp8O_rY1SJLcgGNuC776dYYK1Qm__b21fB0Wcy3pqYJE3pbCzWhDMTB0m5oh-4zvI4jVx_BKn17n9Xd_rutwF92DdC3wFH8GPWku8Jo8",
+      "task_key": "a6bae1cd-9773-4a44-9e8d-13f347c33c36"
+    }
+  ]
+}

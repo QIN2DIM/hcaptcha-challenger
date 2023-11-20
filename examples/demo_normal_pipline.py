@@ -22,6 +22,9 @@ the images cannot be downloaded.
 Get real-time challenge tasks from https://api.hcaptcha.com/getcaptcha/｛sitekey｝
 you should know how to do it
 
+`Answers` BaseModel has implemented some structure fields, and you can use it to complete the remaining fields.
+You can export it as json format by the `model_dump_json()` method
+
 """
 
 
@@ -44,19 +47,13 @@ def prelude() -> AgentR:
 
 def get_question_data() -> QuestionResp:
     """
-
-    ```python
     import httpx
-
 
     url = "https://api.hcaptcha.com/getcaptcha/｛sitekey｝"
     res = httpx.post(url, json=payload)
     data = res.json()
-    qr = QuestionResp(**data)
 
-    ```
-
-    :return:
+    :return: QuestionResp(**data)
     """
     dp = Path(__file__).parent.parent.joinpath(
         "assets/record_json/image_label_binary.beverage.json"
@@ -66,18 +63,19 @@ def get_question_data() -> QuestionResp:
 
 
 def cache_rqdata(cache_dir: Path, response: Answers):
-    record_json = cache_dir.joinpath("record_json")
+    record_json = cache_dir.joinpath("payload_json")
     record_json.mkdir(parents=True, exist_ok=True)
 
+    # You can export it as json format by the `model_dump_json()` method
     json_path = record_json.joinpath(f"pipline-{response.job_mode}.json")
     json_path.write_text(response.model_dump_json(indent=2))
 
     logger.success("cache rqdata", output=f"{json_path}")
 
 
-async def main():
+async def main(qr: QuestionResp | None = None):
     # Obtain real-time challenge tasks in a way you are familiar with
-    qr = get_question_data()
+    qr = qr or get_question_data()
 
     # An agent instance can run multiple execute tasks,
     # so you don't have to instantiate AgentR frequently.
@@ -88,7 +86,7 @@ async def main():
 
     # Handle response
     if isinstance(response, agent.status):
-        logger.success("task done", response=response)
+        logger.success("task done", status=response)
     elif response and isinstance(response, Answers):
         logger.warning(WARN, answers=response.answers)
         cache_rqdata(agent.tmp_dir, response)

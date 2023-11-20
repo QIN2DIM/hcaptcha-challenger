@@ -69,12 +69,62 @@ class RanniTheWitch:
     def status(self):
         return Status
 
-    def _match_solution(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
+    def _match_model(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
         """match solution after `tactical_retreat`"""
         model = match_solution(self.label, self.ash, self.modelhub, select=select)
         logger.debug("match model", select=select, prompt=self.prompt)
 
         return model
+
+    def _match_solution(self, qr: QuestionResp):
+        # Match: image_label_binary
+        if qr.request_type == RequestType.ImageLabelBinary:
+            if nested_models := self.modelhub.nested_categories.get(self.label, []):
+                if model := self._rank_models(nested_models):
+                    self.binary_challenge(model)
+                else:
+                    return self.status.CHALLENGE_BACKCALL
+            elif self.modelhub.label_alias.get(self.label):
+                self.binary_challenge()
+            elif self.self_supervised:
+                self.binary_challenge_clip()
+            else:
+                return self.status.CHALLENGE_BACKCALL
+        # Match: image_label_area_select
+        elif qr.request_type == RequestType.ImageLabelAreaSelect:
+            shape_type = qr.request_config.get("shape_type", "")
+
+            if "default" in self.ash:
+                if shape_type == "point":
+                    self.keypoint_default_challenge()
+                else:
+                    logger.warning("unknown shape type", shape_type=shape_type, qr=qr)
+                    return self.status.CHALLENGE_BACKCALL
+            else:
+                if not any(is_matched_ash_of_war(self.ash, c) for c in self.modelhub.yolo_names):
+                    return self.status.CHALLENGE_BACKCALL
+                if shape_type == "point":
+                    self.keypoint_challenge()
+                elif shape_type == "bounding_box":
+                    self.bounding_challenge()
+                else:
+                    logger.warning("unknown shape type", shape_type=shape_type, qr=qr)
+                    return self.status.CHALLENGE_BACKCALL
+        # Match: image_label_multiple_choice
+        elif qr.request_type == RequestType.ImageLabelMultipleChoice:
+            if not self.self_supervised:
+                logger.warning(
+                    "task interrupt",
+                    reasone="ImageLabelMultipleChoice mode must enable the self-supervised option",
+                )
+                return self.status.CHALLENGE_BACKCALL
+            self.multiple_choice_challenge()
+        # Match: Unknown case
+        else:
+            logger.warning("task interrupt", reason="Unknown type of challenge")
+            return self.status.CHALLENGE_BACKCALL
+
+        self.modelhub.unplug()
 
     def _rank_models(self, nested_models: List[str]) -> ResNetControl | None:
         result = rank_models(nested_models, self.example_paths, self.modelhub)
@@ -105,7 +155,7 @@ class RanniTheWitch:
         )
 
     def binary_challenge(self, model: ResNetControl | None = None):
-        classifier = model or self._match_solution(select="resnet")
+        classifier = model or self._match_model(select="resnet")
 
         answers = {}
         for i, img_path in enumerate(self.img_paths):
@@ -210,7 +260,7 @@ class RanniTheWitch:
         self.response.answers = answers
 
     def keypoint_challenge(self):
-        detector: YOLOv8 = self._match_solution(select="yolo")
+        detector: YOLOv8 = self._match_model(select="yolo")
 
         answers = {}
         for i, img_path in enumerate(self.img_paths):
@@ -234,7 +284,7 @@ class RanniTheWitch:
             ]
 
     def bounding_challenge(self):
-        detector: YOLOv8 = self._match_solution(select="yolo")
+        detector: YOLOv8 = self._match_model(select="yolo")
 
         answers = {}
         for i, img_path in enumerate(self.img_paths):
@@ -291,49 +341,8 @@ class AgentR(RanniTheWitch):
 
         await self._download_images()
 
-        # Match: image_label_binary
-        if qr.request_type == RequestType.ImageLabelBinary:
-            if nested_models := self.modelhub.nested_categories.get(self.label, []):
-                if model := self._rank_models(nested_models):
-                    self.binary_challenge(model)
-                else:
-                    return self.status.CHALLENGE_BACKCALL
-            elif self.modelhub.label_alias.get(self.label):
-                self.binary_challenge()
-            elif self.self_supervised:
-                self.binary_challenge_clip()
-            else:
-                return self.status.CHALLENGE_BACKCALL
-        # Match: image_label_area_select
-        elif qr.request_type == RequestType.ImageLabelAreaSelect:
-            shape_type = qr.request_config.get("shape_type", "")
+        tnt = self._match_solution(qr)
 
-            if "default" in self.ash:
-                if shape_type == "point":
-                    self.keypoint_default_challenge()
-                else:
-                    return self.status.CHALLENGE_BACKCALL
-            else:
-                if not any(is_matched_ash_of_war(self.ash, c) for c in self.modelhub.yolo_names):
-                    return self.status.CHALLENGE_BACKCALL
-                if shape_type == "point":
-                    self.keypoint_challenge()
-                elif shape_type == "bounding_box":
-                    self.bounding_challenge()
-        # Match: image_label_multiple_choice
-        elif qr.request_type == RequestType.ImageLabelMultipleChoice:
-            if not self.self_supervised:
-                logger.warning(
-                    "task interrupt",
-                    reasone="ImageLabelMultipleChoice mode must enable the self-supervised option",
-                )
-                return self.status.CHALLENGE_BACKCALL
-            self.multiple_choice_challenge()
-        # Match: Unknown case
-        else:
-            logger.warning("task interrupt", reason="Unknown type of challenge")
-            return self.status.CHALLENGE_BACKCALL
-
-        self.modelhub.unplug()
-
+        if isinstance(tnt, self.status):
+            return tnt
         return self.response
