@@ -706,6 +706,9 @@ label_alias:
   pirate_ship2309:
     en:
     - pirate ship
+  freight_train2309:
+    en:
+    - freight train
 datalake:
   football stadium:
     positive_labels:
