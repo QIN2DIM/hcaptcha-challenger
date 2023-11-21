@@ -3,10 +3,56 @@ branches:
     release_url: https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 circle_seg: appears_only_once_2309_yolov8s-seg.onnx
+clip_candidates:
+  the largest animal in real life:
+    - parrot
+    - crab
+    - bee
+    - ladybug
 nested_categories:
   plant:
   - nested_plant2311.onnx
   - plant2319.onnx
+  please click on the turtle's head:
+  - head_of_the_animal_turtle_2309_yolov8s.onnx
+  please click on the meerkat's head:
+  - head_of_the_meerkat_2311_yolov8n.onnx
+  please click on the jaguar's head:
+  - head_of_the_jaguar_mask_2309_yolov8n.onnx
+  please click in the center of a spiral pattern:
+  - spiral_pattern_2309_yolov8n.onnx
+  images that appear warmer in comparison to other:
+  - nested_warmer_cactus2309.onnx
+  - nested_warmer_conference_room2309.onnx
+  electronic device:
+  - electronic_device2316.onnx
+  - nested_electronic_device_mouse2309.onnx
+  - nested_electronic_device_circuit_board2309.onnx
+  machine that flies:
+  - machine_that_flies2309.onnx
+  - nested_machine_that_flies_helicopter2309.onnx
+  the smallest animal species:
+  - nested_smallest_owl2309.onnx
+  'please click on the most similar object to the following reference shape:':
+  - most_similar_object_hexagon_2309_yolov8n-seg.onnx
+  please click in the center of an observation wheel:
+  - observation_wheel_2309_yolov8n.onnx
+  furniture:
+  - nested_furniture_chair2309.onnx
+  images of one type that appear warmer in comparison to other:
+  - nested_warmer_cactus2309.onnx
+  - nested_warmer_conference_room2309.onnx
+  - nested_warmer_bedroom2309.onnx
+  - nested_warmer_beach2309.onnx
+  images of one type that appear colder in comparison to other:
+  - nested_colder_snowman2309.onnx
+  - nested_colder_living_room2309.onnx
+  - nested_colder_bedroom2309.onnx
+  - nested_colder_house2309.onnx
+  please click on the bell:
+  - bell_2309_yolov8n.onnx
+  please click on the smallest animal:
+  - nested_smallest_turtle2309.onnx
   please click on the largest animal:
   - nested_largest_horse2309.onnx
   - nested_largest_rabbit2310.onnx
@@ -24,64 +70,24 @@ nested_categories:
   - nested_largest_bird2310.onnx
   - nested_largest_penguin2309.onnx
   - nested_largest_capybara2309.onnx
-  please click on the turtle's head:
-  - head_of_the_animal_turtle_2309_yolov8s.onnx
-  please click on the meerkat's head:
-  - head_of_the_meerkat_2311_yolov8n.onnx
-  please click on the jaguar's head:
-  - head_of_the_jaguar_mask_2309_yolov8n.onnx
-  please click on the smallest animal:
-  - nested_smallest_turtle2309.onnx
   the smallest animal:
   - nested_smallest_starfish2309.onnx
   - nested_smallest_horse2311.onnx
   - nested_smallest_zebra2309.onnx
   - nested_smallest_turtle2310.onnx
   - nested_smallest_bird2312.onnx
-  please click in the center of a spiral pattern:
-  - spiral_pattern_2309_yolov8n.onnx
-  images that appear warmer in comparison to other:
-  - nested_warmer_cactus2309.onnx
-  - nested_warmer_conference_room2309.onnx
-  electronic device:
-  - electronic_device2316.onnx
-  - nested_electronic_device_mouse2309.onnx
-  - nested_electronic_device_circuit_board2309.onnx
-  machine that flies:
-  - machine_that_flies2309.onnx
-  - nested_machine_that_flies_helicopter2309.onnx
+  the largest animal in real world:
+  - nested_largest_raccoon2310.onnx
   the largest animal in real life:
   - nested_largest_squirrel2310.onnx
   - nested_largest_lion2309.onnx
   - nested_largest_elephant22309.onnx
   - nested_largest_female_lion2309.onnx
-  the smallest animal species:
-  - nested_smallest_owl2309.onnx
-  'please click on the most similar object to the following reference shape:':
-  - most_similar_object_hexagon_2309_yolov8n-seg.onnx
-  please click in the center of an observation wheel:
-  - observation_wheel_2309_yolov8n.onnx
   the smallest animal in real life:
   - nested_smallest_lion2309.onnx
   - nested_smallest_horse2312.onnx
   - nested_smallest_cat2309.onnx
   - nested_smallest_hummingbird2309.onnx
-  furniture:
-  - nested_furniture_chair2309.onnx
-  images of one type that appear warmer in comparison to other:
-  - nested_warmer_cactus2309.onnx
-  - nested_warmer_conference_room2309.onnx
-  - nested_warmer_bedroom2309.onnx
-  - nested_warmer_beach2309.onnx
-  images of one type that appear colder in comparison to other:
-  - nested_colder_snowman2309.onnx
-  - nested_colder_living_room2309.onnx
-  - nested_colder_bedroom2309.onnx
-  - nested_colder_house2309.onnx
-  please click on the bell:
-  - bell_2309_yolov8n.onnx
-  the largest animal in real world:
-  - nested_largest_raccoon2310.onnx
 ashes_of_war:
   bell_2309_yolov8n.onnx:
   - bell
