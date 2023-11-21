@@ -193,8 +193,8 @@ class Radagon:
 
     @retry(
         retry=retry_if_exception_type(asyncio.QueueEmpty),
-        wait=wait_random_exponential(multiplier=1, max=60),
-        stop=(stop_after_delay(30) | stop_after_attempt(15)),
+        wait=wait_fixed(0.5),
+        stop=(stop_after_delay(30) | stop_after_attempt(60)),
         reraise=True,
     )
     async def _reset_state(self) -> bool | None:

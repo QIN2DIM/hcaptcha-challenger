@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 from hcaptcha_challenger.components.image_classifier import Classifier as BinaryClassifier
 from hcaptcha_challenger.components.image_classifier import LocalBinaryClassifier
 from hcaptcha_challenger.components.image_label_area_select import AreaSelector
+from hcaptcha_challenger.components.middleware import QuestionResp, ChallengeResp, Answers, Status
 from hcaptcha_challenger.components.prompt_handler import (
     label_cleaning,
     diagnose_task,
@@ -38,6 +39,10 @@ __all__ = [
     "register_pipline",
     "DataLake",
     "AreaSelector",
+    "QuestionResp",
+    "Answers",
+    "Status",
+    "ChallengeResp",
     "label_cleaning",
     "diagnose_task",
     "split_prompt_message",

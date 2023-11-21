@@ -131,3 +131,14 @@ class RequestType(str, Enum):
     ImageLabelBinary = "image_label_binary"
     ImageLabelAreaSelect = "image_label_area_select"
     ImageLabelMultipleChoice = "image_label_multiple_choice"
+
+
+class Answers(BaseModel):
+    v: str = "fc6ae83"
+    job_mode: str = ""
+    answers: Dict[str, Any] = Field(default_factory=dict)
+    serverdomain: str = ""
+    sitekey: str = ""
+    motionData: str = ""
+    n: str = ""
+    c: str = ""
