@@ -33,7 +33,7 @@ def rank_models(
                 return
             control = ResNetControl.from_pluggable_model(net)
             result_, proba = control.execute(img_stream, proba=True)
-            if result_ and proba > 0.68:
+            if result_ and proba[0] > 0.68:
                 rank_ladder.append([control, model_name, proba])
                 if proba[0] > 0.87:
                     break
