@@ -11,16 +11,59 @@ import shutil
 import time
 from contextlib import suppress
 from pathlib import Path
-from typing import Literal
+from typing import Literal, List, Tuple
 
 from hcaptcha_challenger.components.image_downloader import Cirilla
 from hcaptcha_challenger.components.middleware import QuestionResp
-from hcaptcha_challenger.onnx.modelhub import ModelHub
+from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8
 
 
-def match_solution(
+def rank_models(
+    nested_models: List[str], example_paths: List[Path], modelhub: ModelHub
+) -> Tuple[ResNetControl, str] | None:
+    # {{< Rank ResNet Models >}}
+    rank_ladder = []
+
+    for example_path in example_paths:
+        img_stream = example_path.read_bytes()
+        for model_name in reversed(nested_models):
+            if (net := modelhub.match_net(focus_name=model_name)) is None:
+                return
+            control = ResNetControl.from_pluggable_model(net)
+            result_, proba = control.execute(img_stream, proba=True)
+            if result_ and proba[0] > 0.68:
+                rank_ladder.append([control, model_name, proba])
+                if proba[0] > 0.87:
+                    break
+
+    # {{< Catch-all Rules >}}
+    if rank_ladder:
+        alts = sorted(rank_ladder, key=lambda x: x[-1][0], reverse=True)
+        best_model, model_name = alts[0][0], alts[0][1]
+        return best_model, model_name
+
+
+def match_datalake(modelhub: ModelHub, label: str) -> DataLake:
+    # prelude datalake
+    if dl := modelhub.datalake.get(label):
+        return dl
+
+    # prelude clip_candidates
+    for ket in reversed(modelhub.clip_candidates.keys()):
+        if label in ket:
+            candidates = modelhub.clip_candidates[ket]
+            if candidates and len(candidates) > 2:
+                dl = DataLake.from_binary_labels(candidates[:1], candidates[1:])
+                return dl
+
+    # catch-all
+    dl = DataLake.from_challenge_prompt(raw_prompt=label)
+    return dl
+
+
+def match_model(
     label: str, ash: str, modelhub: ModelHub, select: Literal["yolo", "resnet"] = None
 ) -> ResNetControl | YOLOv8:
     """match solution after `tactical_retreat`"""

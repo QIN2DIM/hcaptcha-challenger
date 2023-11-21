@@ -20,14 +20,17 @@ from playwright.async_api import Page, FrameLocator, Response, Position, Locator
 from playwright.async_api import TimeoutError
 from tenacity import *
 
-from hcaptcha_challenger.components.common import download_challenge_images
-from hcaptcha_challenger.components.common import match_solution
+from hcaptcha_challenger.components.common import (
+    match_model,
+    match_datalake,
+    rank_models,
+    download_challenge_images,
+)
 from hcaptcha_challenger.components.cv_toolkit import (
     find_unique_object,
     annotate_objects,
     find_unique_color,
 )
-from hcaptcha_challenger.components.image_classifier import rank_models
 from hcaptcha_challenger.components.middleware import (
     Status,
     QuestionResp,
@@ -121,7 +124,7 @@ class Radagon:
 
     nested_categories: Dict[str, List[str]] = field(default_factory=dict)
 
-    self_supervised: bool = False
+    self_supervised: bool = True
 
     def __post_init__(self):
         self.challenge_dir = self.tmp_dir.joinpath("_challenge")
@@ -236,7 +239,7 @@ class Radagon:
 
     def _match_model(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
         """match solution after `tactical_retreat`"""
-        model = match_solution(self.label, self.ash, self.modelhub, select=select)
+        model = match_model(self.label, self.ash, self.modelhub, select=select)
         logger.debug("handle task", match_model=select, prompt=self.prompt)
 
         return model
@@ -451,10 +454,8 @@ class Radagon:
                 fl = frame_challenge.locator("//div[@class='button-submit button']")
                 await fl.click()
 
-    async def _binary_challenge_clip(self, frame_challenge: FrameLocator):
-        dl = self.modelhub.datalake.get(self.label)
-        if not dl:
-            dl = DataLake.from_challenge_prompt(raw_prompt=self.label)
+    async def _catch_all_binary_challenge(self, frame_challenge: FrameLocator):
+        dl = match_datalake(self.modelhub, self.label)
         tool = ZeroShotImageClassifier.from_datalake(dl)
 
         # Default to `RESNET.OPENAI` perf_counter 1.794s
@@ -470,6 +471,13 @@ class Radagon:
             timit=f"{te - t0:.3f}s",
         )
 
+        # {{< CATCH EXAMPLES >}}
+        target = {}
+        if self.example_paths:
+            example_path = self.example_paths[-1]
+            results = tool(model, image=Image.open(example_path))
+            target = results[0]
+
         # {{< IMAGE CLASSIFICATION >}}
         times = int(len(self.qr.tasklist) / 9)
         for pth in range(times):
@@ -480,7 +488,11 @@ class Radagon:
                 sample = samples.nth(i)
                 await sample.wait_for()
                 results = tool(model, image=Image.open(self.img_paths[i + pth * 9]))
-                if results[0]["label"] in tool.positive_labels:
+
+                if (
+                    results[0]["label"] in target.get("label", "")
+                    or results[0]["label"] in tool.positive_labels
+                ):
                     positive_cases += 1
                     with suppress(TimeoutError):
                         await sample.click(delay=200)
@@ -612,12 +624,14 @@ class AgentT(Radagon):
             if nested_models := self.nested_categories.get(self.label, []):
                 if model := self._rank_models(nested_models):
                     await self._binary_challenge(frame_challenge, model)
+                elif self.self_supervised:
+                    await self._catch_all_binary_challenge(frame_challenge)
                 else:
                     return self.status.CHALLENGE_BACKCALL
             elif self.label_alias.get(self.label):
                 await self._binary_challenge(frame_challenge)
             elif self.self_supervised:
-                await self._binary_challenge_clip(frame_challenge)
+                await self._catch_all_binary_challenge(frame_challenge)
             else:
                 return self.status.CHALLENGE_BACKCALL
         # Match: image_label_area_select
