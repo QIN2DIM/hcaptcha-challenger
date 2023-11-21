@@ -471,12 +471,11 @@ class Radagon:
             timit=f"{te - t0:.3f}s",
         )
 
+        # {{< CATCH EXAMPLES >}}
         target = {}
         if self.example_paths:
             example_path = self.example_paths[-1]
             results = tool(model, image=Image.open(example_path))
-            for result in results:
-                print(result)
             target = results[0]
 
         # {{< IMAGE CLASSIFICATION >}}
@@ -619,9 +618,6 @@ class AgentT(Radagon):
         self._parse_label()
 
         await self._download_images()
-
-        if "desert" in self.label:
-            return self.status.CHALLENGE_BACKCALL
 
         # Match: image_label_binary
         if self.qr.request_type == RequestType.ImageLabelBinary:
