@@ -9,7 +9,7 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Dict, Any
 
-from pydantic import BaseModel, Field, field_validator, HttpUrl
+from pydantic import BaseModel, Field, field_validator
 
 from hcaptcha_challenger.components.prompt_handler import label_cleaning
 
@@ -35,7 +35,7 @@ class QuestionResp(BaseModel):
     req: eyj0 ...
     """
 
-    challenge_uri: HttpUrl = ""
+    challenge_uri: str = ""
     """
     https://hcaptcha.com/challenge/grid/challenge.js
     """
