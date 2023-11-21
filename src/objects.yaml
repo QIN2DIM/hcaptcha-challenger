@@ -724,3 +724,24 @@ label_alias:
     en:
     - freight train
 datalake:
+  football stadium:
+    positive_labels:
+    - football stadium
+    negative_labels:
+    - mouse
+    - natural landscape
+    - river
+  basketball:
+    positive_labels:
+    - basketball
+    negative_labels:
+    - football stadium
+    - mouse
+    - golf
+  golf:
+    positive_labels:
+    - golf
+    negative_labels:
+    - mouse
+    - football stadium
+    - basketball
