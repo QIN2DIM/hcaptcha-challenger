@@ -13,6 +13,13 @@ clip_candidates:
   - bat
   - butterfly
   - dragonfly
+  - giraffe
+  - duck
+  - cookie
+  - turtle
+  - dog
+  - cat
+  - tiger
   water vehicle:
   - water vehicle
   - flying vehicle
