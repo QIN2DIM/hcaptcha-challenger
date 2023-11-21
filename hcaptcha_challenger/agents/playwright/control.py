@@ -489,20 +489,16 @@ class Radagon:
                 sample = samples.nth(i)
                 await sample.wait_for()
                 results = tool(model, image=Image.open(self.img_paths[i + pth * 9]))
-                tooled_label = results[0]["label"]
-                print(f"{tooled_label=}")
-                if target and tooled_label in target["label"]:
-                    positive_cases += 1
-                    with suppress(TimeoutError):
-                        await sample.click()
-                elif tooled_label in tool.positive_labels:
+
+                if (
+                    results[0]["label"] in target.get("label", "")
+                    or results[0]["label"] in tool.positive_labels
+                ):
                     positive_cases += 1
                     with suppress(TimeoutError):
                         await sample.click(delay=200)
                 elif positive_cases == 0 and pth == times - 1 and i == count - 1:
                     await sample.click(delay=200)
-
-            await self.page.pause()
 
             # {{< Verify >}}
             with suppress(TimeoutError):
