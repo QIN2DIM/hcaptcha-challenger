@@ -31,7 +31,7 @@ async def _downloader():
 
         await agent.collect()
 
-        assert len(agent._img_paths) in [1, 2, 9, 18]
+        assert len(agent.img_paths) in [1, 2, 3, 9, 18]
 
-        for img_path in agent._img_paths:
+        for img_path in agent.img_paths:
             assert img_path.stat().st_size

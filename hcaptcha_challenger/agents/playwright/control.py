@@ -95,21 +95,21 @@ class Radagon:
             - xxx
     """
 
-    _img_paths: List[Path] = field(default_factory=list)
+    img_paths: List[Path] = field(default_factory=list)
     """
     bytes of challenge image
     """
-    _example_paths: List[Path] = field(default_factory=list)
+    example_paths: List[Path] = field(default_factory=list)
     """
     bytes of example image
     """
 
-    _label = ""
+    label = ""
     """
     Cleaned Challenge Prompt in the context
     """
 
-    _prompt = ""
+    prompt = ""
     """
     Challenge Prompt in the context
     """
@@ -179,7 +179,7 @@ class Radagon:
     def ash(self):
         answer_keys = list(self.qr.requester_restricted_answer_set.keys())
         ak = answer_keys[0] if len(answer_keys) > 0 else ""
-        ash = f"{self._label} {ak}"
+        ash = f"{self.label} {ak}"
         return ash
 
     def _switch_to_challenge_frame(self, page: Page, window: str = "login", **kwargs):
@@ -225,31 +225,31 @@ class Radagon:
                 self.cr = cr
 
     def _parse_label(self):
-        self._prompt = self.qr.requester_question.get("en")
-        self._label = handle(self._prompt)
-        logger.debug("get task", prompt=self._prompt)
+        self.prompt = self.qr.requester_question.get("en")
+        self.label = handle(self.prompt)
+        logger.debug("get task", prompt=self.prompt)
 
     async def _download_images(self, *, ignore_examples: bool = False):
-        self._img_paths, self._example_paths = await download_challenge_images(
-            self.qr, self._label, self.tmp_dir, ignore_examples=ignore_examples
+        self.img_paths, self.example_paths = await download_challenge_images(
+            self.qr, self.label, self.tmp_dir, ignore_examples=ignore_examples
         )
 
-    def _match_solution(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
+    def _match_model(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
         """match solution after `tactical_retreat`"""
-        model = match_solution(self._label, self.ash, self.modelhub, select=select)
-        logger.debug("handle task", match_model=select, prompt=self._prompt)
+        model = match_solution(self.label, self.ash, self.modelhub, select=select)
+        logger.debug("handle task", match_model=select, prompt=self.prompt)
 
         return model
 
     def _rank_models(self, nested_models: List[str]) -> ResNetControl | None:
-        result = rank_models(nested_models, self._example_paths, self.modelhub)
+        result = rank_models(nested_models, self.example_paths, self.modelhub)
         if result and isinstance(result, tuple):
             best_model, model_name = result
-            logger.debug("handle task", rank_model=model_name, prompt=self._prompt)
+            logger.debug("handle task", rank_model=model_name, prompt=self.prompt)
             return best_model
 
     async def _bounding_challenge(self, frame_challenge: FrameLocator):
-        detector: YOLOv8 = self._match_solution(select="yolo")
+        detector: YOLOv8 = self._match_model(select="yolo")
         times = len(self.qr.tasklist)
         for pth in range(times):
             locator = frame_challenge.locator("//div[@class='challenge-view']//canvas")
@@ -324,7 +324,7 @@ class Radagon:
                 )
             # Filter points outside the bounding box
             edge_circles = []
-            if len(self._example_paths) == 0:
+            if len(self.example_paths) == 0:
                 edge_circles = circles
             else:
                 for circle in circles:
@@ -350,7 +350,7 @@ class Radagon:
             position = None
             launcher = []
 
-            if nested_models := self.nested_categories.get(self._label, []):
+            if nested_models := self.nested_categories.get(self.label, []):
                 for model_name in nested_models:
                     element = model_name, self.modelhub.ashes_of_war.get(model_name, [])
                     launcher.append(element)
@@ -377,7 +377,7 @@ class Radagon:
 
     async def _keypoint_challenge(self, frame_challenge: FrameLocator):
         # Load YOLOv8 model from local or remote repo
-        detector: YOLOv8 = self._match_solution(select="yolo")
+        detector: YOLOv8 = self._match_model(select="yolo")
 
         # Execute the detection task for twice
         times = len(self.qr.tasklist)
@@ -424,7 +424,7 @@ class Radagon:
                 await self.page.wait_for_timeout(1000)
 
     async def _binary_challenge(self, frame_challenge: FrameLocator, model: ResNetControl = None):
-        classifier = model or self._match_solution(select="resnet")
+        classifier = model or self._match_model(select="resnet")
 
         # {{< IMAGE CLASSIFICATION >}}
         times = int(len(self.qr.tasklist) / 9)
@@ -437,7 +437,7 @@ class Radagon:
             for i in range(count):
                 sample = samples.nth(i)
                 await sample.wait_for()
-                result = classifier.execute(img_stream=self._img_paths[i + pth * 9].read_bytes())
+                result = classifier.execute(img_stream=self.img_paths[i + pth * 9].read_bytes())
                 if result:
                     positive_cases += 1
                     with suppress(TimeoutError):
@@ -452,9 +452,9 @@ class Radagon:
                 await fl.click()
 
     async def _binary_challenge_clip(self, frame_challenge: FrameLocator):
-        dl = self.modelhub.datalake.get(self._label)
+        dl = self.modelhub.datalake.get(self.label)
         if not dl:
-            dl = DataLake.from_challenge_prompt(raw_prompt=self._label)
+            dl = DataLake.from_challenge_prompt(raw_prompt=self.label)
         tool = ZeroShotImageClassifier.from_datalake(dl)
 
         # Default to `RESNET.OPENAI` perf_counter 1.794s
@@ -466,7 +466,7 @@ class Radagon:
             "handle task",
             unsupervised="binary",
             candidate_labels=tool.candidate_labels,
-            prompt=self._prompt,
+            prompt=self.prompt,
             timit=f"{te - t0:.3f}s",
         )
 
@@ -479,7 +479,7 @@ class Radagon:
             for i in range(count):
                 sample = samples.nth(i)
                 await sample.wait_for()
-                results = tool(model, image=Image.open(self._img_paths[i + pth * 9]))
+                results = tool(model, image=Image.open(self.img_paths[i + pth * 9]))
                 if results[0]["label"] in tool.positive_labels:
                     positive_cases += 1
                     with suppress(TimeoutError):
@@ -506,7 +506,7 @@ class Radagon:
                 unsupervised="multiple choice",
                 results=sample_label,
                 candidate_labels=candidates,
-                prompt=self._prompt,
+                prompt=self.prompt,
             )
             for lb in label_btn:
                 if DataLake.PREMISED_YES.format(lb["text"]) == sample_label:
@@ -526,7 +526,7 @@ class Radagon:
                 text_content = await sample.text_content()
                 label_btn.append({"text": text_content.strip(), "btn": sample})
 
-            if btn := inject_datalake(img_path=self._img_paths[pth]):
+            if btn := inject_datalake(img_path=self.img_paths[pth]):
                 await btn.click(delay=200)
             else:
                 await label_btn[-1]["btn"].click(delay=200)
@@ -609,12 +609,12 @@ class AgentT(Radagon):
 
         # Match: image_label_binary
         if self.qr.request_type == RequestType.ImageLabelBinary:
-            if nested_models := self.nested_categories.get(self._label, []):
+            if nested_models := self.nested_categories.get(self.label, []):
                 if model := self._rank_models(nested_models):
                     await self._binary_challenge(frame_challenge, model)
                 else:
                     return self.status.CHALLENGE_BACKCALL
-            elif self.label_alias.get(self._label):
+            elif self.label_alias.get(self.label):
                 await self._binary_challenge(frame_challenge)
             elif self.self_supervised:
                 await self._binary_challenge_clip(frame_challenge)
@@ -668,4 +668,4 @@ class AgentT(Radagon):
             return
         self._parse_label()
         await self._download_images(ignore_examples=True)
-        return self._label
+        return self.label
