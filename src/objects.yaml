@@ -5,11 +5,18 @@ branches:
 circle_seg: appears_only_once_2309_yolov8s-seg.onnx
 clip_candidates:
   the largest animal in real life:
-    - parrot
-    - ladybug
-    - crab
-    - bee
-    - frog
+  - parrot
+  - ladybug
+  - crab
+  - bee
+  - frog
+  - bat
+  - butterfly
+  - dragonfly
+  water vehicle:
+  - water vehicle
+  - flying vehicle
+  - land vehicle
 nested_categories:
   plant:
   - nested_plant2311.onnx
@@ -717,64 +724,3 @@ label_alias:
     en:
     - freight train
 datalake:
-  football stadium:
-    positive_labels:
-    - football stadium
-    negative_labels:
-    - mouse
-    - natural landscape
-    - river
-  basketball:
-    positive_labels:
-    - basketball
-    negative_labels:
-    - football stadium
-    - mouse
-    - golf
-  golf:
-    positive_labels:
-    - golf
-    negative_labels:
-    - mouse
-    - football stadium
-    - basketball
-  land vehicle:
-    positive_labels:
-    - land vehicle
-    negative_labels:
-    - water vehicle
-    - flying vehicle
-  water vehicle:
-    positive_labels:
-    - water vehicle
-    negative_labels:
-    - flying vehicle
-    - land vehicle
-  dragon:
-    positive_labels:
-    - dragon
-    negative_labels:
-    - cat
-    - smartphone
-    - tiger
-    - elephant
-    - bird
-  panda:
-    positive_labels:
-    - panda
-    negative_labels:
-    - keyboard
-    - dragon
-    - dog
-    - bird
-    - elephant
-    - suitcase
-    - electronic device
-  hatchback car:
-    positive_labels:
-    - car
-    - hatchback car
-    negative_labels:
-    - cat
-    - server
-    - elephant

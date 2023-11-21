@@ -14,14 +14,11 @@ import cv2
 from PIL import Image
 from loguru import logger
 
-from hcaptcha_challenger.components.zero_shot_image_classifier import (
-    ZeroShotImageClassifier,
-    register_pipline,
-)
 from hcaptcha_challenger.components.common import (
     match_model,
     download_challenge_images,
     rank_models,
+    match_datalake,
 )
 from hcaptcha_challenger.components.cv_toolkit import (
     annotate_objects,
@@ -30,6 +27,10 @@ from hcaptcha_challenger.components.cv_toolkit import (
 )
 from hcaptcha_challenger.components.middleware import Status, QuestionResp, RequestType, Answers
 from hcaptcha_challenger.components.prompt_handler import handle
+from hcaptcha_challenger.components.zero_shot_image_classifier import (
+    ZeroShotImageClassifier,
+    register_pipline,
+)
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8, is_matched_ash_of_war, YOLOv8Seg
@@ -87,12 +88,14 @@ class RanniTheWitch:
             if nested_models := self.modelhub.nested_categories.get(self.label, []):
                 if model := self._rank_models(nested_models):
                     self.binary_challenge(model)
+                elif self.self_supervised:
+                    self.catch_all_binary_challenge()
                 else:
                     return self.status.CHALLENGE_BACKCALL
             elif self.modelhub.label_alias.get(self.label):
                 self.binary_challenge()
             elif self.self_supervised:
-                self.binary_challenge_clip()
+                self.catch_all_binary_challenge()
             else:
                 return self.status.CHALLENGE_BACKCALL
         # Match: image_label_area_select
@@ -173,17 +176,28 @@ class RanniTheWitch:
 
         self.response.answers = answers
 
-    def binary_challenge_clip(self):
-        if not (dl := self.modelhub.datalake.get(self.label)):
-            dl = DataLake.from_challenge_prompt(raw_prompt=self.label)
+    def catch_all_binary_challenge(self):
+        dl = match_datalake(self.modelhub, self.label)
         tool = ZeroShotImageClassifier.from_datalake(dl)
 
         model = register_pipline(self.modelhub)
 
+        # {{< CATCH EXAMPLES >}}
+        target = {}
+        if self.example_paths:
+            example_path = self.example_paths[-1]
+            results = tool(model, image=Image.open(example_path))
+            target = results[0]
+
+        # {{< IMAGE CLASSIFICATION >}}
         answers = {}
         for i, img_path in enumerate(self.img_paths):
             results = tool(model, image=Image.open(img_path))
-            if results[0]["label"] in tool.positive_labels:
+
+            if (
+                results[0]["label"] in target.get("label", "")
+                or results[0]["label"] in tool.positive_labels
+            ):
                 result = "true"
             else:
                 result = "false"

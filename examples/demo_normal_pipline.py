@@ -9,9 +9,10 @@ import asyncio
 import json
 from pathlib import Path
 
-from hcaptcha_challenger import install, QuestionResp, Answers, Status
-from hcaptcha_challenger.agents import AgentR
 from loguru import logger
+
+from hcaptcha_challenger import install, QuestionResp, Answers, Status, ModelHub
+from hcaptcha_challenger.agents import AgentR
 
 WARN = """
 The demo here uses a static file and it cannot run
@@ -28,14 +29,54 @@ You can export it as json format by the `model_dump_json()` method
 """
 
 
+def patch_modelhub(modelhub: ModelHub):
+    """
+    1. Patching clip_candidates allows you to handle all image classification tasks in self-supervised mode.
+
+    2. You need to inject hints for all categories that appear in a batch of images
+
+    3. The ObjectsYaml in the GitHub repository are updated regularly,
+    but if you find something new, you can imitate the following and patch some hints.
+
+    4. Note that this should be a regularly changing table.
+    If after a while certain labels no longer appear, you should not fill them in clip_candidates
+
+    5. Please note that you only need a moderate number of candidates prompts,
+    too many prompts will increase the computational complexity
+    :param modelhub:
+    :return:
+    """
+
+    modelhub.clip_candidates.update(
+        {
+            "the largest animal in real life": [
+                "parrot",
+                "bee",
+                "ladybug",
+                "frog",
+                "crab",
+                "bat",
+                "butterfly",
+                "dragonfly",
+            ]
+        }
+    )
+
+
 def prelude() -> AgentR:
-    # You need to deploy sub-thread tasks and
-    # actively run `install(upgrade=True)` every 20 minutes
+    # 1. You need to deploy sub-thread tasks and actively run `install(upgrade=True)` every 20 minutes
+    # 2. You need to make sure to run `install(upgrade=True, clip=True)` before each instantiation
     install(upgrade=True, clip=True)
 
-    # You need to make sure to run `install(upgrade=True, clip=True)`
-    # before each instantiation
+    modelhub = ModelHub.from_github_repo()
+    modelhub.parse_objects()
+
+    # Make arbitrary pre-modifications to modelhub, which is very useful for CLIP models
+    patch_modelhub(modelhub)
+
     agent = AgentR.summon_ranni_the_witch(
+        # Register modelhub externally, and the agent can patch custom configurations
+        modelhub=modelhub,
         # Mount the cache directory to the current working folder
         tmp_dir=Path(__file__).parent.joinpath("tmp_dir"),
         # Enable CLIP zero-shot image classification method

@@ -163,9 +163,17 @@ class Radagon:
         page.on("response", self.handler)
 
     @classmethod
-    def from_page(cls, page: Page, tmp_dir=None, self_supervised: bool | None = True, **kwargs):
-        modelhub = ModelHub.from_github_repo(**kwargs)
-        modelhub.parse_objects()
+    def from_page(
+        cls,
+        page: Page,
+        tmp_dir=None,
+        modelhub: ModelHub | None = None,
+        self_supervised: bool | None = True,
+        **kwargs,
+    ):
+        modelhub = modelhub or ModelHub.from_github_repo(**kwargs)
+        if not modelhub.label_alias:
+            modelhub.parse_objects()
 
         if not isinstance(tmp_dir, Path):
             tmp_dir = Path(__file__).parent.parent.joinpath("tmp_dir")
