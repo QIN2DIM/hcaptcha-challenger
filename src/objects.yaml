@@ -5,10 +5,10 @@ branches:
 circle_seg: appears_only_once_2309_yolov8s-seg.onnx
 clip_candidates:
   the largest animal in real life:
+    - lion
     - parrot
-    - crab
-    - bee
-    - ladybug
+    - horse
+    - cat
 nested_categories:
   plant:
   - nested_plant2311.onnx
