@@ -370,8 +370,7 @@ class ModelHub:
             self.ashes_of_war = yolo2names
 
         nested_categories = data.get("nested_categories", {})
-        if nested_categories:
-            self.nested_categories = nested_categories
+        self.nested_categories = nested_categories or {}
 
         self.circle_segment_model = data.get(
             "circle_seg", "appears_only_once_2309_yolov8s-seg.onnx"
@@ -381,11 +380,10 @@ class ModelHub:
         if datalake:
             for prompt, serialized_binary in datalake.items():
                 datalake[prompt] = DataLake.from_serialized(serialized_binary)
-        self.datalake = datalake
+        self.datalake = datalake or {}
 
         clip_candidates = data.get("clip_candidates", {})
-        if clip_candidates:
-            self.clip_candidates = clip_candidates
+        self.clip_candidates = clip_candidates or {}
 
     def pull_model(self, focus_name: str):
         """
