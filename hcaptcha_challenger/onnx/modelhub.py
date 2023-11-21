@@ -307,6 +307,11 @@ class ModelHub:
     DEFAULT_CLIP_TEXTUAL_MODEL: str = "textual_CLIP-ViT-L-14-DataComp.XL-s13B-b90K.onnx"
     """
 
+    clip_candidates: Dict[str, List[str]] = field(default_factory=dict)
+    """
+    CLIP self-supervised candidates
+    """
+
     release_url: str = ""
     objects_url: str = ""
 
@@ -377,6 +382,10 @@ class ModelHub:
             for prompt, serialized_binary in datalake.items():
                 datalake[prompt] = DataLake.from_serialized(serialized_binary)
         self.datalake = datalake
+
+        clip_candidates = data.get("clip_candidates", {})
+        if clip_candidates:
+            self.clip_candidates = clip_candidates
 
     def pull_model(self, focus_name: str):
         """

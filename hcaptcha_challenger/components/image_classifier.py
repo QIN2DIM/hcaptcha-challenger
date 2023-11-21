@@ -7,12 +7,13 @@ from __future__ import annotations
 
 from contextlib import suppress
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 import cv2
 from PIL import Image
 from loguru import logger
 
+from hcaptcha_challenger.components.common import rank_models
 from hcaptcha_challenger.components.prompt_handler import handle
 from hcaptcha_challenger.components.zero_shot_image_classifier import (
     ZeroShotImageClassifier,
@@ -20,31 +21,6 @@ from hcaptcha_challenger.components.zero_shot_image_classifier import (
 )
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
-
-
-def rank_models(
-    nested_models: List[str], example_paths: List[Path], modelhub: ModelHub
-) -> Tuple[ResNetControl, str] | None:
-    # {{< Rank ResNet Models >}}
-    rank_ladder = []
-
-    for example_path in example_paths:
-        img_stream = example_path.read_bytes()
-        for model_name in reversed(nested_models):
-            if (net := modelhub.match_net(focus_name=model_name)) is None:
-                return
-            control = ResNetControl.from_pluggable_model(net)
-            result_, proba = control.execute(img_stream, proba=True)
-            if result_:
-                rank_ladder.append([control, model_name, proba])
-                if proba[0] > 0.87:
-                    break
-
-    # {{< Catch-all Rules >}}
-    if rank_ladder:
-        alts = sorted(rank_ladder, key=lambda x: x[-1][0], reverse=True)
-        best_model, model_name = alts[0][0], alts[0][1]
-        return best_model, model_name
 
 
 class Classifier:

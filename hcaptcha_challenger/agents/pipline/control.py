@@ -14,16 +14,21 @@ import cv2
 from PIL import Image
 from loguru import logger
 
-from hcaptcha_challenger import ZeroShotImageClassifier, register_pipline
-from hcaptcha_challenger.components.common import match_solution, download_challenge_images
+from hcaptcha_challenger.components.zero_shot_image_classifier import (
+    ZeroShotImageClassifier,
+    register_pipline,
+)
+from hcaptcha_challenger.components.common import (
+    match_model,
+    download_challenge_images,
+    rank_models,
+)
 from hcaptcha_challenger.components.cv_toolkit import (
     annotate_objects,
     find_unique_object,
     find_unique_color,
 )
-from hcaptcha_challenger.components.image_classifier import rank_models
-from hcaptcha_challenger.components.middleware import Answers
-from hcaptcha_challenger.components.middleware import Status, QuestionResp, RequestType
+from hcaptcha_challenger.components.middleware import Status, QuestionResp, RequestType, Answers
 from hcaptcha_challenger.components.prompt_handler import handle
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
@@ -71,7 +76,7 @@ class RanniTheWitch:
 
     def _match_model(self, select: Literal["yolo", "resnet"] = None) -> ResNetControl | YOLOv8:
         """match solution after `tactical_retreat`"""
-        model = match_solution(self.label, self.ash, self.modelhub, select=select)
+        model = match_model(self.label, self.ash, self.modelhub, select=select)
         logger.debug("match model", select=select, prompt=self.prompt)
 
         return model
