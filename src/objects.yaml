@@ -66,6 +66,8 @@ nested_categories:
   - nested_colder_house2309.onnx
   please click on the bell:
   - bell_2309_yolov8n.onnx
+  please click on the bee:
+  - bee_2309_yolov8n.onnx
   please click on the smallest animal:
   - nested_smallest_turtle2309.onnx
   please click on the largest animal:
@@ -103,6 +105,8 @@ nested_categories:
   - nested_smallest_cat2309.onnx
   - nested_smallest_hummingbird2309.onnx
 ashes_of_war:
+  bee_2309_yolov8n.onnx:
+  - bee
   bell_2309_yolov8n.onnx:
   - bell
   observation_wheel_2309_yolov8n.onnx:
