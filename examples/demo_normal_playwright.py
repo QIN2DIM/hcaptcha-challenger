@@ -9,47 +9,80 @@ import asyncio
 from pathlib import Path
 
 from loguru import logger
-from playwright.async_api import BrowserContext as ASyncContext, async_playwright
+from playwright.async_api import BrowserContext as ASyncContext, async_playwright, Page
 
-import hcaptcha_challenger as solver
+from hcaptcha_challenger import ModelHub, install
 from hcaptcha_challenger.agents import AgentT, Malenia
 from hcaptcha_challenger.utils import SiteKey
-
-# Init local-side of the ModelHub
-solver.install(upgrade=True, clip=True)
-
-# Save dataset to current working directory
-tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
 # sitekey = "58366d97-3e8c-4b57-a679-4a41c8423be3"
 # sitekey = "4c672d35-0701-42b2-88c3-78380b0db560"
 sitekey = SiteKey.user_easy
 
 
-def patch_datalake(modelhub: solver.ModelHub):
+def patch_modelhub(modelhub: ModelHub):
     """
-    for patching CLIP prompt
+    1. Patching clip_candidates allows you to handle all image classification tasks in self-supervised mode.
+
+    2. You need to inject hints for all categories that appear in a batch of images
+
+    3. The ObjectsYaml in the GitHub repository are updated regularly,
+    but if you find something new, you can imitate the following and patch some hints.
+
+    4. Note that this should be a regularly changing table.
+    If after a while certain labels no longer appear, you should not fill them in clip_candidates
+
+    5. Please note that you only need a moderate number of candidates prompts,
+    too many prompts will increase the computational complexity
     :param modelhub:
     :return:
     """
-    datalake_post = {
-        "animal": {
-            "positive_labels": ["animal", "bird"],
-            "negative_labels": ["cables", "forklift", "boat"],
-        },
-        solver.handle("Select all cats."): {"positive_labels": ["cat"], "negative_labels": ["dog"]},
-    }
-    for prompt_, serialized_binary in datalake_post.items():
-        dl = solver.DataLake.from_serialized(serialized_binary)
-        modelhub.datalake[prompt_] = dl
+
+    modelhub.clip_candidates.update(
+        {
+            "the largest animal in real life": [
+                "parrot",
+                "bee",
+                "ladybug",
+                "frog",
+                "crab",
+                "bat",
+                "butterfly",
+                "dragonfly",
+            ]
+        }
+    )
 
 
-@logger.catch
+def prelude(page: Page) -> AgentT:
+    # 1. You need to deploy sub-thread tasks and actively run `install(upgrade=True)` every 20 minutes
+    # 2. You need to make sure to run `install(upgrade=True, clip=True)` before each instantiation
+    install(upgrade=True, clip=True)
+
+    modelhub = ModelHub.from_github_repo()
+    modelhub.parse_objects()
+
+    # Make arbitrary pre-modifications to modelhub, which is very useful for CLIP models
+    patch_modelhub(modelhub)
+
+    agent = AgentT.from_page(
+        # page, the control handle of the Playwright Page
+        page=page,
+        # modelhub, Register modelhub externally, and the agent can patch custom configurations
+        modelhub=modelhub,
+        # tmp_dir, Mount the cache directory to the current working folder
+        tmp_dir=Path(__file__).parent.joinpath("tmp_dir"),
+        # clip, Enable CLIP zero-shot image classification method
+        clip=True,
+    )
+
+    return agent
+
+
 async def hit_challenge(context: ASyncContext, times: int = 8):
     page = await context.new_page()
 
-    agent = AgentT.from_page(page=page, tmp_dir=tmp_dir, self_supervised=True)
-    patch_datalake(agent.modelhub)
+    agent = prelude(page)
 
     url = SiteKey.as_sitelink(sitekey)
     await page.goto(url)
@@ -77,7 +110,6 @@ async def hit_challenge(context: ASyncContext, times: int = 8):
                 return
 
 
-@logger.catch
 async def bytedance(undetected: bool = False):
     # playwright install chromium --with-deps
     async with async_playwright() as p:

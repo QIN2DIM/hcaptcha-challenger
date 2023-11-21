@@ -14,10 +14,6 @@ import cv2
 from PIL import Image
 from loguru import logger
 
-from hcaptcha_challenger.components.zero_shot_image_classifier import (
-    ZeroShotImageClassifier,
-    register_pipline,
-)
 from hcaptcha_challenger.components.common import (
     match_model,
     download_challenge_images,
@@ -30,6 +26,10 @@ from hcaptcha_challenger.components.cv_toolkit import (
 )
 from hcaptcha_challenger.components.middleware import Status, QuestionResp, RequestType, Answers
 from hcaptcha_challenger.components.prompt_handler import handle
+from hcaptcha_challenger.components.zero_shot_image_classifier import (
+    ZeroShotImageClassifier,
+    register_pipline,
+)
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8, is_matched_ash_of_war, YOLOv8Seg
