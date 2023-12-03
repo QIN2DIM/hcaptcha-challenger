@@ -52,7 +52,7 @@ def match_datalake(modelhub: ModelHub, label: str) -> DataLake:
 
     # prelude clip_candidates
     for ket in reversed(modelhub.clip_candidates.keys()):
-        if label in ket:
+        if ket in label:
             candidates = modelhub.clip_candidates[ket]
             if candidates and len(candidates) > 2:
                 dl = DataLake.from_binary_labels(candidates[:1], candidates[1:])
