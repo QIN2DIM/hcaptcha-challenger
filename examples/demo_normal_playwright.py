@@ -37,19 +37,11 @@ def patch_modelhub(modelhub: ModelHub):
     :param modelhub:
     :return:
     """
-
+    modelhub.nested_categories.update({"dog": []})
     modelhub.clip_candidates.update(
         {
-            "the largest animal in real life": [
-                "parrot",
-                "bee",
-                "ladybug",
-                "frog",
-                "crab",
-                "bat",
-                "butterfly",
-                "dragonfly",
-            ]
+            "the largest animal in real life": {"parrot": ["ladybug", "crab", "bee", "frog"]},
+            "dog": {"dog": ["panda", "elephant", "owl", "raccoon", "suit"]},
         }
     )
 

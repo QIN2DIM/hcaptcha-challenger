@@ -463,28 +463,29 @@ class Radagon:
                 await fl.click()
 
     async def _catch_all_binary_challenge(self, frame_challenge: FrameLocator):
-        dl = match_datalake(self.modelhub, self.label)
-        tool = ZeroShotImageClassifier.from_datalake(dl)
-
         # Default to `RESNET.OPENAI` perf_counter 1.794s
         t0 = time.perf_counter()
         model = register_pipline(self.modelhub)
         te = time.perf_counter()
 
         logger.debug(
-            "handle task",
-            unsupervised="binary",
-            candidate_labels=tool.candidate_labels,
-            prompt=self.prompt,
-            timit=f"{te - t0:.3f}s",
+            "handle task", unsupervised="binary", prompt=self.prompt, timit=f"{te - t0:.3f}s"
         )
 
         # {{< CATCH EXAMPLES >}}
+        dl = match_datalake(self.modelhub, self.label)
+        tool = ZeroShotImageClassifier.from_datalake(dl)
+
         target = {}
         if self.example_paths:
             example_path = self.example_paths[-1]
-            results = tool(model, image=Image.open(example_path))
+            results = model(images=[Image.open(example_path)], candidate_labels=dl.candidates)
             target = results[0]
+
+        # {{< CATCH CHALLENGES >}}
+        if point_ket := target.get("label", ""):
+            dl = match_datalake(self.modelhub, self.label, point_ket)
+            tool = ZeroShotImageClassifier.from_datalake(dl)
 
         # {{< IMAGE CLASSIFICATION >}}
         times = int(len(self.qr.tasklist) / 9)

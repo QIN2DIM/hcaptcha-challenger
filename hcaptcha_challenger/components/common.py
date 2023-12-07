@@ -45,15 +45,41 @@ def rank_models(
         return best_model, model_name
 
 
-def match_datalake(modelhub: ModelHub, label: str) -> DataLake:
+def match_datalake(modelhub: ModelHub, label: str, point_ket: str = "") -> DataLake:
+    """
+
+    :param modelhub:
+    :param label:
+    :param point_ket: focus examples
+    :return:
+    """
     # prelude datalake
     if dl := modelhub.datalake.get(label):
         return dl
 
     # prelude clip_candidates
     for ket in reversed(modelhub.clip_candidates.keys()):
-        if label in ket:
-            candidates = modelhub.clip_candidates[ket]
+        # select challenge prompt
+        if label not in ket:
+            continue
+
+        if exp2pos := modelhub.clip_candidates[ket]:
+            candidates: List[str] = []
+
+            # Select nested example
+            if not point_ket:
+                # Multiple nested groups
+                example_candidates = list(exp2pos.keys())
+                # There was only one control group
+                if len(exp2pos) <= 1:
+                    example_candidates.extend(exp2pos.values())
+                candidates = example_candidates
+            # Select challenge-label from example-label
+            elif challenge_candidates := exp2pos.get(point_ket, []):
+                candidates[0] = point_ket
+                candidates.extend(challenge_candidates)
+
+            # Throw out the prompts
             if candidates and len(candidates) > 2:
                 dl = DataLake.from_binary_labels(candidates[:1], candidates[1:])
                 return dl

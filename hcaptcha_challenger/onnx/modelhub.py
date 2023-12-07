@@ -307,9 +307,19 @@ class ModelHub:
     DEFAULT_CLIP_TEXTUAL_MODEL: str = "textual_CLIP-ViT-L-14-DataComp.XL-s13B-b90K.onnx"
     """
 
-    clip_candidates: Dict[str, List[str]] = field(default_factory=dict)
+    clip_candidates: Dict[str, Dict[str, List[str]]] = field(default_factory=dict)
     """
     CLIP self-supervised candidates
+    ---
+    the largest animal in real life:
+        squirrel:          
+            - bee           
+            - ladybug
+        parrot:
+            - ladybug
+            - crab
+            - bee
+            - frog
     """
 
     release_url: str = ""
@@ -551,6 +561,11 @@ class DataLake:
     preferably an independent noun or clause
     """
 
+    candidates: List[str] = field(default_factory=list)
+    """
+    positive_labels + negative_labels
+    """
+
     joined_dirs: List[str] | Path | None = None
     """
     Attributes reserved for AutoLabeling
@@ -573,6 +588,9 @@ class DataLake:
     """
     Insert self-supervised prompt
     """
+
+    def __post_init__(self):
+        self.candidates = self.candidates or self.positive_labels + self.negative_labels
 
     @classmethod
     def from_challenge_prompt(cls, raw_prompt: str):

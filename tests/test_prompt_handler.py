@@ -58,6 +58,8 @@ def test_split_binary_prompt():
         "please click on the most similar object to the following reference shape:",
         "please click in the center of an observation wheel",
         "Please select all images of one type that appear warmer in comparison to other images",
+        "Please click on all images of one object that is bigger than other",
+        "Please click on all images containing the fastest entity",
     ]
     for prompt in prompts_:
         print(handle(prompt))

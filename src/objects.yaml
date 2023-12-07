@@ -4,27 +4,47 @@ branches:
     objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects.yaml
 circle_seg: appears_only_once_2309_yolov8s-seg.onnx
 clip_candidates:
+  dog:
+    dog:
+    - panda
+    - elephant
+    - owl
+    - raccoon
+    - suit
+  please click on all images of one object that is bigger than other:
+    excavator:
+    - red panda
+  the fastest entity:
+    car:
+    - ladybug
+    - horse
   the largest animal in real life:
-  - parrot
-  - ladybug
-  - crab
-  - bee
-  - frog
-  - bat
-  - butterfly
-  - dragonfly
-  - giraffe
-  - duck
-  - cookie
-  - turtle
-  - dog
-  - cat
-  - tiger
+    squirrel:
+    - bee
+    - ladybug
+    parrot:
+    - ladybug
+    - crab
+    - bee
+    - frog
+    tiger:
+    - cat
+    - dog
+    lion:
+    - cat
+    - dog
+    - fox
+    - goat
+    elephant:
+    - cow
+    - dog
+    - panda
   water vehicle:
   - water vehicle
   - flying vehicle
   - land vehicle
 nested_categories:
+  dog:
   plant:
   - nested_plant2311.onnx
   - plant2319.onnx
