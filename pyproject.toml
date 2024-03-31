@@ -31,7 +31,7 @@ in-project = true
 
 # https://python-poetry.org/docs/pyproject/#dependencies-and-dependency-groups
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 
 # Run `poetry install` in the project root
 opencv-python = "^4.8.0.76"
@@ -49,7 +49,7 @@ regex = "*"
 pydantic = "^2.5.1"
 tenacity = "^8.2.3"
 # The following dependencies will not be installed
-# when you just run `poetry install` or `pip install hcaptcha-challenger`
+# when you just run `poetry install --all-extras` or `pip install hcaptcha-challenger`
 undetected-chromedriver = { version = "^3.5.3", optional = true }
 webdriver-manager = { version = "^4.0.1", optional = true }
 selenium = { version = "*", optional = true }
@@ -82,7 +82,7 @@ filterwarnings = "ignore::DeprecationWarning"
 
 [tool.black]
 line-length = 100
-target-version = ["py38", "py39", "py310", "py311"]
+target-version = ["py310", "py311", "py312"]
 skip-magic-trailing-comma = true
 
 [tool.poetry.extras]
