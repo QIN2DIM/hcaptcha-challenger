@@ -48,6 +48,9 @@ ftfy = "*"
 regex = "*"
 pydantic = "^2.5.1"
 tenacity = "^8.2.3"
+langchain = "^0.1.13"
+langchain-anthropic = "^0.1.4"
+
 # The following dependencies will not be installed
 # when you just run `poetry install --all-extras` or `pip install hcaptcha-challenger`
 undetected-chromedriver = { version = "^3.5.3", optional = true }
