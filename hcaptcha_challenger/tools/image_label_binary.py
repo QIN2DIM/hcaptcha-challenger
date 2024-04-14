@@ -13,14 +13,14 @@ import cv2
 from PIL import Image
 from loguru import logger
 
-from hcaptcha_challenger.components.common import rank_models
-from hcaptcha_challenger.components.prompt_handler import handle
-from hcaptcha_challenger.components.zero_shot_image_classifier import (
+from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
+from hcaptcha_challenger.onnx.resnet import ResNetControl
+from hcaptcha_challenger.tools.common import rank_models
+from hcaptcha_challenger.tools.prompt_handler import handle
+from hcaptcha_challenger.tools.zero_shot_image_classifier import (
     ZeroShotImageClassifier,
     register_pipline,
 )
-from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
-from hcaptcha_challenger.onnx.resnet import ResNetControl
 
 
 class Classifier:

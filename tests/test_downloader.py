@@ -27,7 +27,7 @@ async def _downloader():
         sitelink = SiteKey.as_sitelink(SiteKey.user_easy)
         await page.goto(sitelink)
 
-        await agent.handle_checkbox()
+        await agent.click_checkbox()
 
         await agent.collect()
 

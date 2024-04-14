@@ -5,13 +5,15 @@
 # Description:
 from __future__ import annotations
 
+import base64
 from enum import Enum
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
+from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, UUID4, AnyHttpUrl
 
-from hcaptcha_challenger.components.prompt_handler import label_cleaning
+from hcaptcha_challenger.tools.prompt_handler import label_cleaning
 
 
 class Status(str, Enum):
@@ -21,6 +23,46 @@ class Status(str, Enum):
     CHALLENGE_RETRY = "retry"
     # <backcall> (New Challenge) Types of challenges not yet scheduled
     CHALLENGE_BACKCALL = "backcall"
+    # <timeout> Failed to pass the challenge within the specified time frame
+    CHALLENGE_EXECUTION_TIMEOUT = "challenge_execution_timeout"
+    CHALLENGE_RESPONSE_TIMEOUT = "challenge_response_timeout"
+
+
+class Collectible(BaseModel):
+    point: UUID4 | AnyHttpUrl = Field(..., description="sitelink or sitekey")
+
+    @field_validator("point")
+    def validate_point(cls, v: str):
+        def is_valid_uuid4(string):
+            try:
+                uuid_obj = UUID(string)
+            except ValueError:
+                return False
+            return uuid_obj.version == 4
+
+        _sitekey = "c86d730b-300a-444c-a8c5-5312e7a93628"
+        _sitelink = "https://accounts.hcaptcha.com/demo"
+
+        if not isinstance(v, str):
+            v = f"{_sitelink}?sitekey={_sitekey}"
+        elif is_valid_uuid4(v):
+            v = f"{_sitelink}?sitekey={v}"
+        elif not v.startswith(_sitelink):
+            v = f"{_sitelink}?sitekey={_sitekey}"
+
+        return v
+
+    @property
+    def fixed_sitelink(self) -> str:
+        return self.point
+
+
+CollectibleType = Union[UUID4, AnyHttpUrl, str]
+
+
+class ToolExecution(str, Enum):
+    CHALLENGE = "challenge"
+    COLLECT = "collect"
 
 
 class ImageTask(BaseModel):
@@ -142,3 +184,23 @@ class Answers(BaseModel):
     motionData: str = ""
     n: str = ""
     c: str = ""
+
+
+class ChallengeImage(BaseModel):
+    datapoint_uri: str = Field(default="", description="图片的临时访问链接")
+
+    filename: str = Field(default="challenge-image.jpeg", description="HASH 后的文件名，带有后缀")
+
+    body: bytes = Field(default=b"", description="图片缓存字节")
+
+    runtime_fp: Path = Field(
+        default_factory=Path, description="图片的临时缓存路径，fp = typed_dir / filename"
+    )
+
+    def save(self, typed_dir: Path) -> Path:
+        fp = typed_dir / self.filename
+        fp.write_bytes(self.body)
+        return fp
+
+    def convert_body_to_base64(self) -> str:
+        return base64.b64encode(self.body).decode("utf8")

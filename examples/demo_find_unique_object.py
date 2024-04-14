@@ -7,7 +7,7 @@ import cv2
 from tqdm import tqdm
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger.components.cv_toolkit.appears_only_once import (
+from hcaptcha_challenger.tools.cv_toolkit.appears_only_once import (
     limited_radius,
     annotate_objects,
     find_unique_object,

@@ -10,9 +10,9 @@ from typing import List, Literal
 
 from loguru import logger
 
-from hcaptcha_challenger.components.prompt_handler import handle
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.yolo import YOLOv8
+from hcaptcha_challenger.tools.prompt_handler import handle
 
 
 class AreaSelector:

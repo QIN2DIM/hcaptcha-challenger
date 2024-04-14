@@ -13,10 +13,10 @@ from typing import List, Literal, Iterable, Tuple
 import onnxruntime
 from PIL.Image import Image
 
-from hcaptcha_challenger.components.prompt_handler import handle
 from hcaptcha_challenger.onnx.clip import MossCLIP
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.utils import is_cuda_pipline_available
+from hcaptcha_challenger.tools.prompt_handler import handle
 
 
 def register_pipline(

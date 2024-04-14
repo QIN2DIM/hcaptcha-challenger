@@ -20,28 +20,7 @@ from playwright.async_api import Page, FrameLocator, Response, Position, Locator
 from playwright.async_api import TimeoutError
 from tenacity import *
 
-from hcaptcha_challenger.components.common import (
-    match_model,
-    match_datalake,
-    rank_models,
-    download_challenge_images,
-)
-from hcaptcha_challenger.components.cv_toolkit import (
-    find_unique_object,
-    annotate_objects,
-    find_unique_color,
-)
-from hcaptcha_challenger.components.middleware import (
-    Status,
-    QuestionResp,
-    ChallengeResp,
-    RequestType,
-)
-from hcaptcha_challenger.components.prompt_handler import handle
-from hcaptcha_challenger.components.zero_shot_image_classifier import (
-    ZeroShotImageClassifier,
-    register_pipline,
-)
+from hcaptcha_challenger.models import Status, QuestionResp, ChallengeResp, RequestType
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import (
@@ -49,6 +28,22 @@ from hcaptcha_challenger.onnx.yolo import (
     YOLOv8Seg,
     is_matched_ash_of_war,
     finetune_keypoint,
+)
+from hcaptcha_challenger.tools.common import (
+    match_model,
+    match_datalake,
+    rank_models,
+    download_challenge_images,
+)
+from hcaptcha_challenger.tools.cv_toolkit import (
+    find_unique_object,
+    annotate_objects,
+    find_unique_color,
+)
+from hcaptcha_challenger.tools.prompt_handler import handle
+from hcaptcha_challenger.tools.zero_shot_image_classifier import (
+    ZeroShotImageClassifier,
+    register_pipline,
 )
 
 

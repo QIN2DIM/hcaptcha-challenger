@@ -27,7 +27,7 @@ async def _normal_instance():
         sitelink = SiteKey.as_sitelink(SiteKey.user_easy)
         await page.goto(sitelink)
 
-        await agent.handle_checkbox()
+        await agent.click_checkbox()
 
         await agent._reset_state()
         if not agent.qr.requester_question.keys():

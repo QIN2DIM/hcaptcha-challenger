@@ -245,7 +245,7 @@ class Collector:
 
         await page.goto(sitelink)
 
-        await agent.handle_checkbox()
+        await agent.click_checkbox()
 
         for pth in range(1, self.per_times + 1):
             with suppress(Exception):

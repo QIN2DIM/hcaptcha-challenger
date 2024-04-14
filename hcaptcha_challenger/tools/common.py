@@ -13,11 +13,11 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Literal, List, Tuple
 
-from hcaptcha_challenger.components.image_downloader import Cirilla
-from hcaptcha_challenger.components.middleware import QuestionResp
+from hcaptcha_challenger.models import QuestionResp
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8
+from hcaptcha_challenger.tools.image_downloader import Cirilla
 
 
 def rank_models(

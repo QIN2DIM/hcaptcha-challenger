@@ -30,6 +30,7 @@ classifiers = [
 in-project = true
 
 # https://python-poetry.org/docs/pyproject/#dependencies-and-dependency-groups
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 [tool.poetry.dependencies]
 python = "^3.10"
 
@@ -48,8 +49,6 @@ ftfy = "*"
 regex = "*"
 pydantic = "^2.5.1"
 tenacity = "^8.2.3"
-langchain = "^0.1.13"
-langchain-anthropic = "^0.1.4"
 
 # The following dependencies will not be installed
 # when you just run `poetry install --all-extras` or `pip install hcaptcha-challenger`
@@ -59,8 +58,7 @@ selenium = { version = "*", optional = true }
 playwright = { version = "*", optional = true }
 PyGithub = { version = "^1.59.1", optional = true }
 istockphoto = { version = "0.1.2", optional = true }
-fastapi = { version = "*", optional = true }
-uvicorn = { version = "*", extras = ["standard"], optional = true }
+fastapi = { version = "*", extras=["all"], optional = true}
 
 [tool.poetry.group.test.dependencies]
 # https://docs.pytest.org/en/stable/reference/plugin_list.html#plugin-list

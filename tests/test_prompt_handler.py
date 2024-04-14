@@ -11,7 +11,7 @@ from typing import List
 import pytest
 
 from hcaptcha_challenger import split_prompt_message, label_cleaning, handle
-from hcaptcha_challenger.components.prompt_handler import BAD_CODE
+from hcaptcha_challenger.tools.prompt_handler import BAD_CODE
 
 pattern = re.compile(r"[^\x00-\x7F]")
 
