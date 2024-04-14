@@ -160,3 +160,4 @@ docs/lvm_challenge/*.png
 **/logs/**
 examples/*.md
 docs/logs/
+docs/*.md

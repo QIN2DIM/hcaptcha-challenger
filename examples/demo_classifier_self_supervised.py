@@ -10,7 +10,6 @@ from typing import List
 import hcaptcha_challenger as solver
 from hcaptcha_challenger import handle, ModelHub, DataLake, register_pipline
 
-
 # Init local-side of the ModelHub
 solver.install(upgrade=True, clip=True)
 
