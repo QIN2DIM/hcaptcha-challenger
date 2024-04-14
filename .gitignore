@@ -157,7 +157,9 @@ profile_pluggable_model.md
 tests/record_json
 docs/lvm_challenge/*.jpeg
 docs/lvm_challenge/*.png
-**/logs/**
+logs
 examples/*.md
 docs/logs/
 docs/*.md
+node_modules
+pnpm-lock.yaml
