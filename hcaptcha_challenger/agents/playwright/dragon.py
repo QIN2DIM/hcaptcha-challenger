@@ -47,6 +47,7 @@ HOOK_CHECKBOX = "//iframe[contains(@title, 'checkbox for hCaptcha')]"
 HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
 
 
+# todo move to datalake.json
 datalake_post = {
     "animals possessing wings": {
         "positive_labels": ["bird"],
@@ -331,9 +332,13 @@ class OminousLand(ABC):
     async def _solve_captcha(self):
         match self.qr.request_type:
             case RequestType.ImageLabelBinary:
-                await self.ms.challenge_image_label_binary(
-                    label=self.label, challenge_images=self.tasklist
-                )
+                try:
+                    await self.ms.challenge_image_label_binary(
+                        label=self.label, challenge_images=self.tasklist
+                    )
+                except Exception as err:
+                    logger.error(f"An error occurred while processing the challenge task", err=err)
+                    await self.ms.refresh_challenge()
             case RequestType.ImageLabelAreaSelect:
                 # Cache canvas to prepare for subsequent model processing
                 # canvas = frame_challenge.locator("//canvas")
@@ -569,7 +574,7 @@ class AgentV:
             # Match: Timeout / Loss
             if not self.cr or not self.cr.is_pass:
                 if retry_on_failure:
-                    logger.error("Invoke verification", **self.cr.model_dump(by_alias=True))
+                    logger.error("Invoke verification", is_pass=self.cr.is_pass)
                     return await self.wait_for_challenge(
                         execution_timeout, response_timeout, retry_on_failure=retry_on_failure
                     )
