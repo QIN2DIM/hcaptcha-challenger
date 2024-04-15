@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator, UUID4, AnyHttpUrl
+from pydantic import BaseModel, Field, field_validator, UUID4, AnyHttpUrl, Base64Bytes
 
 from hcaptcha_challenger.tools.prompt_handler import label_cleaning
 
@@ -202,5 +202,20 @@ class ChallengeImage(BaseModel):
         fp.write_bytes(self.body)
         return fp
 
-    def convert_body_to_base64(self) -> str:
-        return base64.b64encode(self.body).decode("utf8")
+    def into_base64bytes(self) -> str:
+        return base64.b64encode(self.body).decode()
+
+
+class SelfSupervisedPayload(BaseModel):
+    """hCaptcha payload of the image_label_binary challenge"""
+
+    prompt: str = Field(..., description="challenge prompt")
+    challenge_images: List[Base64Bytes] = Field(default_factory=list)
+    positive_labels: List[str] | None = Field(default_factory=list)
+    negative_labels: List[str] | None = Field(default_factory=list)
+
+
+class SelfSupervisedResponse(BaseModel):
+    """The binary classification result of the image, in the same order as the challenge_images."""
+
+    results: List[bool] = Field(default_factory=list)

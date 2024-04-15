@@ -7,16 +7,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from dataclasses import field
+from io import BytesIO
 from pathlib import Path
 from typing import List, Literal, Iterable, Tuple
 
 import onnxruntime
-from PIL.Image import Image
+from PIL import Image
 
 from hcaptcha_challenger.onnx.clip import MossCLIP
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.utils import is_cuda_pipline_available
 from hcaptcha_challenger.tools.prompt_handler import handle
+from hcaptcha_challenger.models import SelfSupervisedPayload
 
 
 def register_pipline(
@@ -39,6 +41,10 @@ def register_pipline(
     """
     if fmt in ["transformers", None]:
         fmt = "transformers" if is_cuda_pipline_available else "onnx"
+        try:
+            import huggingface_hub  # type:ignore
+        except ImportError:
+            fmt = "onnx"
 
     if fmt in ["onnx"]:
         v_net, t_net = None, None
@@ -138,3 +144,31 @@ class ZeroShotImageClassifier:
             image = [image]
         predictions = detector(image, candidate_labels=self.candidate_labels)
         return predictions
+
+
+def invoke_clip_tool(
+    modelhub: ModelHub, payload: SelfSupervisedPayload, clip_model: MossCLIP | None = None
+) -> List[bool]:
+    label = handle(payload.prompt)
+
+    if any(payload.positive_labels) and any(payload.negative_labels):
+        serialized = {
+            "positive_labels": payload.positive_labels,
+            "negative_labels": payload.negative_labels,
+        }
+        modelhub.datalake[label] = DataLake.from_serialized(serialized)
+
+    if not (dl := modelhub.datalake.get(label)):
+        dl = DataLake.from_challenge_prompt(label)
+    tool = ZeroShotImageClassifier.from_datalake(dl)
+
+    # Default to `RESNET.OPENAI` perf_counter 1.794s
+    model = clip_model or register_pipline(modelhub)
+
+    response: List[bool] = []
+    for image_data in payload.challenge_images:
+        results = tool(model, image=Image.open(BytesIO(image_data)))
+        trusted = results[0]["label"] in tool.positive_labels
+        response.append(trusted)
+
+    return response

@@ -1,10 +1,9 @@
 ```bash
-pip install fastapi
-pip install uvicorn[standard]
+pip install fastapi[all]
 ```
 
 ```bash
-uvicorn main:app --reload
+python main.py
 ```
 
 ```markdown

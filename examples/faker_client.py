@@ -12,7 +12,6 @@ from playwright.async_api import async_playwright, BrowserContext
 
 from hcaptcha_challenger.agents import AgentV
 from hcaptcha_challenger.agents import Malenia
-from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.utils import SiteKey
 
 
@@ -33,17 +32,7 @@ async def main(headless: bool = False):
 async def mime(context: BrowserContext):
     page = await context.new_page()
 
-    modelhub = ModelHub.from_github_repo()
-    modelhub.parse_objects()
-
-    agent = AgentV.into_solver(
-        # page, the control handle of the Playwright Page
-        page=page,
-        # modelhub, Register modelhub externally, and the agent can patch custom configurations
-        modelhub=modelhub,
-        # tmp_dir, Mount the cache directory to the current working folder
-        tmp_dir=Path("tmp_dir"),
-    )
+    agent = AgentV.into_solver(page=page, tmp_dir=Path("tmp_dir"))
 
     sitekey = SiteKey.user_easy
 
@@ -57,7 +46,7 @@ async def mime(context: BrowserContext):
 
 
 if __name__ == "__main__":
-    EXECUTION = "collect"
-    # EXECUTION = "challenge"
+    # EXECUTION = "collect"
+    EXECUTION = "challenge"
 
     encrypted_resp = asyncio.run(main(headless=False))

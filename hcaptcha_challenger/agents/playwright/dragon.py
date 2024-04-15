@@ -6,6 +6,7 @@
 import abc
 import asyncio
 import hashlib
+import os
 import re
 import shutil
 from abc import ABC
@@ -16,6 +17,8 @@ from dataclasses import field
 from pathlib import Path
 from typing import List
 
+import dotenv
+import httpx
 from loguru import logger
 from playwright.async_api import Page, Response, TimeoutError, expect
 
@@ -28,18 +31,95 @@ from hcaptcha_challenger.models import (
     ToolExecution,
     CollectibleType,
     Collectible,
+    SelfSupervisedPayload,
 )
+from hcaptcha_challenger.onnx.clip import MossCLIP
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.tools.prompt_handler import handle
+from hcaptcha_challenger.tools.zero_shot_image_classifier import invoke_clip_tool, register_pipline
+from cachetools import TTLCache
+from asyncache import cached
+
+dotenv.load_dotenv()
 
 HOOK_PURCHASE = "//div[@id='webPurchaseContainer']//iframe"
 HOOK_CHECKBOX = "//iframe[contains(@title, 'checkbox for hCaptcha')]"
 HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
 
 
+datalake_post = {
+    "animals possessing wings": {
+        "positive_labels": ["bird"],
+        "negative_labels": ["lion", "elephant", "bear"],
+    },
+    "something for drinking": {
+        "positive_labels": ["cup", "something for drinking"],
+        "negative_labels": ["streetlamp", "animal"],
+    },
+    "something used for transportation": {
+        "positive_labels": ["tractor"],
+        "negative_labels": ["cat", "clock", "eagle"],
+    },
+    "streetlamp": {"positive_labels": ["streetlamp"], "negative_labels": ["shark", "duck", "swan"]},
+}
+
+_cached_ping_result = TTLCache(maxsize=10, ttl=60)
+
+
+@cached(_cached_ping_result)
+async def is_solver_edge_worker_available() -> bool:
+    solver_base_url = os.getenv("SOLVER_BASE_URL")
+    if not solver_base_url:
+        return False
+
+    try:
+        client = httpx.AsyncClient(base_url=solver_base_url, timeout=1)
+        response = await client.get("/ping")
+        response.raise_for_status()
+        return True
+    except (httpx.HTTPStatusError, httpx.ReadTimeout) as err:
+        logger.warning("Failed to connect SolverEdgeWorker", base_url=solver_base_url, err=err)
+        return False
+
+
+@dataclass
+class SolverEdgeWorker:
+    solver_base_url: str | None = os.getenv("SOLVER_BASE_URL")
+    """
+    Default to http://localhost:33777
+    """
+
+    def __init__(self):
+        self.client = None
+        if self.solver_base_url:
+            self.client = httpx.AsyncClient(base_url=self.solver_base_url)
+
+    async def invoke_clip_tool(self, payload: dict) -> List[bool]:
+        _service_point = "/challenge/image_label_binary"
+
+        response = await self.client.post(_service_point, json=payload)
+        response.raise_for_status()
+        results = response.json()["results"]
+
+        return results
+
+
 @dataclass
 class MechanicalSkeleton:
     page: Page
+
+    sew: SolverEdgeWorker = field(default_factory=SolverEdgeWorker)
+
+    modelhub: ModelHub | None = None
+
+    clip_model: MossCLIP | None = None
+
+    def __post_init__(self):
+        self.sew = SolverEdgeWorker()
+
+        if not self.modelhub:
+            self.modelhub = ModelHub.from_github_repo()
+        self.modelhub.parse_objects()
 
     async def click_checkbox(self):
         try:
@@ -65,6 +145,45 @@ class MechanicalSkeleton:
 
         return frame_challenge
 
+    async def challenge_image_label_binary(
+        self, label: str, challenge_images: List[ChallengeImage]
+    ):
+        frame_challenge = self.switch_to_challenge_frame()
+
+        challenge_images = [i.into_base64bytes() for i in challenge_images]
+        patched_model_prompt = datalake_post.get(label)
+        self_supervised_payload = {
+            "prompt": label,
+            "challenge_images": challenge_images,
+            **patched_model_prompt,
+        }
+
+        # {{< IMAGE CLASSIFICATION >}}
+        if await is_solver_edge_worker_available():
+            results: List[bool] = await self.sew.invoke_clip_tool(self_supervised_payload)
+        else:
+            payload = SelfSupervisedPayload(**self_supervised_payload)
+            results: List[bool] = invoke_clip_tool(self.modelhub, payload, self.clip_model)
+
+        # {{< DRIVE THE BROWSER TO TAKE ON THE CHALLENGE >}}
+        samples = frame_challenge.locator("//div[@class='task-image']")
+        count = await samples.count()
+        positive_cases = 0
+        for i in range(count):
+            sample = samples.nth(i)
+            if results[i]:
+                positive_cases += 1
+                with suppress(TimeoutError):
+                    await sample.click(delay=200)
+            elif positive_cases == 0 and i == count - 1:
+                await sample.click(delay=200)
+
+        # {{< Verify >}}
+        with suppress(TimeoutError):
+            await self.page.pause()
+            fl = frame_challenge.locator("//div[@class='button-submit button']")
+            await fl.click()
+
 
 @dataclass
 class OminousLand(ABC):
@@ -74,6 +193,8 @@ class OminousLand(ABC):
     tmp_dir: Path
     ms: MechanicalSkeleton
     image_queue: Queue
+
+    crumb_count = 1
 
     typed_dir: Path = field(default_factory=Path)
     canvas_screenshot_dir: Path = field(default_factory=Path)
@@ -91,7 +212,12 @@ class OminousLand(ABC):
 
     @classmethod
     def draws_from(
-        cls, page: Page, inputs: dict | bytes, tmp_dir: Path, image_queue: Queue, **kwargs
+        cls,
+        page: Page,
+        inputs: dict | bytes,
+        tmp_dir: Path,
+        image_queue: Queue,
+        ms: MechanicalSkeleton | None = None,
     ):
         # Cache images
         if not isinstance(tmp_dir, Path):
@@ -100,9 +226,10 @@ class OminousLand(ABC):
         typed_dir = tmp_dir / "typed_dir"
         canvas_screenshot_dir = tmp_dir / "canvas_screenshot"
 
+        ms = ms or MechanicalSkeleton(page=page)
         monster = cls(
             page=page,
-            ms=MechanicalSkeleton(page),
+            ms=ms,
             tmp_dir=tmp_dir,
             image_queue=image_queue,
             typed_dir=typed_dir,
@@ -133,6 +260,14 @@ class OminousLand(ABC):
         if self.qr.request_type != RequestType.ImageLabelBinary:
             self.canvas_screenshot_dir = self.tmp_dir.joinpath(f"canvas_screenshot/{prompt}")
             self.canvas_screenshot_dir.mkdir(parents=True, exist_ok=True)
+
+    async def _recall_crumb(self):
+        frame_challenge = self.ms.switch_to_challenge_frame()
+        crumbs = frame_challenge.locator("//div[@class='Crumb']")
+        if await crumbs.first.is_visible():
+            self.crumb_count = 2
+        else:
+            self.crumb_count = 1
 
     async def _recall_tasklist(self):
         """run after _init_imgdb"""
@@ -182,20 +317,20 @@ class OminousLand(ABC):
     async def _get_captcha(self, **kwargs):
         raise NotImplementedError
 
-    async def _solve_captcha(self, **kwargs):
-        frame_challenge = self.ms.switch_to_challenge_frame()
-
+    async def _solve_captcha(self):
         match self.qr.request_type:
             case RequestType.ImageLabelBinary:
-                pass
+                await self.ms.challenge_image_label_binary(
+                    label=self.label, challenge_images=self.tasklist
+                )
             case RequestType.ImageLabelAreaSelect:
                 # Cache canvas to prepare for subsequent model processing
                 # canvas = frame_challenge.locator("//canvas")
                 # fp = self.canvas_screenshot_dir / f"{challenge_image.filename}.png"
                 # await canvas.screenshot(type="png", path=fp, scale="css")
-                pass
+                await self.ms.refresh_challenge()
             case RequestType.ImageLabelMultipleChoice:
-                pass
+                await self.ms.refresh_challenge()
             case _:
                 logger.warning("[INTERRUPT]", reason="Unknown type of challenge")
 
@@ -215,6 +350,7 @@ class OminousLand(ABC):
 
     async def _challenge(self):
         await self._collect()
+        await self._recall_crumb()
         await self._solve_captcha()
 
     async def invoke(self, execution: ToolExecution = ToolExecution.CHALLENGE):
@@ -258,7 +394,7 @@ class DemonLordOfHuiYue(OminousLand):
         # request_type
         if await frame_challenge.locator("//div[@class='task-grid']").count():
             self.qr.request_type = RequestType.ImageLabelBinary.value
-            has_exp = await frame_challenge.locator("//div[@class='challenge-example']").count()
+            # has_exp = await frame_challenge.locator("//div[@class='challenge-example']").count()
         elif await frame_challenge.locator("//div[contains(@class, 'bounding-box')]").count():
             self.qr.request_type = RequestType.ImageLabelAreaSelect.value
         else:
@@ -269,8 +405,6 @@ class DemonLordOfHuiYue(OminousLand):
 @dataclass
 class AgentV:
     page: Page
-
-    modelhub: ModelHub
 
     ms: MechanicalSkeleton = field(default_factory=MechanicalSkeleton)
 
@@ -286,11 +420,6 @@ class AgentV:
     _tool_type: ToolExecution | None = None
 
     def __post_init__(self):
-        # Control models
-        self.modelhub = self.modelhub or ModelHub.from_github_repo()
-        if not self.modelhub.label_alias:
-            self.modelhub.parse_objects()
-
         self.tmp_dir = self.tmp_dir or Path("tmp_dir")
         self._cache_dir = self.tmp_dir / ".cache"
         self._cache_dir.mkdir(parents=True, exist_ok=True)
@@ -300,10 +429,9 @@ class AgentV:
         self.task_queue = Queue(maxsize=1)
 
     @classmethod
-    def into_solver(cls, page: Page, tmp_dir=None, modelhub: ModelHub | None = None, **kwargs):
-        return cls(
-            page=page, ms=MechanicalSkeleton(page), tmp_dir=tmp_dir, modelhub=modelhub, **kwargs
-        )
+    def into_solver(cls, page: Page, tmp_dir=None, clip_model: MossCLIP | None = None, **kwargs):
+        ms = MechanicalSkeleton(page=page, clip_model=clip_model)
+        return cls(page=page, ms=ms, tmp_dir=tmp_dir, **kwargs)
 
     @property
     def status(self):
@@ -359,7 +487,12 @@ class AgentV:
     async def _tool_execution(self):
         qr_data = await self.task_queue.get()
 
-        driver_conf = {"page": self.page, "tmp_dir": self.tmp_dir, "image_queue": self.image_queue}
+        driver_conf = {
+            "page": self.page,
+            "tmp_dir": self.tmp_dir,
+            "image_queue": self.image_queue,
+            "ms": self.ms,
+        }
         runnable: OminousLand | None = None
 
         match content_type := qr_data.headers.get("content-type"):
@@ -383,6 +516,10 @@ class AgentV:
         self, execution_timeout: float = 150.0, response_timeout: float = 30.0
     ) -> Status:
         self._tool_type = ToolExecution.CHALLENGE
+
+        if not self.ms.clip_model:
+            modelhub = ModelHub.from_github_repo()
+            self.ms.clip_model = register_pipline(modelhub, fmt="onnx")
 
         # CoroutineTask: Assigning human-computer challenge tasks to the main thread coroutine.
         # Wait for the task to finish executing
