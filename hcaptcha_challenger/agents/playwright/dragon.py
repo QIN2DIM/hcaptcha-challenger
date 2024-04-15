@@ -61,6 +61,18 @@ datalake_post = {
         "negative_labels": ["cat", "clock", "eagle"],
     },
     "streetlamp": {"positive_labels": ["streetlamp"], "negative_labels": ["shark", "duck", "swan"]},
+    "similar to the following silhouette": {
+        "positive_labels": ["duck"],
+        "negative_labels": ["cat", "dog", "frog"],
+    },
+    "please click on objects or entities related to work": {
+        "positive_labels": ["glass"],
+        "negative_labels": ["excavator", "tree", "nature"],
+    },
+    "similar to the following pattern": {
+        "positive_labels": ["raccoon"],
+        "negative_labels": ["duck", "apple"],
+    },
 }
 
 _cached_ping_result = TTLCache(maxsize=10, ttl=60)
@@ -180,7 +192,6 @@ class MechanicalSkeleton:
 
         # {{< Verify >}}
         with suppress(TimeoutError):
-            await self.page.pause()
             fl = frame_challenge.locator("//div[@class='button-submit button']")
             await fl.click()
 
@@ -338,7 +349,7 @@ class OminousLand(ABC):
         await self._get_captcha()
 
         logger.debug(
-            "task",
+            "Invoke task",
             label=self.label,
             type=self.qr.request_type,
             requester_question=self.qr.requester_question,
@@ -351,7 +362,11 @@ class OminousLand(ABC):
     async def _challenge(self):
         await self._collect()
         await self._recall_crumb()
-        await self._solve_captcha()
+
+        for i in range(self.crumb_count):
+            if i != 0:
+                await self._recall_tasklist()
+            await self._solve_captcha()
 
     async def invoke(self, execution: ToolExecution = ToolExecution.CHALLENGE):
         match execution:
@@ -513,10 +528,14 @@ class AgentV:
             await runnable.invoke(execution=self._tool_type)
 
     async def wait_for_challenge(
-        self, execution_timeout: float = 150.0, response_timeout: float = 30.0
+        self,
+        execution_timeout: float = 90,
+        response_timeout: float = 30.0,
+        retry_on_failure: bool = True,
     ) -> Status:
         self._tool_type = ToolExecution.CHALLENGE
 
+        # Initialize CLIP model
         if not self.ms.clip_model:
             modelhub = ModelHub.from_github_repo()
             self.ms.clip_model = register_pipline(modelhub, fmt="onnx")
@@ -528,6 +547,14 @@ class AgentV:
         except asyncio.TimeoutError:
             logger.error("Challenge execution timed out", timeout=execution_timeout)
             return self.status.CHALLENGE_EXECUTION_TIMEOUT
+        logger.debug("Invoke done", _tool_type=self._tool_type)
+
+        # CoroutineTask: Assigned a new task
+        # The possible reason is that the challenge was **manually** refreshed during the task.
+        while self.cr_queue.empty():
+            if not self.task_queue.empty():
+                return await self.wait_for_challenge(execution_timeout, response_timeout)
+            await asyncio.sleep(0.01)
 
         # CoroutineTask: Waiting for hCAPTCHA response processing result
         # After the completion of the human-machine challenge workflow,
@@ -539,12 +566,16 @@ class AgentV:
             logger.error("Timeout waiting for challenge response", timeout=response_timeout)
             return self.status.CHALLENGE_RESPONSE_TIMEOUT
         else:
-            logger.debug("[DONE]", **self.cr.model_dump(by_alias=True))
-
             # Match: Timeout / Loss
             if not self.cr or not self.cr.is_pass:
+                if retry_on_failure:
+                    logger.error("Invoke verification", **self.cr.model_dump(by_alias=True))
+                    return await self.wait_for_challenge(
+                        execution_timeout, response_timeout, retry_on_failure=retry_on_failure
+                    )
                 return self.status.CHALLENGE_RETRY
             if self.cr.is_pass:
+                logger.success("Invoke verification", **self.cr.model_dump(by_alias=True))
                 return self.status.CHALLENGE_SUCCESS
 
     async def wait_for_collect(

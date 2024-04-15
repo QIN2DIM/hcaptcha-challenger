@@ -57,6 +57,9 @@ def split_prompt_message(prompt_message: str, lang: str) -> str:
         if prompt_message.startswith("please click on the"):
             prompt_message = prompt_message.replace("please click on ", "").strip()
             return prompt_message
+        if prompt_message.startswith("please click on all entities similar"):
+            prompt_message = prompt_message.replace("please click on all entities ", "").strip()
+            return prompt_message
         if prompt_message.startswith("select all") and "images" not in prompt_message:
             return prompt_message.split("select all")[-1].strip()
         if "select all images of" in prompt_message:
