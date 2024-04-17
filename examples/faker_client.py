@@ -46,7 +46,7 @@ async def mime(context: BrowserContext):
 
 
 if __name__ == "__main__":
-    # EXECUTION = "collect"
-    EXECUTION = "challenge"
+    EXECUTION = "collect"
+    # EXECUTION = "challenge"
 
     encrypted_resp = asyncio.run(main(headless=False))

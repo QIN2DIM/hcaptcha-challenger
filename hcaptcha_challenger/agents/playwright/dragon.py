@@ -66,9 +66,9 @@ datalake_post = {
         "positive_labels": ["duck"],
         "negative_labels": ["cat", "dog", "frog"],
     },
-    "please click on objects or entities related to work": {
-        "positive_labels": ["glass"],
-        "negative_labels": ["excavator", "tree", "nature"],
+    "related to work": {
+        "positive_labels": ["excavator"],
+        "negative_labels": ["glass", "tree", "nature"],
     },
     "similar to the following pattern": {
         "positive_labels": ["raccoon"],
