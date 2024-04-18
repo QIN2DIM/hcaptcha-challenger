@@ -1,0 +1,31 @@
+$ref:
+  release_url: https://api.github.com/repos/QIN2DIM/hcaptcha-challenger/releases
+  objects_url: https://raw.githubusercontent.com/QDIN2DIM/hcaptcha-challenger/main/src/objects2024.yaml
+model_slots:
+  - requester_question: Please click on the turtle's head
+    request_type: image_label_area_select
+    related_models:
+    - head_of_the_animal_turtle_2309_yolov8s.onnx
+  - requester_question: Please click all images contain electronic device
+    request_type: image_label_binary
+    related_models:
+    - electronic_device2316.onnx
+    - nested_electronic_device_mouse2309.onnx
+    - nested_electronic_device_circuit_board2309.onnx
+  - requester_question: Please click all images contain plant
+    request_type: image_label_binary
+    related_models:
+    - nested_plant2311.onnx
+    - plant2319.onnx
+yolo_modelscope:
+  - model: head_of_the_animal_turtle_2309_yolov8s.onnx
+    labels:
+    - turtle-head
+clip_selections:
+  - requester_question: Please click all images contain football stadium
+    positive:
+    - football stadium
+    negative:
+    - mouse
+    - natural landscape
+    - river

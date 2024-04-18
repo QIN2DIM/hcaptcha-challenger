@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import gc
+import inspect
 import json
 import os
 import shutil
@@ -14,7 +15,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any, Literal
 from urllib.parse import urlparse
 
 import cv2
@@ -27,9 +28,16 @@ from onnxruntime import InferenceSession
 from tenacity import *
 from tqdm import tqdm
 
-from hcaptcha_challenger.utils import from_dict_to_model
-
 DEFAULT_KEYPOINT_MODEL = "COCO2020_yolov8m.onnx"
+
+
+def from_dict_to_model(cls, data: Dict[str, Any]):
+    return cls(
+        **{
+            key: (data[key] if val.default == val.empty else data.get(key, val.default))
+            for key, val in inspect.signature(cls).parameters.items()
+        }
+    )
 
 
 @logger.catch
@@ -252,6 +260,7 @@ class ModelHub:
     lang: str = "en"
 
     label_alias: Dict[str, str] = field(default_factory=dict)
+    model_slots: Dict[str, ModelSlot] = field(default_factory=dict)
     """
     Image classification
     ---
@@ -262,6 +271,7 @@ class ModelHub:
 
     yolo_names: List[str] = field(default_factory=list)
     ashes_of_war: Dict[str, List[str]] = field(default_factory=dict)
+    yolo_modelscope: Dict[str, YOLOModelscope] = field(default_factory=dict)
     """
     Object Detection
     ---
@@ -277,7 +287,7 @@ class ModelHub:
     "find the ｛z｝ pictures most similar to ｛y｝ in the ｛x_i｝ pictures"
     """
 
-    circle_segment_model: str = field(default=str)
+    circle_segment_model: str = "appears_only_once_2309_yolov8s-seg.onnx"
     """
     Image Segmentation
     ---
@@ -327,9 +337,22 @@ class ModelHub:
         self.assets_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
 
     @classmethod
-    def from_github_repo(cls, username: str = "QIN2DIM", lang: str = "en", **kwargs):
-        release_url = f"https://api.github.com/repos/{username}/hcaptcha-challenger/releases"
-        objects_url = f"https://raw.githubusercontent.com/{username}/hcaptcha-challenger/main/src/objects.yaml"
+    def from_github_repo(
+        cls,
+        username: str = "QIN2DIM",
+        lang: str = "en",
+        repo: str = "hcaptcha-challenger",
+        conf_: str = "objects2024.yaml",
+        **kwargs,
+    ):
+        release_url = (
+            kwargs.get("release_url", os.getenv("RELEASE_URL"))
+            or f"https://api.github.com/repos/{username}/{repo}/releases"
+        )
+        objects_url = (
+            kwargs.get("objects_url", os.getenv("OBJECTS_URL"))
+            or f"https://raw.githubusercontent.com/{username}/{repo}/main/src/{conf_}"
+        )
 
         instance = cls(release_url=release_url, objects_url=objects_url, lang=lang)
         instance.assets = Assets.from_release_url(release_url)
@@ -356,34 +379,20 @@ class ModelHub:
             os.remove(self.objects_path)
             return
 
-        label_to_i18n_mapping: dict = data.get("label_alias", {})
-        if label_to_i18n_mapping:
-            for model_name, lang_to_prompts in label_to_i18n_mapping.items():
-                for lang, prompts in lang_to_prompts.items():
-                    if lang != self.lang:
-                        continue
-                    self.label_alias.update({prompt.strip(): model_name for prompt in prompts})
+        # Match model slots
+        for slot in data.get("model_slots", []):
+            if prompt_ := slot.get("requester_question"):
+                self.model_slots[prompt_] = ModelSlot(**slot)
 
-        yolo2names: Dict[str, List[str]] = data.get("ashes_of_war", {})
-        if yolo2names:
-            self.yolo_names = [cl for cc in yolo2names.values() for cl in cc]
-            self.ashes_of_war = yolo2names
+        # Match YOLO models
+        for ym in data.get("yolo_modelscope", []):
+            if model_name_ := ym.get("model"):
+                self.yolo_modelscope[model_name_] = YOLOModelscope(**ym)
 
-        nested_categories = data.get("nested_categories", {})
-        self.nested_categories = nested_categories or {}
-
-        self.circle_segment_model = data.get(
-            "circle_seg", "appears_only_once_2309_yolov8s-seg.onnx"
-        )
-
-        datalake = data.get("datalake", {})
-        if datalake:
-            for prompt, serialized_binary in datalake.items():
-                datalake[prompt] = DataLake.from_serialized(serialized_binary)
-        self.datalake = datalake or {}
-
-        clip_candidates = data.get("clip_candidates", {})
-        self.clip_candidates = clip_candidates or {}
+        # Match CLIP selections
+        for selection in data.get("clip_selections", []):
+            if prompt_ := selection.get("requester_question"):
+                self.datalake[prompt_] = DataLake.from_clip_selection(**selection)
 
     def pull_model(self, focus_name: str):
         """
@@ -593,3 +602,22 @@ class DataLake:
     @classmethod
     def from_binary_labels(cls, positive_labels: List[str], negative_labels: List[str]):
         return cls(positive_labels=positive_labels, negative_labels=negative_labels)
+
+    @classmethod
+    def from_clip_selection(cls, requester_question: str, positive: List[str], negative: List[str]):
+        return cls(
+            positive_labels=positive, negative_labels=negative, raw_prompt=requester_question
+        )
+
+
+@dataclass
+class ModelSlot:
+    requester_question: str
+    request_type: Literal["image_label_binary", "image_label_area_select"]
+    related_models: List[str] = field(default_factory=list)
+
+
+@dataclass
+class YOLOModelscope:
+    model: str
+    labels: List[str] = field(default_factory=list)
