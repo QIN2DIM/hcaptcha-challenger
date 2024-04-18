@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import cv2
 from PIL import Image
@@ -15,7 +15,6 @@ from loguru import logger
 
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
-from hcaptcha_challenger.tools.common import rank_models
 from hcaptcha_challenger.tools.prompt_handler import handle
 from hcaptcha_challenger.tools.zero_shot_image_classifier import (
     ZeroShotImageClassifier,
@@ -154,3 +153,46 @@ class LocalBinaryClassifier:
     def parse_once(self, image: bytes) -> bool | None:
         with suppress(Exception):
             return self.model.execute(image)
+
+
+def rank_models(
+    nested_models: List[str], example_paths: List[Path], modelhub: ModelHub
+) -> Tuple[ResNetControl, str] | None:
+    # {{< Rank ResNet Models >}}
+    rank_ladder = []
+
+    for example_path in example_paths:
+        img_stream = example_path.read_bytes()
+        for model_name in reversed(nested_models):
+            if (net := modelhub.match_net(focus_name=model_name)) is None:
+                return
+            control = ResNetControl.from_pluggable_model(net)
+            result_, proba = control.execute(img_stream, proba=True)
+            if result_ and proba[0] > 0.68:
+                rank_ladder.append([control, model_name, proba])
+                if proba[0] > 0.87:
+                    break
+
+    # {{< Catch-all Rules >}}
+    if rank_ladder:
+        alts = sorted(rank_ladder, key=lambda x: x[-1][0], reverse=True)
+        best_model, model_name = alts[0][0], alts[0][1]
+        return best_model, model_name
+
+
+def match_datalake(modelhub: ModelHub, label: str) -> DataLake:
+    # prelude datalake
+    if dl := modelhub.datalake.get(label):
+        return dl
+
+    # prelude clip_candidates
+    for ket in reversed(modelhub.clip_candidates.keys()):
+        if ket in label:
+            candidates = modelhub.clip_candidates[ket]
+            if candidates and len(candidates) > 2:
+                dl = DataLake.from_binary_labels(candidates[:1], candidates[1:])
+                return dl
+
+    # catch-all
+    dl = DataLake.from_challenge_prompt(raw_prompt=label)
+    return dl

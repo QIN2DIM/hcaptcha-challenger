@@ -29,19 +29,15 @@ from hcaptcha_challenger.onnx.yolo import (
     is_matched_ash_of_war,
     finetune_keypoint,
 )
-from hcaptcha_challenger.tools.common import (
-    match_model,
+from hcaptcha_challenger.tools import (
     match_datalake,
+    match_model,
     rank_models,
     download_challenge_images,
-)
-from hcaptcha_challenger.tools.cv_toolkit import (
-    find_unique_object,
-    annotate_objects,
     find_unique_color,
-)
-from hcaptcha_challenger.tools.prompt_handler import handle
-from hcaptcha_challenger.tools.zero_shot_image_classifier import (
+    annotate_objects,
+    find_unique_object,
+    handle,
     ZeroShotImageClassifier,
     register_pipline,
 )

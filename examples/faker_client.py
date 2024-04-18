@@ -8,12 +8,14 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
+import dotenv
 from playwright.async_api import async_playwright, BrowserContext
 
 from hcaptcha_challenger.agents import AgentV
 from hcaptcha_challenger.agents import Malenia
 from hcaptcha_challenger.utils import SiteKey
 
+dotenv.load_dotenv()
 
 # 1. You need to deploy sub-thread tasks and actively run `install(upgrade=True)` every 20 minutes
 # 2. You need to make sure to run `install(upgrade=True, clip=True)` before each instantiation

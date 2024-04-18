@@ -19,6 +19,8 @@ from typing import List
 
 import dotenv
 import httpx
+from asyncache import cached
+from cachetools import TTLCache
 from loguru import logger
 from playwright.async_api import Page, Response, TimeoutError, expect
 
@@ -35,10 +37,7 @@ from hcaptcha_challenger.models import (
 )
 from hcaptcha_challenger.onnx.clip import MossCLIP
 from hcaptcha_challenger.onnx.modelhub import ModelHub
-from hcaptcha_challenger.tools.prompt_handler import handle
-from hcaptcha_challenger.tools.zero_shot_image_classifier import invoke_clip_tool, register_pipline
-from cachetools import TTLCache
-from asyncache import cached
+from hcaptcha_challenger.tools import handle, register_pipline, invoke_clip_tool
 
 dotenv.load_dotenv()
 

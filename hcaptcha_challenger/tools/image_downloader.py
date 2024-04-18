@@ -6,14 +6,19 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import shutil
 import sys
+import time
 from abc import ABC, abstractmethod
+from contextlib import suppress
 from pathlib import Path
 from typing import Any, Tuple, List
 
 import httpx
 from httpx import AsyncClient
 from tenacity import *
+from hcaptcha_challenger.models import QuestionResp
 
 DownloadList = List[Tuple[Path, str]]
 
@@ -99,3 +104,60 @@ def common_download(container: DownloadList):
     for img_path, url in container:
         resp = httpx.get(url)
         img_path.write_bytes(resp.content)
+
+
+async def download_challenge_images(
+    qr: QuestionResp, label: str, tmp_dir: Path, ignore_examples: bool = False
+):
+    request_type = qr.request_type
+    ks = list(qr.requester_restricted_answer_set.keys())
+
+    inv = {"\\", "/", ":", "*", "?", "<", ">", "|", "\n"}
+    for c in inv:
+        label = label.replace(c, "")
+    label = label.strip()
+
+    if len(ks) > 0:
+        typed_dir = tmp_dir.joinpath(request_type, label, ks[0])
+    else:
+        typed_dir = tmp_dir.joinpath(request_type, label)
+    typed_dir.mkdir(parents=True, exist_ok=True)
+
+    ciri = Cirilla()
+    container = []
+    tasks = []
+    for i, tk in enumerate(qr.tasklist):
+        challenge_img_path = typed_dir.joinpath(f"{time.time()}.{i}.png")
+        context = (challenge_img_path, tk.datapoint_uri)
+        container.append(context)
+        tasks.append(asyncio.create_task(ciri.elder_blood(context)))
+
+    examples = []
+    if not ignore_examples:
+        with suppress(Exception):
+            for i, uri in enumerate(qr.requester_question_example):
+                example_img_path = typed_dir.joinpath(f"{time.time()}.exp.{i}.png")
+                context = (example_img_path, uri)
+                examples.append(context)
+                tasks.append(asyncio.create_task(ciri.elder_blood(context)))
+
+    await asyncio.gather(*tasks)
+
+    # Optional deduplication
+    _img_paths = []
+    for src, _ in container:
+        cache = src.read_bytes()
+        dst = typed_dir.joinpath(f"{hashlib.md5(cache).hexdigest()}.png")
+        shutil.move(src, dst)
+        _img_paths.append(dst)
+
+    # Optional deduplication
+    _example_paths = []
+    if examples:
+        for src, _ in examples:
+            cache = src.read_bytes()
+            dst = typed_dir.joinpath(f"{hashlib.md5(cache).hexdigest()}.png")
+            shutil.move(src, dst)
+            _example_paths.append(dst)
+
+    return _img_paths, _example_paths

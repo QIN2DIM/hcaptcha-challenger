@@ -18,19 +18,15 @@ from hcaptcha_challenger.models import Status, QuestionResp, RequestType, Answer
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8, is_matched_ash_of_war, YOLOv8Seg
-from hcaptcha_challenger.tools.common import (
-    match_model,
-    download_challenge_images,
-    rank_models,
+from hcaptcha_challenger.tools import (
     match_datalake,
-)
-from hcaptcha_challenger.tools.cv_toolkit import (
+    match_model,
+    rank_models,
+    download_challenge_images,
+    find_unique_color,
     annotate_objects,
     find_unique_object,
-    find_unique_color,
-)
-from hcaptcha_challenger.tools.prompt_handler import handle
-from hcaptcha_challenger.tools.zero_shot_image_classifier import (
+    handle,
     ZeroShotImageClassifier,
     register_pipline,
 )

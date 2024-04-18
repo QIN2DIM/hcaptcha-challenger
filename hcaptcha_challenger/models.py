@@ -13,7 +13,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator, UUID4, AnyHttpUrl, Base64Bytes
 
-from hcaptcha_challenger.tools.prompt_handler import label_cleaning
+from hcaptcha_challenger.constant import BAD_CODE
 
 
 class Status(str, Enum):
@@ -131,12 +131,16 @@ class QuestionResp(BaseModel):
     def cache(self, tmp_dir: Path):
         shape_type = self.request_config.get("shape_type", "")
 
-        requester_question = label_cleaning(self.requester_question.get("en", ""))
+        # label cleaning
+        requester_question = self.requester_question.get("en", "")
+        for c in BAD_CODE:
+            requester_question = requester_question.replace(c, BAD_CODE[c])
+
         answer_keys = list(self.requester_restricted_answer_set.keys())
         ak = f".{answer_keys[0]}" if len(answer_keys) > 0 else ""
         fn = f"{self.request_type}.{shape_type}.{requester_question}{ak}.json"
 
-        inv = {"\\", "/", ":", "*", "?", "<", ">", "|"}
+        inv = {"\\", "/", ":", "*", "?", "<", ">", "|", "\n"}
         for c in inv:
             fn = fn.replace(c, "")
 
