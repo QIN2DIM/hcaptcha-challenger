@@ -9,6 +9,7 @@ import hashlib
 import os
 import re
 import shutil
+import uuid
 from abc import ABC
 from asyncio import Queue
 from contextlib import suppress
@@ -24,6 +25,7 @@ from cachetools import TTLCache
 from loguru import logger
 from playwright.async_api import Page, Response, TimeoutError, expect
 
+from hcaptcha_challenger.constant import INV
 from hcaptcha_challenger.models import (
     ChallengeResp,
     QuestionResp,
@@ -45,35 +47,6 @@ HOOK_PURCHASE = "//div[@id='webPurchaseContainer']//iframe"
 HOOK_CHECKBOX = "//iframe[contains(@title, 'checkbox for hCaptcha')]"
 HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
 
-
-# todo move to datalake.json
-datalake_post = {
-    "animals possessing wings": {
-        "positive_labels": ["bird"],
-        "negative_labels": ["lion", "elephant", "bear"],
-    },
-    "something for drinking": {
-        "positive_labels": ["cup", "something for drinking"],
-        "negative_labels": ["streetlamp", "animal"],
-    },
-    "something used for transportation": {
-        "positive_labels": ["tractor"],
-        "negative_labels": ["cat", "clock", "eagle"],
-    },
-    "streetlamp": {"positive_labels": ["streetlamp"], "negative_labels": ["shark", "duck", "swan"]},
-    "similar to the following silhouette": {
-        "positive_labels": ["duck"],
-        "negative_labels": ["cat", "dog", "frog"],
-    },
-    "related to work": {
-        "positive_labels": ["excavator"],
-        "negative_labels": ["glass", "tree", "nature"],
-    },
-    "similar to the following pattern": {
-        "positive_labels": ["raccoon"],
-        "negative_labels": ["duck", "apple"],
-    },
-}
 
 _cached_ping_result = TTLCache(maxsize=10, ttl=60)
 
@@ -121,10 +94,8 @@ class MechanicalSkeleton:
     page: Page
 
     sew: SolverEdgeWorker = field(default_factory=SolverEdgeWorker)
-
-    modelhub: ModelHub | None = None
-
-    clip_model: MossCLIP | None = None
+    modelhub: ModelHub = field(default_factory=ModelHub)
+    clip_model: MossCLIP = field(default_factory=MossCLIP)
 
     def __post_init__(self):
         self.sew = SolverEdgeWorker()
@@ -162,12 +133,18 @@ class MechanicalSkeleton:
     ):
         frame_challenge = self.switch_to_challenge_frame()
 
+        # {{< Reload SELF-SUPERVISED CONFIGURATION >}}
+        if not (model_slot := self.modelhub.model_slots.get(label)):
+            return
+        if not (clip_selection := model_slot.clip_selection):
+            return
+
         challenge_images = [i.into_base64bytes() for i in challenge_images]
-        patched_model_prompt = datalake_post.get(label)
+        clip_selection = clip_selection.model_dump()
         self_supervised_payload = {
             "prompt": label,
             "challenge_images": challenge_images,
-            **patched_model_prompt,
+            **clip_selection,
         }
 
         # {{< IMAGE CLASSIFICATION >}}
@@ -177,7 +154,7 @@ class MechanicalSkeleton:
             payload = SelfSupervisedPayload(**self_supervised_payload)
             results: List[bool] = invoke_clip_tool(self.modelhub, payload, self.clip_model)
 
-        # {{< DRIVE THE BROWSER TO TAKE ON THE CHALLENGE >}}
+        # {{< DRIVE THE BROWSER TO WORK ON THE CHALLENGE >}}
         samples = frame_challenge.locator("//div[@class='task-image']")
         count = await samples.count()
         positive_cases = 0
@@ -254,23 +231,21 @@ class OminousLand(ABC):
 
         return monster
 
-    def _init_imgdb(self, label: str, prompt: str):
+    def _init_imgdb(self, label: str):
         """run after _get_captcha"""
         self.tasklist.clear()
         self.examples.clear()
 
-        inv = {"\\", "/", ":", "*", "?", "<", ">", "|", "\n"}
-        for c in inv:
+        for c in INV:
             label = label.replace(c, "")
-            prompt = prompt.replace(c, "")
-        label = label.strip()
 
         self.typed_dir = self.tmp_dir.joinpath(self.qr.request_type, label)
         self.typed_dir.mkdir(parents=True, exist_ok=True)
 
-        if self.qr.request_type != RequestType.ImageLabelBinary:
-            self.canvas_screenshot_dir = self.tmp_dir.joinpath(f"canvas_screenshot/{prompt}")
-            self.canvas_screenshot_dir.mkdir(parents=True, exist_ok=True)
+        self.canvas_screenshot_dir = self.tmp_dir.joinpath(
+            f"canvas_screenshot/{self.qr.request_type}/{label}"
+        )
+        self.canvas_screenshot_dir.mkdir(parents=True, exist_ok=True)
 
     async def _recall_crumb(self):
         frame_challenge = self.ms.switch_to_challenge_frame()
@@ -280,7 +255,7 @@ class OminousLand(ABC):
         else:
             self.crumb_count = 1
 
-    async def _recall_tasklist(self):
+    async def _recall_tasklist(self, capture_screenshot: bool = True):
         """run after _init_imgdb"""
         frame_challenge = self.ms.switch_to_challenge_frame()
 
@@ -299,16 +274,21 @@ class OminousLand(ABC):
                 datapoint_uri = style.split('"')[1]
                 background_urls.append(datapoint_uri)
 
+            logger.debug(f"{self.image_queue.qsize()=}")
             while not self.image_queue.empty():
                 challenge_image: ChallengeImage = self.image_queue.get_nowait()
+                challenge_image.move_to(self.typed_dir)
                 challenge_images[challenge_image.datapoint_uri] = challenge_image
 
             for url in background_urls:
-                challenge_image = challenge_images.get(url)
+                challenge_image: ChallengeImage = challenge_images.get(url)
                 if challenge_image:
                     self.tasklist.append(challenge_image)
-                    if not self.typed_dir.joinpath(challenge_image.filename).exists():
-                        shutil.move(src=challenge_image.runtime_fp, dst=self.typed_dir)
+
+            if capture_screenshot:
+                canvas = frame_challenge.locator("//div[@class='challenge-container']")
+                fp = self.canvas_screenshot_dir / f"{uuid.uuid4()}.png"
+                await canvas.screenshot(type="png", path=fp, scale="css")
 
         elif self.qr.request_type == RequestType.ImageLabelAreaSelect:
             # For the object detection task, tasklist is only used to collect datasets.
@@ -319,10 +299,13 @@ class OminousLand(ABC):
             # Expect only 1 image in the image_queue
             while not self.image_queue.empty():
                 challenge_image: ChallengeImage = self.image_queue.get_nowait()
-                if not self.typed_dir.joinpath(challenge_image.filename).exists():
-                    shutil.move(src=challenge_image.runtime_fp, dst=self.typed_dir)
-                # Cache image sequences for subsequent browser operations
+                challenge_image.move_to(self.typed_dir)
                 self.tasklist.append(challenge_image)
+
+                if self.image_queue.qsize() == 0:
+                    canvas = frame_challenge.locator("//canvas")
+                    fp = self.canvas_screenshot_dir / f"{challenge_image.filename}.png"
+                    await canvas.screenshot(type="png", path=fp, scale="css")
 
     @abc.abstractmethod
     async def _get_captcha(self, **kwargs):
@@ -339,17 +322,13 @@ class OminousLand(ABC):
                     logger.error(f"An error occurred while processing the challenge task", err=err)
                     await self.ms.refresh_challenge()
             case RequestType.ImageLabelAreaSelect:
-                # Cache canvas to prepare for subsequent model processing
-                # canvas = frame_challenge.locator("//canvas")
-                # fp = self.canvas_screenshot_dir / f"{challenge_image.filename}.png"
-                # await canvas.screenshot(type="png", path=fp, scale="css")
                 await self.ms.refresh_challenge()
             case RequestType.ImageLabelMultipleChoice:
                 await self.ms.refresh_challenge()
             case _:
                 logger.warning("[INTERRUPT]", reason="Unknown type of challenge")
 
-    async def _collect(self):
+    async def _collect(self, capture_screenshot: bool = True):
         await self._get_captcha()
 
         logger.debug(
@@ -360,8 +339,8 @@ class OminousLand(ABC):
             trigger=self.__class__.__name__,
         )
 
-        self._init_imgdb(self.label, self.prompt)
-        await self._recall_tasklist()
+        self._init_imgdb(self.label)
+        await self._recall_tasklist(capture_screenshot=capture_screenshot)
 
     async def _challenge(self):
         await self._collect()
@@ -426,15 +405,12 @@ class AgentV:
     page: Page
 
     ms: MechanicalSkeleton = field(default_factory=MechanicalSkeleton)
-
     cr: ChallengeResp = field(default_factory=ChallengeResp)
-
-    task_queue: Queue[Response] | None = None
-    cr_queue: Queue[ChallengeResp] = field(default_factory=Queue)
-
     tmp_dir: Path = field(default_factory=Path)
 
-    image_queue: Queue = field(default_factory=Queue)
+    cr_queue: Queue[ChallengeResp] = field(default_factory=Queue)
+    _image_queue: Queue[ChallengeImage] = field(default_factory=Queue)
+    _task_queue: Queue[Response] = field(default_factory=Queue)
 
     _tool_type: ToolExecution | None = None
 
@@ -442,10 +418,9 @@ class AgentV:
         self.tmp_dir = self.tmp_dir or Path("tmp_dir")
         self._cache_dir = self.tmp_dir / ".cache"
         self._cache_dir.mkdir(parents=True, exist_ok=True)
+        self._task_queue = Queue(maxsize=1)
 
         self._enable_evnet_listener(self.page)
-
-        self.task_queue = Queue(maxsize=1)
 
     @classmethod
     def into_solver(cls, page: Page, tmp_dir=None, clip_model: MossCLIP | None = None, **kwargs):
@@ -463,13 +438,13 @@ class AgentV:
     async def _task_handler(self, response: Response):
         if "/getcaptcha/" in response.url:
             # reset state
-            while not self.image_queue.empty():
-                self.image_queue.get_nowait()
-            if self.task_queue.full():
-                self.task_queue.get_nowait()
+            while not self._image_queue.empty():
+                self._image_queue.get_nowait()
+            if self._task_queue.full():
+                self._task_queue.get_nowait()
 
             # drop task
-            self.task_queue.put_nowait(response)
+            self._task_queue.put_nowait(response)
 
         # /cr 在 Submit Event 之后，cr 截至目前是明文数据
         elif "/checkcaptcha/" in response.url:
@@ -500,16 +475,16 @@ class AgentV:
             element = ChallengeImage(
                 datapoint_uri=image_url, filename=fn, body=image_bytes, runtime_fp=fp
             )
-            self.image_queue.put_nowait(element)
+            self._image_queue.put_nowait(element)
 
     @logger.catch
     async def _tool_execution(self):
-        qr_data = await self.task_queue.get()
+        qr_data = await self._task_queue.get()
 
         driver_conf = {
             "page": self.page,
             "tmp_dir": self.tmp_dir,
-            "image_queue": self.image_queue,
+            "image_queue": self._image_queue,
             "ms": self.ms,
         }
         runnable: OminousLand | None = None
@@ -556,7 +531,7 @@ class AgentV:
         # CoroutineTask: Assigned a new task
         # The possible reason is that the challenge was **manually** refreshed during the task.
         while self.cr_queue.empty():
-            if not self.task_queue.empty():
+            if not self._task_queue.empty():
                 return await self.wait_for_challenge(execution_timeout, response_timeout)
             await asyncio.sleep(0.01)
 

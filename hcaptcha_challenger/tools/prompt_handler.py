@@ -3,8 +3,7 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-import re
-from hcaptcha_challenger.constant import BAD_CODE
+from hcaptcha_challenger.constant import BAD_CODE, INV
 
 
 def regularize_prompt_message(prompt_message: str) -> str:
@@ -30,8 +29,7 @@ def diagnose_task(words: str) -> str:
         raise TypeError(f"({words})TASK should be string type data")
 
     # Filename contains illegal characters
-    inv = {"\\", "/", ":", "*", "?", "<", ">", "|"}
-    if s := set(words) & inv:
+    if s := set(words) & INV:
         raise TypeError(f"({words})TASK contains invalid characters({s})")
 
     # Normalized separator

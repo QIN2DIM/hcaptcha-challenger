@@ -27,6 +27,7 @@ from loguru import logger
 from onnxruntime import InferenceSession
 from tenacity import *
 from tqdm import tqdm
+from pydantic import BaseModel, Field
 
 DEFAULT_KEYPOINT_MODEL = "COCO2020_yolov8m.onnx"
 
@@ -376,18 +377,14 @@ class ModelHub:
 
         # Match model slots
         for slot in data.get("model_slots", []):
-            if prompt_ := slot.get("requester_question"):
-                self.model_slots[prompt_] = ModelSlot(**slot)
+            if not (requester_question := slot.get("requester_question")):
+                continue
+            self.model_slots[requester_question] = ModelSlot(**slot)
 
         # Match YOLO models
         for ym in data.get("yolo_modelscope", []):
             if model_name_ := ym.get("model"):
                 self.yolo_modelscope[model_name_] = YOLOModelscope(**ym)
-
-        # Match CLIP selections
-        for selection in data.get("clip_selections", []):
-            if prompt_ := selection.get("requester_question"):
-                self.datalake[prompt_] = DataLake.from_clip_selection(**selection)
 
     def pull_model(self, focus_name: str):
         """
@@ -605,14 +602,18 @@ class DataLake:
         )
 
 
-@dataclass
-class ModelSlot:
-    requester_question: str
-    request_type: Literal["image_label_binary", "image_label_area_select"]
-    related_models: List[str] = field(default_factory=list)
+class CLIPSelection(BaseModel):
+    positive: List[str] = Field(default_factory=list)
+    negative: List[str] = Field(default_factory=list)
 
 
-@dataclass
-class YOLOModelscope:
-    model: str
-    labels: List[str] = field(default_factory=list)
+class ModelSlot(BaseModel):
+    requester_question: str = Field(...)
+    request_type: Literal["image_label_binary", "image_label_area_select"] = Field(...)
+    related_models: List[str] | None = Field(default_factory=list)
+    clip_selection: CLIPSelection | None = Field(None)
+
+
+class YOLOModelscope(BaseModel):
+    model: str = Field(...)
+    labels: List[str] = Field(default_factory=list)

@@ -19,6 +19,7 @@ import httpx
 from httpx import AsyncClient
 from tenacity import *
 from hcaptcha_challenger.models import QuestionResp
+from hcaptcha_challenger.constant import INV
 
 DownloadList = List[Tuple[Path, str]]
 
@@ -112,8 +113,7 @@ async def download_challenge_images(
     request_type = qr.request_type
     ks = list(qr.requester_restricted_answer_set.keys())
 
-    inv = {"\\", "/", ":", "*", "?", "<", ">", "|", "\n"}
-    for c in inv:
+    for c in INV:
         label = label.replace(c, "")
     label = label.strip()
 

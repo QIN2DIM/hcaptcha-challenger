@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import base64
+import shutil
 from enum import Enum
 from pathlib import Path
 from typing import List, Dict, Any, Union
@@ -13,7 +14,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator, UUID4, AnyHttpUrl, Base64Bytes
 
-from hcaptcha_challenger.constant import BAD_CODE
+from hcaptcha_challenger.constant import BAD_CODE, INV
 
 
 class Status(str, Enum):
@@ -140,8 +141,7 @@ class QuestionResp(BaseModel):
         ak = f".{answer_keys[0]}" if len(answer_keys) > 0 else ""
         fn = f"{self.request_type}.{shape_type}.{requester_question}{ak}.json"
 
-        inv = {"\\", "/", ":", "*", "?", "<", ">", "|", "\n"}
-        for c in inv:
+        for c in INV:
             fn = fn.replace(c, "")
 
         if tmp_dir and tmp_dir.exists():
@@ -209,14 +209,19 @@ class ChallengeImage(BaseModel):
     def into_base64bytes(self) -> str:
         return base64.b64encode(self.body).decode()
 
+    def move_to(self, dst: Path):
+        if dst.is_dir():
+            dst = dst / self.filename
+        return shutil.move(self.runtime_fp, dst=dst)
+
 
 class SelfSupervisedPayload(BaseModel):
     """hCaptcha payload of the image_label_binary challenge"""
 
     prompt: str = Field(..., description="challenge prompt")
     challenge_images: List[Base64Bytes] = Field(default_factory=list)
-    positive_labels: List[str] | None = Field(default_factory=list)
-    negative_labels: List[str] | None = Field(default_factory=list)
+    positive_labels: List[str] | None = Field(default_factory=list, alias="positive")
+    negative_labels: List[str] | None = Field(default_factory=list, alias="negative")
 
 
 class SelfSupervisedResponse(BaseModel):

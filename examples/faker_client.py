@@ -14,12 +14,12 @@ from playwright.async_api import async_playwright, BrowserContext
 from hcaptcha_challenger.agents import AgentV
 from hcaptcha_challenger.agents import Malenia
 from hcaptcha_challenger.utils import SiteKey
-from hcaptcha_challenger import install
 
 dotenv.load_dotenv()
 
 # 1. You need to deploy sub-thread tasks and actively run `install(upgrade=True)` every 20 minutes
 # 2. You need to make sure to run `install(upgrade=True, clip=True)` before each instantiation
+# from hcaptcha_challenger import install
 # install(upgrade=True, clip=True)
 
 
@@ -29,6 +29,7 @@ async def main(headless: bool = False):
         context = await browser.new_context(locale="en-US")
         await Malenia.apply_stealth(context)
         await mime(context)
+
         await context.close()
 
 
@@ -45,11 +46,11 @@ async def mime(context: BrowserContext):
         await agent.ms.click_checkbox()
         await agent.wait_for_challenge()
     elif EXECUTION == "collect":
-        await agent.wait_for_collect(sitekey, batch=25)
+        await agent.wait_for_collect(sitekey, batch=2)
 
 
 if __name__ == "__main__":
-    # EXECUTION = "collect"
-    EXECUTION = "challenge"
+    EXECUTION = "collect"
+    # EXECUTION = "challenge"
 
     encrypted_resp = asyncio.run(main(headless=False))
