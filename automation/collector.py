@@ -27,7 +27,7 @@ from github.Issue import Issue
 from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
-from hcaptcha_challenger import split_prompt_message, label_cleaning
+from hcaptcha_challenger import regularize_prompt_message, label_cleaning
 from hcaptcha_challenger.agents import AgentT, Malenia
 
 TEMPLATE_BINARY_DATASETS = """
@@ -81,7 +81,7 @@ class Gravitas:
             self.mixed_label = self.issue.title.split(" ")[1].strip()
             self.parent_prompt = self.issue.title.split("@")[-1].strip()
         else:
-            self.mixed_label = split_prompt_message(self.challenge_prompt, lang="en")
+            self.mixed_label = regularize_prompt_message(self.challenge_prompt)
             self.parent_prompt = "image_label_binary"
 
     @classmethod

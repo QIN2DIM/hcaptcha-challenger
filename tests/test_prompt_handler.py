@@ -10,7 +10,7 @@ from typing import List
 
 import pytest
 
-from hcaptcha_challenger import split_prompt_message, label_cleaning, handle
+from hcaptcha_challenger import regularize_prompt_message, label_cleaning, handle
 from hcaptcha_challenger.constant import BAD_CODE
 
 pattern = re.compile(r"[^\x00-\x7F]")
@@ -23,7 +23,7 @@ if (proj := Path(__file__).parent.joinpath("prompts.json")).exists():
 
 @pytest.mark.parametrize("prompt", prompts)
 def test_split_prompt_message(prompt: str):
-    result = split_prompt_message(prompt, lang="en")
+    result = regularize_prompt_message(prompt)
     assert result != prompt
 
 

@@ -20,7 +20,7 @@ from hcaptcha_challenger.tools.image_label_binary import LocalBinaryClassifier
 from hcaptcha_challenger.tools.prompt_handler import (
     label_cleaning,
     diagnose_task,
-    split_prompt_message,
+    regularize_prompt_message,
     prompt2task,
     handle,
 )
@@ -44,7 +44,7 @@ __all__ = [
     "ChallengeResp",
     "label_cleaning",
     "diagnose_task",
-    "split_prompt_message",
+    "regularize_prompt_message",
     "prompt2task",
     "handle",
     "ModelHub",
@@ -56,19 +56,20 @@ __all__ = [
 
 
 init_log(
-    runtime=Path("logs/runtime.log"),
-    error=Path("logs/error.log"),
-    serialize=Path("logs/serialize.log"),
+    runtime=Path("logs/{time:YYYY-MM-DD}/runtime.log"),
+    error=Path("logs/{time:YYYY-MM-DD}/error.log"),
+    serialize=Path("logs/{time:YYYY-MM-DD}/serialize.log"),
 )
 
 
 def install(
     upgrade: bool | None = False,
-    username: str = "QIN2DIM",
-    lang: str = "en",
     flush_yolo: bool | Iterable[str] = False,
     pypi: bool = False,
     clip: bool = False,
+    username: str = "QIN2DIM",
+    repo: str = "hcaptcha-challenger",
+    conf_="objects2024.yaml",
     **kwargs,
 ):
     if pypi is True:
@@ -76,7 +77,7 @@ def install(
 
         PyPI("hcaptcha-challenger").install()
 
-    modelhub = ModelHub.from_github_repo(username=username, lang=lang)
+    modelhub = ModelHub.from_github_repo(username=username, repo=repo, conf_=conf_)
     modelhub.pull_objects(upgrade=upgrade)
     modelhub.assets.flush_runtime_assets(upgrade=upgrade)
 

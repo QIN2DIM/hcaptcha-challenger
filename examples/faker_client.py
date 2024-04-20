@@ -14,6 +14,7 @@ from playwright.async_api import async_playwright, BrowserContext
 from hcaptcha_challenger.agents import AgentV
 from hcaptcha_challenger.agents import Malenia
 from hcaptcha_challenger.utils import SiteKey
+from hcaptcha_challenger import install
 
 dotenv.load_dotenv()
 
@@ -48,7 +49,7 @@ async def mime(context: BrowserContext):
 
 
 if __name__ == "__main__":
-    EXECUTION = "collect"
-    # EXECUTION = "challenge"
+    # EXECUTION = "collect"
+    EXECUTION = "challenge"
 
     encrypted_resp = asyncio.run(main(headless=False))

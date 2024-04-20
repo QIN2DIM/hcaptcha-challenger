@@ -7,36 +7,12 @@ import re
 from hcaptcha_challenger.constant import BAD_CODE
 
 
-def split_prompt_message(prompt_message: str, lang: str) -> str:
+def regularize_prompt_message(prompt_message: str) -> str:
     """Detach label from challenge prompt"""
-    if lang.startswith("zh"):
-        if "中包含" in prompt_message or "上包含" in prompt_message:
-            return re.split(r"击|(的每)", prompt_message)[2]
-        if "的每" in prompt_message:
-            return re.split(r"(包含)|(的每)", prompt_message)[3]
-        if "包含" in prompt_message:
-            return re.split(r"(包含)|(的图)", prompt_message)[3]
-    elif lang.startswith("en"):
-        prompt_message = prompt_message.replace(".", "").lower()
-        if "containing" in prompt_message:
-            th = re.split(r"containing", prompt_message)[-1][1:].strip()
-            return th[2:].strip() if th.startswith("a") else th
-        if prompt_message.startswith("please select all"):
-            prompt_message = prompt_message.replace("please select all ", "").strip()
-            return prompt_message
-        if prompt_message.startswith("please click on the"):
-            prompt_message = prompt_message.replace("please click on ", "").strip()
-            return prompt_message
-        if prompt_message.startswith("please click on all entities similar"):
-            prompt_message = prompt_message.replace("please click on all entities ", "").strip()
-            return prompt_message
-        if prompt_message.startswith("please click on objects or entities"):
-            prompt_message = prompt_message.replace("please click on objects or entities", "")
-            return prompt_message.strip()
-        if prompt_message.startswith("select all") and "images" not in prompt_message:
-            return prompt_message.split("select all")[-1].strip()
-        if "select all images of" in prompt_message:
-            return prompt_message.split("select all images of")[-1].strip()
+    prompt_message = prompt_message.lower()
+    if prompt_message.endswith("."):
+        prompt_message = prompt_message[:-1]
+    prompt_message = prompt_message.strip()
     return prompt_message
 
 
@@ -71,12 +47,12 @@ def diagnose_task(words: str) -> str:
     return words
 
 
-def prompt2task(prompt: str, lang: str = "en") -> str:
-    prompt = split_prompt_message(prompt, lang)
+def prompt2task(prompt: str) -> str:
+    prompt = regularize_prompt_message(prompt)
     prompt = label_cleaning(prompt)
     prompt = diagnose_task(prompt)
     return prompt
 
 
 def handle(x):
-    return split_prompt_message(label_cleaning(x), "en")
+    return regularize_prompt_message(label_cleaning(x))

@@ -257,8 +257,6 @@ class ModelHub:
     assets_dir = models_dir.joinpath("_assets")
     objects_path = models_dir.joinpath("objects.yaml")
 
-    lang: str = "en"
-
     label_alias: Dict[str, str] = field(default_factory=dict)
     model_slots: Dict[str, ModelSlot] = field(default_factory=dict)
     """
@@ -319,7 +317,7 @@ class ModelHub:
 
     clip_candidates: Dict[str, List[str]] = field(default_factory=dict)
     """
-    CLIP self-supervised candidates
+    [DEPRECATED] CLIP self-supervised candidates
     """
 
     release_url: str = ""
@@ -334,13 +332,13 @@ class ModelHub:
     """
 
     def __post_init__(self):
-        self.assets_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
+        self.assets = Assets.from_release_url(self.release_url)
+        self.assets_dir.mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def from_github_repo(
         cls,
         username: str = "QIN2DIM",
-        lang: str = "en",
         repo: str = "hcaptcha-challenger",
         conf_: str = "objects2024.yaml",
         **kwargs,
@@ -354,10 +352,7 @@ class ModelHub:
             or f"https://raw.githubusercontent.com/{username}/{repo}/main/src/{conf_}"
         )
 
-        instance = cls(release_url=release_url, objects_url=objects_url, lang=lang)
-        instance.assets = Assets.from_release_url(release_url)
-
-        return instance
+        return cls(release_url=release_url, objects_url=objects_url)
 
     def pull_objects(self, upgrade: bool = False):
         """Network request"""
