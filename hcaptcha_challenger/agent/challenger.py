@@ -26,6 +26,7 @@ from loguru import logger
 from playwright.async_api import Page, Response, TimeoutError, expect
 
 from hcaptcha_challenger.constant import INV
+from hcaptcha_challenger.helper import inject_mouse_visualizer_global
 from hcaptcha_challenger.models import (
     ChallengeResp,
     QuestionResp,
@@ -124,14 +125,16 @@ class RoboticArm:
         return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
 
     async def click_checkbox(self):
+        await inject_mouse_visualizer_global(self.page)
+
         try:
             checkbox_frame = self.page.frame_locator(self.checkbox_selector)
             checkbox_element = checkbox_frame.locator("#checkbox")
 
             # 等待复选框可见并启用
             # Playwright 的 click 会自动执行这些检查，但显式等待可以增加确定性
-            await checkbox_element.wait_for(state="visible", timeout=10000) # 等待10秒
-            await checkbox_element.wait_for(state="enabled", timeout=5000)  # 等待5秒
+            await checkbox_element.wait_for(state="visible", timeout=10000)  # 等待10秒
+            await checkbox_element.wait_for(state="attached", timeout=5000)  # 等待5秒
 
             # Playwright 的 click() 方法会模拟将鼠标移动到元素上然后点击
             # 添加轻微延迟模拟人类行为

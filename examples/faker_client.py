@@ -22,8 +22,7 @@ async def mime(context: BrowserContext):
     site_key = SiteKey.user_easy
 
     if EXECUTION == "challenge":
-        site_link = SiteKey.as_sitelink(site_key)
-        await page.goto(site_link)
+        await page.goto(SiteKey.as_sitelink(site_key))
         await agent.robotic_arm.click_checkbox()
         await agent.wait_for_challenge()
     elif EXECUTION == "collect":
