@@ -8,13 +8,13 @@ import asyncio
 import hashlib
 import os
 import re
-import shutil
 import uuid
 from abc import ABC
 from asyncio import Queue
 from contextlib import suppress
 from dataclasses import dataclass
 from dataclasses import field
+from enum import Enum
 from pathlib import Path
 from typing import List
 
@@ -30,16 +30,14 @@ from hcaptcha_challenger.models import (
     ChallengeResp,
     QuestionResp,
     RequestType,
-    Status,
     ChallengeImage,
     ToolExecution,
     CollectibleType,
     Collectible,
     SelfSupervisedPayload,
 )
-from hcaptcha_challenger.onnx.clip import MossCLIP
 from hcaptcha_challenger.onnx.modelhub import ModelHub
-from hcaptcha_challenger.tools import handle, register_pipline, invoke_clip_tool
+from hcaptcha_challenger.tools import handle, invoke_clip_tool
 
 dotenv.load_dotenv()
 
@@ -47,8 +45,27 @@ HOOK_PURCHASE = "//div[@id='webPurchaseContainer']//iframe"
 HOOK_CHECKBOX = "//iframe[contains(@title, 'checkbox for hCaptcha')]"
 HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
 
-
 _cached_ping_result = TTLCache(maxsize=10, ttl=60)
+
+
+class ChallengeSignal(str, Enum):
+    """
+    Represents the possible statuses of a challenge.
+
+    Enum Members:
+      SUCCESS: The challenge was completed successfully.
+      FAILURE: The challenge failed or encountered an error.
+      START: The challenge has been initiated or started.
+    """
+
+    SUCCESS = "success"
+    FAILURE = "failure"
+    START = "start"
+    TIMEOUT = "timeout"
+    RETRY = "retry"
+    QR_DATA_NOT_FOUND = "qr_data_not_found"
+    EXECUTION_TIMEOUT = "challenge_execution_timeout"
+    RESPONSE_TIMEOUT = "challenge_response_timeout"
 
 
 @cached(_cached_ping_result)
@@ -89,27 +106,42 @@ class SolverEdgeWorker:
         return results
 
 
-@dataclass
-class MechanicalSkeleton:
-    page: Page
+class RoboticArm:
 
-    sew: SolverEdgeWorker = field(default_factory=SolverEdgeWorker)
-    modelhub: ModelHub = field(default_factory=ModelHub)
-    clip_model: MossCLIP = field(default_factory=MossCLIP)
-
-    def __post_init__(self):
+    def __init__(self, page: Page):
+        self.page = page
         self.sew = SolverEdgeWorker()
 
-        if not self.modelhub:
-            self.modelhub = ModelHub.from_github_repo()
+        self.modelhub = ModelHub.from_github_repo()
         self.modelhub.parse_objects()
+
+    @property
+    def checkbox_selector(self) -> str:
+        return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=checkbox')]"
+
+    @property
+    def challenge_selector(self) -> str:
+        return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
 
     async def click_checkbox(self):
         try:
-            checkbox = self.page.frame_locator("//iframe[contains(@title,'checkbox')]")
-            await checkbox.locator("#checkbox").click()
+            checkbox_frame = self.page.frame_locator(self.checkbox_selector)
+            checkbox_element = checkbox_frame.locator("#checkbox")
+
+            # 等待复选框可见并启用
+            # Playwright 的 click 会自动执行这些检查，但显式等待可以增加确定性
+            await checkbox_element.wait_for(state="visible", timeout=10000) # 等待10秒
+            await checkbox_element.wait_for(state="enabled", timeout=5000)  # 等待5秒
+
+            # Playwright 的 click() 方法会模拟将鼠标移动到元素上然后点击
+            # 添加轻微延迟模拟人类行为
+            await checkbox_element.click(delay=150, timeout=5000)
+
         except TimeoutError as err:
-            logger.warning("Failed to click checkbox", reason=err)
+            logger.warning(f"点击复选框失败：元素未就绪或超时。原因: {err}")
+        except Exception as e:
+            # 捕获其他可能的异常
+            logger.error(f"点击复选框时发生意外错误: {e}")
 
     async def refresh_challenge(self) -> bool | None:
         try:
@@ -179,7 +211,7 @@ class OminousLand(ABC):
 
     page: Page
     tmp_dir: Path
-    ms: MechanicalSkeleton
+    robotic_arm: RoboticArm
     image_queue: Queue
 
     crumb_count = 1
@@ -205,7 +237,7 @@ class OminousLand(ABC):
         inputs: dict | bytes,
         tmp_dir: Path,
         image_queue: Queue,
-        ms: MechanicalSkeleton | None = None,
+        ms: RoboticArm | None = None,
     ):
         # Cache images
         if not isinstance(tmp_dir, Path):
@@ -214,10 +246,10 @@ class OminousLand(ABC):
         typed_dir = tmp_dir / "typed_dir"
         canvas_screenshot_dir = tmp_dir / "canvas_screenshot"
 
-        ms = ms or MechanicalSkeleton(page=page)
+        ms = ms or RoboticArm(page=page)
         monster = cls(
             page=page,
-            ms=ms,
+            robotic_arm=ms,
             tmp_dir=tmp_dir,
             image_queue=image_queue,
             typed_dir=typed_dir,
@@ -248,7 +280,7 @@ class OminousLand(ABC):
         self.canvas_screenshot_dir.mkdir(parents=True, exist_ok=True)
 
     async def _recall_crumb(self):
-        frame_challenge = self.ms.switch_to_challenge_frame()
+        frame_challenge = self.robotic_arm.switch_to_challenge_frame()
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         if await crumbs.first.is_visible():
             self.crumb_count = 2
@@ -257,7 +289,7 @@ class OminousLand(ABC):
 
     async def _recall_tasklist(self, capture_screenshot: bool = True):
         """run after _init_imgdb"""
-        frame_challenge = self.ms.switch_to_challenge_frame()
+        frame_challenge = self.robotic_arm.switch_to_challenge_frame()
 
         if self.qr.request_type == RequestType.ImageLabelBinary:
             images = frame_challenge.locator("//div[@class='task-grid']//div[@class='image']")
@@ -315,16 +347,16 @@ class OminousLand(ABC):
         match self.qr.request_type:
             case RequestType.ImageLabelBinary:
                 try:
-                    await self.ms.challenge_image_label_binary(
+                    await self.robotic_arm.challenge_image_label_binary(
                         label=self.label, challenge_images=self.tasklist
                     )
                 except Exception as err:
                     logger.error(f"An error occurred while processing the challenge task", err=err)
-                    await self.ms.refresh_challenge()
+                    await self.robotic_arm.refresh_challenge()
             case RequestType.ImageLabelAreaSelect:
-                await self.ms.refresh_challenge()
+                await self.robotic_arm.refresh_challenge()
             case RequestType.ImageLabelMultipleChoice:
-                await self.ms.refresh_challenge()
+                await self.robotic_arm.refresh_challenge()
             case _:
                 logger.warning("[INTERRUPT]", reason="Unknown type of challenge")
 
@@ -360,7 +392,7 @@ class OminousLand(ABC):
 
 
 @dataclass
-class ScarletWhisker(OminousLand):
+class ChallengeProblemParser(OminousLand):
     """赤髯 (Chì Rán) ->> json"""
 
     async def _get_captcha(self, **kwargs):
@@ -371,7 +403,7 @@ class ScarletWhisker(OminousLand):
 
 
 @dataclass
-class DemonLordOfHuiYue(OminousLand):
+class ChallengeProblemDecoder(OminousLand):
     """晦月魔君 ->> bytes"""
 
     async def _get_captcha(self, **kwargs):
@@ -380,7 +412,7 @@ class DemonLordOfHuiYue(OminousLand):
         # IMPORTANT
         await self.page.wait_for_timeout(2000)
 
-        frame_challenge = self.ms.switch_to_challenge_frame()
+        frame_challenge = self.robotic_arm.switch_to_challenge_frame()
 
         # requester_question
         prompt_element = frame_challenge.locator("//h2[@class='prompt-text']")
@@ -400,36 +432,29 @@ class DemonLordOfHuiYue(OminousLand):
             self.qr.request_type = RequestType.ImageLabelMultipleChoice.value
 
 
-@dataclass
 class AgentV:
-    page: Page
 
-    ms: MechanicalSkeleton = field(default_factory=MechanicalSkeleton)
-    cr: ChallengeResp = field(default_factory=ChallengeResp)
-    tmp_dir: Path = field(default_factory=Path)
+    def __init__(self, page: Page, tmp_dir: Path = None, **kwargs):
+        self.page = page
 
-    cr_queue: Queue[ChallengeResp] = field(default_factory=Queue)
-    _image_queue: Queue[ChallengeImage] = field(default_factory=Queue)
-    _task_queue: Queue[Response] = field(default_factory=Queue)
+        self.robotic_arm = RoboticArm(page=page)
 
-    _tool_type: ToolExecution | None = None
+        self.tmp_dir = Path("tmp_dir")
+        if isinstance(tmp_dir, Path):
+            self.tmp_dir = tmp_dir
 
-    def __post_init__(self):
-        self.tmp_dir = self.tmp_dir or Path("tmp_dir")
+        self._tool_type: ToolExecution | None = None
+
         self._cache_dir = self.tmp_dir / ".cache"
         self._cache_dir.mkdir(parents=True, exist_ok=True)
-        self._task_queue = Queue(maxsize=1)
+
+        self._task_queue: Queue[Response] = Queue(maxsize=1)
+        self._image_queue: Queue[ChallengeImage] = Queue()
+        self.cr_queue: Queue[ChallengeResp] = Queue()
+
+        self.cr: ChallengeResp = ChallengeResp()
 
         self._enable_evnet_listener(self.page)
-
-    @classmethod
-    def into_solver(cls, page: Page, tmp_dir=None, clip_model: MossCLIP | None = None, **kwargs):
-        ms = MechanicalSkeleton(page=page, clip_model=clip_model)
-        return cls(page=page, ms=ms, tmp_dir=tmp_dir, **kwargs)
-
-    @property
-    def status(self):
-        return Status
 
     def _enable_evnet_listener(self, page: Page):
         page.on("response", self._task_handler)
@@ -478,31 +503,35 @@ class AgentV:
             self._image_queue.put_nowait(element)
 
     @logger.catch
-    async def _tool_execution(self):
+    async def _fetch_qr_data(self) -> OminousLand | None:
         qr_data = await self._task_queue.get()
 
         driver_conf = {
             "page": self.page,
             "tmp_dir": self.tmp_dir,
             "image_queue": self._image_queue,
-            "ms": self.ms,
+            "ms": self.robotic_arm,
         }
         runnable: OminousLand | None = None
 
         match content_type := qr_data.headers.get("content-type"):
             case "application/octet-stream":
                 driver_conf["inputs"] = await qr_data.body()
-                runnable = DemonLordOfHuiYue.draws_from(**driver_conf)
+                runnable = ChallengeProblemDecoder.draws_from(**driver_conf)
             case "application/json":
                 data = await qr_data.json()
                 if data.get("pass"):
                     self.cr_queue.put_nowait(ChallengeResp(**data))
                 else:
                     driver_conf["inputs"] = data
-                    runnable = ScarletWhisker.draws_from(**driver_conf)
+                    runnable = ChallengeProblemParser.draws_from(**driver_conf)
             case _:
                 raise ValueError(f"Unknown Challenge Response Protocol - {content_type=}")
 
+        return runnable
+
+    @logger.catch
+    async def _invoke_solver(self, runnable: OminousLand | None):
         if isinstance(runnable, OminousLand):
             await runnable.invoke(execution=self._tool_type)
 
@@ -511,21 +540,21 @@ class AgentV:
         execution_timeout: float = 90,
         response_timeout: float = 30.0,
         retry_on_failure: bool = True,
-    ) -> Status:
+    ) -> ChallengeSignal:
         self._tool_type = ToolExecution.CHALLENGE
-
-        # Initialize CLIP model
-        if not self.ms.clip_model:
-            modelhub = ModelHub.from_github_repo()
-            self.ms.clip_model = register_pipline(modelhub, fmt="onnx")
 
         # CoroutineTask: Assigning human-computer challenge tasks to the main thread coroutine.
         # Wait for the task to finish executing
         try:
-            await asyncio.wait_for(self._tool_execution(), timeout=execution_timeout)
+            runnable = await self._fetch_qr_data()
+            if not isinstance(runnable, OminousLand):
+                logger.error("qr_data not found")
+                return ChallengeSignal.QR_DATA_NOT_FOUND
+            await asyncio.wait_for(self._invoke_solver(runnable), timeout=execution_timeout)
         except asyncio.TimeoutError:
             logger.error("Challenge execution timed out", timeout=execution_timeout)
-            return self.status.CHALLENGE_EXECUTION_TIMEOUT
+            return ChallengeSignal.EXECUTION_TIMEOUT
+
         logger.debug("Invoke done", _tool_type=self._tool_type)
 
         # CoroutineTask: Assigned a new task
@@ -543,7 +572,7 @@ class AgentV:
             self.cr = await self.cr_queue.get()
         except asyncio.TimeoutError:
             logger.error("Timeout waiting for challenge response", timeout=response_timeout)
-            return self.status.CHALLENGE_RESPONSE_TIMEOUT
+            return ChallengeSignal.TIMEOUT
         else:
             # Match: Timeout / Loss
             if not self.cr or not self.cr.is_pass:
@@ -552,10 +581,10 @@ class AgentV:
                     return await self.wait_for_challenge(
                         execution_timeout, response_timeout, retry_on_failure=retry_on_failure
                     )
-                return self.status.CHALLENGE_RETRY
+                return ChallengeSignal.RETRY
             if self.cr.is_pass:
                 logger.success("Invoke verification", **self.cr.model_dump(by_alias=True))
-                return self.status.CHALLENGE_SUCCESS
+                return ChallengeSignal.SUCCESS
 
     async def wait_for_collect(
         self, point: CollectibleType | None = None, *, batch: int = 20, timeout: float = 30.0
@@ -565,15 +594,15 @@ class AgentV:
         sitelink = Collectible(point=point).fixed_sitelink
 
         await self.page.goto(sitelink)
-        await self.ms.click_checkbox()
+        await self.robotic_arm.click_checkbox()
 
         logger.debug("run collector", url=self.page.url)
 
         if batch >= 1:
             for i in range(1, batch + 1):
                 with suppress(asyncio.TimeoutError):
-                    await asyncio.wait_for(self._tool_execution(), timeout=timeout)
-                if not await self.ms.refresh_challenge():
+                    await asyncio.wait_for(self._fetch_qr_data(), timeout=timeout)
+                if not await self.robotic_arm.refresh_challenge():
                     return await self.wait_for_collect(point=point, batch=batch - i)
 
         logger.success("The dataset collection is complete.", sitelink=sitelink)

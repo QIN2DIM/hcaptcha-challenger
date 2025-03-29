@@ -12,7 +12,7 @@ from pathlib import Path
 from loguru import logger
 
 from hcaptcha_challenger import install, QuestionResp, Answers, Status, ModelHub
-from hcaptcha_challenger.agents import AgentR
+from hcaptcha_challenger.agent import AgentR
 
 WARN = """
 The demo here uses a static file and it cannot run

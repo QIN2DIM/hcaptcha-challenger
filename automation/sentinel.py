@@ -23,7 +23,7 @@ from playwright.async_api import BrowserContext as ASyncContext, async_playwrigh
 
 import hcaptcha_challenger as solver
 from hcaptcha_challenger import label_cleaning, regularize_prompt_message
-from hcaptcha_challenger.agents import AgentT, Malenia
+from hcaptcha_challenger.agent import AgentT, Malenia
 from hcaptcha_challenger.models import QuestionResp
 from hcaptcha_challenger.onnx.yolo import is_matched_ash_of_war
 from hcaptcha_challenger.utils import SiteKey

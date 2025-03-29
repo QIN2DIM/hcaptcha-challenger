@@ -8,7 +8,7 @@ from pathlib import Path
 
 from playwright.async_api import async_playwright
 
-from hcaptcha_challenger.agents import Malenia, AgentT
+from hcaptcha_challenger.agent import Malenia, AgentT
 from hcaptcha_challenger.utils import SiteKey
 
 
@@ -19,7 +19,6 @@ async def _downloader():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(locale="en-US")
-        await Malenia.apply_stealth(context)
         page = await context.new_page()
 
         agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)

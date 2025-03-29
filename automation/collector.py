@@ -28,7 +28,7 @@ from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
 from hcaptcha_challenger import regularize_prompt_message, label_cleaning
-from hcaptcha_challenger.agents import AgentT, Malenia
+from hcaptcha_challenger.agent import AgentT, Malenia
 
 TEMPLATE_BINARY_DATASETS = """
 > Automated deployment @ utc {now}
@@ -317,7 +317,6 @@ class Collector:
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(locale="en-US")
-            await Malenia.apply_stealth(context)
 
             await self._step_preheat(context)
             await self._step_reorganize()

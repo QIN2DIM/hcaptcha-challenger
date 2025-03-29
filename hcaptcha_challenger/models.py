@@ -7,14 +7,17 @@ from __future__ import annotations
 
 import base64
 import shutil
+import uuid
 from enum import Enum
 from pathlib import Path
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Optional, Mapping
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator, UUID4, AnyHttpUrl, Base64Bytes
 
 from hcaptcha_challenger.constant import BAD_CODE, INV
+
+
 
 
 class Status(str, Enum):

@@ -16,8 +16,8 @@ from typing import List, Dict, Literal, Iterable
 
 from PIL import Image
 from loguru import logger
-from playwright.async_api import Page, FrameLocator, Response, Position, Locator
-from playwright.async_api import TimeoutError
+from undetected_playwright.async_api import Page, FrameLocator, Response, Position, Locator
+from undetected_playwright.async_api import TimeoutError
 from tenacity import *
 
 from hcaptcha_challenger.models import Status, QuestionResp, ChallengeResp, RequestType
