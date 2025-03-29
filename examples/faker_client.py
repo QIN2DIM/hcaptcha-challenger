@@ -11,6 +11,7 @@ from pathlib import Path
 from undetected_playwright.async_api import async_playwright, BrowserContext
 
 from hcaptcha_challenger.agent import AgentV
+from hcaptcha_challenger.helper import inject_mouse_visualizer_global
 from hcaptcha_challenger.utils import SiteKey
 
 
@@ -23,6 +24,7 @@ async def mime(context: BrowserContext):
 
     if EXECUTION == "challenge":
         await page.goto(SiteKey.as_sitelink(site_key))
+        await inject_mouse_visualizer_global(page)
         await agent.robotic_arm.click_checkbox()
         await agent.wait_for_challenge()
     elif EXECUTION == "collect":

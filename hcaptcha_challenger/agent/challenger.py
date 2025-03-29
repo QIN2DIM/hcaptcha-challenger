@@ -125,26 +125,23 @@ class RoboticArm:
         return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
 
     async def click_checkbox(self):
-        await inject_mouse_visualizer_global(self.page)
+        checkbox_frame = self.page.frame_locator(self.checkbox_selector)
 
-        try:
-            checkbox_frame = self.page.frame_locator(self.checkbox_selector)
-            checkbox_element = checkbox_frame.locator("#checkbox")
+        # 获取checkbox元素
+        checkbox_element = checkbox_frame.locator("//div[@id='checkbox']")
 
-            # 等待复选框可见并启用
-            # Playwright 的 click 会自动执行这些检查，但显式等待可以增加确定性
-            await checkbox_element.wait_for(state="visible", timeout=10000)  # 等待10秒
-            await checkbox_element.wait_for(state="attached", timeout=5000)  # 等待5秒
+        # 获取元素的位置信息
+        bbox = await checkbox_element.bounding_box()
 
-            # Playwright 的 click() 方法会模拟将鼠标移动到元素上然后点击
-            # 添加轻微延迟模拟人类行为
-            await checkbox_element.click(delay=150, timeout=5000)
+        # 计算元素中心点坐标
+        center_x = bbox['x'] + bbox['width'] / 2
+        center_y = bbox['y'] + bbox['height'] / 2
 
-        except TimeoutError as err:
-            logger.warning(f"点击复选框失败：元素未就绪或超时。原因: {err}")
-        except Exception as e:
-            # 捕获其他可能的异常
-            logger.error(f"点击复选框时发生意外错误: {e}")
+        # 移动鼠标到元素位置
+        await self.page.mouse.move(center_x, center_y)
+
+        # 点击鼠标左键
+        await self.page.mouse.click(center_x, center_y, delay=150)
 
     async def refresh_challenge(self) -> bool | None:
         try:
