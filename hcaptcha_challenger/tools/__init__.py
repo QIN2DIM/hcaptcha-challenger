@@ -9,6 +9,7 @@ from .cv_toolkit import (
     find_similar_objects,
     find_unique_color,
 )
+from .gemini_image_classifier import GeminiImageClassifier
 from .image_downloader import download_challenge_images
 from .image_label_binary import rank_models, match_datalake
 from .match_model import match_model
@@ -28,4 +29,5 @@ __all__ = [
     "match_model",
     "find_unique_color",
     "invoke_clip_tool",
+    "GeminiImageClassifier",
 ]

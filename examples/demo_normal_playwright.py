@@ -115,7 +115,7 @@ async def bytedance():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
         context = await browser.new_context(
-            locale="en-US", record_video_dir=Path("user_data_dir/record")
+            locale="en-US", record_video_dir=Path("tmp/.cache/record")
         )
 
         await hit_challenge(context)

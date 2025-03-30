@@ -54,11 +54,11 @@ __all__ = [
     "install",
 ]
 
-
+LOG_DIR = Path(__file__).parent.joinpath("logs", "{time:YYYY-MM-DD}")
 init_log(
-    runtime=Path("logs/{time:YYYY-MM-DD}/runtime.log"),
-    error=Path("logs/{time:YYYY-MM-DD}/error.log"),
-    serialize=Path("logs/{time:YYYY-MM-DD}/serialize.log"),
+    runtime=LOG_DIR.joinpath("runtime.log"),
+    error=LOG_DIR.joinpath("error.log"),
+    serialize=LOG_DIR.joinpath("serialize.log"),
 )
 
 
