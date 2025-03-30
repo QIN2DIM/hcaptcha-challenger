@@ -15,8 +15,7 @@ from pathlib import Path
 from typing import List
 
 from loguru import logger
-from playwright.async_api import Page, Response, TimeoutError
-from undetected_playwright.async_api import Locator, expect
+from undetected_playwright.async_api import Locator, expect, Page, Response, TimeoutError
 
 from hcaptcha_challenger.models import CaptchaResponse, RequestType
 from hcaptcha_challenger.tools import GeminiImageClassifier

@@ -3,6 +3,8 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
+from ._control import AgentT
+from ._pipline import AgentR
 from .challenger import AgentV, AgentConfig
 
-__all__ = ['AgentV', 'AgentConfig']
+__all__ = ['AgentT', 'AgentV', 'AgentR', 'AgentConfig']

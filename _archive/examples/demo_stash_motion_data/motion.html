@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+        .track-pad {
+            height: 200px;
+            background-color: #FBA827;
+        }
+        .track-monitor {
+            background-color: #DDD4B4;
+        }
+        .track-coordinate {
+            background-color: #707070;
+            color: white;
+            height: 25px;
+            line-height: 25px;
+            font-size: 12px;
+        }
+        .track-coordinate-list {
+            font-size: 12px;
+            width: 100%;
+            word-break: break-word;
+        }
+    </style>
+    <script>
+        window.addEventListener('load', function () {
+            var pad = document.getElementsByClassName('track-pad')[0];
+            var monitor = document.getElementsByClassName('track-monitor')[0];
+            var coordinate = document.getElementsByClassName('track-coordinate')[0];
+            var clist = document.getElementsByClassName('track-coordinate-list')[0];
+            var reset = document.getElementsByTagName('button')[1];
+            var btn_click11 = document.getElementsByTagName('button')[0];
+            var fixSize = function () {
+                monitor.width = window.innerWidth;
+            };
+
+            var context = monitor.getContext('2d');
+            var cset = [];
+
+            window.addEventListener('resize', function () {
+                fixSize();
+            });
+
+            pad.addEventListener('mousemove', function (e) {
+                context.strokeStyle = 'white';
+                context.lineTo(e.x, e.y);
+                context.stroke();
+                coordinate.innerHTML = e.timeStamp + ':' + e.x + ':' + e.y;
+                cset.push(coordinate.innerHTML);
+                clist.innerHTML = cset.join(',');
+            });
+
+            reset.addEventListener('click', function () {
+                fixSize();
+                cset = [];
+                clist.innerHTML = '';
+                coordinate.innerHTML = 'Slide the mouse in the green square';
+            });
+
+            btn_click11.addEventListener('click', function () {
+                if (cset.length < 10) {
+                    console.log('I\'m Robot');
+                    alert('I\'m Robot')
+                } else {
+                    console.log('real people')
+                }
+                fixSize();
+                cset = [];
+                clist.innerHTML = '';
+                coordinate.innerHTML = 'Slide the mouse in the green square';
+            });
+
+            fixSize();
+
+        });
+
+    </script>
+</head>
+<body>
+<div class="stage">
+    <div class="track-pad">
+        <button>
+            Click
+        </button>
+    </div>
+    <canvas width="100" height="200" class="track-monitor"></canvas>
+    <div class="track-coordinate">Slide the mouse in the green square</div>
+    <button>Reset</button>
+    <div class="track-coordinate-list"></div>
+</div>
+</body>
+</html>
