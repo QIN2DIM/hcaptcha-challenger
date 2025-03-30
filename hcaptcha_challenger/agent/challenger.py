@@ -5,10 +5,11 @@
 # Description:
 import asyncio
 import json
+import os
 import re
 from asyncio import Queue
 from contextlib import suppress
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -42,13 +43,26 @@ class ChallengeSignal(str, Enum):
 
 @dataclass
 class AgentConfig:
-    GEMINI_API_KEY: str = ""
+    GEMINI_API_KEY: str = field(default_factory=lambda: os.environ.get("GEMINI_API_KEY", ""))
     cache_dir: Path = Path("tmp/.cache")
     captcha_response_dir: Path = Path("tmp/.captcha")
 
     execution_timeout: float = 90.0
     response_timeout: float = 30.0
     retry_on_failure: bool = True
+
+    def __post_init__(self):
+        """
+        Validates configuration after initialization.
+
+        Raises:
+            ValueError: If GEMINI_API_KEY is not provided and not found in environment variables.
+        """
+        if not self.GEMINI_API_KEY:
+            raise ValueError(
+                "GEMINI_API_KEY is required but not provided. "
+                "Please either pass it directly or set the GEMINI_API_KEY environment variable."
+            )
 
 
 class RoboticArm:
@@ -91,7 +105,7 @@ class RoboticArm:
             logger.warning(f"Failed to click refresh button - {err=}")
 
     async def check_crumb_count(self):
-        """二分类任务中的翻页"""
+        """Page turn in tasks"""
         frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         return 2 if await crumbs.first.is_visible() else 1
@@ -186,7 +200,6 @@ class AgentV:
 
     @logger.catch
     async def _task_handler(self, response: Response):
-        # /cr 在 Submit Event 之后，cr 截至目前是明文数据
         if "/getcaptcha/" in response.url:
             self._task_queue.put_nowait(response)
         elif "/checkcaptcha/" in response.url:
