@@ -24,17 +24,18 @@ Just implement some interfaces to make `AI vs AI` possible.
 
 ## What's features
 
-| Challenge Type                          | Pluggable Resource                                           |
-| --------------------------------------- | ------------------------------------------------------------ |
-| `image_label_binary`                    | ResNet  ONNX classification [#challenge](https://github.com/QIN2DIM/hcaptcha-challenger/issues?q=label%3A%22%F0%9F%94%A5+challenge%22+) |
-| `image_label_area_select: point`        | YOLOv8 ONNX detection  [#588](https://github.com/QIN2DIM/hcaptcha-challenger/issues/588) |
-| `image_label_area_select: bounding box` | YOLOv8 ONNX segmentation  [#592](https://github.com/QIN2DIM/hcaptcha-challenger/issues/592) |
-| `image_label_multiple_choice`           | ViT ONNX zero-shot motion [#917](https://github.com/QIN2DIM/hcaptcha-challenger/issues/917) |
+| Challenge Type                          | Pluggable Resource                                           | Agent Capability |
+| --------------------------------------- | ------------------------------------------------------------ | ---------------- |
+| `image_label_binary`                    | ResNet  ONNX classification [#220401](https://github.com/QIN2DIM/hcaptcha-challenger/issues?q=label%3A%22%F0%9F%94%A5+challenge%22+) | ✅                |
+| `image_label_area_select: point`        | YOLOv8 ONNX detection  [#230826](https://github.com/QIN2DIM/hcaptcha-challenger/issues/588) | TODO             |
+| `image_label_area_select: bounding box` | YOLOv8 ONNX segmentation  [#230828](https://github.com/QIN2DIM/hcaptcha-challenger/issues/592) | TODO             |
+| `image_label_multiple_choice`           | ViT ONNX zero-shot motion [#231109](https://github.com/QIN2DIM/hcaptcha-challenger/issues/917) | TODO             |
 
 | Advanced Task               | Pluggable Resource                                           |
 | --------------------------- | ------------------------------------------------------------ |
-| `Rank.Strategy`             | [#nested-model-zoo](https://github.com/QIN2DIM/hcaptcha-challenger/issues/797) |
-| `self-supervised challenge` | [#CLIP-ViT](https://github.com/QIN2DIM/hcaptcha-challenger/issues/858) |
+| `Rank.Strategy`             | nested-model-zoo [#231006](https://github.com/QIN2DIM/hcaptcha-challenger/issues/797) |
+| `self-supervised challenge` | CLIP-ViT [#231022](https://github.com/QIN2DIM/hcaptcha-challenger/issues/858) |
+| `Agentic Workflow`          | AIOps Multimodal Large language model [#250331](https://github.com/QIN2DIM/hcaptcha-challenger/pull/980) |
 
 ## Workflow
 
