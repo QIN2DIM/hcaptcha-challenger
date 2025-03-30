@@ -1,5 +1,10 @@
+from pathlib import Path
+
 from hcaptcha_challenger.helper import webm_to_mp4
 
 
 def test_webm_to_mp4():
-    webm_to_mp4.invoke(input_path="record/2bcc8ca667ac7c09cef1b38d07e338c1.webm")
+    record_dir = Path("record")
+    if record_dir.is_dir():
+        for wp in record_dir.rglob("*.webm"):
+            webm_to_mp4.invoke(input_path=str(wp.resolve()))
