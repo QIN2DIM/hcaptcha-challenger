@@ -7,10 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from hcaptcha_challenger.models import QuestionResp, CaptchaResponse
 from hcaptcha_challenger.utils import init_log
-
-__all__ = ["QuestionResp", "CaptchaResponse"]
 
 LOG_DIR = Path(__file__).parent.joinpath("logs", "{time:YYYY-MM-DD}")
 

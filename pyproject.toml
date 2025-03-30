@@ -23,30 +23,12 @@ classifiers = [
 ]
 packages = [{ include = "hcaptcha_challenger", format = "sdist" }]
 dependencies = [
-    "bs4",
-    "beautifulsoup4",
-    "lxml",
     "pytz",
-    "httpx[http2]",
+    "httpx",
     "loguru",
-    "tqdm",
-    "pyyaml",
-    "importlib_metadata",
     "pydantic-settings",
-    "tenacity",
     "undetected-playwright-patch",
     "playwright~=1.40.0",
-    "opencv-python~=4.8.0.76",
-    "pillow>=11.1.0",
-    "ftfy>=6.3.1",
-    "regex>=2024.11.6",
-    "scipy>=1.15.2",
-    "scikit-learn>=1.6.1",
-    "scikit-image>=0.25.2",
-    "onnxruntime>=1.21.0",
-    "asyncache>=0.3.1",
-    "cachetools>=5.5.2",
-    "numpy<2.0.0",
     "google-genai>=1.8.0",
 ]
 
