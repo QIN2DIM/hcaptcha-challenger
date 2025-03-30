@@ -12,30 +12,30 @@ script = js_path.read_text(encoding="utf8")
 
 async def inject_mouse_visualizer_global_async(page: AsyncPage):
     """
-    在 Playwright 页面中异步注入鼠标位置可视化效果。
+    Inject mouse position visualization asynchronously in the Playwright page.
 
     Args:
-        page: Playwright 异步 Page 对象
+        page: Playwright Asynchronous Page Object
     """
     await page.evaluate(expression=script)
 
 
 def inject_mouse_visualizer_global_sync(page: SyncPage):
     """
-    在 Playwright 页面中同步注入鼠标位置可视化效果。
+    Synchronously inject mouse position visualizations in the Playwright page.
 
     Args:
-        page: Playwright 同步 Page 对象
+        page: Playwright Synchronize Page Objects
     """
     page.evaluate(script)
 
 
 async def inject_mouse_visualizer_global(page: Union[SyncPage, AsyncPage, USyncPage, UAsyncPage]):
     """
-    在 Playwright 页面中注入鼠标位置可视化效果，支持同步和异步 API。
+    Inject mouse position visualizations into the Playwright page, supporting synchronous and asynchronous APIs.
 
     Args:
-        page: Playwright Page 对象，可以是同步或异步的
+        page: Playwright Page object, can be synchronous or asynchronous
     """
     if isinstance(page, AsyncPage) or isinstance(page, UAsyncPage):
         await inject_mouse_visualizer_global_async(page)

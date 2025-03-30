@@ -5,18 +5,19 @@
 # Description:
 import asyncio
 import json
+import os
 import re
 from asyncio import Queue
 from contextlib import suppress
-from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import List
+from typing import List, Any
 
 from loguru import logger
-from playwright.async_api import Page, Response, TimeoutError
-from undetected_playwright.async_api import Locator, expect
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from undetected_playwright.async_api import Locator, expect, Page, Response, TimeoutError
 
 from hcaptcha_challenger.models import CaptchaResponse, RequestType
 from hcaptcha_challenger.tools import GeminiImageClassifier
@@ -41,15 +42,38 @@ class ChallengeSignal(str, Enum):
     RESPONSE_TIMEOUT = "challenge_response_timeout"
 
 
-@dataclass
-class AgentConfig:
-    GEMINI_API_KEY: str = ""
+class AgentConfig(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
+
+    GEMINI_API_KEY: str = Field(default_factory=lambda: os.environ.get("GEMINI_API_KEY", ""))
     cache_dir: Path = Path("tmp/.cache")
     captcha_response_dir: Path = Path("tmp/.captcha")
 
     execution_timeout: float = 90.0
     response_timeout: float = 30.0
     retry_on_failure: bool = True
+
+    @field_validator('GEMINI_API_KEY', mode="after")
+    @classmethod
+    def validate_api_key(cls, v: Any) -> str:
+        """
+        Validates that the GEMINI_API_KEY is not empty.
+
+        Args:
+            v: The API key value to validate
+
+        Returns:
+            The validated API key
+
+        Raises:
+            ValueError: If the API key is empty
+        """
+        if not v or not isinstance(v, str):
+            raise ValueError(
+                "GEMINI_API_KEY is required but not provided. "
+                "Please either pass it directly or set the GEMINI_API_KEY environment variable."
+            )
+        return v
 
 
 class RoboticArm:
@@ -92,7 +116,7 @@ class RoboticArm:
             logger.warning(f"Failed to click refresh button - {err=}")
 
     async def check_crumb_count(self):
-        """二分类任务中的翻页"""
+        """Page turn in tasks"""
         frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         return 2 if await crumbs.first.is_visible() else 1
@@ -187,7 +211,6 @@ class AgentV:
 
     @logger.catch
     async def _task_handler(self, response: Response):
-        # /cr 在 Submit Event 之后，cr 截至目前是明文数据
         if "/getcaptcha/" in response.url:
             self._task_queue.put_nowait(response)
         elif "/checkcaptcha/" in response.url:
@@ -246,7 +269,7 @@ class AgentV:
 
         try:
             captcha_response = cr.model_dump(mode="json", by_alias=True)
-            current_time = datetime.now().strftime("%Y%m%d/%H%M%S%f")
+            current_time = datetime.now().strftime("%Y%m%d/%Y%m%d%H%M%S%f")
             cache_path = self.config.captcha_response_dir.joinpath(f"{current_time}.json")
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             t = json.dumps(captcha_response, indent=2, ensure_ascii=False)
