@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Iterable
 from urllib.parse import urlparse
 
-from hcaptcha_challenger.models import QuestionResp, Answers, Status, ChallengeResp
+from hcaptcha_challenger.models import QuestionResp, Answers, Status, CaptchaResponse
 from hcaptcha_challenger.onnx.modelhub import ModelHub
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import YOLOv8
@@ -41,7 +41,7 @@ __all__ = [
     "QuestionResp",
     "Answers",
     "Status",
-    "ChallengeResp",
+    "CaptchaResponse",
     "label_cleaning",
     "diagnose_task",
     "regularize_prompt_message",

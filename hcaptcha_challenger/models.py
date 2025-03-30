@@ -7,17 +7,14 @@ from __future__ import annotations
 
 import base64
 import shutil
-import uuid
 from enum import Enum
 from pathlib import Path
-from typing import List, Dict, Any, Union, Optional, Mapping
+from typing import List, Dict, Any, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator, UUID4, AnyHttpUrl, Base64Bytes
 
 from hcaptcha_challenger.constant import BAD_CODE, INV
-
-
 
 
 class Status(str, Enum):
@@ -153,26 +150,37 @@ class QuestionResp(BaseModel):
         Path(fn).write_text(self.model_dump_json(indent=2), encoding="utf8")
 
 
-class ChallengeResp(BaseModel):
-    c: Dict[str, str] = Field(default_factory=dict)
+class CheckCaptchaC(BaseModel):
+    req: str
+    type: str = "hsw"
+
+
+class CaptchaResponse(BaseModel):
+    c: CheckCaptchaC
     """
     type: hsw
     req: eyj0 ...
     """
 
-    is_pass: bool = Field(default=False, alias="pass")
+    is_pass: bool | None = Field(default=False, alias="pass")
     """
     true or false
     """
 
-    generated_pass_UUID: str = ""
+    expiration: int | None = None
     """
+    Return only when the challenge passes. (Optional)
+    """
+
+    generated_pass_UUID: str | None = ""
+    """
+    Return only when the challenge passes. (Optional)
     P1_eyj0 ...
     """
 
-    error: str = ""
+    error: str | None = ""
     """
-    Only available if `pass is False`
+    Return only when the challenge failure. (Optional)
     """
 
 

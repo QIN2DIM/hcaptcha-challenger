@@ -164,3 +164,4 @@ docs/*.md
 node_modules
 pnpm-lock.yaml
 tests/record/*.mp4
+examples/tmp/*

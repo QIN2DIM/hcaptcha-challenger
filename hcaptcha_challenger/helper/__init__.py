@@ -1,3 +1,4 @@
 from .inject_mouse_visualizer import inject_mouse_visualizer_global
+from .wait_loading_indicators import wait_for_all_loading_indicators_hidden_js
 
-__all__ = ["inject_mouse_visualizer_global"]
+__all__ = ["inject_mouse_visualizer_global", "wait_for_all_loading_indicators_hidden_js"]

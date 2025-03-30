@@ -20,7 +20,7 @@ from undetected_playwright.async_api import Page, FrameLocator, Response, Positi
 from undetected_playwright.async_api import TimeoutError
 from tenacity import *
 
-from hcaptcha_challenger.models import Status, QuestionResp, ChallengeResp, RequestType
+from hcaptcha_challenger.models import Status, QuestionResp, CaptchaResponse, RequestType
 from hcaptcha_challenger.onnx.modelhub import ModelHub, DataLake
 from hcaptcha_challenger.onnx.resnet import ResNetControl
 from hcaptcha_challenger.onnx.yolo import (
@@ -60,10 +60,10 @@ class Radagon:
     """
 
     qr: QuestionResp | None = None
-    cr: ChallengeResp | None = None
+    cr: CaptchaResponse | None = None
 
     qr_queue: asyncio.Queue[QuestionResp] | None = None
-    cr_queue: asyncio.Queue[ChallengeResp] | None = None
+    cr_queue: asyncio.Queue[CaptchaResponse] | None = None
 
     this_dir: Path = Path(__file__).parent
     """
@@ -138,14 +138,14 @@ class Radagon:
                 qr.cache(tmp_dir=self.record_json_dir)
                 self.qr_queue.put_nowait(qr)
                 if data.get("pass"):
-                    cr = ChallengeResp(**data)
+                    cr = CaptchaResponse(**data)
                     self.cr_queue.put_nowait(cr)
             except Exception as err:
                 logger.exception(err)
         if response.url.startswith("https://api.hcaptcha.com/checkcaptcha/"):
             try:
                 metadata = await response.json()
-                cr = ChallengeResp(**metadata)
+                cr = CaptchaResponse(**metadata)
                 self.cr_queue.put_nowait(cr)
             except Exception as err:
                 logger.exception(err)

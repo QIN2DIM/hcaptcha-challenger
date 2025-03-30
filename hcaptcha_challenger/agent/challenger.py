@@ -4,18 +4,21 @@
 # GitHub     : https://github.com/QIN2DIM
 # Description:
 import asyncio
+import json
+import re
 from asyncio import Queue
 from contextlib import suppress
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
+from typing import List
 
 from loguru import logger
 from playwright.async_api import Page, Response, TimeoutError
-from undetected_playwright.async_api import Locator
+from undetected_playwright.async_api import Locator, expect
 
-from hcaptcha_challenger.models import ChallengeResp, RequestType
+from hcaptcha_challenger.models import CaptchaResponse, RequestType
 from hcaptcha_challenger.tools import GeminiImageClassifier
 
 HOOK_PURCHASE = "//div[@id='webPurchaseContainer']//iframe"
@@ -35,7 +38,6 @@ class ChallengeSignal(str, Enum):
     SUCCESS = "success"
     FAILURE = "failure"
     START = "start"
-    TIMEOUT = "timeout"
     RETRY = "retry"
     QR_DATA_NOT_FOUND = "qr_data_not_found"
     EXECUTION_TIMEOUT = "challenge_execution_timeout"
@@ -51,6 +53,7 @@ class TaskPayloadType(str, Enum):
 class AgentConfig:
     GEMINI_API_KEY: str = ""
     cache_dir: Path = Path("tmp/.cache")
+    captcha_response_dir: Path = Path("tmp/.captcha")
 
     execution_timeout: float = 90.0
     response_timeout: float = 30.0
@@ -124,12 +127,35 @@ class RoboticArm:
 
         # todo: multiple
 
+    async def wait_for_all_loaders_complete(self):
+        """Wait for all loading indicators to complete (become invisible)"""
+        frame_challenge = self.switch_to_challenge_frame()
+
+        loading_indicators = frame_challenge.locator("//div[@class='loading-indicator']")
+        count = await loading_indicators.count()
+
+        if count == 0:
+            logger.info("No load indicator found in the page")
+            return True
+
+        for i in range(count):
+            loader = loading_indicators.nth(i)
+            try:
+                await expect(loader).to_have_attribute(
+                    "style", re.compile(r"opacity:\s*0"), timeout=30000
+                )
+                await loading_indicators.nth(i).get_attribute("style")  # It cannot be removed
+            except TimeoutError:
+                logger.warning(f"The load indicator {i + 1}/{count} waits for a timeout")
+
+        return True
+
     async def challenge_image_label_binary(self):
         frame_challenge = self.switch_to_challenge_frame()
         crumb_count = await self.check_crumb_count()
 
         for _ in range(crumb_count):
-            await self.page.wait_for_timeout(1000)
+            await self.wait_for_all_loaders_complete()
 
             # Get challenge-view
             challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
@@ -142,21 +168,18 @@ class RoboticArm:
             results = self._gic.invoke(challenge_screenshot=cache_path)
             boolean_matrix = results.convert_box_to_boolean_matrix()
 
-            logger.debug(f"Challenge Prompt: {results.challenge_prompt}")
-            logger.debug(f"Coordinates: {results.coordinates}")
-            logger.debug(f"Results: {boolean_matrix}")
+            logger.debug(f'ToolInvokeMessage: {results.log_message}')
 
             # drive the browser to work on the challenge
             positive_cases = 0
+            xpath_task_image = "//div[@class='task' and contains(@aria-label, '{index}')]"
             for i, should_be_clicked in enumerate(boolean_matrix):
                 if should_be_clicked:
-                    xpath = f"//div[@class='task' and contains(@aria-label, '{i+1}')]"
-                    task_image = frame_challenge.locator(xpath)
+                    task_image = frame_challenge.locator(xpath_task_image.format(index=i + 1))
                     await self.click_by_mouse(task_image)
                     positive_cases += 1
                 elif positive_cases == 0 and i == len(boolean_matrix) - 1:
-                    xpath = f"//div[@class='task' and contains(@aria-label, '1')]"
-                    task_image = frame_challenge.locator(xpath)
+                    task_image = frame_challenge.locator(xpath_task_image.format(index=1))
                     await self.click_by_mouse(task_image)
 
             # {{< Verify >}}
@@ -174,7 +197,8 @@ class AgentV:
         self.robotic_arm = RoboticArm(page=page, config=agent_config)
 
         self._task_queue: Queue[Response] = Queue()
-        self._challenge_resp_queue: Queue[ChallengeResp] = Queue()
+        self._captcha_response_queue: Queue[CaptchaResponse] = Queue()
+        self.cr_list: List[CaptchaResponse] = []
 
         self.page.on("response", self._task_handler)
 
@@ -186,7 +210,7 @@ class AgentV:
         elif "/checkcaptcha/" in response.url:
             try:
                 metadata = await response.json()
-                self._challenge_resp_queue.put_nowait(ChallengeResp(**metadata))
+                self._captcha_response_queue.put_nowait(CaptchaResponse(**metadata))
             except Exception as err:
                 logger.exception(err)
 
@@ -201,7 +225,8 @@ class AgentV:
         ):
             data = await the_latest_task.json()
             if data.get("pass"):
-                self._challenge_resp_queue.put_nowait(ChallengeResp(**data))
+                cr = CaptchaResponse(**data)
+                self._captcha_response_queue.put_nowait(cr)
                 return True
 
         return False
@@ -215,7 +240,7 @@ class AgentV:
                 try:
                     await self.robotic_arm.challenge_image_label_binary()
                 except Exception as err:
-                    logger.error(f"An error occurred while processing the challenge task - {err=}")
+                    logger.error(f"ChallengeException - {err=}")
                     await self.robotic_arm.refresh_challenge()
             # todo NotSupported ImageLabelAreaSelect
             case RequestType.ImageLabelAreaSelect:
@@ -230,51 +255,55 @@ class AgentV:
             case _:
                 logger.error("[INTERRUPT]", reason="Unknown type of challenge")
 
-    async def wait_for_challenge(self) -> ChallengeSignal:
-        execution_timeout = self.config.execution_timeout
-        response_timeout = self.config.response_timeout
-        retry_on_failure = self.config.retry_on_failure
+    def _cache_validated_captcha_response(self, cr: CaptchaResponse):
+        if not cr.is_pass:
+            return
 
+        self.cr_list.append(cr)
+
+        try:
+            captcha_response = cr.model_dump(mode="json", by_alias=True)
+            current_time = datetime.now().strftime("%Y%m%d/%H%M%S%f")
+            cache_path = self.config.captcha_response_dir.joinpath(f"{current_time}.json")
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            t = json.dumps(captcha_response, indent=2, ensure_ascii=False)
+            cache_path.write_text(t, encoding="utf-8")
+        except Exception as err:
+            logger.error(f"Saving captcha response failed - {err}")
+
+    async def wait_for_challenge(self) -> ChallengeSignal:
         # Assigning human-computer challenge tasks to the main thread coroutine.
         # ----------------------------------------------------------------------
         try:
             is_pre_bypass = await self._check_pre_bypass()
             if not is_pre_bypass:
-                await asyncio.wait_for(self._solve_captcha(), timeout=execution_timeout)
+                await asyncio.wait_for(self._solve_captcha(), timeout=self.config.execution_timeout)
         except asyncio.TimeoutError:
-            logger.error("Challenge execution timed out", timeout=execution_timeout)
+            logger.error("Challenge execution timed out", timeout=self.config.execution_timeout)
             return ChallengeSignal.EXECUTION_TIMEOUT
-
-        logger.debug("Invoke done", _tool_type="challenge")
-
-        # fixme debugger
-        await self.page.pause()
-
-        # Assigned a new task
-        # -------------------
-        # The possible reason is that the challenge was **manually** refreshed during the task.
-        while self._challenge_resp_queue.empty():
-            if not self._task_queue.empty():
-                return await self.wait_for_challenge()
-            await asyncio.sleep(0.01)
 
         # Waiting for hCAPTCHA response processing result
         # -----------------------------------------------
         # After the completion of the human-machine challenge workflow,
         # it is expected to obtain a signal indicating whether the challenge was successful in the cr_queue.
-        self.cr = ChallengeResp()
+        logger.debug("Start checking captcha response")
         try:
-            self.cr = await self._challenge_resp_queue.get()
+            cr = await self._captcha_response_queue.get()
         except asyncio.TimeoutError:
-            logger.error("Timeout waiting for challenge response", timeout=response_timeout)
-            return ChallengeSignal.TIMEOUT
+            logger.error(f"Wait for captcha response timeout {self.config.response_timeout}s")
+            return ChallengeSignal.EXECUTION_TIMEOUT
         else:
             # Match: Timeout / Loss
-            if not self.cr or not self.cr.is_pass:
-                if retry_on_failure:
-                    logger.error("Invoke verification", is_pass=self.cr.is_pass)
+            if not cr or not cr.is_pass:
+                if self.config.retry_on_failure:
+                    logger.warning("Failed to challenge, try to retry the strategy")
+                    await self.page.wait_for_timeout(1500)
+                    _signal = await self._task_queue.get()
+                    self._task_queue.put_nowait(_signal)
                     return await self.wait_for_challenge()
-                return ChallengeSignal.RETRY
-            if self.cr.is_pass:
-                logger.success("Invoke verification", **self.cr.model_dump(by_alias=True))
+                return ChallengeSignal.FAILURE
+            # Match: Success
+            if cr.is_pass:
+                logger.success("Challenge success")
+                self._cache_validated_captcha_response(cr)
                 return ChallengeSignal.SUCCESS
