@@ -35,16 +35,18 @@ async def challenge(context: BrowserContext):
     # Create a new page in the provided browser context
     page = await context.new_page()
 
+    # Navigate to the hCaptcha test page using a predefined site key
+    # SiteKey.user_easy likely refers to a test/demo hCaptcha with lower difficulty
+    await page.goto(SiteKey.as_sitelink(SiteKey.user_easy))
+
+    # --- Suppose you encounter hCaptcha in your browser ---
+
     # Initialize the agent configuration with API key (from parameters or environment)
     agent_config = AgentConfig()
 
     # Create an agent instance with the page and configuration
     # AgentV appears to be a specialized agent for visual challenges
     agent = AgentV(page=page, agent_config=agent_config)
-
-    # Navigate to the hCaptcha test page using a predefined site key
-    # SiteKey.user_easy likely refers to a test/demo hCaptcha with lower difficulty
-    await page.goto(SiteKey.as_sitelink(SiteKey.user_easy))
 
     # Click the hCaptcha checkbox to initiate the challenge
     # The robotic_arm is an abstraction for performing UI interactions
