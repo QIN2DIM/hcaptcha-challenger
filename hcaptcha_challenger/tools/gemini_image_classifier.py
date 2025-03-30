@@ -11,6 +11,22 @@ from google.genai import types
 from loguru import logger
 from pydantic import BaseModel, Field
 
+THINKING_PROMPT = """
+Solve the challenge, use [0,0] ~ [2,2] to locate 9grid, output the coordinates of the correct answer as json.
+
+Follow the following format to return a coordinates wrapped with a json code block:
+```json
+{
+  "challenge_prompt": "please click on the largest animal",
+  "coordinates": [
+    {"box_2d": [0,0]},
+    {"box_2d": [1,2]},
+    {"box_2d": [2,1]}
+  ]
+}
+```
+"""
+
 
 class BoundingBoxCoordinate(BaseModel):
     box_2d: List[int] = Field(
@@ -57,23 +73,6 @@ class ImageBinaryChallenge(BaseModel):
         _coordinates = [i.box_2d for i in self.coordinates]
         bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": str(_coordinates)}
         return json.dumps(bundle, indent=2, ensure_ascii=False)
-
-
-THINKING_PROMPT = """
-Solve the challenge, use [0,0] ~ [2,2] to locate 9grid, output the coordinates of the correct answer as json.
-
-Follow the following format to return a coordinates wrapped with a json code block:
-```json
-{
-  "challenge_prompt": "please click on the largest animal",
-  "coordinates": [
-    {"box_2d": [0,0]},
-    {"box_2d": [1,2]},
-    {"box_2d": [2,1]}
-  ]
-}
-```
-"""
 
 
 def extract_json_blocks(text: str) -> List[str]:
