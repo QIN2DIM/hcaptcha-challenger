@@ -27,8 +27,8 @@ from github.Issue import Issue
 from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
-from hcaptcha_challenger import split_prompt_message, label_cleaning
-from hcaptcha_challenger.agents import AgentT, Malenia
+from hcaptcha_challenger import regularize_prompt_message, label_cleaning
+from hcaptcha_challenger.agent import AgentT, Malenia
 
 TEMPLATE_BINARY_DATASETS = """
 > Automated deployment @ utc {now}
@@ -81,7 +81,7 @@ class Gravitas:
             self.mixed_label = self.issue.title.split(" ")[1].strip()
             self.parent_prompt = self.issue.title.split("@")[-1].strip()
         else:
-            self.mixed_label = split_prompt_message(self.challenge_prompt, lang="en")
+            self.mixed_label = regularize_prompt_message(self.challenge_prompt)
             self.parent_prompt = "image_label_binary"
 
     @classmethod
@@ -245,7 +245,7 @@ class Collector:
 
         await page.goto(sitelink)
 
-        await agent.handle_checkbox()
+        await agent.click_checkbox()
 
         for pth in range(1, self.per_times + 1):
             with suppress(Exception):
@@ -317,7 +317,6 @@ class Collector:
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(locale="en-US")
-            await Malenia.apply_stealth(context)
 
             await self._step_preheat(context)
             await self._step_reorganize()

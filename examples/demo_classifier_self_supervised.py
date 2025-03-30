@@ -14,7 +14,7 @@ from hcaptcha_challenger import handle, ModelHub, DataLake, register_pipline
 solver.install(upgrade=True, clip=True)
 
 assets_dir = Path(__file__).parent.parent.joinpath("assets")
-images_dir = assets_dir.joinpath("image_label_binary", "off_road_vehicle")
+images_dir = assets_dir.joinpath("image_label_binary/off_road_vehicle")
 
 prompt = "Please click each image containing a sedan car"
 
@@ -33,7 +33,7 @@ def prelude_self_supervised_config():
     modelhub.parse_objects()
     for prompt_, serialized_binary in datalake_post.items():
         modelhub.datalake[prompt_] = DataLake.from_serialized(serialized_binary)
-    clip_model = register_pipline(modelhub)
+    clip_model = register_pipline(modelhub, fmt="onnx")
 
     return modelhub, clip_model
 
@@ -49,13 +49,30 @@ def get_test_images() -> List[Path]:
 
 
 def demo():
+    def output_markdown_preview():
+        """# pip install pandas tabulate"""
+        try:
+            import pandas as pd
+            import tabulate
+        except ImportError:
+            for image_path, result in zip(image_paths, results):
+                print(image_path, f"{result=}")
+        else:
+            output = [
+                {"image": f"![]({image_path})", "result": result}
+                for image_path, result in zip(image_paths, results)
+            ]
+            mdk = pd.DataFrame.from_records(output).to_markdown()
+            mdk = f"- prompt: `{prompt}`\n\n{mdk}"
+            Path("result.md").write_text(mdk, encoding="utf8")
+            print(mdk)
+
     modelhub, clip_model = prelude_self_supervised_config()
     image_paths = get_test_images()
 
     classifier = solver.BinaryClassifier(modelhub=modelhub, clip_model=clip_model)
     if results := classifier.execute(prompt, image_paths, self_supervised=True):
-        for image_path, result in zip(image_paths, results):
-            print(f"{image_path.name=} - {result=} {classifier.model_name=}")
+        output_markdown_preview()
 
 
 if __name__ == "__main__":

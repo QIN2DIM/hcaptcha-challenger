@@ -8,7 +8,7 @@ from pathlib import Path
 
 from playwright.async_api import async_playwright
 
-from hcaptcha_challenger.agents import Malenia, AgentT
+from hcaptcha_challenger.agent import Malenia, AgentT
 from hcaptcha_challenger.utils import SiteKey
 
 
@@ -19,7 +19,6 @@ async def _normal_instance():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(locale="en-US")
-        await Malenia.apply_stealth(context)
         page = await context.new_page()
 
         agent = AgentT.from_page(page=page, tmp_dir=tmp_dir)
@@ -27,7 +26,7 @@ async def _normal_instance():
         sitelink = SiteKey.as_sitelink(SiteKey.user_easy)
         await page.goto(sitelink)
 
-        await agent.handle_checkbox()
+        await agent.click_checkbox()
 
         await agent._reset_state()
         if not agent.qr.requester_question.keys():

@@ -155,3 +155,13 @@ assets/image_label_binary/off_road_vehicle/20**
 profile_pluggable_model.md
 ./*.png
 tests/record_json
+docs/lvm_challenge/*.jpeg
+docs/lvm_challenge/*.png
+logs
+examples/*.md
+docs/logs/
+docs/*.md
+node_modules
+pnpm-lock.yaml
+tests/record/*.mp4
+examples/tmp/*

@@ -1,6 +1,6 @@
 <div align="center">
     <h1> hCaptcha Challenger</h1>
-    <p>🚀 Gracefully face hCaptcha challenge with MoE(ONNX) embedded solution.</p>
+    <p>🚀 Gracefully face hCaptcha challenge with multimodal large language model.</p>
     <img src="https://img.shields.io/pypi/v/hcaptcha-challenger?style=flat-square&logo=python&logoColor=white">
     <img src="https://img.shields.io/pypi/dw/hcaptcha-challenger?style=flat-square&logo=aiqfome&label=downloads%40PyPI">
     <a href="https://github.com/QIN2DIM/hcaptcha-challenger/releases"><img src="https://img.shields.io/github/downloads/QIN2DIM/hcaptcha-challenger/model/total?style=flat-square&logo=github"></a>

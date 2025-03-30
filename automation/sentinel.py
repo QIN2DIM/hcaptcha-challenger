@@ -22,8 +22,9 @@ from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright, Page
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger import label_cleaning, split_prompt_message
-from hcaptcha_challenger.agents import AgentT, QuestionResp, Malenia
+from hcaptcha_challenger import label_cleaning, regularize_prompt_message
+from hcaptcha_challenger.agent import AgentT, Malenia
+from hcaptcha_challenger.models import QuestionResp
 from hcaptcha_challenger.onnx.yolo import is_matched_ash_of_war
 from hcaptcha_challenger.utils import SiteKey
 
@@ -168,7 +169,7 @@ class Pigeon:
             since=datetime.now() - timedelta(days=14),
             assignee=self.assignees[0],
         ):
-            mixed_label = split_prompt_message(self.issue_prompt, lang="en")
+            mixed_label = regularize_prompt_message(self.issue_prompt)
             if issue.created_at + timedelta(hours=24) > datetime.now():
                 issue.add_to_labels("🏹 ci: sentinel")
             if mixed_label in issue.title.lower():
@@ -228,7 +229,7 @@ class Sentinel:
         sitelink = SiteKey.as_sitelink(sitekey)
         await page.goto(sitelink)
 
-        await agent.handle_checkbox()
+        await agent.click_checkbox()
 
         for pth in range(1, batch + 1):
             try:

@@ -1,18 +1,16 @@
-# https://python-poetry.org/docs/libraries/#versioning
-# https://pypi.org/project/hcaptcha-challenger/#history
-
-[tool.poetry]
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-optional-dependencies
+[project]
 name = "hcaptcha-challenger"
-version = "0.10.1-post2"
+version = "0.11.0"
 description = "🥂 Gracefully face hCaptcha challenge with MoE(ONNX) embedded solution."
 license = "GPL-3.0-or-later"
 authors = ["QIN2DIM <yaoqinse@gmail.com>", "Bingjie Yan <bj.yan.pa@qq.com>"]
 readme = "README.md"
+requires-python = ">=3.10"
 homepage = "https://github.com/QIN2DIM/hcaptcha-challenger"
 repository = "https://github.com/QIN2DIM/hcaptcha-challenger"
 documentation = "https://github.com/QIN2DIM/hcaptcha-challenger"
 keywords = ["hcaptcha", "hcaptcha-challenger", "hcaptcha-solver"]
-packages = [{ include = "hcaptcha_challenger", format = "sdist" }]
 classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -23,102 +21,41 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
 ]
-
-[virtualenvs]
-# https://python-poetry.org/docs/configuration/#virtualenvsin-project
-# Create a `.venv` virtual environment in the project root
-in-project = true
-
-# https://python-poetry.org/docs/pyproject/#dependencies-and-dependency-groups
-[tool.poetry.dependencies]
-python = "^3.8"
-
-# Run `poetry install` in the project root
-opencv-python = "^4.8.0.76"
-numpy = "^1.24.4"
-httpx = { version = "*", extras = ["http2"] }
-onnxruntime = "1.16.1"
-loguru = "*"
-tqdm = "*"
-pyyaml = "*"
-scikit-learn = "^1.3.1"
-scikit-image = "^0.21.0"
-importlib_metadata = "*"
-ftfy = "*"
-regex = "*"
-pydantic = "^2.5.1"
-tenacity = "^8.2.3"
-# The following dependencies will not be installed
-# when you just run `poetry install` or `pip install hcaptcha-challenger`
-undetected-chromedriver = { version = "^3.5.3", optional = true }
-webdriver-manager = { version = "^4.0.1", optional = true }
-selenium = { version = "*", optional = true }
-playwright = { version = "*", optional = true }
-PyGithub = { version = "^1.59.1", optional = true }
-istockphoto = { version = "0.1.2", optional = true }
-fastapi = { version = "*", optional = true }
-uvicorn = { version = "*", extras = ["standard"], optional = true }
-
-[tool.poetry.group.test.dependencies]
-# https://docs.pytest.org/en/stable/reference/plugin_list.html#plugin-list
-# https://docs.pytest.org/en/stable/contents.html
-pytest = "*"
-# https://pytest-asyncio.readthedocs.io/en/latest/
-pytest-asyncio = "*"
-# https://pytest-cov.readthedocs.io/en/latest/readme.html
-pytest-cov = "*"
-# https://pytest-xdist.readthedocs.io/en/stable/
-pytest-xdist = { version = "*", extras = ["psutil"] }
-# https://black.readthedocs.io/en/stable/
-black = { version = "*", extras = ["jupyter"] }
-# https://github.com/pythonprofilers/memory_profiler
-memory-profiler = "*"
+packages = [{ include = "hcaptcha_challenger", format = "sdist" }]
+dependencies = [
+    "bs4",
+    "beautifulsoup4",
+    "lxml",
+    "pytz",
+    "httpx[http2]",
+    "loguru",
+    "tqdm",
+    "pyyaml",
+    "importlib_metadata",
+    "pydantic-settings",
+    "tenacity",
+    "undetected-playwright-patch",
+    "playwright~=1.40.0",
+    "opencv-python~=4.8.0.76",
+    "pillow>=11.1.0",
+    "ftfy>=6.3.1",
+    "regex>=2024.11.6",
+    "scipy>=1.15.2",
+    "scikit-learn>=1.6.1",
+    "scikit-image>=0.25.2",
+    "onnxruntime>=1.21.0",
+    "asyncache>=0.3.1",
+    "cachetools>=5.5.2",
+    "numpy<2.0.0",
+    "google-genai>=1.8.0",
+]
 
 [tool.pytest.ini_options]
-# https://docs.pytest.org/en/stable/reference/reference.html#configuration-options
 testpaths = ["tests", "examples"]
 asyncio_mode = "auto"
 filterwarnings = "ignore::DeprecationWarning"
 
 [tool.black]
 line-length = 100
-target-version = ["py38", "py39", "py310", "py311"]
-skip-magic-trailing-comma = true
-
-[tool.poetry.extras]
-# 1. Running `poetry install -E [extras]` will install the general dependencies
-# and specified dependencies at the same time.
-
-# 2. The `-E` parameter can accept multiple extras-names,
-# that is, if you only specify one extra, poetry will first uninstall the other extras installed
-# and then try to install the extra you specified
-
-# 3. Install all extra dependencies with `--all-extras`.
-# poetry install --all-extras
-
-# Developer: `poetry install -E selenium`
-# User: `pip install hcaptcha-challenger[selenium]`
-selenium = ["selenium", "undetected-chromedriver", "webdriver-manager"]
-
-# Developer: `poetry install -E playwright`
-# User: `pip install hcaptcha-challenger[playwright]`
-playwright = ["playwright"]
-
-# Developer: `poetry install -E sentinel`
-# --> ci: sentinel
-# --> ci: collector
-sentinel = ["playwright", "PyGithub"]
-
-# Developer: `poetry install -E istock`
-# --> pull open source datasets
-istock = ["istockphoto"]
-
-# Developer: `poetry install -E server`
-# User: `pip install hcaptcha-challenger[server]`
-# https://fastapi.tiangolo.com/tutorial/
-# https://www.uvicorn.org/#quickstart
-server = ["fastapi", "uvicorn", "playwright", "PyGithub"]
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+target-version = ["py310", "py311", "py312"]
+skip-string-normalization = true

@@ -5,8 +5,8 @@ on:
 
   # “At minute 7 past every 2nd hour.”
   # https://crontab.guru/
-  schedule:
-    - cron: "7 */2 * * *"
+  #  schedule:
+  #    - cron: "7 */2 * * *"
 
 jobs:
   check_new_challenge:

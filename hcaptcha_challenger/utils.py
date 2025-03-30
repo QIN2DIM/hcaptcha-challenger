@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import inspect
+import os
 import random
 import subprocess
 import sys
@@ -13,11 +14,24 @@ import uuid
 from shlex import quote
 from typing import Dict, Any, Literal
 
+import pytz
 from loguru import logger
 
 
 def init_log(**sink_channel):
-    event_logger_format = "<g>{time:YYYY-MM-DD HH:mm:ss}</g> | <lvl>{level}</lvl> - {message}"
+    """
+    Initialize the log configuration
+
+    Parameter:
+        sink_channel: A dictionary containing different log output channels
+        - error: The path to the error log file
+        - runtime: The path to the runtime log file
+        - serialize: serialize the log file path
+    """
+    log_level = os.getenv("LOG_LEVEL", "DEBUG").upper()
+
+    shanghai_tz = pytz.timezone("Asia/Shanghai")
+
     persistent_format = (
         "<g>{time:YYYY-MM-DD HH:mm:ss}</g> | "
         "<lvl>{level}</lvl>    | "
@@ -25,30 +39,47 @@ def init_log(**sink_channel):
         "{message} - "
         "{extra}"
     )
-    serialize_format = event_logger_format + " - {extra}"
-    logger.remove()
-    logger.add(
-        sink=sys.stdout, colorize=True, level="DEBUG", format=serialize_format, diagnose=False
+
+    stdout_format = (
+        "<g>{time:YYYY-MM-DD HH:mm:ss}</g> | "
+        "<lvl>{level:<8}</lvl>    | "
+        "<c>{name}</c>:<c>{function}</c>:<c>{line}</c> | "
+        "<n>{message}</n>"
     )
+
+    logger.remove()
+
+    logger.add(
+        sink=sys.stdout,
+        colorize=True,
+        level=log_level,
+        format=stdout_format,
+        diagnose=False,
+        filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
+    )
+
     if sink_channel.get("error"):
         logger.add(
             sink=sink_channel.get("error"),
             level="ERROR",
-            rotation="1 week",
+            rotation="5 MB",
+            retention="7 days",
             encoding="utf8",
             diagnose=False,
-            format=persistent_format,
+            filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
         )
+
     if sink_channel.get("runtime"):
         logger.add(
             sink=sink_channel.get("runtime"),
-            level="DEBUG",
-            rotation="20 MB",
-            retention="20 days",
+            level="TRACE",
+            rotation="5 MB",
+            retention="7 days",
             encoding="utf8",
             diagnose=False,
-            format=persistent_format,
+            filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
         )
+
     if sink_channel.get("serialize"):
         logger.add(
             sink=sink_channel.get("serialize"),
@@ -57,7 +88,9 @@ def init_log(**sink_channel):
             encoding="utf8",
             diagnose=False,
             serialize=True,
+            filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
         )
+
     return logger
 
 
