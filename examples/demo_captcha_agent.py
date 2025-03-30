@@ -6,9 +6,8 @@
 from __future__ import annotations
 
 import asyncio
-from pathlib import Path
 
-from undetected_playwright.async_api import async_playwright, BrowserContext, ViewportSize
+from undetected_playwright.async_api import async_playwright, BrowserContext
 
 from hcaptcha_challenger.agent import AgentV, AgentConfig
 from hcaptcha_challenger.utils import SiteKey
@@ -64,8 +63,8 @@ async def main():
         context = await p.chromium.launch_persistent_context(
             user_data_dir="tmp/.cache/user_data",
             headless=False,
-            record_video_dir=Path("tmp/.cache/record"),
-            record_video_size=ViewportSize(width=1920, height=1080),
+            # record_video_dir=Path("tmp/.cache/record"),
+            # record_video_size=ViewportSize(width=1920, height=1080),
             locale="en-US",
         )
         await challenge(context)
