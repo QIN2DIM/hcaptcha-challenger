@@ -21,9 +21,6 @@ from undetected_playwright.async_api import Locator, expect
 from hcaptcha_challenger.models import CaptchaResponse, RequestType
 from hcaptcha_challenger.tools import GeminiImageClassifier
 
-HOOK_PURCHASE = "//div[@id='webPurchaseContainer']//iframe"
-HOOK_CHALLENGE = "//iframe[contains(@title, 'hCaptcha challenge')]"
-
 
 class ChallengeSignal(str, Enum):
     """
@@ -42,11 +39,6 @@ class ChallengeSignal(str, Enum):
     QR_DATA_NOT_FOUND = "qr_data_not_found"
     EXECUTION_TIMEOUT = "challenge_execution_timeout"
     RESPONSE_TIMEOUT = "challenge_response_timeout"
-
-
-class TaskPayloadType(str, Enum):
-    PLAINTEXT = "plaintext"
-    CIPHERTEXT = "ciphertext"
 
 
 @dataclass
@@ -99,25 +91,16 @@ class RoboticArm:
         except TimeoutError as err:
             logger.warning(f"Failed to click refresh button - {err=}")
 
-    def switch_to_challenge_frame(self, window: str = "login"):
-        if window == "login":
-            frame_challenge = self.page.frame_locator(self.challenge_selector)
-        else:
-            frame_purchase = self.page.frame_locator(HOOK_PURCHASE)
-            frame_challenge = frame_purchase.frame_locator(self.challenge_selector)
-
-        return frame_challenge
-
     async def check_crumb_count(self):
         """二分类任务中的翻页"""
-        frame_challenge = self.switch_to_challenge_frame()
+        frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         return 2 if await crumbs.first.is_visible() else 1
 
     async def check_challenge_type(self) -> RequestType:
         await self.page.wait_for_selector(self.challenge_selector)
 
-        frame_challenge = self.switch_to_challenge_frame()
+        frame_challenge = self.page.frame_locator(self.challenge_selector)
         samples = frame_challenge.locator("//div[@class='task-image']")
         count = await samples.count()
         if isinstance(count, int) and count == 9:
@@ -129,7 +112,7 @@ class RoboticArm:
 
     async def wait_for_all_loaders_complete(self):
         """Wait for all loading indicators to complete (become invisible)"""
-        frame_challenge = self.switch_to_challenge_frame()
+        frame_challenge = self.page.frame_locator(self.challenge_selector)
 
         loading_indicators = frame_challenge.locator("//div[@class='loading-indicator']")
         count = await loading_indicators.count()
@@ -151,7 +134,7 @@ class RoboticArm:
         return True
 
     async def challenge_image_label_binary(self):
-        frame_challenge = self.switch_to_challenge_frame()
+        frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumb_count = await self.check_crumb_count()
 
         for _ in range(crumb_count):

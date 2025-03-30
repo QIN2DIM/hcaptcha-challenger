@@ -19,6 +19,7 @@ async def mime(context: BrowserContext):
     page = await context.new_page()
 
     agent_config = AgentConfig(GEMINI_API_KEY=os.environ["GEMINI_API_KEY"])
+
     agent = AgentV(page=page, agent_config=agent_config)
 
     await page.goto(SiteKey.as_sitelink(SiteKey.user_easy))
