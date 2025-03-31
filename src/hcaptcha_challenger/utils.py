@@ -118,8 +118,8 @@ class SiteKey:
     user_difficult = "3fac610f-4879-4fd5-919b-ca072a134a79"
 
     @staticmethod
-    def as_sitelink(
-        sitekey: Literal["discord", "epic", "easy", "moderate", "difficult", "user"] | str
+    def as_site_link(
+        site_key: Literal["discord", "epic", "easy", "moderate", "difficult", "user"] | str
     ):
         keymap = {
             "discord": SiteKey.discord,
@@ -130,14 +130,14 @@ class SiteKey:
             "difficult": SiteKey.user_difficult,
         }
         url = "https://accounts.hcaptcha.com/demo"
-        if sitekey in keymap:
-            return f"{url}?sitekey={keymap[sitekey]}"
+        if site_key in keymap:
+            return f"{url}?sitekey={keymap[site_key]}"
 
         try:
-            uuid.UUID(sitekey)
-            return f"{url}?sitekey={sitekey}"
+            uuid.UUID(site_key)
+            return f"{url}?sitekey={site_key}"
         except ValueError:
-            raise ValueError(f"sitekey is a string in UUID format, but you entered `{sitekey}`")
+            raise ValueError(f"sitekey is a string in UUID format, but you entered `{site_key}`")
 
     @staticmethod
     def choice():

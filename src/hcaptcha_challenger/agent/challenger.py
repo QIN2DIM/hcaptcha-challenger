@@ -15,12 +15,13 @@ from pathlib import Path
 from typing import List, Any
 
 from loguru import logger
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from undetected_playwright.async_api import Locator, expect, Page, Response, TimeoutError
 
 from hcaptcha_challenger.models import CaptchaResponse, RequestType
 from hcaptcha_challenger.tools import ImageClassifier
+from hcaptcha_challenger.tools.image_classifier import VCOTModelType
 
 
 class ChallengeSignal(str, Enum):
@@ -45,15 +46,20 @@ class ChallengeSignal(str, Enum):
 class AgentConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
-    GEMINI_API_KEY: str = Field(default_factory=lambda: os.environ.get("GEMINI_API_KEY", ""))
+    GEMINI_API_KEY: SecretStr = Field(default_factory=lambda: os.environ.get("GEMINI_API_KEY", ""))
+
     cache_dir: Path = Path("tmp/.cache")
     captcha_response_dir: Path = Path("tmp/.captcha")
 
-    execution_timeout: float = 90.0
-    response_timeout: float = 30.0
-    retry_on_failure: bool = True
+    EXECUTION_TIMEOUT: float = Field(default=90.0, description="second")
+    RESPONSE_TIMEOUT: float = Field(default=30.0, description="second")
+    RETRY_ON_FAILURE: bool = Field(default=True)
 
-    @field_validator('GEMINI_API_KEY', mode="after")
+    WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS: int = Field(default=1500, description="millisecond")
+
+    IMAGE_CLASSIFIER_MODEL: VCOTModelType = Field(default="gemini-2.0-flash-thinking-exp-01-21")
+
+    @field_validator('GEMINI_API_KEY', mode="before")
     @classmethod
     def validate_api_key(cls, v: Any) -> str:
         """
@@ -72,6 +78,7 @@ class AgentConfig(BaseSettings):
             raise ValueError(
                 "GEMINI_API_KEY is required but not provided. "
                 "Please either pass it directly or set the GEMINI_API_KEY environment variable."
+                "Create API Key -> https://aistudio.google.com/app/apikey"
             )
         return v
 
@@ -82,7 +89,9 @@ class RoboticArm:
         self.page = page
         self.config = config
 
-        self._image_classifier = ImageClassifier(gemini_api_key=self.config.GEMINI_API_KEY)
+        self._image_classifier = ImageClassifier(
+            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
+        )
 
     @property
     def checkbox_selector(self) -> str:
@@ -138,6 +147,8 @@ class RoboticArm:
         """Wait for all loading indicators to complete (become invisible)"""
         frame_challenge = self.page.frame_locator(self.challenge_selector)
 
+        await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
+
         loading_indicators = frame_challenge.locator("//div[@class='loading-indicator']")
         count = await loading_indicators.count()
 
@@ -172,7 +183,9 @@ class RoboticArm:
             await challenge_view.screenshot(type="png", path=cache_path)
 
             # Image classification
-            results = self._image_classifier.invoke(challenge_screenshot=cache_path)
+            results = self._image_classifier.invoke(
+                challenge_screenshot=cache_path, model=self.config.IMAGE_CLASSIFIER_MODEL
+            )
             boolean_matrix = results.convert_box_to_boolean_matrix()
 
             logger.debug(f'ToolInvokeMessage: {results.log_message}')
@@ -283,9 +296,9 @@ class AgentV:
         try:
             is_pre_bypass = await self._check_pre_bypass()
             if not is_pre_bypass:
-                await asyncio.wait_for(self._solve_captcha(), timeout=self.config.execution_timeout)
+                await asyncio.wait_for(self._solve_captcha(), timeout=self.config.EXECUTION_TIMEOUT)
         except asyncio.TimeoutError:
-            logger.error("Challenge execution timed out", timeout=self.config.execution_timeout)
+            logger.error("Challenge execution timed out", timeout=self.config.EXECUTION_TIMEOUT)
             return ChallengeSignal.EXECUTION_TIMEOUT
 
         # Waiting for hCAPTCHA response processing result
@@ -296,12 +309,12 @@ class AgentV:
         try:
             cr = await self._captcha_response_queue.get()
         except asyncio.TimeoutError:
-            logger.error(f"Wait for captcha response timeout {self.config.response_timeout}s")
+            logger.error(f"Wait for captcha response timeout {self.config.RESPONSE_TIMEOUT}s")
             return ChallengeSignal.EXECUTION_TIMEOUT
         else:
             # Match: Timeout / Loss
             if not cr or not cr.is_pass:
-                if self.config.retry_on_failure:
+                if self.config.RETRY_ON_FAILURE:
                     logger.warning("Failed to challenge, try to retry the strategy")
                     await self.page.wait_for_timeout(1500)
                     _signal = await self._task_queue.get()

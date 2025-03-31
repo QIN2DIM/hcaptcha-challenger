@@ -1,4 +1,3 @@
-import io
 import json
 import os
 import re
@@ -26,6 +25,12 @@ Follow the following format to return a coordinates wrapped with a json code blo
 }
 ```
 """
+
+USER_PROMPT = """
+Solve the challenge, use [0,0] ~ [2,2] to locate 9grid, output the coordinates of the correct answer as json.
+"""
+
+VCOTModelType = Literal["gemini-2.5-pro-exp-03-25", "gemini-2.0-flash-thinking-exp-01-21"]
 
 
 class BoundingBoxCoordinate(BaseModel):
@@ -123,11 +128,9 @@ class ImageClassifier:
         self._api_key = gemini_api_key
 
     def invoke(
-            self,
-            challenge_screenshot: Union[str, Path, os.PathLike, io.IOBase],
-            model: Literal[
-                "gemini-2.5-pro-exp-03-25", "gemini-2.0-flash-thinking-exp-01-21"
-            ] = "gemini-2.0-flash-thinking-exp-01-21",
+        self,
+        challenge_screenshot: Union[str, Path, os.PathLike],
+        model: VCOTModelType = "gemini-2.0-flash-thinking-exp-01-21",
     ) -> ImageBinaryChallenge:
         """
         Process an image challenge and return the solution coordinates.
@@ -181,9 +184,7 @@ class ImageClassifier:
                 role="user",
                 parts=[
                     types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type),
-                    types.Part.from_text(
-                        text="""Solve the challenge, use [0,0] ~ [2,2] to locate 9grid, output the coordinates of the correct answer as json."""
-                    ),
+                    types.Part.from_text(text=USER_PROMPT),
                 ],
             )
         ]
