@@ -69,7 +69,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+_archive/docs/_build/
 
 # PyBuilder
 target/
@@ -149,9 +149,9 @@ examples/*.png
 docs/*.xmind
 tests_private/
 .run/
-assets/image_label_binary/off_road_vehicle/yes
-assets/image_label_binary/off_road_vehicle/bad
-assets/image_label_binary/off_road_vehicle/20**
+_archive/assets/image_label_binary/off_road_vehicle/yes
+_archive/assets/image_label_binary/off_road_vehicle/bad
+_archive/assets/image_label_binary/off_road_vehicle/20**
 profile_pluggable_model.md
 ./*.png
 tests/record_json
@@ -159,7 +159,7 @@ docs/lvm_challenge/*.jpeg
 docs/lvm_challenge/*.png
 logs
 examples/*.md
-docs/logs/
+_archive/docs/logs/
 docs/*.md
 node_modules
 pnpm-lock.yaml

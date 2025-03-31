@@ -10,13 +10,12 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
-class CRC(BaseModel):
-    req: str
-    type: str = "hsw"
-
-
 class CaptchaResponse(BaseModel):
-    c: CRC
+    class Token(BaseModel):
+        req: str
+        type: str = "hsw"
+
+    c: Token
     """
     type: hsw
     req: eyj0 ...
