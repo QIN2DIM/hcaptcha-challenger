@@ -250,13 +250,13 @@ class AgentV:
                     await self.robotic_arm.refresh_challenge()
             # todo NotSupported ImageLabelAreaSelect
             case RequestType.ImageLabelAreaSelect:
-                await self.robotic_arm.refresh_challenge()
                 await self.page.wait_for_timeout(2000)
+                await self.robotic_arm.refresh_challenge()
                 return await self._solve_captcha()  # fixme
             # todo NotSupported ImageLabelAreaSelect
             case RequestType.ImageLabelMultipleChoice:
-                await self.robotic_arm.refresh_challenge()
                 await self.page.wait_for_timeout(2000)
+                await self.robotic_arm.refresh_challenge()
                 return await self._solve_captcha()  # fixme
             case _:
                 logger.error("[INTERRUPT]", reason="Unknown type of challenge")
