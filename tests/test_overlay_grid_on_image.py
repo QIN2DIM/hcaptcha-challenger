@@ -18,17 +18,17 @@ def test_overlay_grid_on_image():
         bbox = ((int(s[0] * 0.03), int(s[1] * 0.2)), (int(s[0] * 0.85), int(s[1] * 0.83)))
 
         # Create grid references with different division levels
-        for divisions in [2]:
+        divisions = 2
 
-            # Overlay grid on the sample image
-            result_image = overlay_grid_on_image(real_image, bbox, divisions)
+        # Overlay grid on the sample image
+        result_image = overlay_grid_on_image(real_image, bbox, divisions)
 
-            # Display the result
-            cv2.imshow(f"Grid with {divisions} divisions", result_image)
-            cv2.waitKey(0)
+        # Display the result
+        cv2.imshow(f"Grid with {divisions} divisions", result_image)
+        cv2.waitKey(0)
 
-            # Save the result
-            cv2.imwrite(f"grid_divisions_{divisions}.jpg", result_image)
+        # Save the result
+        cv2.imwrite(f"grid_divisions_{divisions}.jpg", result_image)
 
         cv2.destroyAllWindows()
 

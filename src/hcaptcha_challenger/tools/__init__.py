@@ -4,7 +4,8 @@
 # GitHub     : https://github.com/QIN2DIM
 # Description:
 
-from .image_classifier import ImageClassifier
 from .challenge_classifier import ChallengeClassifier
+from .image_classifier import ImageClassifier
+from .spatial_grid_reasoning import SpatialGridReasoner
 
-__all__ = ["ImageClassifier", 'ChallengeClassifier']
+__all__ = ["ImageClassifier", 'ChallengeClassifier', 'SpatialGridReasoner']

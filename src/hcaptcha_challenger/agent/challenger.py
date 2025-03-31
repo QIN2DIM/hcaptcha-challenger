@@ -13,6 +13,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Any, Tuple
 
+import cv2
+from PIL import Image
 from loguru import logger
 from pydantic import Field, field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -25,6 +27,7 @@ from undetected_playwright.async_api import (
     FrameLocator,
 )
 
+from hcaptcha_challenger.helper.rasterization import overlay_grid_on_image
 from hcaptcha_challenger.models import (
     CaptchaResponse,
     RequestType,
@@ -32,7 +35,7 @@ from hcaptcha_challenger.models import (
     VCOTModelType,
     FastShotModelType,
 )
-from hcaptcha_challenger.tools import ImageClassifier, ChallengeClassifier
+from hcaptcha_challenger.tools import ImageClassifier, ChallengeClassifier, SpatialGridReasoner
 from hcaptcha_challenger.tools.challenge_classifier import ChallengeTypeEnum
 
 
@@ -52,6 +55,9 @@ class AgentConfig(BaseSettings):
 
     IMAGE_CLASSIFIER_MODEL: VCOTModelType = Field(default="gemini-2.0-flash-thinking-exp-01-21")
     CHALLENGE_CLASSIFIER_MODEL: FastShotModelType = Field(default='gemini-2.0-flash')
+    SPATIAL_GRID_REASONER_MODEL: VCOTModelType = Field(
+        default="gemini-2.0-flash-thinking-exp-01-21"
+    )
 
     @field_validator('GEMINI_API_KEY', mode="before")
     @classmethod
@@ -83,9 +89,14 @@ class RoboticArm:
         self.page = page
         self.config = config
 
-        self._image_classifier = ImageClassifier(self.config.GEMINI_API_KEY.get_secret_value())
+        self._image_classifier = ImageClassifier(
+            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
+        )
         self._challenge_classifier = ChallengeClassifier(
-            self.config.GEMINI_API_KEY.get_secret_value()
+            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
+        )
+        self._spatial_grid_reasoner = SpatialGridReasoner(
+            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
         )
 
     @property
@@ -222,7 +233,63 @@ class RoboticArm:
 
         for _ in range(crumb_count):
             # Get challenge-view
-            cache_path = await self._capture_challenge_view(frame_challenge)
+            raw_cache_path = await self._capture_challenge_view(frame_challenge)
+
+            # Draw grid field
+            image_raw = cv2.imread(str(raw_cache_path.resolve()))
+            s = image_raw.shape
+            bbox = ((int(s[0] * 0.03), int(s[1] * 0.2)), (int(s[0] * 0.85), int(s[1] * 0.83)))
+            result_image = overlay_grid_on_image(image_raw, bbox, grid_divisions=2)
+            image_posting = Image.fromarray(result_image)
+
+            # Save grid field
+            cache_dir = self.config.cache_dir.joinpath("spatial_grid")
+            current_time = datetime.now().strftime("%Y%m%d%H%M%S%f")
+            spatial_grid_cache_path = cache_dir.joinpath(f"{current_time}.png")
+            spatial_grid_cache_path.parent.mkdir(parents=True, exist_ok=True)
+            image_posting.save(str(spatial_grid_cache_path.resolve()))
+
+            # Inference
+            results = self._spatial_grid_reasoner.invoke(
+                challenge_screenshot=raw_cache_path,
+                grid_divisions=spatial_grid_cache_path,
+                model=self.config.SPATIAL_GRID_REASONER_MODEL,
+            )
+            logger.debug(f'ToolInvokeMessage: {results.log_message}')
+
+            x, y = results.coordinates[0].box_2d
+            challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
+            bbox = await challenge_view.bounding_box()
+
+            # 获取滑块位置（右侧拖动点）
+            drag_x = int(bbox["x"] + bbox["width"] * 0.92)
+            drag_y = int(bbox["y"] + bbox["height"] * 0.40)
+
+            # 计算目标位置
+            # 根据栅格坐标计算实际平面坐标
+            # 这里使用 3 作为除数是因为 grid_divisions=2 生成了 3x3 的栅格 (0,0) 到 (2,2)
+            grid_size = 3  # 基于 grid_divisions=2 生成 3x3 栅格
+
+            # 计算单位格子的宽度和高度
+            cell_width = bbox["width"] * 0.82 / grid_size
+            cell_height = bbox["height"] * 0.63 / grid_size
+
+            # 计算左上角原点位置
+            origin_x = bbox["x"] + bbox["width"] * 0.03
+            origin_y = bbox["y"] + bbox["height"] * 0.20
+
+            # 计算目标中心点位置
+            target_x = int(origin_x + (x + 0.5) * cell_width)
+            target_y = int(origin_y + (y + 0.5) * cell_height)
+
+            # 执行鼠标拖动
+            print(f"找寻滑块位置 - point=({drag_x}, {drag_y})")
+            await self.page.mouse.move(drag_x, drag_y)
+            await self.page.mouse.down(button='left')
+            input("--- wait ---")
+            print(f"寻找落点 - point=({target_x}, {target_y})")
+            await self.page.mouse.move(target_x, target_y)
+            await self.page.mouse.up(button='left')
 
 
 class AgentV:

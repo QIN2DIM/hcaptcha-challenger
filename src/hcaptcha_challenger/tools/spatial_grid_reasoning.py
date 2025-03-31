@@ -17,9 +17,7 @@ Follow the following format to return a coordinates wrapped with a json code blo
 ```json
 {
   "challenge_prompt": "Please click, hold, and drag the element on the right to the shape that is most similar",
-  "coordinates": [
-    {"box_2d": [0,0]},
-  ]
+  "coordinates": [{"box_2d": [0,0]}]
 }
 ```
 """
@@ -71,6 +69,7 @@ class SpatialGridReasoner:
                     temperature=0, system_instruction=THINKING_PROMPT
                 ),
             )
+            print(response.text)
             # Extract and parse JSON from text response
             return ImageBinaryChallenge(**extract_first_json_block(response.text))
 
