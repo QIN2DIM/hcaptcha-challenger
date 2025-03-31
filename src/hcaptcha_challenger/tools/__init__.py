@@ -4,6 +4,6 @@
 # GitHub     : https://github.com/QIN2DIM
 # Description:
 
-from .gemini_image_classifier import GeminiImageClassifier
+from .image_classifier import ImageClassifier
 
-__all__ = ["GeminiImageClassifier"]
+__all__ = ["ImageClassifier"]
