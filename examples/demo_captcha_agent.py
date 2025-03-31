@@ -6,10 +6,12 @@
 from __future__ import annotations
 
 import asyncio
+import json
 
 from undetected_playwright.async_api import async_playwright, BrowserContext
 
 from hcaptcha_challenger.agent import AgentV, AgentConfig
+from hcaptcha_challenger.models import CaptchaResponse
 from hcaptcha_challenger.utils import SiteKey
 
 
@@ -58,6 +60,10 @@ async def challenge(context: BrowserContext):
 
     # Note: The code ends here, suggesting this is part of a larger solution
     # that would continue with challenge solving steps after this point
+    if agent.cr_list:
+        cr: CaptchaResponse = agent.cr_list[-1]
+        print(json.dumps(cr.model_dump(by_alias=True), indent=2, ensure_ascii=False))
+        return cr
 
 
 async def main():
