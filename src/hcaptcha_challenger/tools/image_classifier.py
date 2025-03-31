@@ -40,30 +40,25 @@ class ImageBinaryChallenge(BaseModel):
 
     def convert_box_to_boolean_matrix(self) -> List[bool]:
         """
-        将坐标列表转换为一维布尔矩阵。
+        Converts the coordinate list to a one-dimensional Boolean matrix.
 
-        将 3x3 矩阵中的坐标转换为一维布尔列表，其中：
-        - [0,0] 对应索引 0
-        - [0,1] 对应索引 1
+        Convert coordinates in a 3x3 matrix to a one-dimensional boolean list where:
+        - [0,0] Corresponding index 0
+        - [0,1] Corresponding index 1
         - ...
-        - [2,2] 对应索引 8
+        - [2,2] Corresponding index 8
 
         Returns:
-            List[bool]: 长度为9的布尔列表，坐标位置为True，其他位置为False
+            List[bool]: Boolean list with length 9, coordinate position is True, other positions are False
         """
-        # 初始化一个长度为9的布尔列表，全部为False
+        # Initialize a boolean list of length 9, all False
         result = [False] * 9
 
-        # 遍历所有坐标
         for coord in self.coordinates:
-            # 获取二维坐标
             row, col = coord.box_2d
 
-            # 验证坐标是否在有效范围内
             if 0 <= row < 3 and 0 <= col < 3:
-                # 将二维坐标转换为一维索引: index = row * 3 + col
                 index = row * 3 + col
-                # 将对应位置设置为True
                 result[index] = True
 
         return result
@@ -77,25 +72,20 @@ class ImageBinaryChallenge(BaseModel):
 
 def extract_json_blocks(text: str) -> List[str]:
     """
-    从文本中提取被 ```json 和 ``` 包围的 JSON 代码块内容。
+    Extract the contents of JSON code blocks surrounded by ```json and ``` from the text.
 
     Args:
-        text: 包含可能的 JSON 代码块的字符串
+        text: String containing possible JSON code blocks
 
     Returns:
-        提取出的 JSON 内容列表，不包含 ```json 和 ``` 标记
-
-    Examples:
-        >>> text = "这是一些文本 ```json\\n{\\n  \\"name\\": \\"John\\"\\n}\\n``` 后面还有内容"
-        >>> extract_json_blocks(text)
-        ['{\n  "name": "John"\n}']
+        Extracted JSON content list, not containing ```json and ``` tags
     """
     try:
-        # 使用正则表达式匹配 ```json 和 ``` 之间的内容
+        # Use regular expressions to match the content between ```json and ``
         pattern = r"```json\s*([\s\S]*?)```"
         matches = re.findall(pattern, text)
 
-        # 如果没有找到匹配项，记录警告并返回空列表
+        # If no match is found, record the warning and return to the empty list
         if not matches:
             logger.warning("No JSON code blocks found in the provided text")
             return []
@@ -108,35 +98,64 @@ def extract_json_blocks(text: str) -> List[str]:
 
 def extract_first_json_block(text: str) -> dict:
     """
-    从文本中提取第一个被 ```json 和 ``` 包围的 JSON 代码块内容。
+    Extract the first JSON code block contents surrounded by ```json and ``` from the text.
 
     Args:
-        text: 包含可能的 JSON 代码块的字符串
+        text: String containing possible JSON code blocks
 
     Returns:
-        提取出的第一个 JSON 内容，如果没有找到则返回 None
+        The first JSON content extracted, if not found, returns None
     """
     if blocks := extract_json_blocks(text):
         return json.loads(blocks[0])
 
 
-class GeminiImageClassifier:
+class ImageClassifier:
+    """
+    A classifier that uses Google's Gemini AI models to analyze and solve image-based challenges.
+
+    This class provides functionality to process screenshots of binary image challenges
+    (typically grid-based selection challenges) and determine the correct answer coordinates.
+    """
+
     def __init__(self, gemini_api_key: str):
+        """Initialize the classifier with a Gemini API key."""
         self._api_key = gemini_api_key
 
     def invoke(
-        self,
-        challenge_screenshot: Union[str, Path, os.PathLike, io.IOBase],
-        model: Literal[
-            "gemini-2.5-pro-exp-03-25", "gemini-2.0-flash-thinking-exp-01-21"
-        ] = "gemini-2.0-flash-thinking-exp-01-21",
+            self,
+            challenge_screenshot: Union[str, Path, os.PathLike, io.IOBase],
+            model: Literal[
+                "gemini-2.5-pro-exp-03-25", "gemini-2.0-flash-thinking-exp-01-21"
+            ] = "gemini-2.0-flash-thinking-exp-01-21",
     ) -> ImageBinaryChallenge:
+        """
+        Process an image challenge and return the solution coordinates.
+
+        The method handles two different Gemini model approaches:
+        1. For "gemini-2.0-flash-thinking-exp-01-21": Uses a thinking prompt and extracts JSON from text response
+        2. For other models: Uses structured JSON response schema directly
+
+        Args:
+            challenge_screenshot: The image file containing the challenge to solve
+            model: The Gemini model to use for processing. Must support both visual
+               capabilities and chain-of-thought (COT) reasoning. The default
+               "gemini-2.0-flash-thinking-exp-01-21" is optimized for spatial
+               reasoning with visual inputs, while "gemini-2.5-pro-exp-03-25"
+               offers enhanced visual understanding with structured outputs.
+
+        Returns:
+            ImageBinaryChallenge: Object containing the solution coordinates
+        """
+        # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)
 
+        # Upload the challenge image file
         files = [client.files.upload(file=challenge_screenshot)]
 
-        # NOT support JSON response schema
+        # Handle models that don't support JSON response schema
         if model in ["gemini-2.0-flash-thinking-exp-01-21"]:
+            # Create content with only the image
             contents = [
                 types.Content(
                     role="user",
@@ -145,6 +164,7 @@ class GeminiImageClassifier:
                     ],
                 )
             ]
+            # Generate response using thinking prompt
             response = client.models.generate_content(
                 model=model,
                 contents=contents,
@@ -152,9 +172,10 @@ class GeminiImageClassifier:
                     temperature=0, system_instruction=THINKING_PROMPT
                 ),
             )
+            # Extract and parse JSON from text response
             return ImageBinaryChallenge(**extract_first_json_block(response.text))
 
-        # Use JSON response schema
+        # Handle models that support JSON response schema
         contents = [
             types.Content(
                 role="user",
@@ -166,6 +187,7 @@ class GeminiImageClassifier:
                 ],
             )
         ]
+        # Generate structured JSON response
         response = client.models.generate_content(
             model=model,
             contents=contents,
@@ -176,4 +198,5 @@ class GeminiImageClassifier:
             ),
         )
 
+        # Return parsed response as ImageBinaryChallenge object
         return ImageBinaryChallenge(**response.parsed.model_dump())

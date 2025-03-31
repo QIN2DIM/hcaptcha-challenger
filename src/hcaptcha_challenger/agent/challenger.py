@@ -20,7 +20,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from undetected_playwright.async_api import Locator, expect, Page, Response, TimeoutError
 
 from hcaptcha_challenger.models import CaptchaResponse, RequestType
-from hcaptcha_challenger.tools import GeminiImageClassifier
+from hcaptcha_challenger.tools import ImageClassifier
 
 
 class ChallengeSignal(str, Enum):
@@ -82,7 +82,7 @@ class RoboticArm:
         self.page = page
         self.config = config
 
-        self._gic = GeminiImageClassifier(gemini_api_key=self.config.GEMINI_API_KEY)
+        self._image_classifier = ImageClassifier(gemini_api_key=self.config.GEMINI_API_KEY)
 
     @property
     def checkbox_selector(self) -> str:
@@ -172,7 +172,7 @@ class RoboticArm:
             await challenge_view.screenshot(type="png", path=cache_path)
 
             # Image classification
-            results = self._gic.invoke(challenge_screenshot=cache_path)
+            results = self._image_classifier.invoke(challenge_screenshot=cache_path)
             boolean_matrix = results.convert_box_to_boolean_matrix()
 
             logger.debug(f'ToolInvokeMessage: {results.log_message}')

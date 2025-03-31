@@ -2,9 +2,9 @@ import os
 
 from loguru import logger
 
-from hcaptcha_challenger.tools import GeminiImageClassifier
+from hcaptcha_challenger.tools import ImageClassifier
 
-gic = GeminiImageClassifier(gemini_api_key=os.getenv("GEMINI_API_KEY"))
+gic = ImageClassifier(gemini_api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def test_gemini_image_classifier():
