@@ -5,5 +5,6 @@
 # Description:
 
 from .image_classifier import ImageClassifier
+from .challenge_classifier import ChallengeClassifier
 
-__all__ = ["ImageClassifier"]
+__all__ = ["ImageClassifier", 'ChallengeClassifier']

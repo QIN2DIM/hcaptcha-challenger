@@ -39,13 +39,13 @@ async def challenge(context: BrowserContext):
 
     # Navigate to the hCaptcha test page using a predefined site key
     # SiteKey.user_easy likely refers to a test/demo hCaptcha with lower difficulty
-    # await page.goto(SiteKey.as_site_link(SiteKey.discord))
-    await page.goto(SiteKey.as_site_link(SiteKey.user_easy))
+    await page.goto(SiteKey.as_site_link(SiteKey.discord))
+    # await page.goto(SiteKey.as_site_link(SiteKey.user_easy))
 
     # --- Suppose you encounter hCaptcha in your browser ---
 
     # Initialize the agent configuration with API key (from parameters or environment)
-    agent_config = AgentConfig(IMAGE_CLASSIFIER_MODEL="gemini-2.5-pro-exp-03-25")
+    agent_config = AgentConfig()
 
     # Create an agent instance with the page and configuration
     # AgentV appears to be a specialized agent for visual challenges
