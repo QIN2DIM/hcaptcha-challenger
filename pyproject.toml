@@ -2,7 +2,7 @@
 [project]
 name = "hcaptcha-challenger"
 version = "0.11.0"
-description = "🥂 Gracefully face hCaptcha challenge with MoE(ONNX) embedded solution."
+description = "🥂 Gracefully face hCaptcha challenge with multimodal large language model."
 license = "GPL-3.0-or-later"
 authors = ["QIN2DIM <yaoqinse@gmail.com>", "Bingjie Yan <bj.yan.pa@qq.com>"]
 readme = "README.md"
