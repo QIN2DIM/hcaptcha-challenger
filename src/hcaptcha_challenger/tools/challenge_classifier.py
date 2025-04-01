@@ -25,6 +25,7 @@ Your task is to classify challenge questions into one of four types:
 - For clicking/selecting tasks:
   - If the question implies selecting ONE item/area, output `image_label_single_select`
   - If the question implies selecting MULTIPLE items/areas, output `image_label_multi_select`
+  - IF the question implies 9grid selection, output `image_label_multi_select`
 - For dragging tasks:
   - If the question implies dragging ONE item/element, output `image_drag_single`
   - If the question implies dragging MULTIPLE items/elements, output `image_drag_multi`
