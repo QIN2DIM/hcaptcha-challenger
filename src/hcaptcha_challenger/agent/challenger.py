@@ -403,9 +403,6 @@ class AgentV:
             logger.error("Challenge execution timed out", timeout=self.config.EXECUTION_TIMEOUT)
             return ChallengeSignal.EXECUTION_TIMEOUT
 
-        # fixme debugger
-        await self.page.pause()
-
         # Waiting for hCAPTCHA response processing result
         # -----------------------------------------------
         # After the completion of the human-machine challenge workflow,
