@@ -5,7 +5,7 @@ import os
 from google import genai
 from google.genai import types
 
-from hcaptcha_challenger.models import VCOTModelType, ImageBinaryChallenge
+from hcaptcha_challenger.models import SCOTModelType, ImageBinaryChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 
 THINKING_PROMPT = """
@@ -38,7 +38,7 @@ class SpatialGridReasoner:
         self,
         challenge_screenshot: Union[str, Path, os.PathLike],
         grid_divisions: Union[str, Path, os.PathLike],
-        model: VCOTModelType = "gemini-2.0-flash-thinking-exp-01-21",
+        model: SCOTModelType = "gemini-2.0-flash-thinking-exp-01-21",
     ):
         # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)

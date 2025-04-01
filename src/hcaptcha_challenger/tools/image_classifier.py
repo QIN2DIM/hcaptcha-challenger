@@ -5,7 +5,7 @@ from typing import Union
 from google import genai
 from google.genai import types
 
-from hcaptcha_challenger.models import VCOTModelType, ImageBinaryChallenge
+from hcaptcha_challenger.models import SCOTModelType, ImageBinaryChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 
 THINKING_PROMPT = """
@@ -44,7 +44,7 @@ class ImageClassifier:
     def invoke(
         self,
         challenge_screenshot: Union[str, Path, os.PathLike],
-        model: VCOTModelType = "gemini-2.0-flash-thinking-exp-01-21",
+        model: SCOTModelType = "gemini-2.0-flash-thinking-exp-01-21",
     ) -> ImageBinaryChallenge:
         """
         Process an image challenge and return the solution coordinates.

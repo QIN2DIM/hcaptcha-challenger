@@ -94,7 +94,7 @@ class RequestType(str, Enum):
     MULTI_CHALLENGE = "multi_challenge"
 
 
-VCOTModelType = Literal["gemini-2.5-pro-exp-03-25", "gemini-2.0-flash-thinking-exp-01-21"]
+SCOTModelType = Literal["gemini-2.5-pro-exp-03-25", "gemini-2.0-flash-thinking-exp-01-21"]
 
 FastShotModelType = Literal["gemini-2.0-flash", "gemini-2.0-flash-thinking-exp-01-21"]
 

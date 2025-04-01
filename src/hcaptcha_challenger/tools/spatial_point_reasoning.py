@@ -5,7 +5,7 @@ from typing import Union
 from google import genai
 from google.genai import types
 
-from hcaptcha_challenger.models import VCOTModelType, ImageAreaSelectChallenge
+from hcaptcha_challenger.models import SCOTModelType, ImageAreaSelectChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 
 THINKING_PROMPT = """
@@ -38,7 +38,7 @@ class SpatialPointReasoner:
         challenge_screenshot: Union[str, Path, os.PathLike],
         grid_divisions: Union[str, Path, os.PathLike],
         auxiliary_information: str | None = "",
-        model: VCOTModelType = "gemini-2.5-pro-exp-03-25",
+        model: SCOTModelType = "gemini-2.5-pro-exp-03-25",
     ) -> ImageAreaSelectChallenge:
         # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)

@@ -34,7 +34,7 @@ from hcaptcha_challenger.models import (
     CaptchaResponse,
     RequestType,
     ChallengeSignal,
-    VCOTModelType,
+    SCOTModelType,
     FastShotModelType,
 )
 from hcaptcha_challenger.tools import (
@@ -60,12 +60,12 @@ class AgentConfig(BaseSettings):
 
     WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS: int = Field(default=1500, description="millisecond")
 
-    IMAGE_CLASSIFIER_MODEL: VCOTModelType = Field(default="gemini-2.0-flash-thinking-exp-01-21")
+    IMAGE_CLASSIFIER_MODEL: SCOTModelType = Field(default="gemini-2.0-flash-thinking-exp-01-21")
     CHALLENGE_CLASSIFIER_MODEL: FastShotModelType = Field(default='gemini-2.0-flash')
-    SPATIAL_GRID_REASONER_MODEL: VCOTModelType = Field(
+    SPATIAL_GRID_REASONER_MODEL: SCOTModelType = Field(
         default="gemini-2.0-flash-thinking-exp-01-21"
     )
-    SPATIAL_POINT_REASONER_MODEL: VCOTModelType = Field(default="gemini-2.5-pro-exp-03-25")
+    SPATIAL_POINT_REASONER_MODEL: SCOTModelType = Field(default="gemini-2.5-pro-exp-03-25")
 
     @field_validator('GEMINI_API_KEY', mode="before")
     @classmethod
