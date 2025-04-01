@@ -7,7 +7,9 @@ from __future__ import annotations
 
 import asyncio
 import json
+from pathlib import Path
 
+from playwright.sync_api import ViewportSize
 from undetected_playwright.async_api import async_playwright, BrowserContext
 
 from hcaptcha_challenger.agent import AgentV, AgentConfig
@@ -64,6 +66,7 @@ async def challenge(context: BrowserContext):
     if agent.cr_list:
         cr: CaptchaResponse = agent.cr_list[-1]
         print(json.dumps(cr.model_dump(by_alias=True), indent=2, ensure_ascii=False))
+        await page.wait_for_timeout(5000)
         return cr
 
 
@@ -72,8 +75,8 @@ async def main():
         context = await p.chromium.launch_persistent_context(
             user_data_dir="tmp/.cache/user_data",
             headless=False,
-            # record_video_dir=Path("tmp/.cache/record"),
-            # record_video_size=ViewportSize(width=1920, height=1080),
+            record_video_dir=Path("tmp/.cache/record"),
+            record_video_size=ViewportSize(width=1920, height=1080),
             locale="en-US",
         )
         await challenge(context)
