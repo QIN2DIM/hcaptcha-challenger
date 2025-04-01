@@ -279,9 +279,8 @@ class RoboticArm:
         for i in range(crumb_count):
             await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
-            # Get challenge-view
+            # Capture challenge-view
             challenge_screenshot = await self._capture_challenge_view(frame_challenge)
-
             challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
             bbox = await challenge_view.bounding_box()
 
@@ -301,7 +300,7 @@ class RoboticArm:
             logger.debug(f'ToolInvokeMessage: {response.log_message}')
 
             for point in response.points:
-                await self.page.mouse.click(point.x, point.y, delay=500)
+                await self.page.mouse.click(point.x, point.y, delay=180)
                 await self.page.wait_for_timeout(500)
 
             # {{< Verify >}}
