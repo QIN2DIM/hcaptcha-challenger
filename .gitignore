@@ -166,4 +166,4 @@ pnpm-lock.yaml
 tests/record/*.mp4
 examples/tmp/*
 
-tests/grid_divisions*.jpg
+tests/**/grid_divisions*.png
