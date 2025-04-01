@@ -45,7 +45,7 @@ async def challenge(context: BrowserContext):
     # --- Suppose you encounter hCaptcha in your browser ---
 
     # Initialize the agent configuration with API key (from parameters or environment)
-    agent_config = AgentConfig(IMAGE_CLASSIFIER_MODEL="gemini-2.5-pro-exp-03-25")
+    agent_config = AgentConfig()
 
     # Create an agent instance with the page and configuration
     # AgentV appears to be a specialized agent for visual challenges

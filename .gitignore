@@ -165,3 +165,5 @@ node_modules
 pnpm-lock.yaml
 tests/record/*.mp4
 examples/tmp/*
+
+tests/**/grid_divisions*.png
