@@ -11,9 +11,10 @@ from asyncio import Queue
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
-from typing import List, Any, Tuple
+from typing import List, Any
 
 import cv2
+import matplotlib.pyplot as plt
 from PIL import Image
 from loguru import logger
 from pydantic import Field, field_validator, SecretStr
@@ -27,6 +28,7 @@ from undetected_playwright.async_api import (
     FrameLocator,
 )
 
+from hcaptcha_challenger.helper import create_coordinate_grid
 from hcaptcha_challenger.helper.rasterization import overlay_grid_on_image
 from hcaptcha_challenger.models import (
     CaptchaResponse,
@@ -35,7 +37,12 @@ from hcaptcha_challenger.models import (
     VCOTModelType,
     FastShotModelType,
 )
-from hcaptcha_challenger.tools import ImageClassifier, ChallengeClassifier, SpatialGridReasoner
+from hcaptcha_challenger.tools import (
+    ImageClassifier,
+    ChallengeClassifier,
+    SpatialGridReasoner,
+    SpatialPointReasoner,
+)
 from hcaptcha_challenger.tools.challenge_classifier import ChallengeTypeEnum
 
 
@@ -58,6 +65,7 @@ class AgentConfig(BaseSettings):
     SPATIAL_GRID_REASONER_MODEL: VCOTModelType = Field(
         default="gemini-2.0-flash-thinking-exp-01-21"
     )
+    SPATIAL_POINT_REASONER_MODEL: VCOTModelType = Field(default="gemini-2.5-pro-exp-03-25")
 
     @field_validator('GEMINI_API_KEY', mode="before")
     @classmethod
@@ -82,6 +90,10 @@ class AgentConfig(BaseSettings):
             )
         return v
 
+    @property
+    def spatial_grid_cache(self):
+        return self.cache_dir.joinpath("spatial_grid")
+
 
 class RoboticArm:
 
@@ -96,6 +108,9 @@ class RoboticArm:
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
         )
         self._spatial_grid_reasoner = SpatialGridReasoner(
+            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
+        )
+        self._spatial_point_reasoner = SpatialPointReasoner(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
         )
 
@@ -227,10 +242,6 @@ class RoboticArm:
         frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumb_count = await self.check_crumb_count()
 
-    async def challenge_hci(self):
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
-        crumb_count = await self.check_crumb_count()
-
         for _ in range(crumb_count):
             # Get challenge-view
             raw_cache_path = await self._capture_challenge_view(frame_challenge)
@@ -261,35 +272,42 @@ class RoboticArm:
             challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
             bbox = await challenge_view.bounding_box()
 
-            # 获取滑块位置（右侧拖动点）
-            drag_x = int(bbox["x"] + bbox["width"] * 0.92)
-            drag_y = int(bbox["y"] + bbox["height"] * 0.40)
+    async def challenge_image_label_select(self, job_type: Any):
+        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        crumb_count = await self.check_crumb_count()
 
-            # 计算目标位置
-            # 根据栅格坐标计算实际平面坐标
-            # 这里使用 3 作为除数是因为 grid_divisions=2 生成了 3x3 的栅格 (0,0) 到 (2,2)
-            grid_size = 3  # 基于 grid_divisions=2 生成 3x3 栅格
+        for i in range(crumb_count):
+            await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
-            # 计算单位格子的宽度和高度
-            cell_width = bbox["width"] * 0.82 / grid_size
-            cell_height = bbox["height"] * 0.63 / grid_size
+            # Get challenge-view
+            challenge_screenshot = await self._capture_challenge_view(frame_challenge)
 
-            # 计算左上角原点位置
-            origin_x = bbox["x"] + bbox["width"] * 0.03
-            origin_y = bbox["y"] + bbox["height"] * 0.20
+            challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
+            bbox = await challenge_view.bounding_box()
 
-            # 计算目标中心点位置
-            target_x = int(origin_x + (x + 0.5) * cell_width)
-            target_y = int(origin_y + (y + 0.5) * cell_height)
+            # Save grid field
+            result = create_coordinate_grid(challenge_screenshot, bbox)
+            current_time = datetime.now().strftime("%Y%m%d%H%M%S%f")
+            grid_divisions = self.config.spatial_grid_cache.joinpath(f"{current_time}.png")
+            grid_divisions.parent.mkdir(parents=True, exist_ok=True)
+            plt.imsave(str(grid_divisions.resolve()), result)
 
-            # 执行鼠标拖动
-            print(f"找寻滑块位置 - point=({drag_x}, {drag_y})")
-            await self.page.mouse.move(drag_x, drag_y)
-            await self.page.mouse.down(button='left')
-            input("--- wait ---")
-            print(f"寻找落点 - point=({target_x}, {target_y})")
-            await self.page.mouse.move(target_x, target_y)
-            await self.page.mouse.up(button='left')
+            response = self._spatial_point_reasoner.invoke(
+                challenge_screenshot=challenge_screenshot,
+                grid_divisions=grid_divisions,
+                model=self.config.SPATIAL_POINT_REASONER_MODEL,
+                auxiliary_information=f"JobType: {job_type}",
+            )
+            logger.debug(f'ToolInvokeMessage: {response.log_message}')
+
+            for point in response.points:
+                await self.page.mouse.click(point.x, point.y, delay=500)
+                await self.page.wait_for_timeout(500)
+
+            # {{< Verify >}}
+            with suppress(TimeoutError):
+                submit_btn = frame_challenge.locator("//div[@class='button-submit button']")
+                await self.click_by_mouse(submit_btn)
 
 
 class AgentV:
@@ -342,19 +360,20 @@ class AgentV:
             match challenge_type:
                 case RequestType.IMAGE_LABEL_BINARY:
                     await self.robotic_arm.challenge_image_label_binary()
-                case ChallengeTypeEnum.IMAGE_DRAG_SINGLE:
-                    await self.robotic_arm.challenge_hci()
-                case challenge_type.IMAGE_DRAG_MULTI:
-                    logger.debug("Doing IMAGE_DRAG_MULTI")
-                case challenge_type.IMAGE_LABEL_SINGLE_SELECT:
-                    logger.debug("Doing IMAGE_LABEL_SINGLE_SELECT")
-                case challenge_type.IMAGE_LABEL_MULTI_SELECT:
-                    logger.debug("Doing IMAGE_LABEL_MULTI_SELECT")
-                # todo NotSupported General Intelligence
+                case (
+                    challenge_type.IMAGE_LABEL_SINGLE_SELECT
+                    | challenge_type.IMAGE_LABEL_MULTI_SELECT
+                ):
+                    await self.robotic_arm.challenge_image_label_select(challenge_type.value)
                 case _:
-                    logger.error(f"[INTERRUPT] Unknown type of challenge - {challenge_type=}")
+                    # todo NotSupported IMAGE_DRAG_SINGLE
+                    # todo NotSupported IMAGE_DRAG_MULTI
+                    logger.warning(f"Not yet supported challenge - {challenge_type=}")
+                    await self.page.wait_for_timeout(2000)
+                    await self.robotic_arm.refresh_challenge()
+                    return await self._solve_captcha()
         except Exception as err:
-            logger.error(f"ChallengeException - type={challenge_type.value} {err=}")
+            logger.exception(f"ChallengeException - type={challenge_type.value} {err=}")
             await self.robotic_arm.refresh_challenge()
 
     def _cache_validated_captcha_response(self, cr: CaptchaResponse):

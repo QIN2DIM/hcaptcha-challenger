@@ -139,3 +139,19 @@ class ImageBinaryChallenge(BaseModel):
         _coordinates = [i.box_2d for i in self.coordinates]
         bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": str(_coordinates)}
         return json.dumps(bundle, indent=2, ensure_ascii=False)
+
+
+class PointCoordinate(BaseModel):
+    x: int
+    y: int
+
+
+class ImageAreaSelectChallenge(BaseModel):
+    challenge_prompt: str
+    points: List[PointCoordinate]
+
+    @property
+    def log_message(self) -> str:
+        _coordinates = [{"x": i.x, "y": i.y} for i in self.points]
+        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": str(_coordinates)}
+        return json.dumps(bundle, indent=2, ensure_ascii=False)

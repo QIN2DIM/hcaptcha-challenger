@@ -49,9 +49,7 @@ class SpatialGridReasoner:
             client.files.upload(file=grid_divisions),
         ]
 
-        # Handle models that don't support JSON response schema
         if model in ["gemini-2.0-flash-thinking-exp-01-21"]:
-            # Create content with only the image
             contents = [
                 types.Content(
                     role="user",
@@ -61,7 +59,6 @@ class SpatialGridReasoner:
                     ],
                 )
             ]
-            # Generate response using thinking prompt
             response = client.models.generate_content(
                 model=model,
                 contents=contents,
@@ -69,11 +66,8 @@ class SpatialGridReasoner:
                     temperature=0, system_instruction=THINKING_PROMPT
                 ),
             )
-            print(response.text)
-            # Extract and parse JSON from text response
             return ImageBinaryChallenge(**extract_first_json_block(response.text))
 
-        # Handle models that support JSON response schema
         contents = [
             types.Content(
                 role="user",
@@ -84,7 +78,6 @@ class SpatialGridReasoner:
                 ],
             )
         ]
-        # Generate structured JSON response
         response = client.models.generate_content(
             model=model,
             contents=contents,
@@ -95,5 +88,4 @@ class SpatialGridReasoner:
             ),
         )
 
-        # Return parsed response as ImageBinaryChallenge object
         return ImageBinaryChallenge(**response.parsed.model_dump())

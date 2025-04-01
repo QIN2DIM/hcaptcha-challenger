@@ -70,9 +70,8 @@ class ImageClassifier:
         # Upload the challenge image file
         files = [client.files.upload(file=challenge_screenshot)]
 
-        # Handle models that don't support JSON response schema
+        # Change to JSON mode
         if model in ["gemini-2.0-flash-thinking-exp-01-21"]:
-            # Create content with only the image
             contents = [
                 types.Content(
                     role="user",
@@ -81,7 +80,6 @@ class ImageClassifier:
                     ],
                 )
             ]
-            # Generate response using thinking prompt
             response = client.models.generate_content(
                 model=model,
                 contents=contents,
@@ -89,7 +87,6 @@ class ImageClassifier:
                     temperature=0, system_instruction=THINKING_PROMPT
                 ),
             )
-            # Extract and parse JSON from text response
             return ImageBinaryChallenge(**extract_first_json_block(response.text))
 
         # Handle models that support JSON response schema
@@ -102,7 +99,8 @@ class ImageClassifier:
                 ],
             )
         ]
-        # Generate structured JSON response
+
+        # Structured output with Constraint encoding
         response = client.models.generate_content(
             model=model,
             contents=contents,
@@ -113,5 +111,4 @@ class ImageClassifier:
             ),
         )
 
-        # Return parsed response as ImageBinaryChallenge object
         return ImageBinaryChallenge(**response.parsed.model_dump())
