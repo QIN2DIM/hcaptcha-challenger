@@ -30,7 +30,7 @@ Just implement some interfaces to make `AI vs AI` possible.
 | `image_label_area_select: point`        | YOLOv8 ONNX detection  [#230826](https://github.com/QIN2DIM/hcaptcha-challenger/issues/588) | ✅                |
 | `image_label_area_select: bounding box` | YOLOv8 ONNX segmentation  [#230828](https://github.com/QIN2DIM/hcaptcha-challenger/issues/592) | -                |
 | `image_label_multiple_choice`           | ViT ONNX zero-shot motion [#231109](https://github.com/QIN2DIM/hcaptcha-challenger/issues/917) | -                |
-| `image_drag_drop`                       |                                                              | TODO             |
+| `image_drag_drop`                       | Spatial Chain-of-Thought [#250401](https://github.com/QIN2DIM/hcaptcha-challenger/issues/995) | TODO             |
 
 | Advanced Task               | Pluggable Resource                                           |
 | --------------------------- | ------------------------------------------------------------ |
