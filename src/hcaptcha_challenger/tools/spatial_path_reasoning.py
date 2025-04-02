@@ -40,7 +40,7 @@ class SpatialPathReasoner:
         grid_divisions: Union[str, Path, os.PathLike],
         auxiliary_information: str | None = "",
         model: SCOTModelType = "gemini-2.0-flash-thinking-exp-01-21",
-    ):
+    ) -> ImageDragDropChallenge:
         # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)
 
