@@ -146,7 +146,6 @@ examples/*.png
 **/tmp_dir**
 **/istock_tmp
 **/figs-seg-out**
-docs/*.xmind
 tests_private/
 .run/
 _archive/assets/image_label_binary/off_road_vehicle/yes
@@ -155,12 +154,10 @@ _archive/assets/image_label_binary/off_road_vehicle/20**
 profile_pluggable_model.md
 ./*.png
 tests/record_json
-docs/lvm_challenge/*.jpeg
-docs/lvm_challenge/*.png
 logs
 examples/*.md
 _archive/docs/logs/
-docs/*.md
+docs/_build/
 node_modules
 pnpm-lock.yaml
 tests/record/*.mp4
