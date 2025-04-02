@@ -6,7 +6,11 @@
 
 hCaptcha Challenger (v0.13.0+) leverages the Spatial Chain-of-Thought capabilities of large language models to build an Agentic Workflow, enabling agents to follow instructions and complete general spatial visual tasks without additional training or fine-tuning.
 
-The `Agent` controls browser pages through playwright. In your workflow, the Agent is initialized with the `page` object you pass in, allowing the Agent to take over interactions with the current page. You can implement two independent operations through the `Agent`: `click_checkbox` and `wait_for_challenge`.
+The `Agent` controls browser pages through Playwright. In your workflow, the Agent is initialized with the `Page` object you pass in, allowing the Agent to take over interactions with the current page. You can implement two independent operations through the `Agent`: `click_checkbox` and `wait_for_challenge`.
+
+hCaptcha is one of the pioneers in applying image diffusion and synthesis technology to the CAPTCHA domain. Benefiting from rapid advancements in automation engineering, hCaptcha can implement extremely frequent updates to its challenge types. Over the past two years, the community has increasingly struggled with handling such frequently changing human-machine challenges. Traditional convolutional neural networks (CNNs) face significant difficulties achieving good generalization on small datasets in object detection tasks. A comprehensive fine-tuning process typically requires substantial time and effort, often taking up to half a week to produce a CNN model suitable for production environments. However, by the time training is completed, hCaptcha might have already updated to new challenge types, rendering the recently trained model quickly obsolete or ineffective.
+
+Therefore, the community urgently needs a robust, generalized visual solution capable of effectively tackling various spatial visual challenges. Regardless of how frequently hCaptcha updates its verification types, **this solution should swiftly adapt to environmental changes and autonomously control browsers to resolve various CAPTCHA tasks without human guidance.**
 
 ### Installation
 
@@ -16,9 +20,9 @@ uv pip install hcaptcha-challenger
 
 ### Quickstart
 
-This is an hCaptcha challenge automation. It demonstrates how to interact with hCaptcha elements using the agent's robotic arm interface.
+This document describes an automation approach for handling hCaptcha challenges, illustrating how to effectively interact with hCaptcha elements via the agent's robotic arm interface.
 
-It's worth noting that the Agent only manipulates web pages through the Page object. Therefore, the Agent can run on any "patcher" built on playwright. In other words, any browser that playwright can launch can be used to run the Agent in this manner.
+It is important to emphasize that the Agent interacts exclusively with web pages through the Page object. Consequently, the Agent can operate seamlessly on any platform or "patcher" built upon Playwright. In practical terms, this means that any browser supported and launched by Playwright can be utilized to execute the Agent using this approach.
 
 ```python
 import asyncio
@@ -83,4 +87,3 @@ if __name__ == "__main__":
 
 ### Image Label Binary
 
-<video src="assets/429154580-c2cea4e0-82f4-466f-8c7a-20f8ea63732c.mp4"></video>
