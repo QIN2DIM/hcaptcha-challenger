@@ -22,6 +22,8 @@ Does not use any third-party anti-captcha services.
 
 Just implement some interfaces to make `AI vs AI` possible.
 
+[🙌Documentation](./docs/README.md)
+
 ## What's features
 
 | Challenge Type                          | Pluggable Resource                                           | Agent Capability |
