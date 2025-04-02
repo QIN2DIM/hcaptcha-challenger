@@ -89,3 +89,12 @@ if __name__ == "__main__":
 
 ### Image Label Binary
 
+https://github.com/user-attachments/assets/c2cea4e0-82f4-466f-8c7a-20f8ea63732c
+
+### Image Label Area Select
+
+https://github.com/user-attachments/assets/42ce8b1d-bb17-4397-b7b0-a9f9578b740a
+
+### Image Drag Drop
+
+https://github.com/user-attachments/assets/c7720d20-ddb4-45e5-8008-e4c8f2de316d
