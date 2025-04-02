@@ -6,7 +6,7 @@
 
 from .challenge_classifier import ChallengeClassifier
 from .image_classifier import ImageClassifier
-from .spatial_grid_reasoning import SpatialGridReasoner
+from .spatial_path_reasoning import SpatialPathReasoner
 from .spatial_point_reasoning import SpatialPointReasoner
 
-__all__ = ["ImageClassifier", 'ChallengeClassifier', 'SpatialGridReasoner', 'SpatialPointReasoner']
+__all__ = ["ImageClassifier", 'ChallengeClassifier', 'SpatialPathReasoner', 'SpatialPointReasoner']
