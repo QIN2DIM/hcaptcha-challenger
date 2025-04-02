@@ -402,9 +402,6 @@ class RoboticArm:
             for path in response.get_approximate_paths(bbox):
                 await self._perform_drag_drop(path)
 
-            # fixme debugger
-            # await self.page.pause()
-
             # {{< Verify >}}
             with suppress(TimeoutError):
                 submit_btn = frame_challenge.locator("//div[@class='button-submit button']")
@@ -508,10 +505,9 @@ class AgentV:
                     | challenge_type.IMAGE_LABEL_MULTI_SELECT
                 ):
                     await self.robotic_arm.challenge_image_label_select(challenge_type.value)
-                # todo NotSupported IMAGE_DRAG_SINGLE
-                # todo NotSupported IMAGE_DRAG_MULTI
-                case challenge_type.IMAGE_DRAG_SINGLE | challenge_type.IMAGE_DRAG_MULTI:
+                case challenge_type.IMAGE_DRAG_SINGLE:
                     await self.robotic_arm.challenge_image_drag_drop(challenge_type.value)
+                # todo NotSupported IMAGE_DRAG_MULTI
                 case _:
                     logger.warning(f"Not yet supported challenge - {challenge_type=}")
                     await self.page.wait_for_timeout(2000)
