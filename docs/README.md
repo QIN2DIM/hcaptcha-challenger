@@ -4,9 +4,9 @@
 
 ### Introduction
 
-hCaptcha Challenger leverages the Spatial Chain-of-Thought capabilities of large language models to build an Agentic Workflow, enabling agents to follow instructions and complete general spatial visual tasks without additional training or fine-tuning.
+hCaptcha Challenger (v0.13.0+) leverages the Spatial Chain-of-Thought capabilities of large language models to build an Agentic Workflow, enabling agents to follow instructions and complete general spatial visual tasks without additional training or fine-tuning.
 
-The `Agent` controls browser pages through playwright. In your workflow, the Agent is initialized with the `page` object you pass in, allowing the Agent to take over interactions with the current page. You can implement two independent operations through the `Agent`: `click_checkbot` and `wait_for_challenge`.
+The `Agent` controls browser pages through playwright. In your workflow, the Agent is initialized with the `page` object you pass in, allowing the Agent to take over interactions with the current page. You can implement two independent operations through the `Agent`: `click_checkbox` and `wait_for_challenge`.
 
 ### Installation
 
