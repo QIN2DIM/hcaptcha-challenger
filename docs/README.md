@@ -24,6 +24,8 @@ This document describes an automation approach for handling hCaptcha challenges,
 
 It is important to emphasize that the Agent interacts exclusively with web pages through the Page object. Consequently, the Agent can operate seamlessly on any platform or "patcher" built upon Playwright. In practical terms, this means that any browser supported and launched by Playwright can be utilized to execute the Agent using this approach.
 
+In the following example, you need to create and set up your [GEMINI_API_KEY](https://aistudio.google.com/apikey):
+
 ```python
 import asyncio
 import json

@@ -24,6 +24,8 @@ uv pip install hcaptcha-challenger
 
 特别说明：Agent 仅通过 `Page` 对象操控网页，因此可运行在任何基于 Playwright 构建的 "patcher" 之上。换言之，只要 Playwright 能启动的浏览器，均可通过此方式运行 Agent。
 
+在如下案例中，你需要创建并设置 [GEMINI_API_KEY](https://aistudio.google.com/apikey)：
+
 ```python
 import asyncio
 import json
