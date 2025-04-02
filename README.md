@@ -22,7 +22,7 @@ Does not use any third-party anti-captcha services.
 
 Just implement some interfaces to make `AI vs AI` possible.
 
-[🙌Documentation](./docs/README.md)
+**Documentation:** [English](./docs/README.md) | [简体中文](./docs/README_zh.md) 🙌
 
 ## What's features
 
