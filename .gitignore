@@ -163,5 +163,5 @@ pnpm-lock.yaml
 tests/record/*.mp4
 examples/tmp/*
 
-tests/**/grid_divisions*.png
+tests/**/coordinate_grid*.png
 tests/ffmpeg.exe
