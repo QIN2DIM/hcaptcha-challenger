@@ -125,13 +125,13 @@ class AgentConfig(BaseSettings):
     RETRY_ON_FAILURE: bool = Field(default=True)
     WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS: int = Field(default=1500, description="millisecond")
 
-    IMAGE_CLASSIFIER_MODEL: SCOTModelType = Field(
-        default="gemini-2.0-flash-thinking-exp-01-21",
-        description="For challenge image_label_binary",
-    )
     CHALLENGE_CLASSIFIER_MODEL: FastShotModelType = Field(
         default='gemini-2.0-flash',
         description="Give multimodal understanding to call different solutions",
+    )
+    IMAGE_CLASSIFIER_MODEL: SCOTModelType = Field(
+        default="gemini-2.0-flash-thinking-exp-01-21",
+        description="For challenge image_label_binary",
     )
     SPATIAL_POINT_REASONER_MODEL: SCOTModelType = Field(
         default="gemini-2.5-pro-exp-03-25",
@@ -235,6 +235,7 @@ class RoboticArm:
         count = await samples.count()
         if isinstance(count, int) and count == 9:
             return RequestType.IMAGE_LABEL_BINARY
+        # todo:Decode MSG packages to speed up decision making
         if isinstance(count, int) and count == 0:
             tms = self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS * 1.5
             await self.page.wait_for_timeout(tms)
