@@ -37,7 +37,8 @@ from hcaptcha_challenger.models import CaptchaResponse
 from hcaptcha_challenger.utils import SiteKey
 
 
-async def challenge(page: Page):
+async def challenge(page: Page) -> AgentV:
+    """Automates the process of solving an hCaptcha challenge."""
     # Initialize the agent configuration with API key (from parameters or environment)
     agent_config = AgentConfig()
 
@@ -55,10 +56,7 @@ async def challenge(page: Page):
 
     # Note: The code ends here, suggesting this is part of a larger solution
     # that would continue with challenge solving steps after this point
-    if agent.cr_list:
-        cr: CaptchaResponse = agent.cr_list[-1]
-        print(json.dumps(cr.model_dump(by_alias=True), indent=2, ensure_ascii=False))
-        return cr
+    return agent
 
 
 async def main():
@@ -74,13 +72,16 @@ async def main():
         # await page.goto(SiteKey.as_site_link(SiteKey.discord))
         await page.goto(SiteKey.as_site_link(SiteKey.user_easy))
 
-        # --- Suppose you encounter hCaptcha in your browser ---
-        await challenge(page)
+        # --- When you encounter hCaptcha in your workflow ---
+        agent = await challenge(page)
+        if agent.cr_list:
+            cr: CaptchaResponse = agent.cr_list[-1]
+            print(json.dumps(cr.model_dump(by_alias=True), indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
-    encrypted_resp = asyncio.run(main())
-    
+    asyncio.run(main())
+
 ```
 
 ## Галерея

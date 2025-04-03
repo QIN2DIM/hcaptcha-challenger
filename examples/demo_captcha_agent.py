@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-# Time       : 2024/4/1 21:10
-# Author     : QIN2DIM
-# GitHub     : https://github.com/QIN2DIM
-# Description:
-from __future__ import annotations
-
 import asyncio
 import json
 
@@ -16,23 +9,7 @@ from hcaptcha_challenger.utils import SiteKey
 
 
 async def challenge(page: Page) -> AgentV:
-    """
-    Automates the process of solving an hCaptcha challenge.
-
-    This function initializes an agent with the necessary configuration,
-    navigates to an hCaptcha test page, and attempts to solve the challenge
-    by clicking the checkbox and handling the verification process.
-
-    Args:
-        page (Page): The Page in which to perform the automation.
-
-    Returns:
-        AgentV
-
-    Note:
-        This is an hCaptcha challenge automation. It demonstrates how to interact with
-        hCaptcha elements using the agent's robotic arm interface.
-    """
+    """Automates the process of solving an hCaptcha challenge."""
     # Initialize the agent configuration with API key (from parameters or environment)
     agent_config = AgentConfig()
 
@@ -79,4 +56,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    encrypted_resp = asyncio.run(main())
+    asyncio.run(main())

@@ -4,7 +4,7 @@
 
 ### Introduction
 
-hCaptcha Challenger (v0.13.0+) leverages the Spatial Chain-of-Thought capabilities of large language models to build an Agentic Workflow, enabling agents to follow instructions and complete general spatial visual tasks without additional training or fine-tuning.
+hCaptcha Challenger harnesses the spatial chain-of-thought (SCoT) reasoning capabilities of multimodal large language models (MLLMs) to construct an agentic workflow framework. This architecture empowers autonomous agents to perform zero-shot adaptation on diverse spatial-visual tasks through dynamic problem-solving workflows, eliminating the requirement for task-specific fine-tuning or additional training parameters.
 
 The `Agent` controls browser pages through Playwright. In your workflow, the Agent is initialized with the `Page` object you pass in, allowing the Agent to take over interactions with the current page. You can implement two independent operations through the `Agent`: `click_checkbox` and `wait_for_challenge`.
 
@@ -37,7 +37,8 @@ from hcaptcha_challenger.models import CaptchaResponse
 from hcaptcha_challenger.utils import SiteKey
 
 
-async def challenge(page: Page):
+async def challenge(page: Page) -> AgentV:
+    """Automates the process of solving an hCaptcha challenge."""
     # Initialize the agent configuration with API key (from parameters or environment)
     agent_config = AgentConfig()
 
@@ -55,10 +56,7 @@ async def challenge(page: Page):
 
     # Note: The code ends here, suggesting this is part of a larger solution
     # that would continue with challenge solving steps after this point
-    if agent.cr_list:
-        cr: CaptchaResponse = agent.cr_list[-1]
-        print(json.dumps(cr.model_dump(by_alias=True), indent=2, ensure_ascii=False))
-        return cr
+    return agent
 
 
 async def main():
@@ -74,12 +72,15 @@ async def main():
         # await page.goto(SiteKey.as_site_link(SiteKey.discord))
         await page.goto(SiteKey.as_site_link(SiteKey.user_easy))
 
-        # --- Suppose you encounter hCaptcha in your browser ---
-        await challenge(page)
+        # --- When you encounter hCaptcha in your workflow ---
+        agent = await challenge(page)
+        if agent.cr_list:
+            cr: CaptchaResponse = agent.cr_list[-1]
+            print(json.dumps(cr.model_dump(by_alias=True), indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
-    encrypted_resp = asyncio.run(main())
+    asyncio.run(main())
 
 ```
 
