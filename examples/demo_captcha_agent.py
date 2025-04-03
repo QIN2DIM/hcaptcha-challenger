@@ -49,7 +49,7 @@ async def main():
         await page.goto(SiteKey.as_site_link(SiteKey.user_easy))
 
         # --- When you encounter hCaptcha in your workflow ---
-        agent = await challenge(page)
+        agent: AgentV = await challenge(page)
         if agent.cr_list:
             cr: CaptchaResponse = agent.cr_list[-1]
             print(json.dumps(cr.model_dump(by_alias=True), indent=2, ensure_ascii=False))

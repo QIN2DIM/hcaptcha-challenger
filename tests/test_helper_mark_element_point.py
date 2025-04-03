@@ -4,7 +4,7 @@ from hcaptcha_challenger.helper.mark_element_point import mark_points_on_image
 
 
 def test_mark_element_point():
-    image_path = "challenge_view/image_drag_drop/1.png"
+    image_path = "challenge_view/image_drag_drop/single_1.png"
     coordinates = [(553, 553)]
 
     try:
