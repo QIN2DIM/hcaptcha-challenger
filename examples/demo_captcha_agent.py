@@ -8,42 +8,31 @@ from __future__ import annotations
 import asyncio
 import json
 
-from undetected_playwright.async_api import async_playwright, BrowserContext
+from undetected_playwright.async_api import async_playwright, Page
 
 from hcaptcha_challenger.agent import AgentV, AgentConfig
 from hcaptcha_challenger.models import CaptchaResponse
 from hcaptcha_challenger.utils import SiteKey
 
 
-async def challenge(context: BrowserContext):
+async def challenge(page: Page) -> AgentV:
     """
     Automates the process of solving an hCaptcha challenge.
 
-    This function creates a new browser page, initializes an agent with the necessary
-    configuration, navigates to an hCaptcha test page, and attempts to solve the challenge
+    This function initializes an agent with the necessary configuration,
+    navigates to an hCaptcha test page, and attempts to solve the challenge
     by clicking the checkbox and handling the verification process.
 
     Args:
-        context (BrowserContext): The browser context in which to perform the automation.
-                                 This is typically created by a Playwright browser instance.
+        page (Page): The Page in which to perform the automation.
 
     Returns:
-        None
+        AgentV
 
     Note:
         This is an hCaptcha challenge automation. It demonstrates how to interact with
         hCaptcha elements using the agent's robotic arm interface.
     """
-    # Create a new page in the provided browser context
-    page = await context.new_page()
-
-    # Navigate to the hCaptcha test page using a predefined site key
-    # SiteKey.user_easy likely refers to a test/demo hCaptcha with lower difficulty
-    # await page.goto(SiteKey.as_site_link(SiteKey.discord))
-    await page.goto(SiteKey.as_site_link(SiteKey.user_easy))
-
-    # --- Suppose you encounter hCaptcha in your browser ---
-
     # Initialize the agent configuration with API key (from parameters or environment)
     agent_config = AgentConfig()
 
@@ -61,10 +50,7 @@ async def challenge(context: BrowserContext):
 
     # Note: The code ends here, suggesting this is part of a larger solution
     # that would continue with challenge solving steps after this point
-    if agent.cr_list:
-        cr: CaptchaResponse = agent.cr_list[-1]
-        print(json.dumps(cr.model_dump(by_alias=True), indent=2, ensure_ascii=False))
-        return cr
+    return agent
 
 
 async def main():
@@ -76,8 +62,20 @@ async def main():
             # record_video_size=ViewportSize(width=1920, height=1080),
             locale="en-US",
         )
-        await challenge(context)
-        await context.close()
+
+        # Create a new page in the provided browser context
+        page = await context.new_page()
+
+        # Navigate to the hCaptcha test page using a predefined site key
+        # SiteKey.user_easy likely refers to a test/demo hCaptcha with lower difficulty
+        # await page.goto(SiteKey.as_site_link(SiteKey.discord))
+        await page.goto(SiteKey.as_site_link(SiteKey.user_easy))
+
+        # --- When you encounter hCaptcha in your workflow ---
+        agent = await challenge(page)
+        if agent.cr_list:
+            cr: CaptchaResponse = agent.cr_list[-1]
+            print(json.dumps(cr.model_dump(by_alias=True), indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

@@ -34,7 +34,7 @@ from hcaptcha_challenger.models import (
     CaptchaResponse,
     RequestType,
     ChallengeSignal,
-    SCOTModelType,
+    SCoTModelType,
     FastShotModelType,
     SpatialPath,
 )
@@ -129,15 +129,15 @@ class AgentConfig(BaseSettings):
         default='gemini-2.0-flash',
         description="Give multimodal understanding to call different solutions",
     )
-    IMAGE_CLASSIFIER_MODEL: SCOTModelType = Field(
+    IMAGE_CLASSIFIER_MODEL: SCoTModelType = Field(
         default="gemini-2.0-flash-thinking-exp-01-21",
         description="For challenge image_label_binary",
     )
-    SPATIAL_POINT_REASONER_MODEL: SCOTModelType = Field(
+    SPATIAL_POINT_REASONER_MODEL: SCoTModelType = Field(
         default="gemini-2.5-pro-exp-03-25",
         description="For challenge image_label_area_select (single/multi)",
     )
-    SPATIAL_PATH_REASONER_MODEL: SCOTModelType = Field(
+    SPATIAL_PATH_REASONER_MODEL: SCoTModelType = Field(
         default="gemini-2.5-pro-exp-03-25",
         description="For challenge image_drag_drop (single/multi)",
     )

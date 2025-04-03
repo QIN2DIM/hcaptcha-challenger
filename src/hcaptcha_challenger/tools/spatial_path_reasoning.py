@@ -5,7 +5,7 @@ from typing import Union
 from google import genai
 from google.genai import types
 
-from hcaptcha_challenger.models import SCOTModelType, ImageDragDropChallenge
+from hcaptcha_challenger.models import SCoTModelType, ImageDragDropChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 
 THINKING_PROMPT = """
@@ -39,7 +39,7 @@ class SpatialPathReasoner:
         challenge_screenshot: Union[str, Path, os.PathLike],
         grid_divisions: Union[str, Path, os.PathLike],
         auxiliary_information: str | None = "",
-        model: SCOTModelType = "gemini-2.0-flash-thinking-exp-01-21",
+        model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
     ) -> ImageDragDropChallenge:
         # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)
