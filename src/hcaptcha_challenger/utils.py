@@ -5,14 +5,11 @@
 # Description:
 from __future__ import annotations
 
-import inspect
 import os
 import random
-import subprocess
 import sys
 import uuid
-from shlex import quote
-from typing import Dict, Any, Literal
+from typing import Literal
 
 import pytz
 from loguru import logger
@@ -94,15 +91,6 @@ def init_log(**sink_channel):
     return logger
 
 
-def from_dict_to_model(cls, data: Dict[str, Any]):
-    return cls(
-        **{
-            key: (data[key] if val.default == val.empty else data.get(key, val.default))
-            for key, val in inspect.signature(cls).parameters.items()
-        }
-    )
-
-
 class SiteKey:
     discord = "4c672d35-0701-42b2-88c3-78380b0db560"
     epic = "91e4137f-95af-4bc9-97af-cdcedce21c8c"
@@ -153,18 +141,3 @@ class SiteKey:
         ]
         k = random.choice(ks)
         return f"https://accounts.hcaptcha.com/demo?sitekey={k}"
-
-
-class PyPI:
-    _prefix = f"{sys.executable} -m pip "
-
-    def __init__(self, pkg: str):
-        self.pkg = quote(pkg)
-
-    def install(self):
-        cmd = f"{self._prefix} install -q -U {self.pkg}".split()
-        subprocess.check_call(cmd)
-
-    def uninstall(self):
-        cmd = f"{self._prefix} uninstall -q -y {self.pkg}".split()
-        subprocess.check_call(cmd)
