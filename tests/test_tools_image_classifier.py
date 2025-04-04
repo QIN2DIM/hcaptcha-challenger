@@ -1,8 +1,11 @@
 import os
 
+import dotenv
 from loguru import logger
 
 from hcaptcha_challenger.tools import ImageClassifier
+
+dotenv.load_dotenv()
 
 gic = ImageClassifier(gemini_api_key=os.getenv("GEMINI_API_KEY"))
 
