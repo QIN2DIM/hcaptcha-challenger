@@ -24,9 +24,6 @@ Finally, solve the challenge, locate the object, output the coordinates of the c
   ]
 }
 ```
-
-**Remember:** When multiple clickable objects appear on Canvas, you need to carefully distinguish whether all objects are clickable.
-
 """
 
 
