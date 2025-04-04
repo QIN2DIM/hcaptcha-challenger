@@ -190,6 +190,7 @@ class RoboticArm:
         self._spatial_point_reasoner = SpatialPointReasoner(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
         )
+        self._signal_crumb_count = Queue(maxsize=1)
 
     @property
     def checkbox_selector(self) -> str:
@@ -198,6 +199,10 @@ class RoboticArm:
     @property
     def challenge_selector(self) -> str:
         return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
+
+    def put_crumb_count_signal(self, tasklist_length: int):
+        if self._signal_crumb_count.empty():
+            self._signal_crumb_count.put_nowait(tasklist_length)
 
     async def click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()
@@ -224,6 +229,13 @@ class RoboticArm:
 
     async def check_crumb_count(self):
         """Page turn in tasks"""
+        # Determine the number of tasks based on hsw
+        if not self._signal_crumb_count.empty():
+            crumb_count = self._signal_crumb_count.get_nowait()
+            if isinstance(crumb_count, int) and crumb_count >= 1:
+                return crumb_count
+
+        # Determine the number of tasks based on DOM
         frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         return 2 if await crumbs.first.is_visible() else 1
@@ -351,19 +363,19 @@ class RoboticArm:
         frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumb_count = await self.check_crumb_count()
 
-        for _ in range(crumb_count):
+        for i in range(crumb_count):
             await self._wait_for_all_loaders_complete()
 
             # Get challenge-view
             cache_path = await self._capture_challenge_view(frame_challenge)
 
             # Image classification
-            results = self._image_classifier.invoke(
+            response = self._image_classifier.invoke(
                 challenge_screenshot=cache_path, model=self.config.IMAGE_CLASSIFIER_MODEL
             )
-            boolean_matrix = results.convert_box_to_boolean_matrix()
+            boolean_matrix = response.convert_box_to_boolean_matrix()
 
-            logger.debug(f'ToolInvokeMessage: {results.log_message}')
+            logger.debug(f'[{i+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
             # drive the browser to work on the challenge
             positive_cases = 0
@@ -386,7 +398,7 @@ class RoboticArm:
         frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumb_count = await self.check_crumb_count()
 
-        for _ in range(crumb_count):
+        for i in range(crumb_count):
             await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
             raw, projection = await self._capture_spatial_mapping(frame_challenge)
@@ -397,7 +409,7 @@ class RoboticArm:
                 model=self.config.SPATIAL_PATH_REASONER_MODEL,
                 auxiliary_information=f"JobType: {job_type}",
             )
-            logger.debug(f'ToolInvokeMessage: {response.log_message}')
+            logger.debug(f'[{i+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
             challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
             bbox = await challenge_view.bounding_box()
@@ -425,7 +437,7 @@ class RoboticArm:
                 model=self.config.SPATIAL_POINT_REASONER_MODEL,
                 auxiliary_information=f"JobType: {job_type}",
             )
-            logger.debug(f'ToolInvokeMessage: {response.log_message}')
+            logger.debug(f'[{i+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
             for point in response.points:
                 await self.page.mouse.click(point.x, point.y, delay=180)
@@ -534,7 +546,6 @@ class AgentV:
                         unpacked_data = msgpack.unpackb(bytes(result))
                         captcha_payload = CaptchaPayload(**unpacked_data)
                         self._captcha_payload_queue.put_nowait(captcha_payload)
-                        logger.debug("hsw.js is successfully injected and available")
                         return
                 # If the reverse fails, fall back to the original process
                 else:
@@ -603,7 +614,7 @@ class AgentV:
 
     async def _solve_captcha(self):
         challenge_type = await self._review_challenge_type()
-        logger.debug(f"challenge_type: {challenge_type.value}")
+        logger.debug(f"Challenge Type: {challenge_type.value}")
 
         try:
             match challenge_type:
@@ -615,15 +626,25 @@ class AgentV:
                     await self.robotic_arm.challenge_image_label_select(challenge_type.value)
                 case challenge_type.IMAGE_DRAG_SINGLE:
                     await self.robotic_arm.challenge_image_drag_drop(challenge_type.value)
-                # todo NotSupported IMAGE_DRAG_MULTI
+                case challenge_type.IMAGE_DRAG_MULTI:
+                    # await self.robotic_arm.challenge_image_drag_drop(challenge_type.value)
+                    logger.warning(f"Not yet supported challenge: {challenge_type.value}")
+                    await self.page.wait_for_timeout(2000)
+                    await self.robotic_arm.refresh_challenge()
+                    return await self._solve_captcha()
                 case _:
-                    logger.warning(f"Not yet supported challenge - {challenge_type=}")
-                    await self.page.wait_for_timeout(3000)
+                    # todo Agentic Workflow | zero-shot challenge
+                    logger.warning(f"Unknown types of challenges: {challenge_type}")
+                    await self.page.wait_for_timeout(2000)
                     await self.robotic_arm.refresh_challenge()
                     return await self._solve_captcha()
         except Exception as err:
+            # This is an execution error inside the challenge,
+            # hcaptcha challenge does not automatically refresh
             logger.exception(f"ChallengeException - type={challenge_type.value} {err=}")
+            await self.page.wait_for_timeout(5000)
             await self.robotic_arm.refresh_challenge()
+            return await self._solve_captcha()
 
     async def wait_for_challenge(self) -> ChallengeSignal:
         # Assigning human-computer challenge tasks to the main thread coroutine.
