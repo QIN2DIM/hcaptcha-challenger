@@ -25,6 +25,6 @@ def test_gemini_image_classifier():
     results = gic.invoke(
         challenge_screenshot=challenge_screenshot,
         grid_divisions=grid_divisions_path,
-        model="gemini-2.5-pro-exp-03-25",
+        model="gemini-2.5-pro-preview-03-25",
     )
     logger.debug(f'ToolInvokeMessage: {results.log_message}')
