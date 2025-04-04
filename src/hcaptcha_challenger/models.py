@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 from enum import Enum
-from typing import Literal, List
+from typing import Literal, List, Dict, Any
 
 from pydantic import BaseModel, Field
 
@@ -31,10 +31,48 @@ class ChallengeSignal(str, Enum):
     RESPONSE_TIMEOUT = "challenge_response_timeout"
 
 
+class Token(BaseModel):
+    req: str
+    type: str = "hsw"
+
+
+class CaptchaRequestConfig(BaseModel):
+    version: int | None
+    shape_type: str | None = None
+    min_points: int | None = None
+    max_points: int | None = None
+    min_shapes_per_image: int | None = None
+    max_shapes_per_image: int | None = None
+    restrict_to_coords: Any | None = None
+    minimum_selection_area_per_shape: int | None = None
+    multiple_choice_max_choices: int | None = 1
+    multiple_choice_min_choices: int | None = 1
+    overlap_threshold: Any | None = None
+    answer_type: str | None = None
+    max_value: Any | None = None
+    min_value: Any | None = None
+    max_length: Any | None = None
+    min_length: Any | None = None
+    sig_figs: Any | None = None
+    keep_answers_order: Any | None = None
+    ignore_case: bool | None = None
+    new_translation: bool | None = None
+
+
+class CaptchaPayload(BaseModel):
+    key: str = Field(default="")
+    request_config: CaptchaRequestConfig | dict = Field(default_factory=dict)
+    request_type: RequestType | str = Field(default="")
+    requester_question: Dict[str, str] | None = Field(default_factory=dict)
+    requester_restricted_answer_set: Dict[str, Any] | None = Field(default_factory=dict)
+    requester_question_example: List[str] | str | None = Field(default=None)
+    tasklist: List[Dict[str, Any]] = Field(default_factory=list)
+    oby: str | None = Field(default=None)
+    normalized: bool | None = Field(default=None)
+    c: Token = Field(default_factory=dict)
+
+
 class CaptchaResponse(BaseModel):
-    class Token(BaseModel):
-        req: str
-        type: str = "hsw"
 
     c: Token
     """

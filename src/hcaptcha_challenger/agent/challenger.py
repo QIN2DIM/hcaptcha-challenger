@@ -17,6 +17,7 @@ from typing import Any
 from typing import List, Tuple
 
 import matplotlib.pyplot as plt
+import msgpack
 from loguru import logger
 from pydantic import Field, field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -37,6 +38,7 @@ from hcaptcha_challenger.models import (
     SCoTModelType,
     FastShotModelType,
     SpatialPath,
+    CaptchaPayload,
 )
 from hcaptcha_challenger.tools import (
     ImageClassifier,
@@ -120,7 +122,7 @@ class AgentConfig(BaseSettings):
     cache_dir: Path = Path("tmp/.cache")
     captcha_response_dir: Path = Path("tmp/.captcha")
 
-    EXECUTION_TIMEOUT: float = Field(default=90.0, description="second")
+    EXECUTION_TIMEOUT: float = Field(default=120.0, description="second")
     RESPONSE_TIMEOUT: float = Field(default=30.0, description="second")
     RETRY_ON_FAILURE: bool = Field(default=True)
     WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS: int = Field(default=1500, description="millisecond")
@@ -443,7 +445,8 @@ class AgentV:
 
         self.robotic_arm = RoboticArm(page=page, config=agent_config)
 
-        self._task_queue: Queue[Response] = Queue()
+        self._captcha_payload: CaptchaPayload | None = None
+        self._captcha_payload_queue: Queue[CaptchaPayload | None] = Queue()
         self._captcha_response_queue: Queue[CaptchaResponse] = Queue()
         self.cr_list: List[CaptchaResponse] = []
 
@@ -467,8 +470,78 @@ class AgentV:
 
     @logger.catch
     async def _task_handler(self, response: Response):
-        if "/getcaptcha/" in response.url:
-            self._task_queue.put_nowait(response)
+        if response.url.endswith("/hsw.js"):
+            try:
+                hsw_text = await response.text()
+                await self.page.evaluate(hsw_text)
+                await self.page.evaluate(
+                    """
+                    () => {
+                        return typeof hsw === 'function' ? true : 'hsw不是函数';
+                    }
+                    """
+                )
+            except Exception as err:
+                logger.error(f"An error occurred while injecting hsw script: {err}")
+        elif "/getcaptcha/" in response.url:
+            self._captcha_payload = None
+
+            # Content-Type: application/json
+            if response.headers.get("content-type", "") == "application/json":
+                data = await response.json()
+                if data.get("pass"):
+                    while not self._captcha_response_queue.empty():
+                        self._captcha_response_queue.get_nowait()
+                    cr = CaptchaResponse(**data)
+                    self._captcha_response_queue.put_nowait(cr)
+                    return
+                if data.get("request_config"):
+                    captcha_payload = CaptchaPayload(**data)
+                    self._captcha_payload_queue.put_nowait(captcha_payload)
+                    return
+
+            # Content-Type: stream
+            try:
+                raw_data = await response.body()
+                has_hsw = await self.page.evaluate(
+                    """
+                    () => {
+                        return typeof hsw === 'function' ? true : false;
+                    }
+                    """
+                )
+
+                if has_hsw:
+                    result = await self.page.evaluate(
+                        f"""
+                        async () => {{
+                            const byteArray = new Uint8Array({list(raw_data)});
+                            console.log('Data has been converted to Uint8Array, length:', byteArray.length);
+
+                            try {{
+                                const hswResult = await hsw(0, byteArray);
+                                return Array.from(hswResult);
+                            }} catch (e) {{
+                                return {{error: e.toString()}};
+                            }}
+                        }}
+                        """
+                    )
+
+                    if isinstance(result, list) and not any(
+                        isinstance(x, dict) and "error" in x for x in result
+                    ):
+                        unpacked_data = msgpack.unpackb(bytes(result))
+                        captcha_payload = CaptchaPayload(**unpacked_data)
+                        self._captcha_payload_queue.put_nowait(captcha_payload)
+                        logger.debug("hsw.js is successfully injected and available")
+                        return
+                # If the reverse fails, fall back to the original process
+                else:
+                    logger.warning("HSW reverse failed, fallback to regular processing")
+            except Exception as err:
+                logger.error(f"Reverse processing getcaptcha failed: {err}")
+                self._captcha_payload_queue.put_nowait(None)
         elif "/checkcaptcha/" in response.url:
             try:
                 metadata = await response.json()
@@ -476,87 +549,68 @@ class AgentV:
             except Exception as err:
                 logger.exception(err)
 
-    async def _check_pre_bypass(self) -> bool:
-        the_latest_response = None
-        while not self._task_queue.empty():
-            the_latest_response = self._task_queue.get_nowait()
-
-        if (
-            the_latest_response
-            and the_latest_response.headers.get("content-type", "") == "application/json"
-        ):
-            data = await the_latest_response.json()
-            if data.get("pass"):
-                cr = CaptchaResponse(**data)
-                self._captcha_response_queue.put_nowait(cr)
-                return True
-
-            self._task_queue.put_nowait(the_latest_response)
-
-        return False
-
     async def _review_challenge_type(self) -> RequestType | ChallengeTypeEnum:
-        if self._task_queue.empty():
+        try:
+            self._captcha_payload = await asyncio.wait_for(
+                self._captcha_payload_queue.get(), timeout=30.0
+            )
+        except asyncio.TimeoutError:
+            logger.error("Wait for captcha payload to timeout")
+            self._captcha_payload = None
+
+        if not self._captcha_payload:
             return await self.robotic_arm.check_challenge_type()
 
         try:
-            get_captcha_response: Response = self._task_queue.get_nowait()
-            data = await get_captcha_response.json()
-            request_type = data.get("request_type", "")
+            request_type = self._captcha_payload.request_type
+            match request_type:
+                case RequestType.IMAGE_LABEL_BINARY:
+                    return RequestType.IMAGE_LABEL_BINARY
+                case RequestType.IMAGE_LABEL_AREA_SELECT:
+                    max_shapes = self._captcha_payload.request_config.max_shapes_per_image
+                    if not isinstance(max_shapes, int):
+                        return await self.robotic_arm.check_challenge_type()
+                    return (
+                        ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT
+                        if max_shapes == 1
+                        else ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT
+                    )
+                case RequestType.IMAGE_DRAG_DROP:
+                    tasklist = self._captcha_payload.tasklist
+                    if not tasklist or not isinstance(tasklist, list):
+                        logger.warning("Invalid tasklist format in image_drag_drop")
+                        return await self.robotic_arm.check_challenge_type()
+                    first_task = tasklist[0]
+                    if not isinstance(first_task, dict) or "entities" not in first_task:
+                        logger.warning("Invalid first_task format in image_drag_drop")
+                        return await self.robotic_arm.check_challenge_type()
+                    entities = first_task["entities"]
+                    if not isinstance(entities, list):
+                        logger.warning("Entities is not a list in image_drag_drop")
+                        return await self.robotic_arm.check_challenge_type()
+                    return (
+                        ChallengeTypeEnum.IMAGE_DRAG_SINGLE
+                        if len(entities) == 1
+                        else ChallengeTypeEnum.IMAGE_DRAG_MULTI
+                    )
 
-            if request_type == "image_label_binary":
-                return RequestType.IMAGE_LABEL_BINARY
-
-            if request_type == "image_label_area_select":
-                request_config = data.get("request_config", {})
-                max_shapes = request_config.get("max_shapes_per_image", 0)
-                return (
-                    ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT
-                    if max_shapes == 1
-                    else ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT
-                )
-
-            if request_type == "image_drag_drop":
-                tasklist = data.get("tasklist", [])
-                if not tasklist:
-                    logger.warning("Empty tasklist for image_drag_drop")
-                    return await self.robotic_arm.check_challenge_type()
-
-                first_task = tasklist[0]
-                if not isinstance(first_task, dict) or "entities" not in first_task:
-                    logger.warning("Invalid first_task format in image_drag_drop")
-                    return await self.robotic_arm.check_challenge_type()
-
-                entities = first_task["entities"]
-                if not isinstance(entities, list):
-                    logger.warning("Entities is not a list in image_drag_drop")
-                    return await self.robotic_arm.check_challenge_type()
-
-                return (
-                    ChallengeTypeEnum.IMAGE_DRAG_SINGLE
-                    if len(entities) == 1
-                    else ChallengeTypeEnum.IMAGE_DRAG_MULTI
-                )
-
-            logger.warning(f"Unknown request_type: {request_type}")
+            logger.warning(f"Unknown request_type: {request_type=}")
         except Exception as err:
             logger.error(f"Error parsing challenge type: {err}")
 
-        # 回退到视觉识别方法
+        # Fallback to visual recognition solution
         return await self.robotic_arm.check_challenge_type()
 
-    async def _solve_captcha(self):
-        challenge_type = await self._review_challenge_type()
+    async def _solve_captcha(self, challenge_type: RequestType | ChallengeTypeEnum):
         logger.debug(f"challenge_type: {challenge_type.value}")
 
         try:
             match challenge_type:
                 case RequestType.IMAGE_LABEL_BINARY:
                     await self.robotic_arm.challenge_image_label_binary()
-                case (
-                    challenge_type.IMAGE_LABEL_SINGLE_SELECT
-                    | challenge_type.IMAGE_LABEL_MULTI_SELECT
-                ):
+                case challenge_type.IMAGE_LABEL_SINGLE_SELECT:
+                    await self.robotic_arm.challenge_image_label_select(challenge_type.value)
+                case challenge_type.IMAGE_LABEL_MULTI_SELECT:
                     await self.robotic_arm.challenge_image_label_select(challenge_type.value)
                 case challenge_type.IMAGE_DRAG_SINGLE:
                     await self.robotic_arm.challenge_image_drag_drop(challenge_type.value)
@@ -565,7 +619,7 @@ class AgentV:
                     logger.warning(f"Not yet supported challenge - {challenge_type=}")
                     await self.page.wait_for_timeout(2000)
                     await self.robotic_arm.refresh_challenge()
-                    return await self._solve_captcha()
+                    return await self._solve_captcha(challenge_type)
         except Exception as err:
             logger.exception(f"ChallengeException - type={challenge_type.value} {err=}")
             await self.robotic_arm.refresh_challenge()
@@ -574,9 +628,12 @@ class AgentV:
         # Assigning human-computer challenge tasks to the main thread coroutine.
         # ----------------------------------------------------------------------
         try:
-            is_pre_bypass = await self._check_pre_bypass()
-            if not is_pre_bypass:
-                await asyncio.wait_for(self._solve_captcha(), timeout=self.config.EXECUTION_TIMEOUT)
+            if self._captcha_response_queue.empty():
+                challenge_type = await self._review_challenge_type()
+                await asyncio.wait_for(
+                    self._solve_captcha(challenge_type=challenge_type),
+                    timeout=self.config.EXECUTION_TIMEOUT,
+                )
         except asyncio.TimeoutError:
             logger.error("Challenge execution timed out", timeout=self.config.EXECUTION_TIMEOUT)
             return ChallengeSignal.EXECUTION_TIMEOUT
@@ -587,7 +644,9 @@ class AgentV:
         # it is expected to obtain a signal indicating whether the challenge was successful in the cr_queue.
         logger.debug("Start checking captcha response")
         try:
-            cr = await self._captcha_response_queue.get()
+            cr = await asyncio.wait_for(
+                self._captcha_response_queue.get(), timeout=self.config.RESPONSE_TIMEOUT
+            )
         except asyncio.TimeoutError:
             logger.error(f"Wait for captcha response timeout {self.config.RESPONSE_TIMEOUT}s")
             return ChallengeSignal.EXECUTION_TIMEOUT
@@ -596,10 +655,7 @@ class AgentV:
             if not cr or not cr.is_pass:
                 if self.config.RETRY_ON_FAILURE:
                     logger.warning("Failed to challenge, try to retry the strategy")
-                    await self.page.wait_for_timeout(1500)
-                    # Challenge are automatically distributed
-                    _signal = await self._task_queue.get()
-                    self._task_queue.put_nowait(_signal)
+                    await self.page.wait_for_timeout(2000)
                     return await self.wait_for_challenge()
                 return ChallengeSignal.FAILURE
             # Match: Success
