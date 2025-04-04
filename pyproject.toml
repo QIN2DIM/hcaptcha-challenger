@@ -7,9 +7,8 @@ dependencies = [
     "httpx",
     "loguru",
     "pydantic-settings",
-    "undetected-playwright-patch",
-    "playwright~=1.40.0",
-    "google-genai>=1.8.0",
+    "playwright",
+    "google-genai>=1.9.0",
     "opencv-python>=4.11.0.86",
     "matplotlib>=3.10.1",
     "numpy>2.0",
@@ -46,6 +45,11 @@ Documentation = "https://github.com/QIN2DIM/hcaptcha-challenger"
 Repository = "https://github.com/QIN2DIM/hcaptcha-challenger.git"
 Issues = "https://github.com/QIN2DIM/hcaptcha-challenger/issues"
 Changelog = "https://github.com/QIN2DIM/hcaptcha-challenger/blob/master/CHANGELOG.md"
+
+[project.optional-dependencies]
+server = [
+    "fastapi[all]>=0.115.12",
+]
 
 # https://packaging.python.org/en/latest/key_projects/#hatch
 # https://hatch.pypa.io/latest/config/build/#build-system

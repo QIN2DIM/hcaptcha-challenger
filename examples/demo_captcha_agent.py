@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-from undetected_playwright.async_api import async_playwright, Page
+from playwright.async_api import async_playwright, Page
 
 from hcaptcha_challenger.agent import AgentV, AgentConfig
 from hcaptcha_challenger.models import CaptchaResponse
@@ -31,6 +31,7 @@ async def challenge(page: Page) -> AgentV:
 
 
 async def main():
+    # playwright install --with-deps
     async with async_playwright() as p:
         context = await p.chromium.launch_persistent_context(
             user_data_dir="tmp/.cache/user_data",

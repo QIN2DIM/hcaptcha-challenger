@@ -21,14 +21,7 @@ import msgpack
 from loguru import logger
 from pydantic import Field, field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from undetected_playwright.async_api import (
-    Locator,
-    expect,
-    Page,
-    Response,
-    TimeoutError,
-    FrameLocator,
-)
+from playwright.async_api import Locator, expect, Page, Response, TimeoutError, FrameLocator
 
 from hcaptcha_challenger.helper import create_coordinate_grid
 from hcaptcha_challenger.models import (
