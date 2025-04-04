@@ -37,7 +37,7 @@ def process_and_save_grid(challenge_screenshot: Path, bbox: Dict[str, int]):
         grid_divisions_path = challenge_screenshot.parent / f'{PREFIX_}_{challenge_screenshot.name}'
 
         # Call the core processing function (assuming it returns an image data suitable for saving, such as a NumPy array)
-        result_data = create_coordinate_grid(challenge_screenshot, bbox)
+        result_data = create_coordinate_grid(challenge_screenshot, bbox, adaptive_contrast=True)
 
         if PIL_AVAILABLE and isinstance(result_data, np.ndarray):
             # Make sure the data type is suitable for Pillow save (usually uint8)
