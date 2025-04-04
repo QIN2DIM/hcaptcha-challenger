@@ -46,8 +46,8 @@ async def main():
 
         # Navigate to the hCaptcha test page using a predefined site key
         # SiteKey.user_easy likely refers to a test/demo hCaptcha with lower difficulty
-        # await page.goto(SiteKey.as_site_link(SiteKey.discord))
-        await page.goto(SiteKey.as_site_link(SiteKey.new_type_challenge))
+        await page.goto(SiteKey.as_site_link(SiteKey.discord))
+        # await page.goto(SiteKey.as_site_link(SiteKey.user_easy))
 
         # --- When you encounter hCaptcha in your workflow ---
         agent: AgentV = await challenge(page)
