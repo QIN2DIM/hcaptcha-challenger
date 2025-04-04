@@ -46,6 +46,11 @@ Repository = "https://github.com/QIN2DIM/hcaptcha-challenger.git"
 Issues = "https://github.com/QIN2DIM/hcaptcha-challenger/issues"
 Changelog = "https://github.com/QIN2DIM/hcaptcha-challenger/blob/master/CHANGELOG.md"
 
+[project.optional-dependencies]
+server = [
+    "fastapi[all]>=0.115.12",
+]
+
 # https://packaging.python.org/en/latest/key_projects/#hatch
 # https://hatch.pypa.io/latest/config/build/#build-system
 [build-system]
