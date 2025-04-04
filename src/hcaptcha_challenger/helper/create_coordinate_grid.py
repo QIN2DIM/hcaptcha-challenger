@@ -16,6 +16,7 @@ class FloatRect(TypedDict):
 def create_coordinate_grid(
     image: Union[str, np.ndarray, Path],
     bbox: Union[FloatRect, Tuple[float, float, float, float], List[float]],
+    **kwargs,
 ) -> np.ndarray:
     """
     Convert a web image to a scientific-style coordinate system image.
@@ -62,8 +63,10 @@ def create_coordinate_grid(
     ax.spines['right'].set_visible(False)
 
     # Create grid lines
-    x_ticks = np.linspace(x, x + width, 11)
-    y_ticks = np.linspace(y, y + height, 11)
+    x_line_space_num = kwargs.get("x_line_space_num", 11)
+    y_line_space_num = kwargs.get("y_line_space_num", 11)
+    x_ticks = np.linspace(x, x + width, x_line_space_num)
+    y_ticks = np.linspace(y, y + height, y_line_space_num)
 
     # Set ticks
     ax.set_xticks(x_ticks)

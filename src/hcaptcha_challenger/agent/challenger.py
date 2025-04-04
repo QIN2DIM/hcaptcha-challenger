@@ -294,7 +294,7 @@ class RoboticArm:
         bbox = await challenge_view.bounding_box()
 
         # Save grid field
-        result = create_coordinate_grid(challenge_screenshot, bbox)
+        result = create_coordinate_grid(challenge_screenshot, bbox, y_line_space_num=20)
         current_time = datetime.now().strftime("%Y%m%d%H%M%S%f")
         grid_divisions = self.config.spatial_grid_cache.joinpath(f"{current_time}.png")
         grid_divisions.parent.mkdir(parents=True, exist_ok=True)
@@ -357,7 +357,7 @@ class RoboticArm:
         frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumb_count = await self.check_crumb_count()
 
-        for i in range(crumb_count):
+        for c in range(crumb_count):
             await self._wait_for_all_loaders_complete()
 
             # Get challenge-view
@@ -369,7 +369,7 @@ class RoboticArm:
             )
             boolean_matrix = response.convert_box_to_boolean_matrix()
 
-            logger.debug(f'[{i+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
+            logger.debug(f'[{c+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
             # drive the browser to work on the challenge
             positive_cases = 0
@@ -388,7 +388,7 @@ class RoboticArm:
                 submit_btn = frame_challenge.locator("//div[@class='button-submit button']")
                 await self.click_by_mouse(submit_btn)
 
-    async def challenge_image_drag_drop(self, job_type: Any):
+    async def challenge_image_drag_drop(self, job_type: ChallengeTypeEnum):
         frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumb_count = await self.check_crumb_count()
 
@@ -401,7 +401,7 @@ class RoboticArm:
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 model=self.config.SPATIAL_PATH_REASONER_MODEL,
-                auxiliary_information=f"JobType: {job_type}",
+                auxiliary_information=f"JobType: {job_type.value}",
             )
             logger.debug(f'[{i+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
@@ -416,7 +416,7 @@ class RoboticArm:
                 submit_btn = frame_challenge.locator("//div[@class='button-submit button']")
                 await self.click_by_mouse(submit_btn)
 
-    async def challenge_image_label_select(self, job_type: Any):
+    async def challenge_image_label_select(self, job_type: ChallengeTypeEnum):
         frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumb_count = await self.check_crumb_count()
 
@@ -425,11 +425,17 @@ class RoboticArm:
 
             raw, projection = await self._capture_spatial_mapping(frame_challenge)
 
+            user_prompt = f"**JobType:** {job_type.value}"
+            if job_type == ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT:
+                user_prompt += "\nWhen multiple clickable objects appear on Canvas, you need to carefully distinguish whether all objects are clickable."
+            elif job_type == ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT:
+                user_prompt += "\nTake a deep breath, focus, and give the most precise coordinates as much as possible. If you answer correctly, I will reward you with a tip of $200."
+
             response = self._spatial_point_reasoner.invoke(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 model=self.config.SPATIAL_POINT_REASONER_MODEL,
-                auxiliary_information=f"JobType: {job_type}",
+                auxiliary_information=user_prompt,
             )
             logger.debug(f'[{i+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
@@ -636,12 +642,13 @@ class AgentV:
             match challenge_type:
                 case RequestType.IMAGE_LABEL_BINARY:
                     await self.robotic_arm.challenge_image_label_binary()
-                case challenge_type.IMAGE_LABEL_SINGLE_SELECT:
-                    await self.robotic_arm.challenge_image_label_select(challenge_type.value)
-                case challenge_type.IMAGE_LABEL_MULTI_SELECT:
-                    await self.robotic_arm.challenge_image_label_select(challenge_type.value)
+                case (
+                    challenge_type.IMAGE_LABEL_SINGLE_SELECT
+                    | challenge_type.IMAGE_LABEL_MULTI_SELECT
+                ):
+                    await self.robotic_arm.challenge_image_label_select(challenge_type)
                 case challenge_type.IMAGE_DRAG_SINGLE:
-                    await self.robotic_arm.challenge_image_drag_drop(challenge_type.value)
+                    await self.robotic_arm.challenge_image_drag_drop(challenge_type)
                 case challenge_type.IMAGE_DRAG_MULTI:
                     # await self.robotic_arm.challenge_image_drag_drop(challenge_type.value)
                     logger.warning(f"Not yet supported challenge: {challenge_type.value}")
