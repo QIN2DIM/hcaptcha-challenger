@@ -477,24 +477,57 @@ class AgentV:
                 logger.exception(err)
 
     async def _check_pre_bypass(self) -> bool:
-        the_latest_task = None
+        the_latest_response = None
         while not self._task_queue.empty():
-            the_latest_task = self._task_queue.get_nowait()
+            the_latest_response = self._task_queue.get_nowait()
 
         if (
-            the_latest_task
-            and the_latest_task.headers.get("content-type", "") == "application/json"
+            the_latest_response
+            and the_latest_response.headers.get("content-type", "") == "application/json"
         ):
-            data = await the_latest_task.json()
+            data = await the_latest_response.json()
             if data.get("pass"):
                 cr = CaptchaResponse(**data)
                 self._captcha_response_queue.put_nowait(cr)
                 return True
 
+            self._task_queue.put_nowait(the_latest_response)
+
         return False
 
+    async def _review_challenge_type(self) -> RequestType | ChallengeTypeEnum:
+        try:
+            if not self._task_queue.empty():
+                task = self._task_queue.get_nowait()
+                data = await task.json()
+                request_type = data.get("request_type", "")
+                request_config = data.get("request_config", {})
+                match request_type:
+                    case "image_label_binary":
+                        return RequestType.IMAGE_LABEL_BINARY
+                    case "image_label_area_select":
+                        if request_config.get("max_shapes_per_image", 0) == 1:
+                            return ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT
+                        return ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT
+                    case "image_drag_drop":
+                        if tasklist := data.get("tasklist", []):
+                            first_task = tasklist[0]
+                            if isinstance(first_task, dict) and "entities" in first_task:
+                                entities = first_task["entities"]
+                                if isinstance(entities, list):
+                                    if len(entities) == 1:
+                                        return ChallengeTypeEnum.IMAGE_DRAG_SINGLE
+                                    return ChallengeTypeEnum.IMAGE_DRAG_MULTI
+                    case _:
+                        logger.warning(f"Unknown request_type: {request_type}")
+        except Exception as err:
+            logger.error(err)
+
+        # REVEAL ALL THE DETAILS
+        return await self.robotic_arm.check_challenge_type()
+
     async def _solve_captcha(self):
-        challenge_type = await self.robotic_arm.check_challenge_type()
+        challenge_type = await self._review_challenge_type()
         logger.debug(f"challenge_type: {challenge_type.value}")
 
         try:
