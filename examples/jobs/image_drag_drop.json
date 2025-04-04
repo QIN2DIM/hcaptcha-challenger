@@ -1,0 +1,64 @@
+{
+  "key": "E0_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiV05RTW15Z3d3c2ljNnpMUWQyZUlVbjV6N0Z6aWhSSGVZNlp0RmlMelQ3RHYwVStMZTBiRjRaTFBFcHVsVVZCUDhYUENGWmtpaitXc0VDeklDSzA4QUFWT213VUpFRGJzYW5TN1NXVmtLL2NIUGdwdlBVQjduR1RCY1ZydldMbmZiMUNaY0VRWDMrdVkrUWVnSUxEV2Y1RWllSERuQmdGc3g5bXltMmtWVG9YN081TDJGRG5LU1ZPV2JZb09aajVMTjJ0OUI4S2hhVndQV3EvYnV6RDVSZTJXUDhuTDFBRm5VYXk0TkI4MTZwTHZtZklsWnF3cEhUT3B4Q3hCV3V1YVpKTmJkNkdLaEVrPUkzNVdSTkhYSEJIVFVaWFMiLCJleHAiOjE3NDM3Mjk5MTIsImtyIjoiMTFiMjY3Y2QifQ.wAM-3jWWjtV9Mr4bbA7KV80XANCWYN3jXyjGr_G5BLQ",
+  "request_config": {
+    "version": 0,
+    "shape_type": null,
+    "min_points": null,
+    "max_points": null,
+    "min_shapes_per_image": null,
+    "max_shapes_per_image": null,
+    "restrict_to_coords": null,
+    "minimum_selection_area_per_shape": null,
+    "multiple_choice_max_choices": 1,
+    "multiple_choice_min_choices": 1,
+    "overlap_threshold": null,
+    "answer_type": "str",
+    "max_value": null,
+    "min_value": null,
+    "max_length": null,
+    "min_length": null,
+    "sig_figs": null,
+    "keep_answers_order": null,
+    "ignore_case": false,
+    "new_translation": true
+  },
+  "request_type": "image_drag_drop",
+  "requester_question": {
+    "zh": "请点击并按住右侧的元素，将其拖动到最相似的形状上",
+    "en": "Please click, hold, and drag the element on the right to the shape that is most similar"
+  },
+  "requester_restricted_answer_set": {
+    "default": {
+      "en": "default"
+    }
+  },
+  "tasklist": [
+    {
+      "datapoint_uri": "https://imgs3.hcaptcha.com/tip/72a0b77bf825d93f6d0f8ef255f55fc9076710da2e2d894dee0c8e91c87127e4/7666c10ed5dfa8f4e287ecdaa7cf953b44455fab5d57d1728d445073806ca023.png",
+      "task_key": "893b326e-f4a3-4ef7-91ff-0f65aa03d4d3",
+      "entities": [
+        {
+          "entity_id": "72606c0e-f06c-4d76-876f-5846df8bbf6a",
+          "entity_uri": "https://imgs3.hcaptcha.com/tip/7d98f468aadb69dc6b7bf41e3ca6745d208dd3e58adebfa19b277b3d5d67266b/eaa22e94dacae6a2410932ef883baef61dd6b187e79261d21a3a76abcc0cbac2.png",
+          "coords": [
+            420,
+            68
+          ],
+          "size": [
+            98,
+            98
+          ],
+          "metadata": {
+            "original_uri": "https://fantasia-assets.hcaptcha.com/d-and-d-dragshapetosimilar-2-diamond_5_asterisktriangl53054/e16c63bb-f7a0-4cfa-8462-cb43da14c6b2_draggable_0.png"
+          }
+        }
+      ]
+    }
+  ],
+  "oby": "v2:3/4HlqcG/mk42lAG9lDn2TZjNjJhMDgzVNeQ+OAJwTzlBAiOW9LTTJnekJjFpABmDJWgsCfcty/d9pR0f0KUy8oyHBXPtj8SjsmfLsrmhCE39q4vUzN9JUx3NX2JhizUa/XWhToUXi5rZt6VLrX2lPnW90MO71YeDcyPu25qHzMblMS2jG3BHhgsCG2ST4Puzw32FA+t0yc=",
+  "normalized": true,
+  "c": {
+    "type": "hsw",
+    "req": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmIjowLCJzIjoyLCJ0IjoidyIsImQiOiI1b3dZM1dEQ3ppd1FycUE3a09DZTBLbFgxY3M0VGh5T2JrK3FCaVk1U1IzV0p5dWJzY0hQTDNzSDFGbXZmSWc2VWxmS0JycFhOOGxGUStyQkJDdXRvV00wL2NUSVo4ZzJGaUUzeFAvZ1BDR1dEUmJ1cHFCUmJyMVJza3R1UHNYSW1RMHZaNmNlRWpPVXV2cWNpN3dFNzkzQ09vZENvRmlzSWFSZ1JQK2MyOUdURTlxK2ZFYiszY0tETVV3bllBc3FPa0dsd2kvbUlUajMvMUpFYW1rN0VaWjR2b3E1VmlHRjJ2KzB3YVV0Ynk4alBxQm8xOHhob0xSWEhyTGlJU2s9NStwSi9XVENMNTRkcnlZdiIsImwiOiIvYy81ZmVmNzU5ZTM0YTk1NWRkNTZjZWRkZDgwNWU2YTg3ZDNmN2Q4NTRjOGM2OTViZjc5N2Q0MzMzMWJlYmZlZTNmIiwiaSI6InNoYTI1Ni1mN3F3MHJDZ2srT25lQVl5RGhmVUljSllYdVVudmUyUWw4WCtDNm1zZ0NrPSIsImUiOjE3NDM3MzE2MjMsIm4iOiJoc3ciLCJjIjoxMDAwfQ.y0EjpPzVvXX7lFRBqC5jKtysdlomdjcnfhx2l0ibUKI"
+  }
+}
