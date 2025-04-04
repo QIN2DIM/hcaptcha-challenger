@@ -618,7 +618,7 @@ class AgentV:
                 # todo NotSupported IMAGE_DRAG_MULTI
                 case _:
                     logger.warning(f"Not yet supported challenge - {challenge_type=}")
-                    await self.page.wait_for_timeout(5000)
+                    await self.page.wait_for_timeout(3000)
                     await self.robotic_arm.refresh_challenge()
                     return await self._solve_captcha()
         except Exception as err:
