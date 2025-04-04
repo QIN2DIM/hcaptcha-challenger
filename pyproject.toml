@@ -88,3 +88,8 @@ source = "uv-dynamic-versioning"
 vcs = "git"
 style = "pep440"
 bump = true
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]

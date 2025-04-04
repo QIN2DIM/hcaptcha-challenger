@@ -64,13 +64,17 @@ def create_coordinate_grid(
 
     # Create grid lines
     x_line_space_num = kwargs.get("x_line_space_num", 11)
-    y_line_space_num = kwargs.get("y_line_space_num", 11)
+    y_line_space_num = kwargs.get("y_line_space_num", 20)
     x_ticks = np.linspace(x, x + width, x_line_space_num)
     y_ticks = np.linspace(y, y + height, y_line_space_num)
 
     # Set ticks
     ax.set_xticks(x_ticks)
     ax.set_yticks(y_ticks)
+
+    # Format tick labels as rounded integers
+    ax.set_xticklabels([str(round(tick)) for tick in x_ticks])
+    ax.set_yticklabels([str(round(tick)) for tick in y_ticks])
 
     # Add grid with semi-transparent purple lines
     ax.grid(True, color='gray', alpha=0.5, linestyle='-', linewidth=1.0)
