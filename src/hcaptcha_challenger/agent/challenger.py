@@ -230,6 +230,7 @@ class RoboticArm:
             return self.signal_crumb_count
 
         # Determine the number of tasks based on DOM
+        await self.page.wait_for_timeout(500)
         frame_challenge = self.page.frame_locator(self.challenge_selector)
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         return 2 if await crumbs.first.is_visible() else 1
@@ -243,7 +244,6 @@ class RoboticArm:
         count = await samples.count()
         if isinstance(count, int) and count == 9:
             return RequestType.IMAGE_LABEL_BINARY
-        # todo:Decode MSG packages to speed up decision making
         if isinstance(count, int) and count == 0:
             tms = self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS * 1.5
             await self.page.wait_for_timeout(tms)
