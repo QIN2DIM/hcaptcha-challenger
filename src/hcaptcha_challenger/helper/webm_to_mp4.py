@@ -25,7 +25,7 @@ def convert_webm_to_mp4(input_file: str, output_file: Optional[str] = None) -> b
         bool: Is the conversion successful?
     """
     if not os.path.exists(input_file):
-        logger.error(f"输入文件不存在: {input_file}")
+        logger.error(f"Input file does not exist: {input_file}")
         return False
 
     if not output_file:
@@ -108,7 +108,9 @@ def batch_convert(input_dir: str, output_dir: Optional[str] = None) -> None:
             if convert_webm_to_mp4(str(webm_file)):
                 success_count += 1
 
-    logger.info(f"转换完成: {success_count}/{len(webm_files)} 个文件成功转换")
+    logger.info(
+        f"Conversion completed: {success_count}/{len(webm_files)} files were successfully converted"
+    )
 
 
 def check_ffmpeg() -> bool:
