@@ -132,9 +132,18 @@ class RequestType(str, Enum):
     MULTI_CHALLENGE = "multi_challenge"
 
 
-SCoTModelType = Literal["gemini-2.5-pro-exp-03-25", "gemini-2.0-flash-thinking-exp-01-21"]
+# https://ai.google.dev/gemini-api/docs/rate-limits#current-rate-limits
+SCoTModelType = Literal[
+    "gemini-2.5-pro-exp-03-25",
+    "gemini-2.0-flash-thinking-exp-01-21",
+    # This model is not available in the free plan
+    # Recommended for production environments for more tolerant rate limits
+    "gemini-2.5-pro-preview-03-25",
+]
 
-FastShotModelType = Literal["gemini-2.0-flash", "gemini-2.0-flash-thinking-exp-01-21"]
+FastShotModelType = Literal[
+    "gemini-2.0-flash", "gemini-2.0-flash-thinking-exp-01-21", "gemini-2.5-pro-preview-03-25"
+]
 
 
 class BoundingBoxCoordinate(BaseModel):
