@@ -601,7 +601,8 @@ class AgentV:
         # Fallback to visual recognition solution
         return await self.robotic_arm.check_challenge_type()
 
-    async def _solve_captcha(self, challenge_type: RequestType | ChallengeTypeEnum):
+    async def _solve_captcha(self):
+        challenge_type = await self._review_challenge_type()
         logger.debug(f"challenge_type: {challenge_type.value}")
 
         try:
@@ -617,9 +618,9 @@ class AgentV:
                 # todo NotSupported IMAGE_DRAG_MULTI
                 case _:
                     logger.warning(f"Not yet supported challenge - {challenge_type=}")
-                    await self.page.wait_for_timeout(2000)
+                    await self.page.wait_for_timeout(5000)
                     await self.robotic_arm.refresh_challenge()
-                    return await self._solve_captcha(challenge_type)
+                    return await self._solve_captcha()
         except Exception as err:
             logger.exception(f"ChallengeException - type={challenge_type.value} {err=}")
             await self.robotic_arm.refresh_challenge()
@@ -629,11 +630,7 @@ class AgentV:
         # ----------------------------------------------------------------------
         try:
             if self._captcha_response_queue.empty():
-                challenge_type = await self._review_challenge_type()
-                await asyncio.wait_for(
-                    self._solve_captcha(challenge_type=challenge_type),
-                    timeout=self.config.EXECUTION_TIMEOUT,
-                )
+                await asyncio.wait_for(self._solve_captcha(), timeout=self.config.EXECUTION_TIMEOUT)
         except asyncio.TimeoutError:
             logger.error("Challenge execution timed out", timeout=self.config.EXECUTION_TIMEOUT)
             return ChallengeSignal.EXECUTION_TIMEOUT
