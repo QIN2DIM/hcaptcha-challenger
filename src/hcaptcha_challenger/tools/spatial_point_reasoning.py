@@ -4,6 +4,8 @@ from typing import Union
 
 from google import genai
 from google.genai import types
+from loguru import logger
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from hcaptcha_challenger.models import SCoTModelType, ImageAreaSelectChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
@@ -32,6 +34,13 @@ class SpatialPointReasoner:
         """Initialize the classifier with a Gemini API key."""
         self._api_key = gemini_api_key
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_fixed(3),
+        before_sleep=lambda retry_state: logger.warning(
+            f"Retry request ({retry_state.attempt_number}/2) - Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
+        ),
+    )
     def invoke(
         self,
         challenge_screenshot: Union[str, Path, os.PathLike],
