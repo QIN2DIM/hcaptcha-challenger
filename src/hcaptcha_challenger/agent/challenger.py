@@ -496,34 +496,53 @@ class AgentV:
         return False
 
     async def _review_challenge_type(self) -> RequestType | ChallengeTypeEnum:
-        try:
-            if not self._task_queue.empty():
-                task = self._task_queue.get_nowait()
-                data = await task.json()
-                request_type = data.get("request_type", "")
-                request_config = data.get("request_config", {})
-                match request_type:
-                    case "image_label_binary":
-                        return RequestType.IMAGE_LABEL_BINARY
-                    case "image_label_area_select":
-                        if request_config.get("max_shapes_per_image", 0) == 1:
-                            return ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT
-                        return ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT
-                    case "image_drag_drop":
-                        if tasklist := data.get("tasklist", []):
-                            first_task = tasklist[0]
-                            if isinstance(first_task, dict) and "entities" in first_task:
-                                entities = first_task["entities"]
-                                if isinstance(entities, list):
-                                    if len(entities) == 1:
-                                        return ChallengeTypeEnum.IMAGE_DRAG_SINGLE
-                                    return ChallengeTypeEnum.IMAGE_DRAG_MULTI
-                    case _:
-                        logger.warning(f"Unknown request_type: {request_type}")
-        except Exception as err:
-            logger.error(err)
+        if self._task_queue.empty():
+            return await self.robotic_arm.check_challenge_type()
 
-        # REVEAL ALL THE DETAILS
+        try:
+            get_captcha_response: Response = self._task_queue.get_nowait()
+            data = await get_captcha_response.json()
+            request_type = data.get("request_type", "")
+
+            if request_type == "image_label_binary":
+                return RequestType.IMAGE_LABEL_BINARY
+
+            if request_type == "image_label_area_select":
+                request_config = data.get("request_config", {})
+                max_shapes = request_config.get("max_shapes_per_image", 0)
+                return (
+                    ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT
+                    if max_shapes == 1
+                    else ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT
+                )
+
+            if request_type == "image_drag_drop":
+                tasklist = data.get("tasklist", [])
+                if not tasklist:
+                    logger.warning("Empty tasklist for image_drag_drop")
+                    return await self.robotic_arm.check_challenge_type()
+
+                first_task = tasklist[0]
+                if not isinstance(first_task, dict) or "entities" not in first_task:
+                    logger.warning("Invalid first_task format in image_drag_drop")
+                    return await self.robotic_arm.check_challenge_type()
+
+                entities = first_task["entities"]
+                if not isinstance(entities, list):
+                    logger.warning("Entities is not a list in image_drag_drop")
+                    return await self.robotic_arm.check_challenge_type()
+
+                return (
+                    ChallengeTypeEnum.IMAGE_DRAG_SINGLE
+                    if len(entities) == 1
+                    else ChallengeTypeEnum.IMAGE_DRAG_MULTI
+                )
+
+            logger.warning(f"Unknown request_type: {request_type}")
+        except Exception as err:
+            logger.error(f"Error parsing challenge type: {err}")
+
+        # 回退到视觉识别方法
         return await self.robotic_arm.check_challenge_type()
 
     async def _solve_captcha(self):
@@ -578,6 +597,7 @@ class AgentV:
                 if self.config.RETRY_ON_FAILURE:
                     logger.warning("Failed to challenge, try to retry the strategy")
                     await self.page.wait_for_timeout(1500)
+                    # Challenge are automatically distributed
                     _signal = await self._task_queue.get()
                     self._task_queue.put_nowait(_signal)
                     return await self.wait_for_challenge()
