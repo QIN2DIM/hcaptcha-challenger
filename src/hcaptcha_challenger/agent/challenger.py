@@ -190,7 +190,7 @@ class RoboticArm:
         self._spatial_point_reasoner = SpatialPointReasoner(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
         )
-        self._signal_crumb_count = Queue(maxsize=1)
+        self.signal_crumb_count: int | None = None
 
     @property
     def checkbox_selector(self) -> str:
@@ -199,10 +199,6 @@ class RoboticArm:
     @property
     def challenge_selector(self) -> str:
         return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
-
-    def put_crumb_count_signal(self, tasklist_length: int):
-        if self._signal_crumb_count.empty():
-            self._signal_crumb_count.put_nowait(tasklist_length)
 
     async def click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()
@@ -230,10 +226,8 @@ class RoboticArm:
     async def check_crumb_count(self):
         """Page turn in tasks"""
         # Determine the number of tasks based on hsw
-        if not self._signal_crumb_count.empty():
-            crumb_count = self._signal_crumb_count.get_nowait()
-            if isinstance(crumb_count, int) and crumb_count >= 1:
-                return crumb_count
+        if isinstance(self.signal_crumb_count, int) and self.signal_crumb_count >= 1:
+            return self.signal_crumb_count
 
         # Determine the number of tasks based on DOM
         frame_challenge = self.page.frame_locator(self.challenge_selector)
@@ -546,6 +540,21 @@ class AgentV:
                         unpacked_data = msgpack.unpackb(bytes(result))
                         captcha_payload = CaptchaPayload(**unpacked_data)
                         self._captcha_payload_queue.put_nowait(captcha_payload)
+
+                        # Save captcha payload to json
+                        try:
+                            current_time = datetime.now().strftime("%Y%m%d%H%M%S%f")
+                            cache_path = self.config.cache_dir.joinpath(
+                                f"payload/{captcha_payload.request_type.value}/{current_time}.json"
+                            )
+                            cache_path.parent.mkdir(parents=True, exist_ok=True)
+                            cache_path.write_text(
+                                json.dumps(unpacked_data, indent=2, ensure_ascii=False),
+                                encoding="utf8",
+                            )
+                        except Exception as err:
+                            logger.warning(f"Saving captcha payload failed - {err}")
+
                         return
                 # If the reverse fails, fall back to the original process
                 else:
@@ -569,15 +578,20 @@ class AgentV:
             logger.error("Wait for captcha payload to timeout")
             self._captcha_payload = None
 
+        self.robotic_arm.signal_crumb_count = None
         if not self._captcha_payload:
             return await self.robotic_arm.check_challenge_type()
 
         try:
             request_type = self._captcha_payload.request_type
+            tasklist = self._captcha_payload.tasklist
+            tasklist_length = len(tasklist)
             match request_type:
                 case RequestType.IMAGE_LABEL_BINARY:
+                    self.robotic_arm.signal_crumb_count = int(tasklist_length / 9)
                     return RequestType.IMAGE_LABEL_BINARY
                 case RequestType.IMAGE_LABEL_AREA_SELECT:
+                    self.robotic_arm.signal_crumb_count = tasklist_length
                     max_shapes = self._captcha_payload.request_config.max_shapes_per_image
                     if not isinstance(max_shapes, int):
                         return await self.robotic_arm.check_challenge_type()
@@ -587,7 +601,7 @@ class AgentV:
                         else ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT
                     )
                 case RequestType.IMAGE_DRAG_DROP:
-                    tasklist = self._captcha_payload.tasklist
+                    self.robotic_arm.signal_crumb_count = tasklist_length
                     if not tasklist or not isinstance(tasklist, list):
                         logger.warning("Invalid tasklist format in image_drag_drop")
                         return await self.robotic_arm.check_challenge_type()
@@ -614,7 +628,9 @@ class AgentV:
 
     async def _solve_captcha(self):
         challenge_type = await self._review_challenge_type()
-        logger.debug(f"Challenge Type: {challenge_type.value}")
+        logger.debug(
+            f"Start Challenge - type={challenge_type.value} count={self.robotic_arm.signal_crumb_count}"
+        )
 
         try:
             match challenge_type:

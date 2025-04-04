@@ -62,7 +62,7 @@ class CaptchaRequestConfig(BaseModel):
 class CaptchaPayload(BaseModel):
     key: str = Field(default="")
     request_config: CaptchaRequestConfig | dict = Field(default_factory=dict)
-    request_type: RequestType | str = Field(default="")
+    request_type: RequestType = Field(default="")
     requester_question: Dict[str, str] | None = Field(default_factory=dict)
     requester_restricted_answer_set: Dict[str, Any] | None = Field(default_factory=dict)
     requester_question_example: List[str] | str | None = Field(default=None)
