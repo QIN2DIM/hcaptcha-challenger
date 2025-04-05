@@ -81,6 +81,7 @@ def generate_env_example(
 
         # Extract description and default value
         description = field_props.get("description", "")
+        default_value = field_props.get("default")
 
         # Format the entry
         if description:
@@ -92,13 +93,21 @@ def generate_env_example(
                 # Wrap long lines (80 characters max, accounting for "# " prefix)
                 wrapped_lines = textwrap.wrap(
                     description_line.strip(),
-                    width=77,  # 80 - 3 ("# " prefix and space)
+                    width=100,  # 80 - 3 ("# " prefix and space)
                     break_long_words=False,
                     break_on_hyphens=True,
                 )
 
                 for wrapped_line in wrapped_lines:
                     env_lines.append(f"# {wrapped_line}")
+
+        # Add Default value as comment if it exists
+        if default_value is not None:
+            # Convert boolean values to lowercase strings for display
+            display_default = default_value
+            if isinstance(display_default, bool):
+                display_default = str(display_default).lower()
+            env_lines.append(f"# Default: {display_default}")
 
         # Check if field type is Literal and add choices to description
         if field_type and get_origin(field_type) is Literal:
@@ -108,9 +117,6 @@ def generate_env_example(
                 # Remove quotes for string values in output
                 choice_str = str(choice)
                 env_lines.append(f"# - {choice_str}")
-
-        # Get default value
-        default_value = field_props.get("default")
 
         # Special handling for SecretStr
         if field_name in type_hints and type_hints[field_name] == SecretStr:
