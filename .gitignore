@@ -165,3 +165,5 @@ examples/tmp/*
 
 tests/**/coordinate_grid*.png
 tests/ffmpeg.exe
+tests/generate_content
+tests/.env.example

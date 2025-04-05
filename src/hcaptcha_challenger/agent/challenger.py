@@ -19,9 +19,9 @@ from typing import List, Tuple
 import matplotlib.pyplot as plt
 import msgpack
 from loguru import logger
+from playwright.async_api import Locator, expect, Page, Response, TimeoutError, FrameLocator
 from pydantic import Field, field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from playwright.async_api import Locator, expect, Page, Response, TimeoutError, FrameLocator
 
 from hcaptcha_challenger.helper import create_coordinate_grid
 from hcaptcha_challenger.models import (
@@ -115,26 +115,43 @@ class AgentConfig(BaseSettings):
     cache_dir: Path = Path("tmp/.cache")
     captcha_response_dir: Path = Path("tmp/.captcha")
 
-    EXECUTION_TIMEOUT: float = Field(default=120.0, description="second")
-    RESPONSE_TIMEOUT: float = Field(default=30.0, description="second")
+    EXECUTION_TIMEOUT: float = Field(
+        default=120,
+        description="When your local network is poor, increase this value appropriately\n"
+        "Default: 120 [unit: second]",
+    )
+    RESPONSE_TIMEOUT: float = Field(
+        default=30,
+        description="When your local network is poor, increase this value appropriately\n"
+        "Default: 30 [unit: second]",
+    )
     RETRY_ON_FAILURE: bool = Field(default=True)
-    WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS: int = Field(default=1500, description="millisecond")
+    WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS: int = Field(
+        default=1500,
+        description="When your local network is poor, increase this value appropriately\n"
+        "Default: 1500 [unit: millisecond]",
+    )
 
     CHALLENGE_CLASSIFIER_MODEL: FastShotModelType = Field(
         default='gemini-2.0-flash',
-        description="Give multimodal understanding to call different solutions",
+        description="For the challenge classification task \n"
+        "Used as last resort when HSW decoding fails.\n"
+        "Default: gemini-2.0-flash",
     )
     IMAGE_CLASSIFIER_MODEL: SCoTModelType = Field(
-        default="gemini-2.0-flash-thinking-exp-01-21",
-        description="For challenge image_label_binary",
+        default="gemini-2.5-pro-exp-03-25",
+        description="For the challenge type: `image_label_binary`\n"
+        "Default: gemini-2.5-pro-exp-03-25",
     )
     SPATIAL_POINT_REASONER_MODEL: SCoTModelType = Field(
         default="gemini-2.5-pro-exp-03-25",
-        description="For challenge image_label_area_select (single/multi)",
+        description="For the challenge type: `image_label_area_select` (single/multi) \n"
+        "Default: gemini-2.5-pro-exp-03-25",
     )
     SPATIAL_PATH_REASONER_MODEL: SCoTModelType = Field(
         default="gemini-2.5-pro-exp-03-25",
-        description="For challenge image_drag_drop (single/multi)",
+        description="For the challenge type: `image_drag_drop` (single/multi) \n"
+        "Default: gemini-2.5-pro-exp-03-25",
     )
 
     @field_validator('GEMINI_API_KEY', mode="before")

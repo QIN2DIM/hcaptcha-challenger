@@ -142,7 +142,10 @@ SCoTModelType = Literal[
 ]
 
 FastShotModelType = Literal[
-    "gemini-2.0-flash", "gemini-2.0-flash-thinking-exp-01-21", "gemini-2.5-pro-preview-03-25"
+    # https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash
+    "gemini-2.0-flash",
+    # https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite
+    "gemini-2.0-flash-lite",
 ]
 
 

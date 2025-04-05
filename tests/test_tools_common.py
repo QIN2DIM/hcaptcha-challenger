@@ -1,8 +1,11 @@
+import json
 import os
 from pathlib import Path
+from uuid import uuid4
 
 import dotenv
 from google import genai
+from google.genai import types
 
 dotenv.load_dotenv()
 
@@ -16,6 +19,9 @@ gemini_models = [
     "gemini-2.0-flash-thinking-exp-01-21",
     "gemini-2.0-flash-lite",
 ]
+
+output_dir = Path("generate_content")
+output_dir.mkdir(parents=True, exist_ok=True)
 
 
 def test_count_tokens():
@@ -46,3 +52,45 @@ def test_count_prompts_tokens():
     for text in contents:
         response = client.models.count_tokens(model=model, contents=text)
         print(response)
+
+
+def test_generate_text_with_google_search():
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=[
+            types.Content(
+                role="user", parts=[types.Part.from_text(text="What is the Siamese neural network")]
+            )
+        ],
+        config=types.GenerateContentConfig(tools=[types.Tool(google_search=types.GoogleSearch())]),
+    )
+    text = json.dumps(response.model_dump(mode="json"), indent=2, ensure_ascii=False)
+    output_dir.joinpath(f"google_search_{uuid4()}.json").write_text(text, encoding="utf8")
+
+
+def test_pay_as_you_go():
+    """
+    gemini-2.5-pro-preview-03-25 Not applicable to free plan
+    Returns:
+
+    """
+    cf = genai.Client(api_key=os.getenv("GEMINI_API_KEY_FREE"))
+
+    response = cf.models.generate_content(model="gemini-2.5-pro-preview-03-25", contents="hello!")
+    text = json.dumps(response.model_dump(mode="json"), indent=2, ensure_ascii=False)
+    output_dir.joinpath(f"pay_as_you_go_{uuid4()}.json").write_text(text, encoding="utf8")
+
+
+def test_list_models():
+    cf = genai.Client(api_key=os.getenv("GEMINI_API_KEY_FREE"))
+    pf = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+    print("--- FREE PLAN ---")
+    for model in cf.models.list():
+        if "gemini-2." in model.name:
+            print(model)
+
+    print("--- PAID PLAN ---")
+    for model in pf.models.list():
+        if "gemini-2." in model.name:
+            print(model)
