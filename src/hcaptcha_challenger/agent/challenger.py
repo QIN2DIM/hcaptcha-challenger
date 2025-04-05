@@ -117,41 +117,36 @@ class AgentConfig(BaseSettings):
 
     EXECUTION_TIMEOUT: float = Field(
         default=120,
-        description="When your local network is poor, increase this value appropriately\n"
-        "Default: 120 [unit: second]",
+        description="When your local network is poor, increase this value appropriately [unit: second]",
     )
     RESPONSE_TIMEOUT: float = Field(
         default=30,
-        description="When your local network is poor, increase this value appropriately\n"
-        "Default: 30 [unit: second]",
+        description="When your local network is poor, increase this value appropriately [unit: second]",
     )
-    RETRY_ON_FAILURE: bool = Field(default=True)
+    RETRY_ON_FAILURE: bool = Field(
+        default=True, description="Re-execute the challenge when it fails"
+    )
     WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS: int = Field(
         default=1500,
-        description="When your local network is poor, increase this value appropriately\n"
-        "Default: 1500 [unit: millisecond]",
+        description="When your local network is poor, increase this value appropriately [unit: millisecond]",
     )
 
     CHALLENGE_CLASSIFIER_MODEL: FastShotModelType = Field(
         default='gemini-2.0-flash',
         description="For the challenge classification task \n"
-        "Used as last resort when HSW decoding fails.\n"
-        "Default: gemini-2.0-flash",
+        "Used as last resort when HSW decoding fails.",
     )
     IMAGE_CLASSIFIER_MODEL: SCoTModelType = Field(
         default="gemini-2.5-pro-exp-03-25",
-        description="For the challenge type: `image_label_binary`\n"
-        "Default: gemini-2.5-pro-exp-03-25",
+        description="For the challenge type: `image_label_binary`",
     )
     SPATIAL_POINT_REASONER_MODEL: SCoTModelType = Field(
         default="gemini-2.5-pro-exp-03-25",
-        description="For the challenge type: `image_label_area_select` (single/multi) \n"
-        "Default: gemini-2.5-pro-exp-03-25",
+        description="For the challenge type: `image_label_area_select` (single/multi)",
     )
     SPATIAL_PATH_REASONER_MODEL: SCoTModelType = Field(
         default="gemini-2.5-pro-exp-03-25",
-        description="For the challenge type: `image_drag_drop` (single/multi) \n"
-        "Default: gemini-2.5-pro-exp-03-25",
+        description="For the challenge type: `image_drag_drop` (single/multi)",
     )
 
     @field_validator('GEMINI_API_KEY', mode="before")
