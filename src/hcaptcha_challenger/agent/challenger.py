@@ -286,7 +286,7 @@ class RoboticArm:
     async def _capture_challenge_view(self, frame_challenge: FrameLocator) -> Path:
         challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
         cache_dir = self.config.cache_dir.joinpath("challenge_view")
-        current_time = datetime.now().strftime("%Y%m%d%H%M%S%f")
+        current_time = datetime.now().strftime("%Y%m%d/%Y%m%d%H%M%S%f")
         cache_path = cache_dir.joinpath(f"{current_time}.png")
         await challenge_view.screenshot(type="png", path=cache_path)
 
@@ -307,7 +307,7 @@ class RoboticArm:
             color="gray",
             adaptive_contrast=False,
         )
-        current_time = datetime.now().strftime("%Y%m%d%H%M%S%f")
+        current_time = datetime.now().strftime("%Y%m%d/%Y%m%d%H%M%S%f")
         grid_divisions = self.config.spatial_grid_cache.joinpath(f"{current_time}.png")
         grid_divisions.parent.mkdir(parents=True, exist_ok=True)
         plt.imsave(str(grid_divisions.resolve()), result)
@@ -561,7 +561,7 @@ class AgentV:
 
                         # Save captcha payload to json
                         try:
-                            current_time = datetime.now().strftime("%Y%m%d%H%M%S%f")
+                            current_time = datetime.now().strftime("%Y%m%d/%Y%m%d%H%M%S%f")
                             cache_path = self.config.cache_dir.joinpath(
                                 f"payload/{captcha_payload.request_type.value}/{current_time}.json"
                             )
