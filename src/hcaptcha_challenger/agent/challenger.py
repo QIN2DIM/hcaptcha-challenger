@@ -304,7 +304,7 @@ class RoboticArm:
             bbox,
             x_line_space_num=11,
             y_line_space_num=20,
-            color="black",
+            color="gray",
             adaptive_contrast=False,
         )
         current_time = datetime.now().strftime("%Y%m%d%H%M%S%f")
