@@ -299,7 +299,14 @@ class RoboticArm:
         bbox = await challenge_view.bounding_box()
 
         # Save grid field
-        result = create_coordinate_grid(challenge_screenshot, bbox, y_line_space_num=20)
+        result = create_coordinate_grid(
+            challenge_screenshot,
+            bbox,
+            x_line_space_num=11,
+            y_line_space_num=20,
+            color="black",
+            adaptive_contrast=False,
+        )
         current_time = datetime.now().strftime("%Y%m%d%H%M%S%f")
         grid_divisions = self.config.spatial_grid_cache.joinpath(f"{current_time}.png")
         grid_divisions.parent.mkdir(parents=True, exist_ok=True)
