@@ -59,6 +59,20 @@ class CaptchaRequestConfig(BaseModel):
     new_translation: bool | None = None
 
 
+class CaptchaTaskEntity(BaseModel):
+    entity_id: str
+    entity_uri: str
+    coords: List[int]
+    size: List[int]
+    metadata: dict
+
+
+class CaptchaTask(BaseModel):
+    datapoint_uri: str
+    task_key: str
+    entities: List[CaptchaTaskEntity] = Field(default_factory=list)
+
+
 class CaptchaPayload(BaseModel):
     key: str = Field(default="")
     request_config: CaptchaRequestConfig | dict = Field(default_factory=dict)
@@ -66,7 +80,7 @@ class CaptchaPayload(BaseModel):
     requester_question: Dict[str, str] | None = Field(default_factory=dict)
     requester_restricted_answer_set: Dict[str, Any] | None = Field(default_factory=dict)
     requester_question_example: List[str] | str | None = Field(default=None)
-    tasklist: List[Dict[str, Any]] = Field(default_factory=list)
+    tasklist: List[CaptchaTask] = Field(default_factory=list)
     oby: str | None = Field(default=None)
     normalized: bool | None = Field(default=None)
     c: Token = Field(default_factory=dict)

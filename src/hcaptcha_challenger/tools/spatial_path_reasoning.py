@@ -11,8 +11,7 @@ from hcaptcha_challenger.models import SCoTModelType, ImageDragDropChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 
 THINKING_PROMPT = """
-Thinking step-by-step：
-
+**Thinking step-by-step:**
 1. Identify challenge prompt about the Challenge Image
 2. Think about what the challenge requires identification goals, and where are they in the picture
 3. Think about what object should be dragged to which position

@@ -613,20 +613,9 @@ class AgentV:
                     )
                 case RequestType.IMAGE_DRAG_DROP:
                     self.robotic_arm.signal_crumb_count = tasklist_length
-                    if not tasklist or not isinstance(tasklist, list):
-                        logger.warning("Invalid tasklist format in image_drag_drop")
-                        return await self.robotic_arm.check_challenge_type()
-                    first_task = tasklist[0]
-                    if not isinstance(first_task, dict) or "entities" not in first_task:
-                        logger.warning("Invalid first_task format in image_drag_drop")
-                        return await self.robotic_arm.check_challenge_type()
-                    entities = first_task["entities"]
-                    if not isinstance(entities, list):
-                        logger.warning("Entities is not a list in image_drag_drop")
-                        return await self.robotic_arm.check_challenge_type()
                     return (
                         ChallengeTypeEnum.IMAGE_DRAG_SINGLE
-                        if len(entities) == 1
+                        if len(tasklist[0].entities) == 1
                         else ChallengeTypeEnum.IMAGE_DRAG_MULTI
                     )
 
