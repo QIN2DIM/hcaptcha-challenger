@@ -185,7 +185,8 @@ def create_coordinate_grid(
     ax.set_yticklabels([str(round(tick)) for tick in y_ticks])
 
     # Add grid with semi-transparent purple lines
-    ax.grid(True, color='gray', alpha=0.5, linestyle='-', linewidth=1.0)
+    color = kwargs.get("color", "gray")
+    ax.grid(True, color=color, alpha=0.5, linestyle='-', linewidth=1.0)
     # ax.grid(True, color='gray', alpha=0.5, linestyle='--', linewidth=1.0)
     # ax.grid(True, color='lightgray', alpha=0.2, linestyle='-', linewidth=0.8)
 

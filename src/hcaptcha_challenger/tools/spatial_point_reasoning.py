@@ -58,6 +58,11 @@ class SpatialPointReasoner:
         ]
 
         # Create content with only the image
+        # When the model performs inference, the image will also be converted into the corresponding Image Token.
+        # When the context of a dialogue is long, the model may focus on the backward Prompt.
+        # Therefore, when writing Prompt, you can say that the instructions are placed at the end
+        # and the images are placed at the head, so that the model can pay more attention to the instructions,
+        # thereby improving the effect of the instructions following.
         parts = [
             types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type),
             types.Part.from_uri(file_uri=files[1].uri, mime_type=files[1].mime_type),
