@@ -48,6 +48,8 @@ class SpatialPathReasoner:
         grid_divisions: Union[str, Path, os.PathLike],
         auxiliary_information: str | None = "",
         model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
+        *,
+        enable_response_schema: bool = False,
     ) -> ImageDragDropChallenge:
         # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)
@@ -69,7 +71,7 @@ class SpatialPathReasoner:
         contents = [types.Content(role="user", parts=parts)]
 
         # Change to JSON mode
-        if model in ["gemini-2.0-flash-thinking-exp-01-21"]:
+        if not enable_response_schema:
             response = client.models.generate_content(
                 model=model,
                 contents=contents,
