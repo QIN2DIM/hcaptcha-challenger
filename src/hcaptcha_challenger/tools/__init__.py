@@ -8,5 +8,12 @@ from .challenge_classifier import ChallengeClassifier
 from .image_classifier import ImageClassifier
 from .spatial_path_reasoning import SpatialPathReasoner
 from .spatial_point_reasoning import SpatialPointReasoner
+from .spatial_bbox_reasoning import SpatialBboxReasoner
 
-__all__ = ["ImageClassifier", 'ChallengeClassifier', 'SpatialPathReasoner', 'SpatialPointReasoner']
+__all__ = [
+    "ImageClassifier",
+    'ChallengeClassifier',
+    'SpatialPathReasoner',
+    'SpatialPointReasoner',
+    'SpatialBboxReasoner',
+]

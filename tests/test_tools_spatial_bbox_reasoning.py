@@ -6,14 +6,14 @@ from loguru import logger
 from matplotlib import pyplot as plt
 
 from hcaptcha_challenger.helper import create_coordinate_grid
-from hcaptcha_challenger.tools import SpatialPathReasoner
+from hcaptcha_challenger.tools import SpatialBboxReasoner
 
 dotenv.load_dotenv()
-gic = SpatialPathReasoner(gemini_api_key=os.getenv("GEMINI_API_KEY"))
+gic = SpatialBboxReasoner(gemini_api_key=os.getenv("GEMINI_API_KEY"))
 
 
-def test_gemini_path_reasoning():
-    challenge_screenshot = Path("challenge_view/image_drag_drop/single_4.png")
+def test_gemini_bbox_reasoning():
+    challenge_screenshot = Path("challenge_view/image_drag_drop/single_5.png")
     grid_divisions_path = challenge_screenshot.parent.joinpath(
         f'coordinate_grid_{challenge_screenshot.name}'
     )
