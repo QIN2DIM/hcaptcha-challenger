@@ -253,3 +253,19 @@ class ImageDragDropChallenge(BaseModel):
             path.start_point.x = int(bbox["x"] + (bbox["width"] * 0.875))
             path.start_point.y = int(bbox["y"] + (bbox["height"] * 0.393))
         return [path]
+
+
+class SpatialBbox(BaseModel):
+    top_left_x: int = Field(description="No more than 65% of width")
+    top_left_y: int
+    bottom_right_x: int = Field(description="No more than 65% of width")
+    bottom_right_y: int
+
+
+class ImageBboxChallenge(BaseModel):
+    challenge_prompt: str
+    bounding_boxes: SpatialBbox
+
+    @property
+    def log_message(self) -> str:
+        return json.dumps(self.model_dump(mode="json"), indent=2, ensure_ascii=False)

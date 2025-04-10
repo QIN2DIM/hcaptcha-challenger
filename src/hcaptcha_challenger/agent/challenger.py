@@ -417,10 +417,7 @@ class RoboticArm:
             )
             logger.debug(f'[{i+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
-            challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
-            bbox = await challenge_view.bounding_box()
-
-            for path in response.get_approximate_paths(bbox):
+            for path in response.paths:
                 await self._perform_drag_drop(path)
 
             # {{< Verify >}}

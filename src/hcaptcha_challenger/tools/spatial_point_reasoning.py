@@ -75,7 +75,7 @@ class SpatialPointReasoner:
         contents = [types.Content(role="user", parts=parts)]
 
         # Change to JSON mode
-        if not enable_response_schema:
+        if not enable_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
             response = client.models.generate_content(
                 model=model,
                 contents=contents,
@@ -96,5 +96,6 @@ class SpatialPointReasoner:
                 response_schema=ImageAreaSelectChallenge,
             ),
         )
-
-        return ImageAreaSelectChallenge(**response.parsed.model_dump())
+        if _result := response.parsed:
+            return ImageAreaSelectChallenge(**response.parsed.model_dump())
+        return ImageAreaSelectChallenge(**extract_first_json_block(response.text))

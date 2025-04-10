@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 from typing import Union
@@ -7,41 +8,43 @@ from google.genai import types
 from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from hcaptcha_challenger.models import SCoTModelType, ImageDragDropChallenge
+from hcaptcha_challenger.models import SCoTModelType, ImageBboxChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 
-THINKING_PROMPT = """
-**Thinking step-by-step:**
-1. Identify challenge prompt about the Challenge Image
-2. Think about what the challenge requires identification goals, and where are they in the picture
-3. Think about what object should be dragged to which position
-4. Based on the plane rectangular coordinate system, reasoning about the absolute position of the "answer object" in the coordinate system
+SYSTEM_INSTRUCTIONS = """
+<Instruction>
+Analyze the input image (which includes a visible coordinate grid) and the accompanying challenge prompt text.
+First, interpret the challenge prompt to understand the task or identification required, focusing on the main interactive challenge canvas.
+Second, identify the precise target area on the main challenge canvas that represents the answer or the location most relevant to fulfilling the challenge. This target should be enclosed within its minimal possible bounding box.
+Finally, output the original challenge prompt and the absolute pixel bounding box coordinates (as integers, based on the image's coordinate grid) for this minimal target area.
+</Instruction>
 
-Finally, solve the challenge, locate the object, output the coordinates of the correct answer as json. Follow the following format to return a coordinates wrapped with a json code block:
-
-```json
+<Output>
 {
-  "challenge_prompt": "Task description",
-  "paths": [
-    {"start_point": {"x":  x1, "y": y1}, "end_point": {"x":  x2, "y": y2}}
-  ]
+    "challenge_prompt": "{task_instructions}",
+    "bounding_box": {
+      "top_left_x": 148,     
+      "top_left_y": 260,     
+      "bottom_right_x": 235, 
+      "bottom_right_y": 345  
+    }
 }
-```
+</Output>
 """
 
 
-class SpatialPathReasoner:
+class SpatialBboxReasoner:
     def __init__(self, gemini_api_key: str):
         """Initialize the classifier with a Gemini API key."""
         self._api_key = gemini_api_key
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_fixed(3),
-        before_sleep=lambda retry_state: logger.warning(
-            f"Retry request ({retry_state.attempt_number}/2) - Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
-        ),
-    )
+    # @retry(
+    #     stop=stop_after_attempt(3),
+    #     wait=wait_fixed(3),
+    #     before_sleep=lambda retry_state: logger.warning(
+    #         f"Retry request ({retry_state.attempt_number}/2) - Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
+    #     ),
+    # )
     def invoke(
         self,
         challenge_screenshot: Union[str, Path, os.PathLike],
@@ -50,7 +53,7 @@ class SpatialPathReasoner:
         model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
         *,
         enable_response_schema: bool = False,
-    ) -> ImageDragDropChallenge:
+    ) -> ImageBboxChallenge:
         # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)
 
@@ -76,10 +79,11 @@ class SpatialPathReasoner:
                 model=model,
                 contents=contents,
                 config=types.GenerateContentConfig(
-                    temperature=0, system_instruction=THINKING_PROMPT
+                    temperature=0, system_instruction=SYSTEM_INSTRUCTIONS
                 ),
             )
-            return ImageDragDropChallenge(**extract_first_json_block(response.text))
+
+            return ImageBboxChallenge(**extract_first_json_block(response.text))
 
         # Structured output with Constraint encoding
         response = client.models.generate_content(
@@ -87,11 +91,12 @@ class SpatialPathReasoner:
             contents=contents,
             config=types.GenerateContentConfig(
                 temperature=0,
-                system_instruction=THINKING_PROMPT,
+                system_instruction=SYSTEM_INSTRUCTIONS,
                 response_mime_type="application/json",
-                response_schema=ImageDragDropChallenge,
+                response_schema=ImageBboxChallenge,
             ),
         )
+        print(json.dumps(response.model_dump(mode="json"), indent=2, ensure_ascii=False))
         if _result := response.parsed:
-            return ImageDragDropChallenge(**response.parsed.model_dump())
-        return ImageDragDropChallenge(**extract_first_json_block(response.text))
+            return ImageBboxChallenge(**response.parsed.model_dump())
+        return ImageBboxChallenge(**extract_first_json_block(response.text))

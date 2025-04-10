@@ -45,7 +45,7 @@ def test_count_prompts_tokens():
 
     contents = [
         challenge_classifier.CHALLENGE_CLASSIFIER_INSTRUCTIONS + challenge_classifier.USER_PROMPT,
-        image_classifier.THINKING_PROMPT + image_classifier.USER_PROMPT,
+        image_classifier.SYSTEM_INSTRUCTION + image_classifier.USER_PROMPT,
         spatial_point_reasoning.THINKING_PROMPT,
         spatial_path_reasoning.THINKING_PROMPT,
     ]
