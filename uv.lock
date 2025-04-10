@@ -425,7 +425,7 @@ wheels = [
 
 [[package]]
 name = "hcaptcha-challenger"
-version = "0.14.1"
+version = "0.14.6"
 source = { editable = "." }
 dependencies = [
     { name = "google-genai" },
