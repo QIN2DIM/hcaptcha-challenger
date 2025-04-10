@@ -438,7 +438,7 @@ class RoboticArm:
             if job_type == ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT:
                 user_prompt += "\nWhen multiple clickable objects appear on Canvas, you need to carefully distinguish whether all objects are clickable."
             elif job_type == ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT:
-                user_prompt += "\nTake a deep breath, focus, and give the most precise coordinates as much as possible. If you answer correctly, I will reward you with a tip of $200."
+                user_prompt += "\nIf you answer correctly, I will reward you with a tip of $20."
 
             response = self._spatial_point_reasoner.invoke(
                 challenge_screenshot=raw,
