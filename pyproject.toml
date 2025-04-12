@@ -4,7 +4,7 @@ name = "hcaptcha-challenger"
 version = "0.15.0"
 dependencies = [
     "pytz",
-    "httpx",
+    "httpx[http2]",
     "loguru",
     "pydantic-settings",
     "playwright",
@@ -51,10 +51,12 @@ Changelog = "https://github.com/QIN2DIM/hcaptcha-challenger/blob/master/CHANGELO
 server = [
     "fastapi[all]>=0.115.12",
 ]
-collector = [
-    "httpx[http2]",
+dataset = [
     "typer"
 ]
+
+[project.scripts]
+hc = "hcaptcha_challenger.cli.main:main"
 
 # https://packaging.python.org/en/latest/key_projects/#hatch
 # https://hatch.pypa.io/latest/config/build/#build-system

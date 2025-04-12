@@ -9,7 +9,7 @@ from typing import List, Tuple
 import httpx
 import msgpack
 from loguru import logger
-from playwright.async_api import async_playwright, Page, Response, Locator
+from playwright.async_api import Page, Response, Locator
 from pydantic import Field, BaseModel
 
 from hcaptcha_challenger.models import RequestType, CaptchaPayload, CaptchaResponse
@@ -61,6 +61,10 @@ class Collector:
     @property
     def challenge_selector(self) -> str:
         return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
+
+    @property
+    def remaining_progress(self) -> int:
+        return self._loop_control.qsize()
 
     async def _click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()
@@ -235,7 +239,7 @@ class Collector:
                 logger.warning("Unsupported request type")
 
     @logger.catch
-    async def launch(self):
+    async def launch(self, *, _by_cli: bool = False):
         _config_log = json.dumps(self.config.model_dump(mode="json"), indent=2, ensure_ascii=False)
         logger.debug(f"Start collector - {_config_log}")
 
@@ -287,23 +291,8 @@ class Collector:
             # Download Images
             await self._build_dataset(captcha_payload, client)
 
-            qsize = self._loop_control.qsize()
-            logger.debug(f"Download images - qsize={qsize} type={captcha_payload.request_type}")
+            if not _by_cli:
+                qsize = self._loop_control.qsize()
+                logger.debug(f"Download images - qsize={qsize} type={captcha_payload.request_type}")
 
         logger.success(f"Mission ends - loop={self.config.MAX_LOOP_COUNT}")
-
-
-async def launch_collector(
-    collector_config: CollectorConfig | None = None,
-    *,
-    headless: bool = False,
-    locale: str = "en-US",
-    **kwargs,
-):
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=headless, **kwargs)
-        context = await browser.new_context(locale=locale, **kwargs)
-        page = await context.new_page()
-
-        collector = Collector(page, collector_config)
-        await collector.launch()

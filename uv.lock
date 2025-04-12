@@ -438,11 +438,11 @@ wheels = [
 
 [[package]]
 name = "hcaptcha-challenger"
-version = "0.14.7"
+version = "0.15.0"
 source = { editable = "." }
 dependencies = [
     { name = "google-genai" },
-    { name = "httpx" },
+    { name = "httpx", extra = ["http2"] },
     { name = "loguru" },
     { name = "matplotlib" },
     { name = "msgpack" },
@@ -456,8 +456,7 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-collector = [
-    { name = "httpx", extra = ["http2"] },
+dataset = [
     { name = "typer" },
 ]
 server = [
@@ -473,8 +472,7 @@ dev = [
 requires-dist = [
     { name = "fastapi", extras = ["all"], marker = "extra == 'server'", specifier = ">=0.115.12" },
     { name = "google-genai", specifier = ">=1.9.0" },
-    { name = "httpx" },
-    { name = "httpx", extras = ["http2"], marker = "extra == 'collector'" },
+    { name = "httpx", extras = ["http2"] },
     { name = "loguru" },
     { name = "matplotlib", specifier = ">=3.10.1" },
     { name = "msgpack", specifier = ">=1.1.0" },
@@ -485,9 +483,9 @@ requires-dist = [
     { name = "pydantic-settings" },
     { name = "pytz" },
     { name = "tenacity", specifier = ">=9.1.2" },
-    { name = "typer", marker = "extra == 'collector'" },
+    { name = "typer", marker = "extra == 'dataset'" },
 ]
-provides-extras = ["server", "collector"]
+provides-extras = ["server", "dataset"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest", specifier = ">=8.3.5" }]
