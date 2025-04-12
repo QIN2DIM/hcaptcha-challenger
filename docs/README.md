@@ -84,6 +84,18 @@ if __name__ == "__main__":
 
 ```
 
+## Dataset Collection
+
+If you have your own solver, you can also use `hcaptcha-challenger` to manage image datasets:
+
+```bash
+uv venv
+uv pip install -U hcaptcha-challenger
+uv run hc dataset collect
+```
+
+![image_2025-04-12_18-33-07](assets/image_2025-04-12_18-33-07.png)
+
 ## Gallery
 
 ![image-20250402235820929](assets/image-20250402235820929.png)

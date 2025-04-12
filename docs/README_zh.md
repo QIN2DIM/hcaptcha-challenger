@@ -84,6 +84,18 @@ if __name__ == "__main__":
 
 ```
 
+## 采集数据集
+
+如果你有自己的 solver，也可以借助 `hcaptcha-challenger` 来管理图片数据集：
+
+```bash
+uv venv
+uv pip install -U hcaptcha-challenger
+uv run hc dataset collect
+```
+
+![image_2025-04-12_18-33-07](assets/image_2025-04-12_18-33-07.png)
+
 ## 精彩瞬间
 
 ![image-20250402235820929](assets/image-20250402235820929.png)
