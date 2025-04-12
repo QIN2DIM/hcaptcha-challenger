@@ -12,9 +12,24 @@ from hcaptcha_challenger.agent.collector import CollectorConfig, Collector
 from hcaptcha_challenger.utils import SiteKey
 
 # Create subcommand application
-app = typer.Typer()
+app = typer.Typer(
+    name="dataset",
+    help="Dataset collection tool",
+    add_completion=False,
+    invoke_without_command=True,
+)
 
 DEFAULT_SITE_KEY = SiteKey.user_easy
+
+
+@app.callback()
+def dataset_callback(ctx: typer.Context):
+    """
+    Dataset subcommand callback. Shows help if no command is provided.
+    """
+    if ctx.invoked_subcommand is None:
+        print(ctx.get_help())
+        raise typer.Exit()
 
 
 async def create_and_monitor_progress(collector, max_loops):
