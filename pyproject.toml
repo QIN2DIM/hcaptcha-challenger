@@ -1,7 +1,7 @@
 # https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-optional-dependencies
 [project]
 name = "hcaptcha-challenger"
-version = "0.14.7"
+version = "0.15.0"
 dependencies = [
     "pytz",
     "httpx",
@@ -50,6 +50,10 @@ Changelog = "https://github.com/QIN2DIM/hcaptcha-challenger/blob/master/CHANGELO
 [project.optional-dependencies]
 server = [
     "fastapi[all]>=0.115.12",
+]
+collector = [
+    "httpx[http2]",
+    "typer"
 ]
 
 # https://packaging.python.org/en/latest/key_projects/#hatch
