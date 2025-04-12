@@ -367,7 +367,7 @@ def check_dataset(captcha_path: Path) -> NoReturn:
     root = captcha_path.parent
 
     # 确定信号面包屑数量
-    signal_crumb_count = 1
+    signal_crumb_count = len(cp.tasklist)
     if cp.request_type == RequestType.IMAGE_LABEL_BINARY:
         signal_crumb_count = int(len(cp.tasklist) / 9)
 
@@ -377,8 +377,7 @@ def check_dataset(captcha_path: Path) -> NoReturn:
         actual=len(cv_paths),
         expected=signal_crumb_count,
         file_type="challenge_view",
-        captcha_path=captcha_path,
-        request_type=cp.request_type
+        request_type=cp.request_type,
     )
 
     # 根据请求类型验证不同文件
@@ -387,18 +386,16 @@ def check_dataset(captcha_path: Path) -> NoReturn:
             actual=len(list(root.glob("*_task.png"))),
             expected=len(cp.tasklist),
             file_type="task",
-            captcha_path=captcha_path,
-            request_type=cp.request_type
+            request_type=cp.request_type,
         )
     elif cp.request_type in [RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP]:
         _verify_file_count(
             actual=len(list(root.glob("*_canvas.png"))),
             expected=len(cp.tasklist),
             file_type="canvas",
-            captcha_path=captcha_path,
-            request_type=cp.request_type
+            request_type=cp.request_type,
         )
-        
+
         # 仅对DRAG_DROP类型验证entity数量
         if cp.request_type == RequestType.IMAGE_DRAG_DROP:
             for i, task in enumerate(cp.tasklist):
@@ -406,21 +403,13 @@ def check_dataset(captcha_path: Path) -> NoReturn:
                     actual=len(list(root.glob(f"{i}_entity.png"))),
                     expected=len(task.entities),
                     file_type="entity",
-                    captcha_path=captcha_path,
-                    request_type=cp.request_type
+                    request_type=cp.request_type,
                 )
 
 
 def _verify_file_count(
-    actual: int, 
-    expected: int, 
-    file_type: str, 
-    captcha_path: Path, 
-    request_type: RequestType
+    actual: int, expected: int, file_type: str, request_type: RequestType
 ) -> None:
     """验证文件数量是否符合预期"""
     if actual != expected:
-        raise ValueError(
-            f"{file_type} quantity is inaccurate - "
-            f"type={request_type.value} path={captcha_path.resolve()}"
-        )
+        raise ValueError(f"{file_type} quantity is inaccurate - " f"type={request_type.value}")

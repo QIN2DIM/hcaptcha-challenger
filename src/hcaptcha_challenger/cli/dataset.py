@@ -196,14 +196,93 @@ def check(
     ] = DEFAULT_DATASET_DIR
 ):
     """
-    Check the integrity of the dataset
-    Args:
-        dataset_dir:
-
-    Returns:
-
+    检查数据集的完整性并生成分析报告
     """
-    errors_ = []
+    captcha_files = list(dataset_dir.rglob("*_captcha.json"))
 
-    for captcha_json in dataset_dir.rglob("*_captcha.json"):
-        check_dataset(captcha_json)
+    if not captcha_files:
+        typer.echo("没有找到任何数据集文件")
+        return
+
+    errors = []
+    dataset_stats = {"total": len(captcha_files), "valid": 0, "invalid": 0, "types": {}}
+
+    with Progress(
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(bar_width=30),
+        "[progress.percentage]{task.percentage:>3.1f}%",
+        "•",
+        TaskProgressColumn(),
+        "•",
+        TimeRemainingColumn(),
+    ) as progress:
+        task_id = progress.add_task("[cyan]检查数据集", total=len(captcha_files))
+
+        for i, captcha_json in enumerate(captcha_files):
+            try:
+                # 加载JSON文件以获取类型信息，用于统计
+                cp = CaptchaPayload.model_validate_json(captcha_json.read_bytes())
+                request_type = cp.request_type.value if cp.request_type else "unknown"
+
+                # 更新类型统计
+                if request_type not in dataset_stats["types"]:
+                    dataset_stats["types"][request_type] = {"total": 0, "valid": 0, "invalid": 0}
+                dataset_stats["types"][request_type]["total"] += 1
+
+                # 执行检查
+                check_dataset(captcha_json)
+
+                # 检查通过，更新统计
+                dataset_stats["valid"] += 1
+                dataset_stats["types"][request_type]["valid"] += 1
+
+            except Exception as e:
+                # 检查失败，记录错误
+                error_info = {
+                    "file": str(captcha_json.resolve()),
+                    "error": str(e),
+                    "type": request_type if 'request_type' in locals() else "unknown",
+                }
+                errors.append(error_info)
+
+                # 更新统计
+                dataset_stats["invalid"] += 1
+                if 'request_type' in locals() and request_type in dataset_stats["types"]:
+                    dataset_stats["types"][request_type]["invalid"] += 1
+
+            # 更新进度条
+            progress.update(
+                task_id,
+                completed=i + 1,
+                description=f"[cyan]检查数据集 - {i+1}/{len(captcha_files)}",
+            )
+
+    # 生成报告
+    typer.echo("\n数据集检查报告:")
+    typer.echo(f"总文件数: {dataset_stats['total']}")
+    typer.echo(
+        f"有效文件: {dataset_stats['valid']} ({dataset_stats['valid']/dataset_stats['total']*100:.1f}%)"
+    )
+    typer.echo(
+        f"无效文件: {dataset_stats['invalid']} ({dataset_stats['invalid']/dataset_stats['total']*100:.1f}%)"
+    )
+
+    if dataset_stats["types"]:
+        typer.echo("\n按类型统计:")
+        for type_name, type_stats in dataset_stats["types"].items():
+            valid_percent = (
+                type_stats["valid"] / type_stats["total"] * 100 if type_stats["total"] > 0 else 0
+            )
+            typer.echo(
+                f"  - {type_name}: 共{type_stats['total']}个，有效{type_stats['valid']}个 ({valid_percent:.1f}%)"
+            )
+
+    if errors:
+        typer.echo("\n错误详情:")
+        for i, error in enumerate(errors[:10]):  # 只显示前10个错误
+            typer.echo(f"  {i+1}. 文件: {error['file']}")
+            typer.echo(f"     类型: {error['type']}")
+            typer.echo(f"     错误: {error['error']}")
+
+        if len(errors) > 10:
+            typer.echo(f"  ...以及 {len(errors)-10} 个更多错误")
