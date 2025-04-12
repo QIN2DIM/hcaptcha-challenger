@@ -14,6 +14,10 @@ from rich.progress import (
     SpinnerColumn,
 )
 from typing_extensions import Annotated
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich import box
 
 from hcaptcha_challenger.agent.collector import CollectorConfig, Collector, check_dataset
 from hcaptcha_challenger.models import CaptchaPayload
@@ -196,12 +200,13 @@ def check(
     ] = DEFAULT_DATASET_DIR
 ):
     """
-    检查数据集的完整性并生成分析报告
+    Check dataset integrity and generate analysis report
     """
+    console = Console()
     captcha_files = list(dataset_dir.rglob("*_captcha.json"))
 
     if not captcha_files:
-        typer.echo("没有找到任何数据集文件")
+        console.print(Panel("[bold red]No dataset files found", title="Dataset Check"))
         return
 
     errors = []
@@ -216,28 +221,28 @@ def check(
         "•",
         TimeRemainingColumn(),
     ) as progress:
-        task_id = progress.add_task("[cyan]检查数据集", total=len(captcha_files))
+        task_id = progress.add_task("[cyan]Checking dataset", total=len(captcha_files))
 
         for i, captcha_json in enumerate(captcha_files):
             try:
-                # 加载JSON文件以获取类型信息，用于统计
+                # Load JSON file to get type information for statistics
                 cp = CaptchaPayload.model_validate_json(captcha_json.read_bytes())
                 request_type = cp.request_type.value if cp.request_type else "unknown"
 
-                # 更新类型统计
+                # Update type statistics
                 if request_type not in dataset_stats["types"]:
                     dataset_stats["types"][request_type] = {"total": 0, "valid": 0, "invalid": 0}
                 dataset_stats["types"][request_type]["total"] += 1
 
-                # 执行检查
+                # Perform check
                 check_dataset(captcha_json)
 
-                # 检查通过，更新统计
+                # Check passed, update statistics
                 dataset_stats["valid"] += 1
                 dataset_stats["types"][request_type]["valid"] += 1
 
             except Exception as e:
-                # 检查失败，记录错误
+                # Check failed, record error
                 error_info = {
                     "file": str(captcha_json.resolve()),
                     "error": str(e),
@@ -245,44 +250,87 @@ def check(
                 }
                 errors.append(error_info)
 
-                # 更新统计
+                # Update statistics
                 dataset_stats["invalid"] += 1
                 if 'request_type' in locals() and request_type in dataset_stats["types"]:
                     dataset_stats["types"][request_type]["invalid"] += 1
 
-            # 更新进度条
+            # Update progress bar
             progress.update(
                 task_id,
                 completed=i + 1,
-                description=f"[cyan]检查数据集 - {i+1}/{len(captcha_files)}",
+                description=f"[cyan]Checking dataset - {i+1}/{len(captcha_files)}",
             )
 
-    # 生成报告
-    typer.echo("\n数据集检查报告:")
-    typer.echo(f"总文件数: {dataset_stats['total']}")
-    typer.echo(
-        f"有效文件: {dataset_stats['valid']} ({dataset_stats['valid']/dataset_stats['total']*100:.1f}%)"
-    )
-    typer.echo(
-        f"无效文件: {dataset_stats['invalid']} ({dataset_stats['invalid']/dataset_stats['total']*100:.1f}%)"
-    )
+    # First display error details if any
+    if errors:
+        error_table = Table(title="Error Details", box=box.ROUNDED, show_lines=True)
+        error_table.add_column("No.", style="cyan", no_wrap=True)
+        error_table.add_column("File", style="blue")
+        error_table.add_column("Type", style="magenta")
+        error_table.add_column("Error", style="red")
 
+        for i, error in enumerate(errors[:10]):  # Only display first 10 errors
+            error_table.add_row(
+                str(i+1),
+                error['file'],
+                error['type'],
+                error['error']
+            )
+        
+        console.print(error_table)
+        
+        if len(errors) > 10:
+            console.print(f"[italic yellow]...and {len(errors)-10} more errors[/italic yellow]")
+    
+    # Then generate and display statistics report
+    stats_table = Table(title="Dataset Statistics", box=box.ROUNDED)
+    stats_table.add_column("Metric", style="cyan")
+    stats_table.add_column("Value", style="green")
+    stats_table.add_column("Percentage", style="yellow")
+    
+    stats_table.add_row(
+        "Total Files",
+        str(dataset_stats['total']),
+        ""
+    )
+    stats_table.add_row(
+        "Valid Files",
+        str(dataset_stats['valid']),
+        f"{dataset_stats['valid']/dataset_stats['total']*100:.1f}%" if dataset_stats['total'] > 0 else "0%"
+    )
+    stats_table.add_row(
+        "Invalid Files",
+        str(dataset_stats['invalid']),
+        f"{dataset_stats['invalid']/dataset_stats['total']*100:.1f}%" if dataset_stats['total'] > 0 else "0%"
+    )
+    
+    console.print(stats_table)
+    
+    # Type statistics
     if dataset_stats["types"]:
-        typer.echo("\n按类型统计:")
+        type_table = Table(title="Statistics by Type", box=box.ROUNDED)
+        type_table.add_column("Type", style="magenta")
+        type_table.add_column("Total", style="blue")
+        type_table.add_column("Valid", style="green")
+        type_table.add_column("Invalid", style="red")
+        type_table.add_column("Valid %", style="yellow")
+        
         for type_name, type_stats in dataset_stats["types"].items():
             valid_percent = (
                 type_stats["valid"] / type_stats["total"] * 100 if type_stats["total"] > 0 else 0
             )
-            typer.echo(
-                f"  - {type_name}: 共{type_stats['total']}个，有效{type_stats['valid']}个 ({valid_percent:.1f}%)"
+            type_table.add_row(
+                type_name,
+                str(type_stats["total"]),
+                str(type_stats["valid"]),
+                str(type_stats["invalid"]),
+                f"{valid_percent:.1f}%"
             )
-
-    if errors:
-        typer.echo("\n错误详情:")
-        for i, error in enumerate(errors[:10]):  # 只显示前10个错误
-            typer.echo(f"  {i+1}. 文件: {error['file']}")
-            typer.echo(f"     类型: {error['type']}")
-            typer.echo(f"     错误: {error['error']}")
-
-        if len(errors) > 10:
-            typer.echo(f"  ...以及 {len(errors)-10} 个更多错误")
+        
+        console.print(type_table)
+        
+    # Show summary in panel
+    valid_percent = dataset_stats['valid']/dataset_stats['total']*100 if dataset_stats['total'] > 0 else 0
+    summary = f"[bold]Dataset Integrity:[/bold] {valid_percent:.1f}% valid"
+    console.print(Panel(summary, title="Summary", border_style="green"))

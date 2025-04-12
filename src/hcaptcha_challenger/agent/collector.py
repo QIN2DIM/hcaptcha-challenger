@@ -6,7 +6,7 @@ from asyncio import Queue
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple, NoReturn
+from typing import List, Tuple
 
 import httpx
 import msgpack
@@ -362,7 +362,7 @@ class Collector:
             logger.success(f"Mission ends - loop={self.config.MAX_LOOP_COUNT}")
 
 
-def check_dataset(captcha_path: Path) -> NoReturn:
+def check_dataset(captcha_path: Path):
     cp = CaptchaPayload.model_validate_json(captcha_path.read_bytes())
     root = captcha_path.parent
 
@@ -374,26 +374,19 @@ def check_dataset(captcha_path: Path) -> NoReturn:
     # 验证challenge_view数量
     cv_paths = list(root.glob("*_challenge_view.png"))
     _verify_file_count(
-        actual=len(cv_paths),
-        expected=signal_crumb_count,
-        file_type="challenge_view",
-        request_type=cp.request_type,
+        actual=len(cv_paths), expected=signal_crumb_count, file_type="challenge_view"
     )
 
     # 根据请求类型验证不同文件
     if cp.request_type == RequestType.IMAGE_LABEL_BINARY:
         _verify_file_count(
-            actual=len(list(root.glob("*_task.png"))),
-            expected=len(cp.tasklist),
-            file_type="task",
-            request_type=cp.request_type,
+            actual=len(list(root.glob("*_task.png"))), expected=len(cp.tasklist), file_type="task"
         )
     elif cp.request_type in [RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP]:
         _verify_file_count(
             actual=len(list(root.glob("*_canvas.png"))),
             expected=len(cp.tasklist),
             file_type="canvas",
-            request_type=cp.request_type,
         )
 
         # 仅对DRAG_DROP类型验证entity数量
@@ -403,13 +396,12 @@ def check_dataset(captcha_path: Path) -> NoReturn:
                     actual=len(list(root.glob(f"{i}_entity.png"))),
                     expected=len(task.entities),
                     file_type="entity",
-                    request_type=cp.request_type,
                 )
 
+    return True
 
-def _verify_file_count(
-    actual: int, expected: int, file_type: str, request_type: RequestType
-) -> None:
+
+def _verify_file_count(actual: int, expected: int, file_type: str):
     """验证文件数量是否符合预期"""
     if actual != expected:
-        raise ValueError(f"{file_type} quantity is inaccurate - " f"type={request_type.value}")
+        raise ValueError(f"{file_type} quantity is inaccurate")
