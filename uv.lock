@@ -453,6 +453,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "pytz" },
     { name = "tenacity" },
+    { name = "typer" },
 ]
 
 [package.optional-dependencies]
@@ -483,6 +484,7 @@ requires-dist = [
     { name = "pydantic-settings" },
     { name = "pytz" },
     { name = "tenacity", specifier = ">=9.1.2" },
+    { name = "typer", specifier = ">=0.15.2" },
     { name = "typer", marker = "extra == 'dataset'" },
 ]
 provides-extras = ["server", "dataset"]
