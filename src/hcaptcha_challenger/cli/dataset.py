@@ -140,7 +140,7 @@ def collect(
     max_running_time: Annotated[
         float, typer.Option(help="Maximum running time (seconds)", envvar="MAX_RUNNING_TIME")
     ] = 300,
-    headless: Annotated[bool, typer.Option(help="Headless mode", envvar="HEADLESS")] = True,
+    headless: Annotated[bool, typer.Option(help="Headless mode")] = True,
     locale: Annotated[str, typer.Option(help="Locale setting")] = "en-US",
 ):
     """Launch hCaptcha challenge data collector"""
