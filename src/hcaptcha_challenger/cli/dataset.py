@@ -15,18 +15,20 @@ from rich.progress import (
 )
 from typing_extensions import Annotated
 
-from hcaptcha_challenger.agent.collector import CollectorConfig, Collector
+from hcaptcha_challenger.agent.collector import CollectorConfig, Collector, check_dataset
+from hcaptcha_challenger.models import CaptchaPayload
 from hcaptcha_challenger.utils import SiteKey
 
 # Create subcommand application
 app = typer.Typer(
     name="dataset",
-    help="Dataset collection tool",
+    help="Dataset Management Tools",
     add_completion=False,
     invoke_without_command=True,
 )
 
 DEFAULT_SITE_KEY = SiteKey.user_easy
+DEFAULT_DATASET_DIR = Path("dataset")
 
 
 @app.callback()
@@ -39,7 +41,7 @@ def dataset_callback(ctx: typer.Context):
         raise typer.Exit()
 
 
-async def create_and_monitor_progress(collector, max_loops):
+async def _create_and_monitor_progress(collector: Collector, max_loops: int):
     """Create and monitor a progress bar for the collector"""
     # 首先启动一个异步任务来准备收集器
     collection_task = None
@@ -108,7 +110,7 @@ async def create_and_monitor_progress(collector, max_loops):
         raise e
 
 
-async def launch_collector(
+async def _launch_collector(
     collector_config: CollectorConfig | None = None,
     *,
     headless: bool = False,
@@ -125,14 +127,14 @@ async def launch_collector(
         # Create progress bar
         max_loops = collector_config.MAX_LOOP_COUNT if collector_config else 30
 
-        await create_and_monitor_progress(collector, max_loops)
+        await _create_and_monitor_progress(collector, max_loops)
 
 
-@app.command()
+@app.command(name="collect")
 def collect(
     dataset_dir: Annotated[
-        Path, typer.Option(help="Dataset save directory", envvar="DATASET_DIR", show_default=True)
-    ] = Path("dataset"),
+        Path, typer.Option(help="Dataset local directory", envvar="DATASET_DIR", show_default=True)
+    ] = DEFAULT_DATASET_DIR,
     site_key: Annotated[str, typer.Option(help="Site key", envvar="SITE_KEY")] = DEFAULT_SITE_KEY,
     max_loop_count: Annotated[
         int, typer.Option(help="Maximum loop count", envvar="MAX_LOOP_COUNT")
@@ -140,23 +142,68 @@ def collect(
     max_running_time: Annotated[
         float, typer.Option(help="Maximum running time (seconds)", envvar="MAX_RUNNING_TIME")
     ] = 300,
+    wait_for_timeout_challenge_view: Annotated[
+        float,
+        typer.Option(
+            help="Waiting for the challenge view to render (millisecond)",
+            envvar="WAIT_FOR_TIMEOUT_CHALLENGE_VIEW",
+        ),
+    ] = 2000,
     headless: Annotated[bool, typer.Option(help="Headless mode")] = True,
     locale: Annotated[str, typer.Option(help="Locale setting")] = "en-US",
 ):
     """Launch hCaptcha challenge data collector"""
-    # Convert types
     config = CollectorConfig(
         dataset_dir=dataset_dir.resolve(),
         site_key=site_key,
         MAX_LOOP_COUNT=max_loop_count,
         MAX_RUNNING_TIME=max_running_time,
+        WAIT_FOR_TIMEOUT_CHALLENGE_VIEW=wait_for_timeout_challenge_view,
     )
 
     try:
-        asyncio.run(launch_collector(collector_config=config, headless=headless, locale=locale))
+        asyncio.run(_launch_collector(collector_config=config, headless=headless, locale=locale))
     except KeyboardInterrupt:
         typer.echo("Collector stopped")
         sys.exit(0)
     except Exception as e:
         typer.echo(f"Collector error: {e}")
         sys.exit(1)
+
+
+@app.command(name="label")
+def auto_labeling(
+    dataset_dir: Annotated[
+        Path, typer.Option(help="Dataset local directory", envvar="DATASET_DIR", show_default=True)
+    ] = DEFAULT_DATASET_DIR
+):
+    """
+    Automatically label image datasets using multimodal large language models.
+
+    Args:
+        dataset_dir:
+
+    Returns:
+
+    """
+    typer.echo("🤯 Not implemented yet.")
+
+
+@app.command(name="check")
+def check(
+    dataset_dir: Annotated[
+        Path, typer.Option(help="Dataset local directory", envvar="DATASET_DIR", show_default=True)
+    ] = DEFAULT_DATASET_DIR
+):
+    """
+    Check the integrity of the dataset
+    Args:
+        dataset_dir:
+
+    Returns:
+
+    """
+    errors_ = []
+
+    for captcha_json in dataset_dir.rglob("*_captcha.json"):
+        check_dataset(captcha_json)

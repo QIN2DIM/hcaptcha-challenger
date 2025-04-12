@@ -1,15 +1,17 @@
 import asyncio
 import json
+import re
 import time
 from asyncio import Queue
+from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, NoReturn
 
 import httpx
 import msgpack
 from loguru import logger
-from playwright.async_api import Page, Response, Locator
+from playwright.async_api import Page, Response, Locator, TimeoutError, expect
 from pydantic import Field, BaseModel
 
 from hcaptcha_challenger.models import RequestType, CaptchaPayload, CaptchaResponse
@@ -32,6 +34,9 @@ class CollectorConfig(BaseModel):
 
     MAX_LOOP_COUNT: int = Field(default=30, description="Maximum number of loops")
     MAX_RUNNING_TIME: float = Field(default=300, description="Collector single run time (second)")
+    WAIT_FOR_TIMEOUT_CHALLENGE_VIEW: float = Field(
+        default=2000, description="Waiting for the challenge view to render (millisecond)"
+    )
 
 
 class Collector:
@@ -93,6 +98,31 @@ class Collector:
             await self._click_by_mouse(refresh_element)
         except TimeoutError as err:
             logger.warning(f"Failed to click refresh button - {err=}")
+
+    async def _wait_for_all_loaders_complete(self):
+        """Wait for all loading indicators to complete (become invisible)"""
+        frame_challenge = self.page.frame_locator(self.challenge_selector)
+
+        await self.page.wait_for_timeout(self.config.WAIT_FOR_TIMEOUT_CHALLENGE_VIEW)
+
+        loading_indicators = frame_challenge.locator("//div[@class='loading-indicator']")
+        count = await loading_indicators.count()
+
+        if count == 0:
+            logger.info("No load indicator found in the page")
+            return True
+
+        for i in range(count):
+            loader = loading_indicators.nth(i)
+            try:
+                await expect(loader).to_have_attribute(
+                    "style", re.compile(r"opacity:\s*0"), timeout=30000
+                )
+                await loading_indicators.nth(i).get_attribute("style")  # It cannot be removed
+            except TimeoutError:
+                logger.warning(f"The load indicator {i + 1}/{count} waits for a timeout")
+
+        return True
 
     @logger.catch
     async def _task_handler(self, response: Response):
@@ -166,7 +196,7 @@ class Collector:
                 logger.error(f"Reverse processing getcaptcha failed: {err}")
                 self._captcha_payload_queue.put_nowait(None)
 
-    def _create_cache_key(self, captcha_payload: CaptchaPayload) -> Tuple[datetime, Path]:
+    def _create_cache_key(self, captcha_payload: CaptchaPayload) -> Tuple[str, Path]:
         """
 
         Args:
@@ -179,18 +209,41 @@ class Collector:
         prompt = captcha_payload.requester_question.get("en", "unknown")
         current_datetime = datetime.now()
         current_time = current_datetime.strftime("%Y%m%d/%Y%m%d%H%M%S%f")
+
         cache_key = self.config.dataset_dir.joinpath(request_type, prompt, current_time)
+        crt = current_datetime.strftime("%Y%m%d%H%M%S%f")
 
-        return current_datetime, cache_key
+        return crt, cache_key
 
-    async def _build_dataset(self, cp: CaptchaPayload, client: httpx.AsyncClient):
+    async def _capture_challenge_view(self, cp: CaptchaPayload, crt: str, cache_key: Path):
+        frame_challenge = self.page.frame_locator(self.challenge_selector)
+
+        signal_crumb_count = len(cp.tasklist)
+        if cp.request_type == RequestType.IMAGE_LABEL_BINARY:
+            signal_crumb_count = int(len(cp.tasklist) / 9)
+
+        for cid in range(signal_crumb_count):
+            if cp.request_type == RequestType.IMAGE_LABEL_BINARY:
+                await self._wait_for_all_loaders_complete()
+            else:
+                await self.page.wait_for_timeout(self.config.WAIT_FOR_TIMEOUT_CHALLENGE_VIEW)
+
+            challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
+            cache_path = cache_key.joinpath(f"{crt}_{cid}_challenge_view.png")
+            await challenge_view.screenshot(type="png", path=cache_path)
+
+            if signal_crumb_count > 1:
+                with suppress(TimeoutError):
+                    submit_btn = frame_challenge.locator("//div[@class='button-submit button']")
+                    await self._click_by_mouse(submit_btn)
+
+    async def _build_dataset(
+        self, cp: CaptchaPayload, crt: str, cache_key: Path, client: httpx.AsyncClient
+    ):
         if not isinstance(cp, CaptchaPayload):
             return
 
         self._current_request_type = cp.request_type.value if cp.request_type else "unknown"
-
-        date, cache_key = self._create_cache_key(cp)
-        crt = date.strftime("%Y%m%d%H%M%S%f")
 
         cache_path_captcha = cache_key.joinpath(f"{crt}_captcha.json")
         cache_path_captcha.parent.mkdir(parents=True, exist_ok=True)
@@ -201,21 +254,12 @@ class Collector:
         )
 
         match cp.request_type:
-            case RequestType.IMAGE_DRAG_DROP:
-                for i, task in enumerate(cp.tasklist):
-                    canvas_response = await client.get(task.datapoint_uri)
-                    cache_path_canvas = cache_key.joinpath(f"{crt}_{i}_canvas.png")
-                    cache_path_canvas.write_bytes(canvas_response.content)
-                    for j, entity in enumerate(task.entities):
-                        entity_response = await client.get(entity.entity_uri)
-                        cache_path_entity = cache_key.joinpath(f"{crt}_{i}_{j}_entity.png")
-                        cache_path_entity.write_bytes(entity_response.content)
             case RequestType.IMAGE_LABEL_BINARY:
                 for j, task in enumerate(cp.tasklist):
                     i = 0 if j <= 8 else 1
                     j = j if j <= 8 else j - 9
                     image_response = await client.get(task.datapoint_uri)
-                    cache_path_challenge = cache_key.joinpath(f"{crt}_{i}_{j}_challenge.png")
+                    cache_path_challenge = cache_key.joinpath(f"{crt}_{i}_{j}_task.png")
                     cache_path_challenge.write_bytes(image_response.content)
                     if cp.requester_question_example:
                         if isinstance(cp.requester_question_example, str):
@@ -242,6 +286,15 @@ class Collector:
                             example_response = await client.get(example_uri)
                             cache_path_example = cache_key.joinpath(f"{crt}_{j}_example.png")
                             cache_path_example.write_bytes(example_response.content)
+            case RequestType.IMAGE_DRAG_DROP:
+                for i, task in enumerate(cp.tasklist):
+                    canvas_response = await client.get(task.datapoint_uri)
+                    cache_path_canvas = cache_key.joinpath(f"{crt}_{i}_canvas.png")
+                    cache_path_canvas.write_bytes(canvas_response.content)
+                    for j, entity in enumerate(task.entities):
+                        entity_response = await client.get(entity.entity_uri)
+                        cache_path_entity = cache_key.joinpath(f"{crt}_{i}_{j}_entity.png")
+                        cache_path_entity.write_bytes(entity_response.content)
             case _:
                 logger.warning("Unsupported request type")
 
@@ -297,7 +350,9 @@ class Collector:
                 continue
 
             # Download Images
-            await self._build_dataset(captcha_payload, client)
+            crt, cache_key = self._create_cache_key(captcha_payload)
+            await self._build_dataset(captcha_payload, crt, cache_key, client)
+            await self._capture_challenge_view(captcha_payload, crt, cache_key)
 
             if not _by_cli:
                 qsize = self._loop_control.qsize()
@@ -305,3 +360,67 @@ class Collector:
 
         if not _by_cli:
             logger.success(f"Mission ends - loop={self.config.MAX_LOOP_COUNT}")
+
+
+def check_dataset(captcha_path: Path) -> NoReturn:
+    cp = CaptchaPayload.model_validate_json(captcha_path.read_bytes())
+    root = captcha_path.parent
+
+    # 确定信号面包屑数量
+    signal_crumb_count = 1
+    if cp.request_type == RequestType.IMAGE_LABEL_BINARY:
+        signal_crumb_count = int(len(cp.tasklist) / 9)
+
+    # 验证challenge_view数量
+    cv_paths = list(root.glob("*_challenge_view.png"))
+    _verify_file_count(
+        actual=len(cv_paths),
+        expected=signal_crumb_count,
+        file_type="challenge_view",
+        captcha_path=captcha_path,
+        request_type=cp.request_type
+    )
+
+    # 根据请求类型验证不同文件
+    if cp.request_type == RequestType.IMAGE_LABEL_BINARY:
+        _verify_file_count(
+            actual=len(list(root.glob("*_task.png"))),
+            expected=len(cp.tasklist),
+            file_type="task",
+            captcha_path=captcha_path,
+            request_type=cp.request_type
+        )
+    elif cp.request_type in [RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP]:
+        _verify_file_count(
+            actual=len(list(root.glob("*_canvas.png"))),
+            expected=len(cp.tasklist),
+            file_type="canvas",
+            captcha_path=captcha_path,
+            request_type=cp.request_type
+        )
+        
+        # 仅对DRAG_DROP类型验证entity数量
+        if cp.request_type == RequestType.IMAGE_DRAG_DROP:
+            for i, task in enumerate(cp.tasklist):
+                _verify_file_count(
+                    actual=len(list(root.glob(f"{i}_entity.png"))),
+                    expected=len(task.entities),
+                    file_type="entity",
+                    captcha_path=captcha_path,
+                    request_type=cp.request_type
+                )
+
+
+def _verify_file_count(
+    actual: int, 
+    expected: int, 
+    file_type: str, 
+    captcha_path: Path, 
+    request_type: RequestType
+) -> None:
+    """验证文件数量是否符合预期"""
+    if actual != expected:
+        raise ValueError(
+            f"{file_type} quantity is inaccurate - "
+            f"type={request_type.value} path={captcha_path.resolve()}"
+        )
