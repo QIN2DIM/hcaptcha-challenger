@@ -6,7 +6,7 @@ from hcaptcha_challenger.cli import collect
 app = typer.Typer(name="hcaptcha-challenger", help="hCaptcha challenge tool")
 
 # Add subcommands to the top-level application
-app.add_typer(collect.app, name="collect")
+app.add_typer(collect.app, name="collect", help="Dataset collection tool")
 
 
 def main():

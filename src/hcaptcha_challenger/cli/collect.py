@@ -1,4 +1,5 @@
 import asyncio
+import json
 import sys
 from pathlib import Path
 
@@ -11,9 +12,58 @@ from hcaptcha_challenger.agent.collector import CollectorConfig, Collector
 from hcaptcha_challenger.utils import SiteKey
 
 # Create subcommand application
-app = typer.Typer(name="collect", help="Dataset collection tool")
+app = typer.Typer()
 
 DEFAULT_SITE_KEY = SiteKey.user_easy
+
+
+async def create_and_monitor_progress(collector, max_loops):
+    """Create and monitor a progress bar for the collector"""
+    with Progress(
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(bar_width=50),
+        "[progress.percentage]{task.percentage:>3.1f}%",
+        "•",
+        TaskProgressColumn(),
+        "•",
+        TimeRemainingColumn(),
+    ) as progress:
+        task_id = progress.add_task("[cyan]Collecting", total=max_loops)
+
+        # Start a background task to update progress bar
+        async def update_progress():
+            last_progress = 0
+            completed = 0
+
+            while completed < max_loops:
+                # Current completed count = total - remaining
+                completed = max_loops - collector.remaining_progress
+
+                if completed != last_progress:
+                    progress.update(task_id, completed=completed, description=f"[cyan]Collecting")
+                    last_progress = completed
+
+                # Short sleep to avoid high CPU usage
+                await asyncio.sleep(1)
+
+                # Check if collector has completed
+                if collector.remaining_progress == 0:
+                    break
+
+        # Create and start progress update task
+        progress_task = asyncio.create_task(update_progress())
+
+        # Start collector
+        await collector.launch(_by_cli=True)
+
+        # Ensure progress updates to final state
+        progress.update(task_id, completed=max_loops, description="[green]Collection completed")
+
+        # Wait for progress update task to complete
+        try:
+            await asyncio.wait_for(progress_task, timeout=2.0)
+        except asyncio.TimeoutError:
+            pass  # Task may have completed or been cancelled
 
 
 async def launch_collector(
@@ -30,69 +80,10 @@ async def launch_collector(
 
         collector = Collector(page, collector_config)
 
-        # 创建进度条
+        # Create progress bar
         max_loops = collector_config.MAX_LOOP_COUNT if collector_config else 30
 
-        with Progress(
-            TextColumn("[bold blue]{task.description}"),
-            BarColumn(bar_width=None),
-            "[progress.percentage]{task.percentage:>3.1f}%",
-            "•",
-            TaskProgressColumn(),
-            "•",
-            TimeRemainingColumn(),
-        ) as progress:
-            task_id = progress.add_task("[cyan]采集验证码数据...", total=max_loops)
-
-            # 启动一个后台任务来更新进度条
-            async def update_progress():
-                last_progress = 0
-                completed = 0
-
-                while completed < max_loops:
-                    # 当前完成数量 = 总数 - 剩余数量
-                    completed = max_loops - collector.remaining_progress
-
-                    if completed != last_progress:
-                        # 更新描述以显示当前类型信息
-                        request_types = (
-                            collector_config.focus_types
-                            if collector_config and collector_config.focus_types
-                            else ["未知"]
-                        )
-                        type_info = (
-                            ", ".join([t.value for t in request_types])
-                            if hasattr(request_types[0], "value")
-                            else ", ".join(request_types)
-                        )
-                        progress.update(
-                            task_id,
-                            completed=completed,
-                            description=f"[cyan]采集验证码数据... [magenta](类型: {type_info})",
-                        )
-                        last_progress = completed
-
-                    # 短暂休眠避免CPU占用过高
-                    await asyncio.sleep(0.3)
-
-                    # 检查收集器是否已完成
-                    if collector.remaining_progress == 0:
-                        break
-
-            # 创建并启动进度更新任务
-            progress_task = asyncio.create_task(update_progress())
-
-            # 启动收集器
-            await collector.launch(_by_cli=True)
-
-            # 确保进度更新到最终状态
-            progress.update(task_id, completed=max_loops, description="[green]采集完成!")
-
-            # 等待进度更新任务完成
-            try:
-                await asyncio.wait_for(progress_task, timeout=2.0)
-            except asyncio.TimeoutError:
-                pass  # 任务可能已经完成或被取消
+        await create_and_monitor_progress(collector, max_loops)
 
 
 @app.command()
@@ -103,7 +94,7 @@ def collect(
     site_key: Annotated[str, typer.Option(help="Site key", envvar="SITE_KEY")] = DEFAULT_SITE_KEY,
     max_loop_count: Annotated[
         int, typer.Option(help="Maximum loop count", envvar="MAX_LOOP_COUNT")
-    ] = 30,
+    ] = 5,
     max_running_time: Annotated[
         float, typer.Option(help="Maximum running time (seconds)", envvar="MAX_RUNNING_TIME")
     ] = 300,
@@ -119,7 +110,9 @@ def collect(
         MAX_RUNNING_TIME=max_running_time,
     )
 
-    typer.echo(f"Starting collector - Config: {config}")
+    typer.echo(
+        f"Starting collector - Config: {json.dumps(config.model_dump(mode='json'), indent=2, ensure_ascii=False)}"
+    )
 
     # Launch collector
     try:

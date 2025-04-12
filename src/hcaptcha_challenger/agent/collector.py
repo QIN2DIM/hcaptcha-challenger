@@ -241,7 +241,8 @@ class Collector:
     @logger.catch
     async def launch(self, *, _by_cli: bool = False):
         _config_log = json.dumps(self.config.model_dump(mode="json"), indent=2, ensure_ascii=False)
-        logger.debug(f"Start collector - {_config_log}")
+        if not _by_cli:
+            logger.debug(f"Start collector - {_config_log}")
 
         if not self.config.focus_types:
             logger.error("No focus types specified")
@@ -295,4 +296,5 @@ class Collector:
                 qsize = self._loop_control.qsize()
                 logger.debug(f"Download images - qsize={qsize} type={captcha_payload.request_type}")
 
-        logger.success(f"Mission ends - loop={self.config.MAX_LOOP_COUNT}")
+        if not _by_cli:
+            logger.success(f"Mission ends - loop={self.config.MAX_LOOP_COUNT}")
