@@ -44,6 +44,7 @@ class Collector:
 
         self._loop_control: Queue[int] = Queue()
         self._startup_time = time.time()
+        self._current_request_type = None
 
         self._init_loop_control()
 
@@ -65,6 +66,10 @@ class Collector:
     @property
     def remaining_progress(self) -> int:
         return self._loop_control.qsize()
+
+    @property
+    def current_request_type(self) -> str | None:
+        return self._current_request_type
 
     async def _click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()
@@ -181,6 +186,8 @@ class Collector:
     async def _build_dataset(self, cp: CaptchaPayload, client: httpx.AsyncClient):
         if not isinstance(cp, CaptchaPayload):
             return
+
+        self._current_request_type = cp.request_type.value if cp.request_type else "unknown"
 
         date, cache_key = self._create_cache_key(cp)
         crt = date.strftime("%Y%m%d%H%M%S%f")

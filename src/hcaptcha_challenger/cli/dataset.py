@@ -5,7 +5,14 @@ from pathlib import Path
 
 import typer
 from playwright.async_api import async_playwright
-from rich.progress import Progress, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
+from rich.progress import (
+    Progress,
+    TextColumn,
+    BarColumn,
+    TaskProgressColumn,
+    TimeRemainingColumn,
+    SpinnerColumn,
+)
 from typing_extensions import Annotated
 
 from hcaptcha_challenger.agent.collector import CollectorConfig, Collector
@@ -34,51 +41,71 @@ def dataset_callback(ctx: typer.Context):
 
 async def create_and_monitor_progress(collector, max_loops):
     """Create and monitor a progress bar for the collector"""
-    with Progress(
-        TextColumn("[bold blue]{task.description}"),
-        BarColumn(bar_width=50),
-        "[progress.percentage]{task.percentage:>3.1f}%",
-        "•",
-        TaskProgressColumn(),
-        "•",
-        TimeRemainingColumn(),
-    ) as progress:
-        task_id = progress.add_task("[cyan]Collecting", total=max_loops)
+    # 首先启动一个异步任务来准备收集器
+    collection_task = None
 
-        # Start a background task to update progress bar
-        async def update_progress():
-            last_progress = 0
-            completed = 0
+    try:
+        # Show preparation progress bar
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[init_progress.description]{task.description}"),
+            transient=True,
+        ) as init_progress:
+            init_progress.add_task("Preparing...", total=None)
+            await asyncio.sleep(2.5)
 
-            while completed < max_loops:
-                # Current completed count = total - remaining
-                completed = max_loops - collector.remaining_progress
+        typer.echo(
+            f"Starting collector - {json.dumps(collector.config.model_dump(mode='json'), indent=2, ensure_ascii=False)}"
+        )
 
-                if completed != last_progress:
-                    progress.update(task_id, completed=completed, description=f"[cyan]Collecting")
-                    last_progress = completed
+        # After preparation is completed, display the main progress bar and start collecting
+        with Progress(
+            TextColumn("[bold blue]{task.description}"),
+            BarColumn(bar_width=30),
+            "[progress.percentage]{task.percentage:>3.1f}%",
+            "•",
+            TaskProgressColumn(),
+            "•",
+            TimeRemainingColumn(),
+        ) as progress:
+            task_id = progress.add_task("[cyan]Collecting", total=max_loops)
 
-                # Short sleep to avoid high CPU usage
-                await asyncio.sleep(1)
+            collection_task = asyncio.create_task(collector.launch(_by_cli=True))
 
-                # Check if collector has completed
-                if collector.remaining_progress == 0:
+            last_progress = max_loops
+            last_request_type = None
+
+            while not collection_task.done():
+                current_progress = collector.remaining_progress
+                completed = max_loops - current_progress
+                current_request_type = collector.current_request_type
+
+                if current_progress != last_progress or current_request_type != last_request_type:
+                    desc = f"[cyan]Collecting"
+                    if current_request_type:
+                        desc += f" - type: {current_request_type}"
+
+                    progress.update(task_id, completed=completed, description=desc)
+
+                    last_progress = current_progress
+                    last_request_type = current_request_type
+
+                await asyncio.sleep(0.5)
+
+                if current_progress == 0:
                     break
 
-        # Create and start progress update task
-        progress_task = asyncio.create_task(update_progress())
+            progress.update(task_id, completed=max_loops, description="[green]Completed")
 
-        # Start collector
-        await collector.launch(_by_cli=True)
-
-        # Ensure progress updates to final state
-        progress.update(task_id, completed=max_loops, description="[green]Collection completed")
-
-        # Wait for progress update task to complete
-        try:
-            await asyncio.wait_for(progress_task, timeout=2.0)
-        except asyncio.TimeoutError:
-            pass  # Task may have completed or been cancelled
+            try:
+                await asyncio.wait_for(collection_task, timeout=5.0)
+            except asyncio.TimeoutError:
+                if collection_task and not collection_task.done():
+                    collection_task.cancel()
+    except Exception as e:
+        if collection_task and not collection_task.done():
+            collection_task.cancel()
+        raise e
 
 
 async def launch_collector(
@@ -109,7 +136,7 @@ def collect(
     site_key: Annotated[str, typer.Option(help="Site key", envvar="SITE_KEY")] = DEFAULT_SITE_KEY,
     max_loop_count: Annotated[
         int, typer.Option(help="Maximum loop count", envvar="MAX_LOOP_COUNT")
-    ] = 5,
+    ] = 15,
     max_running_time: Annotated[
         float, typer.Option(help="Maximum running time (seconds)", envvar="MAX_RUNNING_TIME")
     ] = 300,
@@ -119,17 +146,12 @@ def collect(
     """Launch hCaptcha challenge data collector"""
     # Convert types
     config = CollectorConfig(
-        dataset_dir=dataset_dir,
+        dataset_dir=dataset_dir.resolve(),
         site_key=site_key,
         MAX_LOOP_COUNT=max_loop_count,
         MAX_RUNNING_TIME=max_running_time,
     )
 
-    typer.echo(
-        f"Starting collector - Config: {json.dumps(config.model_dump(mode='json'), indent=2, ensure_ascii=False)}"
-    )
-
-    # Launch collector
     try:
         asyncio.run(launch_collector(collector_config=config, headless=headless, locale=locale))
     except KeyboardInterrupt:
