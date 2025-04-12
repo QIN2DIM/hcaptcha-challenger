@@ -398,8 +398,6 @@ def check_dataset(captcha_path: Path):
                     file_type="entity",
                 )
 
-    return True
-
 
 def _verify_file_count(actual: int, expected: int, file_type: str):
     """验证文件数量是否符合预期"""
