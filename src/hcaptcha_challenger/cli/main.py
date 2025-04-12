@@ -1,12 +1,14 @@
 import typer
 
-from hcaptcha_challenger.cli import collect
+from hcaptcha_challenger.cli import dataset
+from hcaptcha_challenger.utils import SiteKey
 
 # Create top-level application
-app = typer.Typer(name="hcaptcha-challenger", help="hCaptcha challenge tool")
+app = typer.Typer(name="hcaptcha-challenger", help="hCaptcha challenge tool", add_completion=False)
 
-# Add subcommands to the top-level application
-app.add_typer(collect.app, name="collect", help="Dataset collection tool")
+app.add_typer(dataset.app, name="dataset", help="Dataset collection tool")
+
+DEFAULT_SITE_KEY = SiteKey.user_easy
 
 
 def main():
