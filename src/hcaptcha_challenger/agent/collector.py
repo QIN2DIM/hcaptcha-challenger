@@ -393,7 +393,7 @@ def check_dataset(captcha_path: Path):
         if cp.request_type == RequestType.IMAGE_DRAG_DROP:
             for i, task in enumerate(cp.tasklist):
                 _verify_file_count(
-                    actual=len(list(root.glob(f"{i}_entity.png"))),
+                    actual=len(list(root.glob(f"*{i}_entity.png"))),
                     expected=len(task.entities),
                     file_type="entity",
                 )
