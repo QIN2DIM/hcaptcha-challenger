@@ -65,6 +65,8 @@ I would like to express my sincere gratitude to all the contributors.
 
 ## Reference
 
-- [microsoft/playwright-python](https://github.com/microsoft/playwright-python)
-- [ultrafunkamsterdam/undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver)
-- hCaptcha challenge template site [@maximedrn](https://github.com/maximedrn/hcaptcha-solver-python-selenium)
+- [Microsoft/playwright-python](https://github.com/microsoft/playwright-python)
+- [Anthropic/MCP](https://github.com/modelcontextprotocol)
+- [Google/A2A](https://github.com/google/A2A)
+
+- [Google/Gemini](https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro-preview-03-25)
