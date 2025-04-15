@@ -209,50 +209,18 @@ class RoboticArm:
         return self._challenge_selector
 
     async def get_challenge_frame_locator(self) -> Frame | None:
-        """
-        递归查找符合条件的challenge frame locator。
-        优先使用递归搜索，如果找不到则回退到使用选择器的方式。
-        会检查找到的frame的可见性，确保返回可见的frame。
-        """
-        # 尝试递归方式查找frame
         candidate_frame = self._find_challenge_frame_recursive(self.page.main_frame, max_depth=4)
 
         if candidate_frame:
-            # 检查frame是否可见
-            try:
-                # 尝试找到一个应该在challenge frame中存在的元素
+            with suppress(Exception):
                 challenge_view = candidate_frame.locator("//div[@class='challenge-view']")
                 is_visible = await challenge_view.is_visible(timeout=1000)
 
                 if is_visible:
                     return candidate_frame
-                else:
-                    # 如果第一个候选frame不可见，尝试使用选择器方式查找
-                    logger.debug("找到的候选frame不可见，尝试使用选择器查找")
-            except Exception as e:
-                logger.warning(f"检查frame可见性时出错: {e}")
 
-        # 回退到使用选择器的方式
-        try:
-            # 首先尝试直接获取iframe
-            challenge_iframe = self.page.locator(self.challenge_selector)
-            if await challenge_iframe.count() > 0:
-                frame = await challenge_iframe.first.frame()
-                if frame:
-                    # 验证这个frame是否可用
-                    try:
-                        challenge_view = frame.locator("//div[@class='challenge-view']")
-                        if await challenge_view.is_visible(timeout=500):
-                            return frame
-                    except Exception as e:
-                        logger.warning(f"选择器找到的frame不可见: {e}")
-        except Exception as e:
-            logger.warning(f"使用选择器查找frame时出错: {e}")
-
-        # 如果所有方法都失败，最后尝试最原始的方式
         try:
             challenge_frames = []
-            # 查找所有iframe
             all_frames = self.page.frames
             for frame in all_frames:
                 if (
@@ -261,67 +229,42 @@ class RoboticArm:
                 ):
                     challenge_frames.append(frame)
 
-            # 检查找到的frames是否可见
             for frame in challenge_frames:
-                try:
+                with suppress(Exception):
                     challenge_view = frame.locator("//div[@class='challenge-view']")
-                    if await challenge_view.is_visible(timeout=500):
+                    if await challenge_view.is_visible():
                         return frame
-                except:
-                    continue
         except Exception as e:
-            logger.error(f"查找所有iframe时出错: {e}")
+            logger.error(f"Error finding all iframes: {e}")
 
-        # 真的找不到了，返回None
-        logger.error("无法找到有效的challenge frame")
+        logger.error("Cannot find a valid challenge frame")
         return None
 
     def _find_challenge_frame_recursive(
         self, frame: Frame, current_depth=0, max_depth=4
     ) -> Frame | None:
-        """
-        递归查找challenge frame并返回真正可见的frame
-
-        Args:
-            frame: 当前frame
-            current_depth: 当前递归深度
-            max_depth: 最大递归深度
-
-        Returns:
-            Frame 或 None: 找到的可见frame或None
-        """
-        # 达到最大递归深度，停止搜索
         if current_depth >= max_depth:
             return None
 
-        # 收集所有符合条件的frames
         candidate_frames = []
 
-        # 遍历当前frame的所有子frame
         for child_frame in frame.child_frames:
-            # 检查当前frame是否符合条件
             if (
                 not child_frame.child_frames
                 and child_frame.url.startswith("https://newassets.hcaptcha.com/captcha/v1/")
                 and "frame=challenge" in child_frame.url
             ):
-                # 找到符合条件的frame，添加到候选列表
                 candidate_frames.append(child_frame)
             else:
-                # 递归搜索子frame
                 found_in_child = self._find_challenge_frame_recursive(
                     child_frame, current_depth + 1, max_depth
                 )
                 if found_in_child:
                     return found_in_child
 
-        # 如果找到多个候选frame，检查它们的可见性
         if candidate_frames:
-            # 异步方法内不能使用同步的循环检查可见性
-            # 这里简单地选择第一个候选，实际运行时将会进一步检查可见性
             return candidate_frames[0]
 
-        # 本分支未找到符合条件的frame
         return None
 
     async def click_by_mouse(self, locator: Locator):
