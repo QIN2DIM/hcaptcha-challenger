@@ -197,13 +197,19 @@ class RoboticArm:
         )
         self.signal_crumb_count: int | None = None
 
+        self._checkbox_selector = "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=checkbox')]"
+        self._challenge_selector = "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
+
     @property
     def checkbox_selector(self) -> str:
-        return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=checkbox')]"
+        return self._checkbox_selector
 
     @property
     def challenge_selector(self) -> str:
-        return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
+        return self._challenge_selector
+
+    def get_challenge_frame_locator(self) -> FrameLocator:
+        return self.page.frame_locator(self.challenge_selector)
 
     async def click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()
@@ -222,7 +228,7 @@ class RoboticArm:
 
     async def refresh_challenge(self):
         try:
-            refresh_frame = self.page.frame_locator(self.challenge_selector)
+            refresh_frame = self.get_challenge_frame_locator()
             refresh_element = refresh_frame.locator("//div[@class='refresh button']")
             await self.click_by_mouse(refresh_element)
         except TimeoutError as err:
@@ -236,14 +242,16 @@ class RoboticArm:
 
         # Determine the number of tasks based on DOM
         await self.page.wait_for_timeout(500)
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = self.get_challenge_frame_locator()
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         return 2 if await crumbs.first.is_visible() else 1
 
     async def check_challenge_type(self) -> RequestType | ChallengeTypeEnum:
-        await self.page.wait_for_selector(self.challenge_selector)
+        # fixme
+        with suppress(TimeoutError):
+            await self.page.wait_for_selector(self.challenge_selector, timeout=1000)
 
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = self.get_challenge_frame_locator()
 
         samples = frame_challenge.locator("//div[@class='task-image']")
         count = await samples.count()
@@ -260,7 +268,7 @@ class RoboticArm:
 
     async def _wait_for_all_loaders_complete(self):
         """Wait for all loading indicators to complete (become invisible)"""
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = self.get_challenge_frame_locator()
 
         await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
@@ -366,7 +374,7 @@ class RoboticArm:
         await asyncio.sleep(random.uniform(0.08, 0.12))
 
     async def challenge_image_label_binary(self):
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = self.get_challenge_frame_locator()
         crumb_count = await self.check_crumb_count()
 
         for c in range(crumb_count):
@@ -401,7 +409,7 @@ class RoboticArm:
                 await self.click_by_mouse(submit_btn)
 
     async def challenge_image_drag_drop(self, job_type: ChallengeTypeEnum):
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = self.get_challenge_frame_locator()
         crumb_count = await self.check_crumb_count()
 
         for i in range(crumb_count):
@@ -426,7 +434,7 @@ class RoboticArm:
                 await self.click_by_mouse(submit_btn)
 
     async def challenge_image_label_select(self, job_type: ChallengeTypeEnum):
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = self.get_challenge_frame_locator()
         crumb_count = await self.check_crumb_count()
 
         for i in range(crumb_count):
