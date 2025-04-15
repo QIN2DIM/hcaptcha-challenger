@@ -19,7 +19,7 @@ from typing import List, Tuple
 import matplotlib.pyplot as plt
 import msgpack
 from loguru import logger
-from playwright.async_api import Locator, expect, Page, Response, TimeoutError, FrameLocator
+from playwright.async_api import Locator, expect, Page, Response, TimeoutError, FrameLocator, Frame
 from pydantic import Field, field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -208,8 +208,121 @@ class RoboticArm:
     def challenge_selector(self) -> str:
         return self._challenge_selector
 
-    def get_challenge_frame_locator(self) -> FrameLocator:
-        return self.page.frame_locator(self.challenge_selector)
+    async def get_challenge_frame_locator(self) -> Frame | None:
+        """
+        递归查找符合条件的challenge frame locator。
+        优先使用递归搜索，如果找不到则回退到使用选择器的方式。
+        会检查找到的frame的可见性，确保返回可见的frame。
+        """
+        # 尝试递归方式查找frame
+        candidate_frame = self._find_challenge_frame_recursive(self.page.main_frame, max_depth=4)
+
+        if candidate_frame:
+            # 检查frame是否可见
+            try:
+                # 尝试找到一个应该在challenge frame中存在的元素
+                challenge_view = candidate_frame.locator("//div[@class='challenge-view']")
+                is_visible = await challenge_view.is_visible(timeout=1000)
+
+                if is_visible:
+                    return candidate_frame
+                else:
+                    # 如果第一个候选frame不可见，尝试使用选择器方式查找
+                    logger.debug("找到的候选frame不可见，尝试使用选择器查找")
+            except Exception as e:
+                logger.warning(f"检查frame可见性时出错: {e}")
+
+        # 回退到使用选择器的方式
+        try:
+            # 首先尝试直接获取iframe
+            challenge_iframe = self.page.locator(self.challenge_selector)
+            if await challenge_iframe.count() > 0:
+                frame = await challenge_iframe.first.frame()
+                if frame:
+                    # 验证这个frame是否可用
+                    try:
+                        challenge_view = frame.locator("//div[@class='challenge-view']")
+                        if await challenge_view.is_visible(timeout=500):
+                            return frame
+                    except Exception as e:
+                        logger.warning(f"选择器找到的frame不可见: {e}")
+        except Exception as e:
+            logger.warning(f"使用选择器查找frame时出错: {e}")
+
+        # 如果所有方法都失败，最后尝试最原始的方式
+        try:
+            challenge_frames = []
+            # 查找所有iframe
+            all_frames = self.page.frames
+            for frame in all_frames:
+                if (
+                    frame.url.startswith("https://newassets.hcaptcha.com/captcha/v1/")
+                    and "frame=challenge" in frame.url
+                ):
+                    challenge_frames.append(frame)
+
+            # 检查找到的frames是否可见
+            for frame in challenge_frames:
+                try:
+                    challenge_view = frame.locator("//div[@class='challenge-view']")
+                    if await challenge_view.is_visible(timeout=500):
+                        return frame
+                except:
+                    continue
+        except Exception as e:
+            logger.error(f"查找所有iframe时出错: {e}")
+
+        # 真的找不到了，返回None
+        logger.error("无法找到有效的challenge frame")
+        return None
+
+    def _find_challenge_frame_recursive(
+        self, frame: Frame, current_depth=0, max_depth=4
+    ) -> Frame | None:
+        """
+        递归查找challenge frame并返回真正可见的frame
+
+        Args:
+            frame: 当前frame
+            current_depth: 当前递归深度
+            max_depth: 最大递归深度
+
+        Returns:
+            Frame 或 None: 找到的可见frame或None
+        """
+        # 达到最大递归深度，停止搜索
+        if current_depth >= max_depth:
+            return None
+
+        # 收集所有符合条件的frames
+        candidate_frames = []
+
+        # 遍历当前frame的所有子frame
+        for child_frame in frame.child_frames:
+            # 检查当前frame是否符合条件
+            if (
+                not child_frame.child_frames
+                and child_frame.url.startswith("https://newassets.hcaptcha.com/captcha/v1/")
+                and "frame=challenge" in child_frame.url
+            ):
+                # 找到符合条件的frame，添加到候选列表
+                candidate_frames.append(child_frame)
+            else:
+                # 递归搜索子frame
+                found_in_child = self._find_challenge_frame_recursive(
+                    child_frame, current_depth + 1, max_depth
+                )
+                if found_in_child:
+                    return found_in_child
+
+        # 如果找到多个候选frame，检查它们的可见性
+        if candidate_frames:
+            # 异步方法内不能使用同步的循环检查可见性
+            # 这里简单地选择第一个候选，实际运行时将会进一步检查可见性
+            return candidate_frames[0]
+
+        # 本分支未找到符合条件的frame
+        return None
 
     async def click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()
@@ -228,7 +341,7 @@ class RoboticArm:
 
     async def refresh_challenge(self):
         try:
-            refresh_frame = self.get_challenge_frame_locator()
+            refresh_frame = await self.get_challenge_frame_locator()
             refresh_element = refresh_frame.locator("//div[@class='refresh button']")
             await self.click_by_mouse(refresh_element)
         except TimeoutError as err:
@@ -242,7 +355,7 @@ class RoboticArm:
 
         # Determine the number of tasks based on DOM
         await self.page.wait_for_timeout(500)
-        frame_challenge = self.get_challenge_frame_locator()
+        frame_challenge = await self.get_challenge_frame_locator()
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         return 2 if await crumbs.first.is_visible() else 1
 
@@ -251,7 +364,7 @@ class RoboticArm:
         with suppress(TimeoutError):
             await self.page.wait_for_selector(self.challenge_selector, timeout=1000)
 
-        frame_challenge = self.get_challenge_frame_locator()
+        frame_challenge = await self.get_challenge_frame_locator()
 
         samples = frame_challenge.locator("//div[@class='task-image']")
         count = await samples.count()
@@ -268,7 +381,7 @@ class RoboticArm:
 
     async def _wait_for_all_loaders_complete(self):
         """Wait for all loading indicators to complete (become invisible)"""
-        frame_challenge = self.get_challenge_frame_locator()
+        frame_challenge = await self.get_challenge_frame_locator()
 
         await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
@@ -291,7 +404,7 @@ class RoboticArm:
 
         return True
 
-    async def _capture_challenge_view(self, frame_challenge: FrameLocator) -> Path:
+    async def _capture_challenge_view(self, frame_challenge: FrameLocator | Frame) -> Path:
         challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
         cache_dir = self.config.cache_dir.joinpath("challenge_view")
         current_time = datetime.now().strftime("%Y%m%d/%Y%m%d%H%M%S%f")
@@ -300,7 +413,7 @@ class RoboticArm:
 
         return cache_path
 
-    async def _capture_spatial_mapping(self, frame_challenge: FrameLocator):
+    async def _capture_spatial_mapping(self, frame_challenge: FrameLocator | Frame):
         # Capture challenge-view
         challenge_screenshot = await self._capture_challenge_view(frame_challenge)
         challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
@@ -374,7 +487,8 @@ class RoboticArm:
         await asyncio.sleep(random.uniform(0.08, 0.12))
 
     async def challenge_image_label_binary(self):
-        frame_challenge = self.get_challenge_frame_locator()
+        frame_challenge = await self.get_challenge_frame_locator()
+
         crumb_count = await self.check_crumb_count()
 
         for c in range(crumb_count):
@@ -409,7 +523,7 @@ class RoboticArm:
                 await self.click_by_mouse(submit_btn)
 
     async def challenge_image_drag_drop(self, job_type: ChallengeTypeEnum):
-        frame_challenge = self.get_challenge_frame_locator()
+        frame_challenge = await self.get_challenge_frame_locator()
         crumb_count = await self.check_crumb_count()
 
         for i in range(crumb_count):
@@ -434,7 +548,7 @@ class RoboticArm:
                 await self.click_by_mouse(submit_btn)
 
     async def challenge_image_label_select(self, job_type: ChallengeTypeEnum):
-        frame_challenge = self.get_challenge_frame_locator()
+        frame_challenge = await self.get_challenge_frame_locator()
         crumb_count = await self.check_crumb_count()
 
         for i in range(crumb_count):
