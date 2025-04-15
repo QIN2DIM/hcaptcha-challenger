@@ -116,6 +116,7 @@ class AgentConfig(BaseSettings):
     cache_dir: Path = Path("tmp/.cache")
     challenge_dir: Path = Path("tmp/.challenge")
     captcha_response_dir: Path = Path("tmp/.captcha")
+    ignore_request_types: List[RequestType] | None = Field(default_factory=list)
 
     EXECUTION_TIMEOUT: float = Field(
         default=120,
@@ -741,26 +742,27 @@ class AgentV:
         try:
             match challenge_type:
                 case RequestType.IMAGE_LABEL_BINARY:
-                    await self.robotic_arm.challenge_image_label_binary()
+                    if RequestType.IMAGE_LABEL_BINARY not in self.config.ignore_request_types:
+                        return await self.robotic_arm.challenge_image_label_binary()
                 case (
                     challenge_type.IMAGE_LABEL_SINGLE_SELECT
                     | challenge_type.IMAGE_LABEL_MULTI_SELECT
                 ):
-                    await self.robotic_arm.challenge_image_label_select(challenge_type)
+                    if RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types:
+                        return await self.robotic_arm.challenge_image_label_select(challenge_type)
                 case challenge_type.IMAGE_DRAG_SINGLE:
-                    await self.robotic_arm.challenge_image_drag_drop(challenge_type)
+                    if RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types:
+                        return await self.robotic_arm.challenge_image_drag_drop(challenge_type)
                 case challenge_type.IMAGE_DRAG_MULTI:
                     # await self.robotic_arm.challenge_image_drag_drop(challenge_type)
                     logger.warning(f"Not yet supported challenge: {challenge_type.value}")
-                    await self.page.wait_for_timeout(2000)
-                    await self.robotic_arm.refresh_challenge()
-                    return await self._solve_captcha()
                 case _:
                     # todo Agentic Workflow | zero-shot challenge
                     logger.warning(f"Unknown types of challenges: {challenge_type}")
-                    await self.page.wait_for_timeout(2000)
-                    await self.robotic_arm.refresh_challenge()
-                    return await self._solve_captcha()
+
+            await self.page.wait_for_timeout(2000)
+            await self.robotic_arm.refresh_challenge()
+            return await self._solve_captcha()
         except Exception as err:
             # This is an execution error inside the challenge,
             # hcaptcha challenge does not automatically refresh
