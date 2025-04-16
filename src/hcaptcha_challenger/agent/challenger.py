@@ -15,11 +15,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 from typing import List, Tuple
+from uuid import uuid4
 
 import matplotlib.pyplot as plt
 import msgpack
 from loguru import logger
-from playwright.async_api import Locator, expect, Page, Response, TimeoutError, FrameLocator
+from playwright.async_api import Locator, expect, Page, Response, TimeoutError, FrameLocator, Frame
 from pydantic import Field, field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -113,7 +114,9 @@ class AgentConfig(BaseSettings):
     )
 
     cache_dir: Path = Path("tmp/.cache")
+    challenge_dir: Path = Path("tmp/.challenge")
     captcha_response_dir: Path = Path("tmp/.captcha")
+    ignore_request_types: List[RequestType] | None = Field(default_factory=list)
 
     EXECUTION_TIMEOUT: float = Field(
         default=120,
@@ -176,6 +179,47 @@ class AgentConfig(BaseSettings):
     def spatial_grid_cache(self):
         return self.cache_dir.joinpath("spatial_grid")
 
+    def create_cache_key(
+        self,
+        captcha_payload: CaptchaPayload | None = None,
+        request_type: str = "type",
+        prompt: str = "unknown",
+    ) -> Path:
+        """
+
+        Args:
+            captcha_payload:
+            request_type:
+            prompt:
+
+        Returns: ./.challenge / require_type / prompt / current_time
+
+        """
+        current_datetime = datetime.now()
+        current_time = current_datetime.strftime("%Y%m%d/%Y%m%d%H%M%S%f")
+
+        if not captcha_payload:
+            return self.challenge_dir.joinpath(request_type, prompt, current_time)
+
+        cache_key = self.challenge_dir.joinpath(
+            captcha_payload.request_type.value,
+            captcha_payload.requester_question.get("en", "unknown"),
+            current_time,
+        )
+
+        try:
+            _cache_path_captcha = cache_key.joinpath(f"{cache_key.name}_captcha.json")
+            _cache_path_captcha.parent.mkdir(parents=True, exist_ok=True)
+
+            _unpacked_data = captcha_payload.model_dump(mode="json")
+            _cache_path_captcha.write_text(
+                json.dumps(_unpacked_data, indent=2, ensure_ascii=False), encoding="utf8"
+            )
+        except Exception as e:
+            logger.error(f"Failed to write captcha payload to cache: {e}")
+
+        return cache_key
+
 
 class RoboticArm:
 
@@ -196,14 +240,77 @@ class RoboticArm:
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
         )
         self.signal_crumb_count: int | None = None
+        self.captcha_payload: CaptchaPayload | None = None
+
+        self._checkbox_selector = "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=checkbox')]"
+        self._challenge_selector = "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
 
     @property
     def checkbox_selector(self) -> str:
-        return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=checkbox')]"
+        return self._checkbox_selector
 
     @property
     def challenge_selector(self) -> str:
-        return "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
+        return self._challenge_selector
+
+    async def get_challenge_frame_locator(self) -> Frame | None:
+        candidate_frame = self._find_challenge_frame_recursive(self.page.main_frame, max_depth=4)
+
+        if candidate_frame:
+            with suppress(Exception):
+                challenge_view = candidate_frame.locator("//div[@class='challenge-view']")
+                is_visible = await challenge_view.is_visible(timeout=1000)
+
+                if is_visible:
+                    return candidate_frame
+
+        try:
+            challenge_frames = []
+            all_frames = self.page.frames
+            for frame in all_frames:
+                if (
+                    frame.url.startswith("https://newassets.hcaptcha.com/captcha/v1/")
+                    and "frame=challenge" in frame.url
+                ):
+                    challenge_frames.append(frame)
+
+            for frame in challenge_frames:
+                with suppress(Exception):
+                    challenge_view = frame.locator("//div[@class='challenge-view']")
+                    if await challenge_view.is_visible():
+                        return frame
+        except Exception as e:
+            logger.error(f"Error finding all iframes: {e}")
+
+        logger.error("Cannot find a valid challenge frame")
+        return None
+
+    def _find_challenge_frame_recursive(
+        self, frame: Frame, current_depth=0, max_depth=4
+    ) -> Frame | None:
+        if current_depth >= max_depth:
+            return None
+
+        candidate_frames = []
+
+        for child_frame in frame.child_frames:
+            if (
+                not child_frame.child_frames
+                and child_frame.url.startswith("https://newassets.hcaptcha.com/captcha/v1/")
+                and "frame=challenge" in child_frame.url
+            ):
+                candidate_frames.append(child_frame)
+            else:
+                found_in_child = self._find_challenge_frame_recursive(
+                    child_frame, current_depth + 1, max_depth
+                )
+                if found_in_child:
+                    return found_in_child
+
+        if candidate_frames:
+            return candidate_frames[0]
+
+        return None
 
     async def click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()
@@ -222,7 +329,7 @@ class RoboticArm:
 
     async def refresh_challenge(self):
         try:
-            refresh_frame = self.page.frame_locator(self.challenge_selector)
+            refresh_frame = await self.get_challenge_frame_locator()
             refresh_element = refresh_frame.locator("//div[@class='refresh button']")
             await self.click_by_mouse(refresh_element)
         except TimeoutError as err:
@@ -236,14 +343,16 @@ class RoboticArm:
 
         # Determine the number of tasks based on DOM
         await self.page.wait_for_timeout(500)
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = await self.get_challenge_frame_locator()
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         return 2 if await crumbs.first.is_visible() else 1
 
     async def check_challenge_type(self) -> RequestType | ChallengeTypeEnum:
-        await self.page.wait_for_selector(self.challenge_selector)
+        # fixme
+        with suppress(Exception):
+            await self.page.wait_for_selector(self.challenge_selector, timeout=1000)
 
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = await self.get_challenge_frame_locator()
 
         samples = frame_challenge.locator("//div[@class='task-image']")
         count = await samples.count()
@@ -252,7 +361,10 @@ class RoboticArm:
         if isinstance(count, int) and count == 0:
             tms = self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS * 1.5
             await self.page.wait_for_timeout(tms)
-            cache_path = await self._capture_challenge_view(frame_challenge)
+            challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
+            cache_path = self.config.cache_dir.joinpath(f"challenge_view/_artifacts/{uuid4()}.png")
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            await challenge_view.screenshot(type="png", path=cache_path)
             challenge_type = self._challenge_classifier.invoke(
                 challenge_screenshot=cache_path, model=self.config.CHALLENGE_CLASSIFIER_MODEL
             )
@@ -260,7 +372,7 @@ class RoboticArm:
 
     async def _wait_for_all_loaders_complete(self):
         """Wait for all loading indicators to complete (become invisible)"""
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = await self.get_challenge_frame_locator()
 
         await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
@@ -283,18 +395,15 @@ class RoboticArm:
 
         return True
 
-    async def _capture_challenge_view(self, frame_challenge: FrameLocator) -> Path:
-        challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
-        cache_dir = self.config.cache_dir.joinpath("challenge_view")
-        current_time = datetime.now().strftime("%Y%m%d/%Y%m%d%H%M%S%f")
-        cache_path = cache_dir.joinpath(f"{current_time}.png")
-        await challenge_view.screenshot(type="png", path=cache_path)
-
-        return cache_path
-
-    async def _capture_spatial_mapping(self, frame_challenge: FrameLocator):
+    @staticmethod
+    async def _capture_spatial_mapping(
+        frame_challenge: FrameLocator | Frame, cache_key: Path, crumb_id: int | str
+    ):
         # Capture challenge-view
-        challenge_screenshot = await self._capture_challenge_view(frame_challenge)
+        challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
+        challenge_screenshot = cache_key.joinpath(f"{cache_key.name}_{crumb_id}_challenge_view.png")
+        await challenge_view.screenshot(type="png", path=challenge_screenshot)
+
         challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
         bbox = await challenge_view.bounding_box()
 
@@ -307,8 +416,8 @@ class RoboticArm:
             color="gray",
             adaptive_contrast=False,
         )
-        current_time = datetime.now().strftime("%Y%m%d/%Y%m%d%H%M%S%f")
-        grid_divisions = self.config.spatial_grid_cache.joinpath(f"{current_time}.png")
+
+        grid_divisions = cache_key.joinpath(f"{cache_key.name}_{crumb_id}_spatial_helper.png")
         grid_divisions.parent.mkdir(parents=True, exist_ok=True)
         plt.imsave(str(grid_divisions.resolve()), result)
 
@@ -366,22 +475,25 @@ class RoboticArm:
         await asyncio.sleep(random.uniform(0.08, 0.12))
 
     async def challenge_image_label_binary(self):
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = await self.get_challenge_frame_locator()
         crumb_count = await self.check_crumb_count()
+        cache_key = self.config.create_cache_key(self.captcha_payload)
 
-        for c in range(crumb_count):
+        for cid in range(crumb_count):
             await self._wait_for_all_loaders_complete()
 
             # Get challenge-view
-            cache_path = await self._capture_challenge_view(frame_challenge)
+            challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
+            challenge_screenshot = cache_key.joinpath(f"{cache_key.name}_{cid}_challenge_view.png")
+            await challenge_view.screenshot(type="png", path=challenge_screenshot)
 
             # Image classification
             response = self._image_classifier.invoke(
-                challenge_screenshot=cache_path, model=self.config.IMAGE_CLASSIFIER_MODEL
+                challenge_screenshot=challenge_screenshot, model=self.config.IMAGE_CLASSIFIER_MODEL
             )
             boolean_matrix = response.convert_box_to_boolean_matrix()
 
-            logger.debug(f'[{c+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
+            logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
             # drive the browser to work on the challenge
             positive_cases = 0
@@ -401,13 +513,14 @@ class RoboticArm:
                 await self.click_by_mouse(submit_btn)
 
     async def challenge_image_drag_drop(self, job_type: ChallengeTypeEnum):
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = await self.get_challenge_frame_locator()
         crumb_count = await self.check_crumb_count()
+        cache_key = self.config.create_cache_key(self.captcha_payload)
 
-        for i in range(crumb_count):
+        for cid in range(crumb_count):
             await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
-            raw, projection = await self._capture_spatial_mapping(frame_challenge)
+            raw, projection = await self._capture_spatial_mapping(frame_challenge, cache_key, cid)
 
             response = self._spatial_path_reasoner.invoke(
                 challenge_screenshot=raw,
@@ -415,7 +528,7 @@ class RoboticArm:
                 model=self.config.SPATIAL_PATH_REASONER_MODEL,
                 auxiliary_information=f"JobType: {job_type.value}",
             )
-            logger.debug(f'[{i+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
+            logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
             for path in response.paths:
                 await self._perform_drag_drop(path)
@@ -426,13 +539,14 @@ class RoboticArm:
                 await self.click_by_mouse(submit_btn)
 
     async def challenge_image_label_select(self, job_type: ChallengeTypeEnum):
-        frame_challenge = self.page.frame_locator(self.challenge_selector)
+        frame_challenge = await self.get_challenge_frame_locator()
         crumb_count = await self.check_crumb_count()
+        cache_key = self.config.create_cache_key(self.captcha_payload)
 
-        for i in range(crumb_count):
+        for cid in range(crumb_count):
             await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
-            raw, projection = await self._capture_spatial_mapping(frame_challenge)
+            raw, projection = await self._capture_spatial_mapping(frame_challenge, cache_key, cid)
 
             user_prompt = f"**JobType:** {job_type.value}"
             if job_type == ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT:
@@ -446,7 +560,7 @@ class RoboticArm:
                 model=self.config.SPATIAL_POINT_REASONER_MODEL,
                 auxiliary_information=user_prompt,
             )
-            logger.debug(f'[{i+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
+            logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
             for point in response.points:
                 await self.page.mouse.click(point.x, point.y, delay=180)
@@ -556,20 +670,6 @@ class AgentV:
                         captcha_payload = CaptchaPayload(**unpacked_data)
                         self._captcha_payload_queue.put_nowait(captcha_payload)
 
-                        # Save captcha payload to json
-                        try:
-                            current_time = datetime.now().strftime("%Y%m%d/%Y%m%d%H%M%S%f")
-                            cache_path = self.config.cache_dir.joinpath(
-                                f"payload/{captcha_payload.request_type.value}/{current_time}.json"
-                            )
-                            cache_path.parent.mkdir(parents=True, exist_ok=True)
-                            cache_path.write_text(
-                                json.dumps(unpacked_data, indent=2, ensure_ascii=False),
-                                encoding="utf8",
-                            )
-                        except Exception as err:
-                            logger.warning(f"Saving captcha payload failed - {err}")
-
                         return
                 # If the reverse fails, fall back to the original process
                 else:
@@ -589,11 +689,13 @@ class AgentV:
             self._captcha_payload = await asyncio.wait_for(
                 self._captcha_payload_queue.get(), timeout=30.0
             )
+            await self.page.wait_for_timeout(500)
         except asyncio.TimeoutError:
             logger.error("Wait for captcha payload to timeout")
             self._captcha_payload = None
 
         self.robotic_arm.signal_crumb_count = None
+        self.robotic_arm.captcha_payload = None
         if not self._captcha_payload:
             return await self.robotic_arm.check_challenge_type()
 
@@ -601,6 +703,7 @@ class AgentV:
             request_type = self._captcha_payload.request_type
             tasklist = self._captcha_payload.tasklist
             tasklist_length = len(tasklist)
+            self.robotic_arm.captcha_payload = self._captcha_payload
             match request_type:
                 case RequestType.IMAGE_LABEL_BINARY:
                     self.robotic_arm.signal_crumb_count = int(tasklist_length / 9)
@@ -639,26 +742,26 @@ class AgentV:
         try:
             match challenge_type:
                 case RequestType.IMAGE_LABEL_BINARY:
-                    await self.robotic_arm.challenge_image_label_binary()
+                    if RequestType.IMAGE_LABEL_BINARY not in self.config.ignore_request_types:
+                        return await self.robotic_arm.challenge_image_label_binary()
                 case (
                     challenge_type.IMAGE_LABEL_SINGLE_SELECT
                     | challenge_type.IMAGE_LABEL_MULTI_SELECT
                 ):
-                    await self.robotic_arm.challenge_image_label_select(challenge_type)
+                    if RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types:
+                        return await self.robotic_arm.challenge_image_label_select(challenge_type)
                 case challenge_type.IMAGE_DRAG_SINGLE:
-                    await self.robotic_arm.challenge_image_drag_drop(challenge_type)
+                    if RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types:
+                        return await self.robotic_arm.challenge_image_drag_drop(challenge_type)
                 case challenge_type.IMAGE_DRAG_MULTI:
-                    # await self.robotic_arm.challenge_image_drag_drop(challenge_type)
                     logger.warning(f"Not yet supported challenge: {challenge_type.value}")
-                    await self.page.wait_for_timeout(2000)
-                    await self.robotic_arm.refresh_challenge()
-                    return await self._solve_captcha()
                 case _:
                     # todo Agentic Workflow | zero-shot challenge
                     logger.warning(f"Unknown types of challenges: {challenge_type}")
-                    await self.page.wait_for_timeout(2000)
-                    await self.robotic_arm.refresh_challenge()
-                    return await self._solve_captcha()
+
+            await self.page.wait_for_timeout(2000)
+            await self.robotic_arm.refresh_challenge()
+            return await self._solve_captcha()
         except Exception as err:
             # This is an execution error inside the challenge,
             # hcaptcha challenge does not automatically refresh
@@ -702,3 +805,5 @@ class AgentV:
                 logger.success("Challenge success")
                 self._cache_validated_captcha_response(cr)
                 return ChallengeSignal.SUCCESS
+
+        return ChallengeSignal.FAILURE
