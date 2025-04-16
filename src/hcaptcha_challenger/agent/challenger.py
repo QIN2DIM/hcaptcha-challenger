@@ -754,7 +754,6 @@ class AgentV:
                     if RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types:
                         return await self.robotic_arm.challenge_image_drag_drop(challenge_type)
                 case challenge_type.IMAGE_DRAG_MULTI:
-                    # await self.robotic_arm.challenge_image_drag_drop(challenge_type)
                     logger.warning(f"Not yet supported challenge: {challenge_type.value}")
                 case _:
                     # todo Agentic Workflow | zero-shot challenge
@@ -806,3 +805,5 @@ class AgentV:
                 logger.success("Challenge success")
                 self._cache_validated_captcha_response(cr)
                 return ChallengeSignal.SUCCESS
+
+        return ChallengeSignal.FAILURE
