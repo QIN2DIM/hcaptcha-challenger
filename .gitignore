@@ -163,7 +163,7 @@ pnpm-lock.yaml
 tests/record/*.mp4
 examples/tmp/*
 
-tests/**/coordinate_grid*.png
+tests/**/*coordinate_grid*.png
 tests/ffmpeg.exe
 tests/generate_content
 tests/.env.example

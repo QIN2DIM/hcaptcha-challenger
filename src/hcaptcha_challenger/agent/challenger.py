@@ -528,15 +528,13 @@ class RoboticArm:
                 grid_divisions=projection,
                 model=self.config.SPATIAL_PATH_REASONER_MODEL,
                 auxiliary_information=f"JobType: {job_type.value}",
-                enable_scot=False,
+                enable_scot=True,
                 enable_response_schema=True,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
             for path in response.paths:
                 await self._perform_drag_drop(path)
-
-            await self.page.pause()
 
             # {{< Verify >}}
             with suppress(TimeoutError):
@@ -650,6 +648,7 @@ class AgentV:
                     }
                     """
                 )
+                print(f"{has_hsw=}")
 
                 if has_hsw:
                     result = await self.page.evaluate(
@@ -672,6 +671,7 @@ class AgentV:
                         isinstance(x, dict) and "error" in x for x in result
                     ):
                         unpacked_data = msgpack.unpackb(bytes(result))
+                        print(unpacked_data)
                         captcha_payload = CaptchaPayload(**unpacked_data)
                         self._captcha_payload_queue.put_nowait(captcha_payload)
 

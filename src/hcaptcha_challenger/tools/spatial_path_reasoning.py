@@ -2,10 +2,8 @@ import os
 from pathlib import Path
 from typing import Union
 
-from PIL import Image
 from google import genai
 from google.genai import types
-from google.genai.types import PartUnion
 from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_fixed
 
@@ -15,6 +13,7 @@ from hcaptcha_challenger.tools.common import extract_first_json_block
 THINKING_PROMPT = """
 <instructions>
 Solve the visual challenge by accurately dragging the provided piece to complete the main shape.
+Learn the rules of the game and understand what an endpoint is and the correct answer based on a reference video provided by the user.
 </instructions>
 
 <challenge_analysis>
@@ -44,28 +43,39 @@ Provide the solution as a JSON object containing the challenge prompt descriptio
 </output>
 """
 
-SCOT_DIR = Path(__file__).parent.joinpath("scot")
+SCOT_VIDEO_PATH = Path(__file__).parent.joinpath("scot/scot_guideline.mp4")
 
 
 class SpatialPathReasoner:
     def __init__(self, gemini_api_key: str):
         """Initialize the classifier with a Gemini API key."""
-        self._api_key = gemini_api_key
+        self._scot_file_uri = ""
+        self._scot_file_mime_type = "video/mp4"
+        self._client = genai.Client(api_key=gemini_api_key)
 
-    @staticmethod
-    def load_scot_parts() -> list[PartUnion]:
+    @property
+    def scot_file_uri(self) -> str:
+        if not self._scot_file_uri:
+            file = self._client.files.upload(file=SCOT_VIDEO_PATH)
+            self._scot_file_uri = file.uri
+            self._scot_file_mime_type = file.mime_type
+        return self._scot_file_uri
+
+    def insert_scot_parts_by_remote(self):
         scot_parts = []
 
         try:
-            for si in SCOT_DIR.glob("*.png"):
-                scot_parts.append(Image.open(si))
+            scot_parts.append(
+                types.Part.from_uri(
+                    file_uri=self.scot_file_uri, mime_type=self._scot_file_mime_type
+                )
+            )
         except Exception as e:
             logger.error(f"Error loading SCOT parts: {e}")
 
-        if scot_parts:
-            scot_parts = ["\n**Examples:**\n"] + scot_parts
+        for p in scot_parts:
+            logger.debug(f"Insert SCOT Parts - {p=}")
 
-        print(len(scot_parts))
         return scot_parts
 
     @retry(
@@ -77,6 +87,7 @@ class SpatialPathReasoner:
     )
     def invoke(
         self,
+        challenge_screenshot: Union[str, Path, os.PathLike],
         grid_divisions: Union[str, Path, os.PathLike],
         auxiliary_information: str | None = "",
         model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
@@ -85,36 +96,26 @@ class SpatialPathReasoner:
         enable_scot: bool = False,
         **kwargs,
     ) -> ImageDragDropChallenge:
-        challenge_screenshot = kwargs.get("challenge_screenshot")
-
-        # Initialize Gemini client with API key
-        client = genai.Client(api_key=self._api_key)
-
         parts = []
-
         # {{< Insert Spatial Chain-of-Thought Parts >}}
         if enable_scot:
-            parts.extend(self.load_scot_parts())
+            parts.extend(self.insert_scot_parts_by_remote())
 
         # {{< Insert Challenge Parts >}}
-        if isinstance(challenge_screenshot, Path):
-            file = client.files.upload(file=challenge_screenshot)
+        for image in [challenge_screenshot, grid_divisions]:
+            file = self._client.files.upload(file=image)
             parts.append(types.Part.from_uri(file_uri=file.uri, mime_type=file.mime_type))
-        file = client.files.upload(file=grid_divisions)
-        parts.append(types.Part.from_uri(file_uri=file.uri, mime_type=file.mime_type))
 
         # {{< Insert Custom User Prompt >}}
-        user_prompt = "NOW please start the challenge."
         if auxiliary_information and isinstance(auxiliary_information, str):
-            user_prompt += f"\n{auxiliary_information}"
-        parts.append(types.Part.from_text(text=user_prompt))
+            parts.append(types.Part.from_text(text=auxiliary_information))
 
         # {{< Merge ALL Parts >}}
         contents = [types.UserContent(parts=parts)]
 
         # Change to JSON mode
         if not enable_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
-            response = client.models.generate_content(
+            response = self._client.models.generate_content(
                 model=model,
                 contents=contents,
                 config=types.GenerateContentConfig(
@@ -124,7 +125,7 @@ class SpatialPathReasoner:
             return ImageDragDropChallenge(**extract_first_json_block(response.text))
 
         # Structured output with Constraint encoding
-        response = client.models.generate_content(
+        response = self._client.models.generate_content(
             model=model,
             contents=contents,
             config=types.GenerateContentConfig(
