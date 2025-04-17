@@ -40,6 +40,10 @@ def _create_adaptive_contrast_grid(
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     avg_brightness = np.mean(gray) / 255.0
 
+    # 如果启用了grayscale参数，使用灰度图
+    if kwargs.get("grayscale", False):
+        img = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
+        
     grid_color = 'black' if avg_brightness > 0.5 else 'white'
 
     cmap_name = 'hot' if avg_brightness < 0.5 else 'cool'
@@ -127,6 +131,7 @@ def create_coordinate_grid(
           - x_line_space_num: Number of vertical grid lines (default: 11)
           - y_line_space_num: Number of horizontal grid lines (default: 20)
           - adaptive_contrast: Whether to use adaptive contrast grid (default: False)
+          - grayscale: Whether to convert image to grayscale (default: False)
 
     Returns:
         Processed image with coordinate grid
@@ -144,6 +149,11 @@ def create_coordinate_grid(
     adaptive_contrast = kwargs.get("adaptive_contrast", False)
     if adaptive_contrast:
         return _create_adaptive_contrast_grid(img, bbox, **kwargs)
+
+    # 如果启用了grayscale参数，转换为灰度图
+    if kwargs.get("grayscale", False):
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        img = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
 
     # Extract bbox parameters
     if isinstance(bbox, dict):

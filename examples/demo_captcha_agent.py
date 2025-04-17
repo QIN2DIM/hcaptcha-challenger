@@ -11,7 +11,9 @@ from hcaptcha_challenger.utils import SiteKey
 async def challenge(page: Page) -> AgentV:
     """Automates the process of solving an hCaptcha challenge."""
     # Initialize the agent configuration with API key (from parameters or environment)
-    agent_config = AgentConfig(ignore_request_types=[RequestType.IMAGE_DRAG_DROP])
+    agent_config = AgentConfig(
+        ignore_request_types=[RequestType.IMAGE_LABEL_BINARY, RequestType.IMAGE_LABEL_AREA_SELECT]
+    )
 
     # Create an agent instance with the page and configuration
     # AgentV appears to be a specialized agent for visual challenges
@@ -46,8 +48,8 @@ async def main():
 
         # Navigate to the hCaptcha test page using a predefined site key
         # SiteKey.user_easy likely refers to a test/demo hCaptcha with lower difficulty
-        # await page.goto(SiteKey.as_site_link(SiteKey.discord))
-        await page.goto(SiteKey.as_site_link(SiteKey.user))
+        await page.goto(SiteKey.as_site_link(SiteKey.discord))
+        # await page.goto(SiteKey.as_site_link(SiteKey.user))
 
         # --- When you encounter hCaptcha in your workflow ---
         agent: AgentV = await challenge(page)

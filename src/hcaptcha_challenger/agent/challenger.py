@@ -13,7 +13,7 @@ from asyncio import Queue
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Coroutine
 from typing import List, Tuple
 from uuid import uuid4
 
@@ -347,7 +347,7 @@ class RoboticArm:
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         return 2 if await crumbs.first.is_visible() else 1
 
-    async def check_challenge_type(self) -> RequestType | ChallengeTypeEnum:
+    async def check_challenge_type(self) -> ChallengeTypeEnum | RequestType | None:
         # fixme
         with suppress(Exception):
             await self.page.wait_for_selector(self.challenge_selector, timeout=1000)
@@ -415,6 +415,7 @@ class RoboticArm:
             y_line_space_num=20,
             color="gray",
             adaptive_contrast=False,
+            grayscale=False,
         )
 
         grid_divisions = cache_key.joinpath(f"{cache_key.name}_{crumb_id}_spatial_helper.png")
@@ -527,11 +528,15 @@ class RoboticArm:
                 grid_divisions=projection,
                 model=self.config.SPATIAL_PATH_REASONER_MODEL,
                 auxiliary_information=f"JobType: {job_type.value}",
+                enable_scot=False,
+                enable_response_schema=True,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
             for path in response.paths:
                 await self._perform_drag_drop(path)
+
+            await self.page.pause()
 
             # {{< Verify >}}
             with suppress(TimeoutError):

@@ -43,6 +43,7 @@ def process_and_save_grid(challenge_screenshot: Path, bbox: Dict[str, int]):
             adaptive_contrast=False,
             x_line_space_num=11,
             y_line_space_num=20,
+            grayscale=True,
         )
 
         if PIL_AVAILABLE and isinstance(result_data, np.ndarray):
