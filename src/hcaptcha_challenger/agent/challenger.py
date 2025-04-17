@@ -117,6 +117,7 @@ class AgentConfig(BaseSettings):
     challenge_dir: Path = Path("tmp/.challenge")
     captcha_response_dir: Path = Path("tmp/.captcha")
     ignore_request_types: List[RequestType] | None = Field(default_factory=list)
+    ignore_request_questions: List[str] | None = Field(default_factory=list)
 
     EXECUTION_TIMEOUT: float = Field(
         default=120,
@@ -347,7 +348,7 @@ class RoboticArm:
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
         return 2 if await crumbs.first.is_visible() else 1
 
-    async def check_challenge_type(self) -> RequestType | ChallengeTypeEnum:
+    async def check_challenge_type(self) -> RequestType | ChallengeTypeEnum | None:
         # fixme
         with suppress(Exception):
             await self.page.wait_for_selector(self.challenge_selector, timeout=1000)
@@ -411,7 +412,7 @@ class RoboticArm:
         result = create_coordinate_grid(
             challenge_screenshot,
             bbox,
-            x_line_space_num=11,
+            x_line_space_num=15,
             y_line_space_num=20,
             color="gray",
             adaptive_contrast=False,
@@ -740,6 +741,14 @@ class AgentV:
         )
 
         try:
+            # {{< Skip specific challenge questions >}}
+            if self.config.ignore_request_questions and self._captcha_payload:
+                for q in self.config.ignore_request_questions:
+                    if q in str(self._captcha_payload.requester_question):
+                        await self.page.wait_for_timeout(2000)
+                        await self.robotic_arm.refresh_challenge()
+                        return await self._solve_captcha()
+
             match challenge_type:
                 case RequestType.IMAGE_LABEL_BINARY:
                     if RequestType.IMAGE_LABEL_BINARY not in self.config.ignore_request_types:
