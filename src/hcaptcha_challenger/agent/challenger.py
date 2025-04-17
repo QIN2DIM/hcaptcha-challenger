@@ -742,13 +742,15 @@ class AgentV:
 
         try:
             # {{< Skip specific challenge questions >}}
-            if self.config.ignore_request_questions and self._captcha_payload:
-                for q in self.config.ignore_request_questions:
-                    if q in str(self._captcha_payload.requester_question):
-                        await self.page.wait_for_timeout(2000)
-                        await self.robotic_arm.refresh_challenge()
-                        return await self._solve_captcha()
+            with suppress(Exception):
+                if self.config.ignore_request_questions and self._captcha_payload:
+                    for q in self.config.ignore_request_questions:
+                        if q in str(self._captcha_payload.requester_question):
+                            await self.page.wait_for_timeout(2000)
+                            await self.robotic_arm.refresh_challenge()
+                            return await self._solve_captcha()
 
+            # {{< Challenge Router >}}
             match challenge_type:
                 case RequestType.IMAGE_LABEL_BINARY:
                     if RequestType.IMAGE_LABEL_BINARY not in self.config.ignore_request_types:
