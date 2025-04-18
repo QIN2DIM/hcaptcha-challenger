@@ -136,7 +136,7 @@ class AgentConfig(BaseSettings):
     )
 
     CONSTRAINT_RESPONSE_SCHEMA: bool = Field(
-        default=False, description="Whether to enable constraint encoding"
+        default=True, description="Whether to enable constraint encoding"
     )
     CHALLENGE_CLASSIFIER_MODEL: FastShotModelType = Field(
         default='gemini-2.0-flash',
