@@ -135,6 +135,9 @@ class AgentConfig(BaseSettings):
         description="When your local network is poor, increase this value appropriately [unit: millisecond]",
     )
 
+    CONSTRAINT_RESPONSE_SCHEMA: bool = Field(
+        default=True, description="Whether to enable constraint encoding"
+    )
     CHALLENGE_CLASSIFIER_MODEL: FastShotModelType = Field(
         default='gemini-2.0-flash',
         description="For the challenge classification task \n"
@@ -490,7 +493,9 @@ class RoboticArm:
 
             # Image classification
             response = self._image_classifier.invoke(
-                challenge_screenshot=challenge_screenshot, model=self.config.IMAGE_CLASSIFIER_MODEL
+                challenge_screenshot=challenge_screenshot,
+                model=self.config.IMAGE_CLASSIFIER_MODEL,
+                constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
             )
             boolean_matrix = response.convert_box_to_boolean_matrix()
 
@@ -528,6 +533,7 @@ class RoboticArm:
                 grid_divisions=projection,
                 model=self.config.SPATIAL_PATH_REASONER_MODEL,
                 auxiliary_information=f"JobType: {job_type.value}",
+                constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 
@@ -560,6 +566,7 @@ class RoboticArm:
                 grid_divisions=projection,
                 model=self.config.SPATIAL_POINT_REASONER_MODEL,
                 auxiliary_information=user_prompt,
+                constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
 

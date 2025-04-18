@@ -36,7 +36,7 @@ class ImageClassifier:
     A classifier that uses Google's Gemini AI models to analyze and solve image-based challenges.
 
     This class provides functionality to process screenshots of binary image challenges
-    (typically grid-based selection challenges) and determine the correct answer coordinates.
+    (typically grid-based selection challenges) and determines the correct answer coordinates.
     """
 
     def __init__(self, gemini_api_key: str):
@@ -53,30 +53,28 @@ class ImageClassifier:
     def invoke(
         self,
         challenge_screenshot: Union[str, Path, os.PathLike],
-        model: SCoTModelType = "gemini-2.0-flash-thinking-exp-01-21",
+        model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
         *,
-        enable_response_schema: bool = False,
+        constraint_response_schema: bool = False,
+        **kwargs,
     ) -> ImageBinaryChallenge:
         """
         Process an image challenge and return the solution coordinates.
 
-        The method handles two different Gemini model approaches:
-        1. For "gemini-2.0-flash-thinking-exp-01-21": Uses a thinking prompt and extracts JSON from text response
-        2. For other models: Uses structured JSON response schema directly
-
         Args:
-            enable_response_schema:
+            constraint_response_schema:
             challenge_screenshot: The image file containing the challenge to solve
             model: The Gemini model to use for processing. Must support both visual
-               capabilities and chain-of-thought (COT) reasoning. The default
-               "gemini-2.0-flash-thinking-exp-01-21" is optimized for spatial
-               reasoning with visual inputs, while "gemini-2.5-pro-exp-03-25"
-               offers enhanced visual understanding with structured outputs.
+               capabilities and Spatial chain-of-thought (S-COT) reasoning.
 
         Returns:
             ImageBinaryChallenge: Object containing the solution coordinates
         """
-        # Initialize Gemini client with API key
+        enable_response_schema = kwargs.get("enable_response_schema")
+        if enable_response_schema is not None:
+            constraint_response_schema = enable_response_schema
+
+        # Initialize Gemini client with API_KEY
         client = genai.Client(api_key=self._api_key)
 
         # Upload the challenge image file
@@ -86,7 +84,7 @@ class ImageClassifier:
         contents = [types.Content(role="user", parts=parts)]
 
         # Change to JSON mode
-        if not enable_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
+        if not constraint_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
             response = client.models.generate_content(
                 model=model,
                 contents=contents,

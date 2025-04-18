@@ -154,6 +154,8 @@ SCoTModelType = Literal[
     # The following is a free experimental model that may fail at any time and is for demo only
     "gemini-2.5-pro-exp-03-25",
     "gemini-2.0-flash-thinking-exp-01-21",
+    # "learnlm-2.0-flash-experimental",
+    "gemini-2.5-flash-preview-04-17",
 ]
 
 FastShotModelType = Literal[
@@ -161,12 +163,16 @@ FastShotModelType = Literal[
     "gemini-2.0-flash",
     # https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite
     "gemini-2.0-flash-lite",
+    # https://ai.google.dev/gemini-api/docs/models?hl=zh-cn#gemini-2.5-flash-preview
+    "gemini-2.5-flash-preview-04-17",
 ]
 
 
 class BoundingBoxCoordinate(BaseModel):
     box_2d: List[int] = Field(
-        description="It can only be in planar coordinate format, e.g. [0,2] for the 3rd element in the first row"
+        description="It can only be in planar coordinate format, e.g. [0,2] for the 3rd element in the first row",
+        min_length=2,
+        max_length=2,
     )
 
 
