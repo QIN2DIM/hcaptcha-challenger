@@ -3,12 +3,11 @@ import logging
 import os
 from concurrent.futures import as_completed, ProcessPoolExecutor
 from pathlib import Path
-from typing import Dict
 
 import numpy as np
 from PIL import Image
 
-from hcaptcha_challenger.helper.create_coordinate_grid import create_coordinate_grid
+from hcaptcha_challenger.helper.create_coordinate_grid import create_coordinate_grid, FloatRect
 
 BASE_PATH = Path("challenge_view")
 DATASET_IMAGE_DRAG_DROP = BASE_PATH / "image_drag_drop"
@@ -17,7 +16,7 @@ DATASET_IMAGE_LABEL_AREA_SELECT = BASE_PATH / "image_label_area_select"
 DATASET_IMAGE_DRAG_DROP.mkdir(parents=True, exist_ok=True)
 DATASET_IMAGE_LABEL_AREA_SELECT.mkdir(parents=True, exist_ok=True)
 
-DEFAULT_BBOX: Dict[str, int] = {"x": 0, "y": 0, "width": 501, "height": 431}
+DEFAULT_BBOX = FloatRect(x=0, y=0, width=501, height=431)
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -25,7 +24,7 @@ PREFIX_ = "coordinate_grid"
 PIL_AVAILABLE = True
 
 
-def process_and_save_grid(challenge_screenshot: Path, bbox: Dict[str, int]):
+def process_and_save_grid(challenge_screenshot: Path, bbox: FloatRect):
     """
     Create a coordinate grid for a single image and save the results.
 

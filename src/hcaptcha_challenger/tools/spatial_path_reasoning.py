@@ -11,7 +11,7 @@ from hcaptcha_challenger.models import SCoTModelType, ImageDragDropChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 
 THINKING_PROMPT = """
-**Thinking step-by-step:**
+**Rule for 'Find the Notched Rectangular Area' Tasks:**
 1. Identify challenge prompt about the Challenge Image
 2. Think about what the challenge requires identification goals, and where are they in the picture
 3. Think about what object should be dragged to which position
@@ -49,8 +49,13 @@ class SpatialPathReasoner:
         auxiliary_information: str | None = "",
         model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
         *,
-        enable_response_schema: bool = False,
+        constraint_response_schema: bool = False,
+        **kwargs,
     ) -> ImageDragDropChallenge:
+        enable_response_schema = kwargs.get("enable_response_schema")
+        if enable_response_schema is not None:
+            constraint_response_schema = enable_response_schema
+
         # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)
 
@@ -71,7 +76,7 @@ class SpatialPathReasoner:
         contents = [types.Content(role="user", parts=parts)]
 
         # Change to JSON mode
-        if not enable_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
+        if not constraint_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
             response = client.models.generate_content(
                 model=model,
                 contents=contents,
