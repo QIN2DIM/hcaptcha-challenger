@@ -4,7 +4,7 @@ import json
 from playwright.async_api import async_playwright, Page
 
 from hcaptcha_challenger.agent import AgentV, AgentConfig
-from hcaptcha_challenger.models import CaptchaResponse, RequestType
+from hcaptcha_challenger.models import CaptchaResponse
 from hcaptcha_challenger.utils import SiteKey
 
 
