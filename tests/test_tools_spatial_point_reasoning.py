@@ -25,6 +25,5 @@ def test_gemini_point_reasoning():
         challenge_screenshot=challenge_screenshot,
         grid_divisions=grid_divisions_path,
         model="gemini-2.5-flash-preview-04-17",
-        constraint_response_schema=False,
     )
     logger.debug(f'ToolInvokeMessage: {results.log_message}')
