@@ -206,7 +206,7 @@ class Collector:
 
         """
         request_type = captcha_payload.request_type.value
-        prompt = captcha_payload.requester_question.get("en", "unknown")
+        prompt = captcha_payload.get_requester_question()
         current_datetime = datetime.now()
         current_time = current_datetime.strftime("%Y%m%d/%Y%m%d%H%M%S%f")
 

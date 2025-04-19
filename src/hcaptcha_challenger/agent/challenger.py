@@ -207,7 +207,7 @@ class AgentConfig(BaseSettings):
 
         cache_key = self.challenge_dir.joinpath(
             captcha_payload.request_type.value,
-            captcha_payload.requester_question.get("en", "unknown"),
+            captcha_payload.get_requester_question(),
             current_time,
         )
 
@@ -752,7 +752,7 @@ class AgentV:
             with suppress(Exception):
                 if self.config.ignore_request_questions and self._captcha_payload:
                     for q in self.config.ignore_request_questions:
-                        if q in str(self._captcha_payload.requester_question):
+                        if q in self._captcha_payload.get_requester_question():
                             await self.page.wait_for_timeout(2000)
                             await self.robotic_arm.refresh_challenge()
                             return await self._solve_captcha()

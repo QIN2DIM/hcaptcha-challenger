@@ -11,6 +11,39 @@ from typing import Literal, List, Dict, Any
 
 from pydantic import BaseModel, Field
 
+BAD_CODE = {
+    "а": "a",
+    "е": "e",
+    "e": "e",
+    "i": "i",
+    "і": "i",
+    "ο": "o",
+    "с": "c",
+    "ԁ": "d",
+    "ѕ": "s",
+    "һ": "h",
+    "у": "y",
+    "р": "p",
+    "ϳ": "j",
+    "х": "x",
+    "\u0405": "S",
+    "\u0042": "B",
+    "\u0052": "R",
+    "\u0049": "I",
+    "\u0043": "C",
+    "\u004b": "K",
+    "\u039a": "K",
+    "\u0053": "S",
+    "\u0421": "C",
+    "\u006c": "l",
+    "\u0399": "I",
+    "\u0392": "B",
+    "ー": "一",
+    "土": "士",
+}
+
+INV = {"\\", "/", ":", "*", "?", "<", ">", "|", "\n"}
+
 
 class ChallengeSignal(str, Enum):
     """
@@ -84,6 +117,12 @@ class CaptchaPayload(BaseModel):
     oby: str | None = Field(default=None)
     normalized: bool | None = Field(default=None)
     c: Token = Field(default_factory=dict)
+
+    def get_requester_question(self, language: str = "en") -> str:
+        rq = self.requester_question.get(language, "unknown")
+        for i in BAD_CODE:
+            rq = rq.replace(i, BAD_CODE[i])
+        return rq
 
 
 class CaptchaResponse(BaseModel):
