@@ -170,3 +170,4 @@ tests/.env.example
 tests/funcaptcha/**/**cmp**.png
 tests/dataset/
 **/dataset
+docs/assets/2d_spatial_understanding
