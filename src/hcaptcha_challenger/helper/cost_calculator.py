@@ -6,7 +6,6 @@ import json
 import pathlib
 import re
 from collections import defaultdict
-from datetime import datetime
 from statistics import median
 from typing import TypedDict, List, Dict, Union, Optional
 from pathlib import Path
@@ -54,8 +53,6 @@ class ModelUsageStats(BaseModel):
     total_cost: float = Field(default=0.000, description="Total cost in USD (rounded to 3 decimal places)")
     average_cost_per_challenge: float = Field(default=0.000, description="Average cost per challenge in USD (3 decimal places)")
     median_cost_per_challenge: float = Field(default=0.000, description="Median cost per challenge in USD (3 decimal places)")
-    start_time: Optional[datetime] = Field(default=None, description="First challenge timestamp")
-    end_time: Optional[datetime] = Field(default=None, description="Last challenge timestamp")
     model_details: Dict[str, Dict[str, float]] = Field(default_factory=dict, description="Cost details by model")
     challenge_costs: List[float] = Field(default_factory=list, description="List of costs for each challenge")
     # fmt:on
@@ -66,12 +63,6 @@ class ModelUsageStats(BaseModel):
 
         # Create a serializable dict
         data = self.model_dump()
-
-        # Convert datetime objects to ISO format strings
-        if data["start_time"]:
-            data["start_time"] = data["start_time"].isoformat()
-        if data["end_time"]:
-            data["end_time"] = data["end_time"].isoformat()
             
         # Format all cost values to 3 decimal places
         data["total_cost"] = round(data["total_cost"], 3)
@@ -88,76 +79,6 @@ class ModelUsageStats(BaseModel):
             json.dump(data, f, indent=2)
 
         print(f"Stats saved to {file_path}")
-
-
-def extract_timestamp_from_filename(filename: str) -> Optional[datetime]:
-    """Extract timestamp from filename pattern
-
-    Expected format example:
-    path/20250420/20250420172444067638/20250420172444067638_0_model_answer.json
-    """
-    filepath = str(filename)
-    
-    # Match the format: path/20250420/20250420172444067638/20250420172444067638_xxx
-    date_time_pattern = r'(\d{8})\/(\d{17,19})'
-    match = re.search(date_time_pattern, filepath)
-    if match:
-        try:
-            # Get the more detailed timestamp (with time)
-            timestamp_str = match.group(2)
-            # Format: YYYYMMDDHHMMSS + milliseconds
-            year = int(timestamp_str[0:4])
-            month = int(timestamp_str[4:6])
-            day = int(timestamp_str[6:8])
-            hour = int(timestamp_str[8:10])
-            minute = int(timestamp_str[10:12])
-            second = int(timestamp_str[12:14])
-            # Rest is milliseconds, we'll ignore those for datetime
-            
-            # Validate date components before creating datetime
-            if 1 <= month <= 12 and 1 <= day <= 31 and 0 <= hour <= 23 and 0 <= minute <= 59 and 0 <= second <= 59:
-                return datetime(year, month, day, hour, minute, second)
-        except (ValueError, IndexError):
-            pass
-    
-    # Special handling for model_answer files with timestamp in name
-    # For example: 20250420172444067638_0_model_answer.json
-    filename_only = Path(filepath).name
-    timestamp_pattern = r'^(\d{17,19})_\d+_model_answer\.json$'
-    match = re.search(timestamp_pattern, filename_only)
-    if match:
-        try:
-            timestamp_str = match.group(1)
-            year = int(timestamp_str[0:4])
-            month = int(timestamp_str[4:6])
-            day = int(timestamp_str[6:8])
-            hour = int(timestamp_str[8:10])
-            minute = int(timestamp_str[10:12])
-            second = int(timestamp_str[12:14])
-            
-            # Validate date components
-            if 1 <= month <= 12 and 1 <= day <= 31 and 0 <= hour <= 23 and 0 <= minute <= 59 and 0 <= second <= 59:
-                return datetime(year, month, day, hour, minute, second)
-        except (ValueError, IndexError):
-            pass
-    
-    # Fallback: Try to match just a date (YYYYMMDD)
-    date_pattern = r'\/(\d{8})\/'
-    match = re.search(date_pattern, filepath)
-    if match:
-        try:
-            date_str = match.group(1)
-            year = int(date_str[0:4])
-            month = int(date_str[4:6])
-            day = int(date_str[6:8])
-            
-            # Validate date components
-            if 1 <= month <= 12 and 1 <= day <= 31:
-                return datetime(year, month, day)
-        except (ValueError, IndexError):
-            pass
-            
-    return None
 
 
 def calculate_model_cost(
@@ -190,14 +111,6 @@ def calculate_model_cost(
     for item_file in challenge_root.rglob("*_model_answer.json"):
         try:
             stats.total_files += 1
-
-            # Extract timestamp from the file path itself, not just parent name
-            timestamp = extract_timestamp_from_filename(item_file)
-            if timestamp:
-                if stats.start_time is None or timestamp < stats.start_time:
-                    stats.start_time = timestamp
-                if stats.end_time is None or timestamp > stats.end_time:
-                    stats.end_time = timestamp
 
             # Track this file under its parent challenge directory
             challenge_dir = str(item_file.parent)
