@@ -63,11 +63,9 @@ def check_cost(
             )
             raise typer.Exit(1)
 
-        challenge_path_str = str(challenge_path)
-        if challenge_path_str.endswith(".challenge"):
-            search_pattern = "**/*_model_answer.json"
-        else:
-            search_pattern = "**/.challenge/**/*_model_answer.json"
+        # Use a more comprehensive search pattern to find all model answer files
+        # regardless of nested structure
+        search_pattern = "**/*_model_answer.json"
 
         # Count model answer files to check if any exist
         answer_files = list(challenge_path.glob(search_pattern))
@@ -88,19 +86,52 @@ def check_cost(
 
         # Create dashboard layout
         layout = Layout()
-        layout.split_column(Layout(name="header"), Layout(name="main"), Layout(name="footer"))
+        layout.split_column(Layout(name="header"), Layout(name="main"))
 
         # Header - Summary information
         start_time = stats.start_time.strftime("%Y-%m-%d %H:%M:%S") if stats.start_time else "N/A"
         end_time = stats.end_time.strftime("%Y-%m-%d %H:%M:%S") if stats.end_time else "N/A"
 
+        duration_text = ""
+        if stats.start_time and stats.end_time:
+            duration = stats.end_time - stats.start_time
+            days = duration.days
+            hours, remainder = divmod(duration.seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
+
+            # Format duration in a more human-readable way
+            duration_parts = []
+            if days > 0:
+                duration_parts.append(f"{days}d")
+            if hours > 0 or days > 0:
+                duration_parts.append(f"{hours}h")
+            if minutes > 0 or hours > 0 or days > 0:
+                duration_parts.append(f"{minutes}m")
+            if seconds > 0 and days == 0 and hours == 0:
+                duration_parts.append(f"{seconds}s")
+
+            if duration_parts:
+                duration_text = f"[dim](span: {' '.join(duration_parts)})[/dim]"
+
+        # Create time range display
+        time_range = "N/A"
+        if stats.start_time and stats.end_time:
+            # If same day
+            if stats.start_time.date() == stats.end_time.date():
+                date_str = stats.start_time.strftime("%Y-%m-%d")
+                start_time_str = stats.start_time.strftime("%H:%M:%S")
+                end_time_str = stats.end_time.strftime("%H:%M:%S")
+                time_range = f"{date_str}, {start_time_str} → {end_time_str} {duration_text}"
+            else:
+                time_range = f"{start_time} → {end_time} {duration_text}"
+
         summary_table = Table(show_header=False, box=box.SIMPLE)
         summary_table.add_column(style="cyan bold")
         summary_table.add_column(style="white")
 
-        summary_table.add_row("Time Period:", f"{start_time} → {end_time}")
-        summary_table.add_row("Total Challenges:", f"{stats.total_challenges}")
-        summary_table.add_row("Total API Calls:", f"{stats.total_files}")
+        summary_table.add_row("Time Period:", time_range)
+        summary_table.add_row("Total Challenges:", f"{stats.total_challenges:,}")
+        summary_table.add_row("Total API Calls:", f"{stats.total_files:,}")
 
         header_panel = Panel(
             summary_table,
@@ -117,9 +148,9 @@ def check_cost(
 
         cost_table.add_row("Total Input Tokens", f"{stats.total_input_tokens:,}")
         cost_table.add_row("Total Output Tokens", f"{stats.total_output_tokens:,}")
-        cost_table.add_row("Total API Cost", f"${stats.total_cost:.4f}")
-        cost_table.add_row("Average Cost per Challenge", f"${stats.average_cost_per_challenge:.6f}")
-        cost_table.add_row("Median Cost per Challenge", f"${stats.median_cost_per_challenge:.6f}")
+        cost_table.add_row("Total API Cost", f"${stats.total_cost:.3f}")
+        cost_table.add_row("Average Cost per Challenge", f"${stats.average_cost_per_challenge:.3f}")
+        cost_table.add_row("Median Cost per Challenge", f"${stats.median_cost_per_challenge:.3f}")
 
         # Model details table
         model_table = Table(title="Model Usage Breakdown", box=ROUNDED, border_style="cyan")
@@ -160,9 +191,9 @@ def check_cost(
                 f"{usage_count:,}",
                 f"{input_tokens:,}",
                 f"{output_tokens:,}",
-                f"${input_cost:.4f}",
-                f"${output_cost:.4f}",
-                f"${total_cost:.4f}",
+                f"${input_cost:.3f}",
+                f"${output_cost:.3f}",
+                f"${total_cost:.3f}",
                 f"{percentage:.1f}%",
             )
 
@@ -176,7 +207,7 @@ def check_cost(
                 f"[bold]{stats.total_output_tokens:,}[/bold]",
                 "",
                 "",
-                f"[bold]${stats.total_cost:.4f}[/bold]",
+                f"[bold]${stats.total_cost:.3f}[/bold]",
                 "[bold]100%[/bold]",
             )
 
@@ -195,7 +226,7 @@ def check_cost(
             )
 
         footer_panel = Panel(footer_text, border_style="dim", box=box.SIMPLE)
-        layout["footer"].update(footer_panel)
+        # layout["footer"].update(footer_panel)
 
         # Render the complete dashboard
         console.print(layout)
