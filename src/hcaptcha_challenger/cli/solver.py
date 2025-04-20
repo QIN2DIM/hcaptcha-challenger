@@ -84,40 +84,37 @@ def check_cost(
             # Calculate model usage statistics
             stats = export_stats(challenge_path, output_file)
 
-        # Create dashboard layout
-        layout = Layout()
-        layout.split_column(Layout(name="header"), Layout(name="main"))
-
-        # Header - Summary information
-        summary_table = Table(show_header=False, box=box.SIMPLE)
-        summary_table.add_column(style="cyan bold")
-        summary_table.add_column(style="white")
-
-        summary_table.add_row("Total Challenges:", f"{stats.total_challenges:,}")
-        summary_table.add_row("Total API Calls:", f"{stats.total_files:,}")
-
-        header_panel = Panel(
-            summary_table,
+        # Create a compact, integrated summary table
+        summary_table = Table(
             title="[bold blue]Model Usage Cost Analysis[/bold blue]",
+            box=box.ROUNDED,
             border_style="blue",
-            box=ROUNDED,
+            padding=(0, 1),
+            width=None
         )
-        layout["header"].update(header_panel)
+        
+        summary_table.add_column("Metric", style="cyan")
+        summary_table.add_column("Value", style="green")
 
-        # Main content - Create the main stats table
-        cost_table = Table(title="Cost Overview", box=ROUNDED, border_style="blue")
-        cost_table.add_column("Metric", style="cyan")
-        cost_table.add_column("Value", style="green")
-
-        cost_table.add_row("Total Input Tokens", f"{stats.total_input_tokens:,}")
-        cost_table.add_row("Total Output Tokens", f"{stats.total_output_tokens:,}")
-        cost_table.add_row("Total API Cost", f"${stats.total_cost:.3f}")
-        cost_table.add_row("Average Cost per Challenge", f"${stats.average_cost_per_challenge:.3f}")
-        cost_table.add_row("Median Cost per Challenge", f"${stats.median_cost_per_challenge:.3f}")
-
-        # Model details table
-        model_table = Table(title="Model Usage Breakdown", box=ROUNDED, border_style="cyan")
-        model_table.add_column("Model", style="magenta")
+        # Add summary information
+        summary_table.add_row("Total Challenges", f"{stats.total_challenges:,}")
+        summary_table.add_row("Total API Calls", f"{stats.total_files:,}")
+        summary_table.add_row("Total Input Tokens", f"{stats.total_input_tokens:,}")
+        summary_table.add_row("Total Output Tokens", f"{stats.total_output_tokens:,}")
+        summary_table.add_row("Total API Cost", f"${stats.total_cost:.3f}")
+        summary_table.add_row("Average Cost per Challenge", f"${stats.average_cost_per_challenge:.3f}")
+        summary_table.add_row("Median Cost per Challenge", f"${stats.median_cost_per_challenge:.3f}")
+        
+        # Model details table with more compact design
+        model_table = Table(
+            title="Model Usage Breakdown", 
+            box=box.ROUNDED, 
+            border_style="cyan",
+            padding=(0, 1),
+            width=None
+        )
+        
+        model_table.add_column("Model", style="magenta", no_wrap=True)
         model_table.add_column("Calls", style="yellow", justify="right")
         model_table.add_column("Input Tokens", style="green", justify="right")
         model_table.add_column("Output Tokens", style="green", justify="right")
@@ -174,14 +171,9 @@ def check_cost(
                 "[bold]100%[/bold]",
             )
 
-        # Layout for main section with both tables
-        from rich.columns import Columns
-
-        main_content = Columns([cost_table, model_table])
-        layout["main"].update(main_content)
-
-        # Render the complete dashboard
-        console.print(layout)
+        # Print tables directly instead of using Layout
+        console.print(summary_table)
+        console.print(model_table)
 
         # Display model threshold notice if needed
         if not show_all_models and len(stats.model_details) - 1 > len(filtered_models):
