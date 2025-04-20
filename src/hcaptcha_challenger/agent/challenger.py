@@ -500,6 +500,9 @@ class RoboticArm:
             boolean_matrix = response.convert_box_to_boolean_matrix()
 
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
+            self._image_classifier.cache_response(
+                path=cache_key.joinpath(f"{cache_key.name}_{cid}_model_answer.json")
+            )
 
             # drive the browser to work on the challenge
             positive_cases = 0
@@ -536,6 +539,9 @@ class RoboticArm:
                 constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
+            self._spatial_path_reasoner.cache_response(
+                path=cache_key.joinpath(f"{cache_key.name}_{cid}_model_answer.json")
+            )
 
             for path in response.paths:
                 await self._perform_drag_drop(path)
@@ -569,6 +575,9 @@ class RoboticArm:
                 constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
+            self._spatial_point_reasoner.cache_response(
+                path=cache_key.joinpath(f"{cache_key.name}_{cid}_model_answer.json")
+            )
 
             for point in response.points:
                 await self.page.mouse.click(point.x, point.y, delay=180)

@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 from typing import Union
@@ -9,6 +10,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from hcaptcha_challenger.models import SCoTModelType, ImageAreaSelectChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
+from hcaptcha_challenger.tools.reasoner import _Reasoner
 
 THINKING_PROMPT = """
 **Rule for 'Find the Different Object' Tasks:**
@@ -41,10 +43,7 @@ Finally, solve the challenge, locate the object, output the coordinates of the c
 """
 
 
-class SpatialPointReasoner:
-    def __init__(self, gemini_api_key: str):
-        """Initialize the classifier with a Gemini API key."""
-        self._api_key = gemini_api_key
+class SpatialPointReasoner(_Reasoner):
 
     @retry(
         stop=stop_after_attempt(3),
@@ -93,17 +92,17 @@ class SpatialPointReasoner:
 
         # Change to JSON mode
         if not constraint_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
-            response = client.models.generate_content(
+            self._response = client.models.generate_content(
                 model=model,
                 contents=contents,
                 config=types.GenerateContentConfig(
                     temperature=0, system_instruction=THINKING_PROMPT
                 ),
             )
-            return ImageAreaSelectChallenge(**extract_first_json_block(response.text))
+            return ImageAreaSelectChallenge(**extract_first_json_block(self._response.text))
 
         # Structured output with Constraint encoding
-        response = client.models.generate_content(
+        self._response = client.models.generate_content(
             model=model,
             contents=contents,
             config=types.GenerateContentConfig(
@@ -113,6 +112,6 @@ class SpatialPointReasoner:
                 response_schema=ImageAreaSelectChallenge,
             ),
         )
-        if _result := response.parsed:
-            return ImageAreaSelectChallenge(**response.parsed.model_dump())
-        return ImageAreaSelectChallenge(**extract_first_json_block(response.text))
+        if _result := self._response.parsed:
+            return ImageAreaSelectChallenge(**self._response.parsed.model_dump())
+        return ImageAreaSelectChallenge(**extract_first_json_block(self._response.text))
