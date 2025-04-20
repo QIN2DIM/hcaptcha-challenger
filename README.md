@@ -68,5 +68,4 @@ I would like to express my sincere gratitude to all the contributors.
 - [Microsoft/playwright-python](https://github.com/microsoft/playwright-python)
 - [Anthropic/MCP](https://github.com/modelcontextprotocol)
 - [Google/A2A](https://github.com/google/A2A)
-
 - [Google/Gemini](https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro-preview-03-25)
