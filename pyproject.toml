@@ -16,6 +16,7 @@ dependencies = [
     "tenacity>=9.1.2",
     "google-genai>=1.11.0",
     "typer>=0.15.2",
+    "notebook>=7.4.0",
 ]
 requires-python = ">=3.10"
 authors = [
