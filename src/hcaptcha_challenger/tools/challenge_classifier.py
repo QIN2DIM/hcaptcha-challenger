@@ -9,6 +9,7 @@ from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 from hcaptcha_challenger.models import FastShotModelType
+from hcaptcha_challenger.tools.reasoner import _Reasoner
 
 CHALLENGE_CLASSIFIER_INSTRUCTIONS = """
 # Instructions
@@ -63,9 +64,7 @@ class ChallengeTypeEnum(str, Enum):
     IMAGE_DRAG_MULTI = "image_drag_multi"
 
 
-class ChallengeClassifier:
-    def __init__(self, gemini_api_key: str):
-        self._api_key = gemini_api_key
+class ChallengeClassifier(_Reasoner):
 
     @retry(
         stop=stop_after_attempt(3),
@@ -97,7 +96,7 @@ class ChallengeClassifier:
                 )
             ]
             # Generate response using thinking prompt
-            response = client.models.generate_content(
+            self._response = client.models.generate_content(
                 model=model,
                 contents=contents,
                 config=types.GenerateContentConfig(
@@ -105,7 +104,7 @@ class ChallengeClassifier:
                 ),
             )
             # Extract and parse JSON from text response
-            return ChallengeTypeEnum(response.text)
+            return ChallengeTypeEnum(self._response.text)
 
         # Handle models that support JSON response schema
         contents = [
@@ -118,7 +117,7 @@ class ChallengeClassifier:
             )
         ]
         # Generate structured JSON response
-        response = client.models.generate_content(
+        self._response = client.models.generate_content(
             model=model,
             contents=contents,
             config=types.GenerateContentConfig(
@@ -127,4 +126,4 @@ class ChallengeClassifier:
         )
 
         # Return parsed response as ImageBinaryChallenge object
-        return ChallengeTypeEnum(response.text)
+        return ChallengeTypeEnum(self._response.text)
