@@ -3,6 +3,7 @@ import sys
 import typer
 
 from hcaptcha_challenger.cli import dataset
+from hcaptcha_challenger.cli import solver
 from hcaptcha_challenger.utils import SiteKey
 
 # Create top-level application
@@ -40,14 +41,14 @@ def help_command(
         # If `hc help` is called with no arguments, show main help
         print(ctx.parent.get_help())
         raise typer.Exit()
-    
+
     # Get the full command context to search through
     current_ctx = ctx.parent
-    
+
     # Navigate through the command path to find the target command
     for i, cmd in enumerate(command_path):
         found = False
-        
+
         # Try to find command in current context
         if hasattr(current_ctx.command, "commands"):
             for name, command in current_ctx.command.commands.items():
@@ -56,7 +57,7 @@ def help_command(
                     current_ctx = typer.Context(command, parent=current_ctx, info_name=cmd)
                     found = True
                     break
-        
+
         if not found:
             # If we didn't find it as a command, it might be a typer app
             # Use --help mechanism directly
@@ -72,13 +73,14 @@ def help_command(
             except Exception:
                 print(f"Error: Command '{cmd}' not found")
                 raise typer.Exit(code=1)
-    
+
     # Print help for the found command
     print(current_ctx.get_help())
     raise typer.Exit()
 
 
 app.add_typer(dataset.app, name="dataset", help="Dataset collection tool")
+app.add_typer(solver.app, name="solver", help="hCaptcha solver tool")
 
 DEFAULT_SITE_KEY = SiteKey.user_easy
 
