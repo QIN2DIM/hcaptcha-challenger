@@ -24,6 +24,7 @@ from playwright.async_api import Locator, expect, Page, Response, TimeoutError, 
 from pydantic import Field, field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from hcaptcha_challenger.agent.prompts import match_user_prompt
 from hcaptcha_challenger.helper import create_coordinate_grid
 from hcaptcha_challenger.models import (
     CaptchaResponse,
@@ -116,7 +117,7 @@ class AgentConfig(BaseSettings):
     cache_dir: Path = Path("tmp/.cache")
     challenge_dir: Path = Path("tmp/.challenge")
     captcha_response_dir: Path = Path("tmp/.captcha")
-    ignore_request_types: List[RequestType] | None = Field(default_factory=list)
+    ignore_request_types: List[RequestType | ChallengeTypeEnum] | None = Field(default_factory=list)
     ignore_request_questions: List[str] | None = Field(default_factory=list)
 
     EXECUTION_TIMEOUT: float = Field(
@@ -531,11 +532,19 @@ class RoboticArm:
 
             raw, projection = await self._capture_spatial_mapping(frame_challenge, cache_key, cid)
 
+            auxiliary_information = None
+            try:
+                auxiliary_information = match_user_prompt(
+                    job_type, self.captcha_payload.get_requester_question()
+                )
+            except Exception as e:
+                logger.warning(f"Error while processing captcha payload: {e}")
+
             response = self._spatial_path_reasoner.invoke(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 model=self.config.SPATIAL_PATH_REASONER_MODEL,
-                auxiliary_information=f"JobType: {job_type.value}",
+                auxiliary_information=auxiliary_information,
                 constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
@@ -766,25 +775,44 @@ class AgentV:
                             await self.robotic_arm.refresh_challenge()
                             return await self._solve_captcha()
 
-            # {{< Challenge Router >}}
+            # {{< challenge start >}}
             match challenge_type:
                 case RequestType.IMAGE_LABEL_BINARY:
                     if RequestType.IMAGE_LABEL_BINARY not in self.config.ignore_request_types:
                         return await self.robotic_arm.challenge_image_label_binary()
-                case (
-                    challenge_type.IMAGE_LABEL_SINGLE_SELECT
-                    | challenge_type.IMAGE_LABEL_MULTI_SELECT
-                ):
-                    if RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types:
+                case challenge_type.IMAGE_LABEL_SINGLE_SELECT:
+                    if (
+                        RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types
+                        and challenge_type.IMAGE_LABEL_SINGLE_SELECT
+                        not in self.config.ignore_request_types
+                    ):
+                        return await self.robotic_arm.challenge_image_label_select(challenge_type)
+                case challenge_type.IMAGE_LABEL_MULTI_SELECT:
+                    if (
+                        RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types
+                        and challenge_type.IMAGE_LABEL_MULTI_SELECT
+                        not in self.config.ignore_request_types
+                    ):
                         return await self.robotic_arm.challenge_image_label_select(challenge_type)
                 case challenge_type.IMAGE_DRAG_SINGLE:
-                    if RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types:
+                    if (
+                        RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types
+                        and ChallengeTypeEnum.IMAGE_DRAG_SINGLE
+                        not in self.config.ignore_request_types
+                    ):
                         return await self.robotic_arm.challenge_image_drag_drop(challenge_type)
                 case challenge_type.IMAGE_DRAG_MULTI:
-                    logger.warning(f"Not yet supported challenge: {challenge_type.value}")
+                    if (
+                        RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types
+                        and ChallengeTypeEnum.IMAGE_DRAG_MULTI
+                        not in self.config.ignore_request_types
+                    ):
+                        return await self.robotic_arm.challenge_image_drag_drop(challenge_type)
+                # {{< HCI >}}
                 case _:
                     # todo Agentic Workflow | zero-shot challenge
                     logger.warning(f"Unknown types of challenges: {challenge_type}")
+            # {{< challenge end >}}
 
             await self.page.wait_for_timeout(2000)
             await self.robotic_arm.refresh_challenge()
