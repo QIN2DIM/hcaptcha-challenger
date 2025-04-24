@@ -2,6 +2,47 @@
 
 - feat(challenge): compatible with [Rebrowser API](https://rebrowser.net/) ([#1028](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1028))
 
+  ```python
+  # Example
+  
+  import asyncio
+  import json
+  
+  import dotenv
+  from hcaptcha_challenger.agent import AgentV, AgentConfig
+  from hcaptcha_challenger.models import CaptchaResponse
+  from rebrowser_playwright.async_api import async_playwright, Page
+  
+  dotenv.load_dotenv()
+  
+  
+  async def challenge(page: Page) -> AgentV:
+      agent_config = AgentConfig()
+      agent = AgentV(page=page, agent_config=agent_config)
+      await agent.robotic_arm.click_checkbox()
+      await agent.wait_for_challenge()
+      return agent
+  
+  
+  async def main():
+      async with async_playwright() as p:
+          browser = await p.chromium.launch(headless=False)
+          page = await browser.new_page()
+          await page.goto("https://accounts.hcaptcha.com/demo")
+  
+          # --- When you encounter hCaptcha in your workflow ---
+          agent: AgentV = await challenge(page)
+          if agent.cr_list:
+              cr: CaptchaResponse = agent.cr_list[-1]
+              print(json.dumps(cr.model_dump(by_alias=True), indent=2, ensure_ascii=False))
+  
+  
+  if __name__ == "__main__":
+      asyncio.run(main())
+  ```
+
+  
+
 ## v0.16.0
 
 - feat(challenge): support image_drag_multi ([#1026](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1026))
