@@ -398,9 +398,8 @@ class RoboticArm:
             except TimeoutError:
                 logger.warning(f"The load indicator {i + 1}/{count} waits for a timeout")
             except ValueError:
-                await self.page.wait_for_timeout(
-                    min(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS * 0.08, 120)
-                )
+                # todo requires smarter waiting methods
+                await self.page.wait_for_timeout(130)
 
         return True
 
