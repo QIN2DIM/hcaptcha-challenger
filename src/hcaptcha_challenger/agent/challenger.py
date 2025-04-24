@@ -397,6 +397,9 @@ class RoboticArm:
                 await loading_indicators.nth(i).get_attribute("style")  # It cannot be removed
             except TimeoutError:
                 logger.warning(f"The load indicator {i + 1}/{count} waits for a timeout")
+            except ValueError:
+                # todo requires smarter waiting methods
+                await self.page.wait_for_timeout(130)
 
         return True
 
