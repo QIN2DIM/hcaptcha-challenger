@@ -27,11 +27,7 @@ async def challenge(page: Page) -> AgentV:
 
 
 async def main():
-    """
-    uv pip install -U hcaptcha-challenger[camoufox]
-    Returns:
-
-    """
+    """uv pip install -U hcaptcha-challenger[camoufox]"""
 
     async with AsyncCamoufox(
         persistent_context=True,
