@@ -55,6 +55,9 @@ server = [
 dataset = [
     "typer"
 ]
+camoufox = [
+    "camoufox[geoip]>=0.4.11",
+]
 
 [project.scripts]
 hc = "hcaptcha_challenger.cli.main:main"

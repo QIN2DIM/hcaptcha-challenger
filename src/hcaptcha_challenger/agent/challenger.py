@@ -13,7 +13,7 @@ from asyncio import Queue
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from typing import List, Tuple
 from uuid import uuid4
 
@@ -34,6 +34,7 @@ from hcaptcha_challenger.models import (
     FastShotModelType,
     SpatialPath,
     CaptchaPayload,
+    IGNORE_REQUEST_TYPE_LITERAL,
 )
 from hcaptcha_challenger.tools import (
     ImageClassifier,
@@ -106,6 +107,10 @@ def _generate_dynamic_delays(steps: int, base_delay: int) -> List[float]:
     return delays
 
 
+SINGLE_IGNORE_TYPE = IGNORE_REQUEST_TYPE_LITERAL | RequestType | ChallengeTypeEnum
+IGNORE_REQUEST_TYPE_LIST = List[SINGLE_IGNORE_TYPE]
+
+
 class AgentConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
@@ -117,8 +122,15 @@ class AgentConfig(BaseSettings):
     cache_dir: Path = Path("tmp/.cache")
     challenge_dir: Path = Path("tmp/.challenge")
     captcha_response_dir: Path = Path("tmp/.captcha")
-    ignore_request_types: List[RequestType | ChallengeTypeEnum] | None = Field(default_factory=list)
+    ignore_request_types: IGNORE_REQUEST_TYPE_LIST | None = Field(default_factory=list)
     ignore_request_questions: List[str] | None = Field(default_factory=list)
+
+    DISABLE_BEZIER_TRAJECTORY: bool = Field(
+        default=False,
+        description="If you use Camoufox, it is recommended to turn off "
+        "the custom Bessel track generator of hcaptcha-challenger "
+        "and use Camoufox(humanize=True)",
+    )
 
     EXECUTION_TIMEOUT: float = Field(
         default=120,
@@ -442,6 +454,13 @@ class RoboticArm:
         """
         start_x, start_y = path.start_point.x, path.start_point.y
         end_x, end_y = path.end_point.x, path.end_point.y
+
+        if self.config.DISABLE_BEZIER_TRAJECTORY:
+            await self.page.mouse.move(start_x, start_y)
+            await self.page.mouse.down()
+            await self.page.mouse.move(end_x, end_y)
+            await self.page.mouse.up()
+            return
 
         # Move to the starting position
         await self.page.mouse.move(start_x, start_y)
