@@ -722,6 +722,7 @@ class AgentV:
                 # If the reverse fails, fall back to the original process
                 else:
                     logger.warning("HSW reverse failed, fallback to regular processing")
+                    self._captcha_payload_queue.put_nowait(None)
             except Exception as err:
                 logger.error(f"Reverse processing getcaptcha failed: {err}")
                 self._captcha_payload_queue.put_nowait(None)
