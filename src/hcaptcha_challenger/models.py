@@ -185,6 +185,16 @@ class RequestType(str, Enum):
     MULTI_CHALLENGE = "multi_challenge"
 
 
+IGNORE_REQUEST_TYPE_LITERAL = Literal[
+    "image_label_binary",
+    "image_label_area_select",
+    "image_drag_drop",
+    "image_label_single_select",
+    "image_label_multi_select",
+    "image_drag_single",
+    "image_drag_multi",
+]
+
 # https://ai.google.dev/gemini-api/docs/rate-limits#current-rate-limits
 SCoTModelType = Literal[
     # This model is not available in the free plan.
