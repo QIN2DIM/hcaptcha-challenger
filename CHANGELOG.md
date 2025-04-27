@@ -1,5 +1,9 @@
 ## v0.17.1
 
+- fix(challenge): HSW reverse fallback ([#1030](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1030))
+
+  When HSW reverse fails, call model immediately to identify the challenge type instead of waiting until the 30s timeout.
+
 ## v0.17.0
 
 - feat(challenge): support camoufox ([#1029](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1029))
