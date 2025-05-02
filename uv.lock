@@ -1,5 +1,4 @@
 version = 1
-revision = 1
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.12' and sys_platform == 'darwin'",
@@ -981,7 +980,7 @@ wheels = [
 
 [[package]]
 name = "hcaptcha-challenger"
-version = "0.16.1"
+version = "0.17.1"
 source = { editable = "." }
 dependencies = [
     { name = "google-genai" },
@@ -1039,7 +1038,6 @@ requires-dist = [
     { name = "typer", specifier = ">=0.15.2" },
     { name = "typer", marker = "extra == 'dataset'" },
 ]
-provides-extras = ["server", "dataset", "camoufox"]
 
 [package.metadata.requires-dev]
 dev = [
