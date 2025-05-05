@@ -63,17 +63,17 @@ class ModelUsageStats(BaseModel):
 
         # Create a serializable dict
         data = self.model_dump()
-            
+
         # Format all cost values to 3 decimal places
         data["total_cost"] = round(data["total_cost"], 3)
         data["average_cost_per_challenge"] = round(data["average_cost_per_challenge"], 3)
         data["median_cost_per_challenge"] = round(data["median_cost_per_challenge"], 3)
-        
+
         for model_name, model_data in data["model_details"].items():
             for cost_key in ["input_cost", "output_cost", "total_cost"]:
                 if cost_key in model_data:
                     model_data[cost_key] = round(model_data[cost_key], 3)
-        
+
         # Save to file
         with open(file_path, "w") as f:
             json.dump(data, f, indent=2)
@@ -140,7 +140,9 @@ def calculate_model_cost(
             stats.total_cost = round(stats.total_cost + item_total_cost, 3)
 
             # Update challenge-specific cost
-            challenge_costs[challenge_dir] = round(challenge_costs[challenge_dir] + item_total_cost, 3)
+            challenge_costs[challenge_dir] = round(
+                challenge_costs[challenge_dir] + item_total_cost, 3
+            )
 
             # Update model-specific stats if detailed reporting is requested
             if detailed:
@@ -157,9 +159,15 @@ def calculate_model_cost(
 
                 stats.model_details[model_name]["input_tokens"] += input_tokens
                 stats.model_details[model_name]["output_tokens"] += output_tokens
-                stats.model_details[model_name]["input_cost"] = round(stats.model_details[model_name]["input_cost"] + input_cost, 3)
-                stats.model_details[model_name]["output_cost"] = round(stats.model_details[model_name]["output_cost"] + output_cost, 3)
-                stats.model_details[model_name]["total_cost"] = round(stats.model_details[model_name]["total_cost"] + item_total_cost, 3)
+                stats.model_details[model_name]["input_cost"] = round(
+                    stats.model_details[model_name]["input_cost"] + input_cost, 3
+                )
+                stats.model_details[model_name]["output_cost"] = round(
+                    stats.model_details[model_name]["output_cost"] + output_cost, 3
+                )
+                stats.model_details[model_name]["total_cost"] = round(
+                    stats.model_details[model_name]["total_cost"] + item_total_cost, 3
+                )
                 stats.model_details[model_name]["usage_count"] += 1
 
         except Exception as e:
@@ -201,12 +209,12 @@ def export_stats(
     if isinstance(stats, float):
         # This shouldn't happen as we specified detailed=True
         raise ValueError("Failed to generate detailed statistics")
-    
+
     # Ensure all cost values are rounded to 3 decimal places
     stats.total_cost = round(stats.total_cost, 3)
     stats.average_cost_per_challenge = round(stats.average_cost_per_challenge, 3)
     stats.median_cost_per_challenge = round(stats.median_cost_per_challenge, 3)
-    
+
     for model_data in stats.model_details.values():
         for cost_key in ["input_cost", "output_cost", "total_cost"]:
             if cost_key in model_data:

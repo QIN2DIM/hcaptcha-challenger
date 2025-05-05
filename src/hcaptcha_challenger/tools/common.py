@@ -8,6 +8,7 @@ from loguru import logger
 
 T = TypeVar("T")
 
+
 def run_sync(coro: Coroutine[Any, Any, T]) -> T:
     """
     Run an async coroutine as a sync function, handling different threading scenarios.

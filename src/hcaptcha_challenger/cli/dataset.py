@@ -179,7 +179,7 @@ def collect(
 def auto_labeling(
     dataset_dir: Annotated[
         Path, typer.Option(help="Dataset local directory", envvar="DATASET_DIR", show_default=True)
-    ] = DEFAULT_DATASET_DIR
+    ] = DEFAULT_DATASET_DIR,
 ):
     """
     Automatically label image datasets using multimodal large language models.
@@ -197,7 +197,7 @@ def auto_labeling(
 def check(
     dataset_dir: Annotated[
         Path, typer.Option(help="Dataset local directory", envvar="DATASET_DIR", show_default=True)
-    ] = DEFAULT_DATASET_DIR
+    ] = DEFAULT_DATASET_DIR,
 ):
     """
     Check dataset integrity and generate analysis report
@@ -271,42 +271,41 @@ def check(
         error_table.add_column("Error", style="red")
 
         for i, error in enumerate(errors[:10]):  # Only display first 10 errors
-            error_table.add_row(
-                str(i+1),
-                error['file'],
-                error['type'],
-                error['error']
-            )
-        
+            error_table.add_row(str(i + 1), error['file'], error['type'], error['error'])
+
         console.print(error_table)
-        
+
         if len(errors) > 10:
             console.print(f"[italic yellow]...and {len(errors)-10} more errors[/italic yellow]")
-    
+
     # Then generate and display statistics report
     stats_table = Table(title="Dataset Statistics", box=box.ROUNDED)
     stats_table.add_column("Metric", style="cyan")
     stats_table.add_column("Value", style="green")
     stats_table.add_column("Percentage", style="yellow")
-    
-    stats_table.add_row(
-        "Total Files",
-        str(dataset_stats['total']),
-        ""
-    )
+
+    stats_table.add_row("Total Files", str(dataset_stats['total']), "")
     stats_table.add_row(
         "Valid Files",
         str(dataset_stats['valid']),
-        f"{dataset_stats['valid']/dataset_stats['total']*100:.1f}%" if dataset_stats['total'] > 0 else "0%"
+        (
+            f"{dataset_stats['valid']/dataset_stats['total']*100:.1f}%"
+            if dataset_stats['total'] > 0
+            else "0%"
+        ),
     )
     stats_table.add_row(
         "Invalid Files",
         str(dataset_stats['invalid']),
-        f"{dataset_stats['invalid']/dataset_stats['total']*100:.1f}%" if dataset_stats['total'] > 0 else "0%"
+        (
+            f"{dataset_stats['invalid']/dataset_stats['total']*100:.1f}%"
+            if dataset_stats['total'] > 0
+            else "0%"
+        ),
     )
-    
+
     console.print(stats_table)
-    
+
     # Type statistics
     if dataset_stats["types"]:
         type_table = Table(title="Statistics by Type", box=box.ROUNDED)
@@ -315,7 +314,7 @@ def check(
         type_table.add_column("Valid", style="green")
         type_table.add_column("Invalid", style="red")
         type_table.add_column("Valid %", style="yellow")
-        
+
         for type_name, type_stats in dataset_stats["types"].items():
             valid_percent = (
                 type_stats["valid"] / type_stats["total"] * 100 if type_stats["total"] > 0 else 0
@@ -325,12 +324,14 @@ def check(
                 str(type_stats["total"]),
                 str(type_stats["valid"]),
                 str(type_stats["invalid"]),
-                f"{valid_percent:.1f}%"
+                f"{valid_percent:.1f}%",
             )
-        
+
         console.print(type_table)
-        
+
     # Show summary in panel
-    valid_percent = dataset_stats['valid']/dataset_stats['total']*100 if dataset_stats['total'] > 0 else 0
+    valid_percent = (
+        dataset_stats['valid'] / dataset_stats['total'] * 100 if dataset_stats['total'] > 0 else 0
+    )
     summary = f"[bold]Dataset Integrity:[/bold] {valid_percent:.1f}% valid"
     console.print(Panel(summary, title="Summary", border_style="green"))
