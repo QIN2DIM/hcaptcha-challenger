@@ -4,6 +4,8 @@ from pathlib import Path
 
 from loguru import logger
 
+from hcaptcha_challenger.tools.common import run_sync
+
 
 class _Reasoner(ABC):
 
@@ -22,5 +24,9 @@ class _Reasoner(ABC):
             logger.warning(e)
 
     @abstractmethod
-    def invoke(self, **kwargs):
+    async def invoke_async(self, *args, **kwargs):
         raise NotImplementedError
+
+    # for backward compatibility
+    def invoke(self, *args, **kwargs):
+        return run_sync(self.invoke_async(*args, **kwargs))

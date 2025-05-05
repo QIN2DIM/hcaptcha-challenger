@@ -11,9 +11,11 @@ from hcaptcha_challenger.tools import SpatialPathReasoner
 dotenv.load_dotenv()
 gic = SpatialPathReasoner(gemini_api_key=os.getenv("GEMINI_API_KEY"))
 
+CHALLENGE_VIEW_DIR = Path(__file__).parent.joinpath("challenge_view/image_drag_drop")
+
 
 def test_gemini_path_reasoning():
-    challenge_screenshot = Path("challenge_view/image_drag_drop/single_3.png")
+    challenge_screenshot = CHALLENGE_VIEW_DIR.joinpath("single_3.png")
     grid_divisions_path = challenge_screenshot.parent.joinpath(
         f'coordinate_grid_{challenge_screenshot.name}'
     )

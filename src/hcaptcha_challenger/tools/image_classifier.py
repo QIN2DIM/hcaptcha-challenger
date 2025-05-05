@@ -47,7 +47,7 @@ class ImageClassifier(_Reasoner):
             f"Retry request ({retry_state.attempt_number}/2) - Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
         ),
     )
-    def invoke(
+    async def invoke_async(
         self,
         challenge_screenshot: Union[str, Path, os.PathLike],
         model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
@@ -75,14 +75,14 @@ class ImageClassifier(_Reasoner):
         client = genai.Client(api_key=self._api_key)
 
         # Upload the challenge image file
-        files = [client.files.upload(file=challenge_screenshot)]
+        files = [await client.aio.files.upload(file=challenge_screenshot)]
 
         parts = [types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type)]
         contents = [types.Content(role="user", parts=parts)]
 
         # Change to JSON mode
         if not constraint_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
-            self._response = client.models.generate_content(
+            self._response = await client.aio.models.generate_content(
                 model=model,
                 contents=contents,
                 config=types.GenerateContentConfig(
@@ -95,7 +95,7 @@ class ImageClassifier(_Reasoner):
         parts.append(types.Part.from_text(text=USER_PROMPT.strip()))
 
         # Structured output with Constraint encoding
-        self._response = client.models.generate_content(
+        self._response = await client.aio.models.generate_content(
             model=model,
             contents=contents,
             config=types.GenerateContentConfig(

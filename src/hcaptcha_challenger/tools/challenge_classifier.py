@@ -49,7 +49,7 @@ Output: `image_drag_multi`
 """
 
 USER_PROMPT = """
-Your task is to classify challenge questions into one of four types: 
+Your task is to classify challenge questions into one of four types:
     - image_label_single_select (clicking ONE specific area/object)
     - image_label_multi_select (clicking MULTIPLE areas/objects)
     - image_drag_single (dragging ONE element/piece)
@@ -73,7 +73,7 @@ class ChallengeClassifier(_Reasoner):
             f"Retry request ({retry_state.attempt_number}/2) - Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
         ),
     )
-    def invoke(
+    async def invoke_async(
         self,
         challenge_screenshot: Union[str, Path, os.PathLike],
         model: FastShotModelType = "gemini-2.0-flash",
@@ -82,7 +82,7 @@ class ChallengeClassifier(_Reasoner):
         client = genai.Client(api_key=self._api_key)
 
         # Upload the challenge image file
-        files = [client.files.upload(file=challenge_screenshot)]
+        files = [await client.aio.files.upload(file=challenge_screenshot)]
 
         # Handle models that don't support JSON response schema
         if model in ["gemini-2.0-flash-thinking-exp-01-21"]:
@@ -96,7 +96,7 @@ class ChallengeClassifier(_Reasoner):
                 )
             ]
             # Generate response using thinking prompt
-            self._response = client.models.generate_content(
+            self._response = await client.aio.models.generate_content(
                 model=model,
                 contents=contents,
                 config=types.GenerateContentConfig(
@@ -117,7 +117,7 @@ class ChallengeClassifier(_Reasoner):
             )
         ]
         # Generate structured JSON response
-        self._response = client.models.generate_content(
+        self._response = await client.aio.models.generate_content(
             model=model,
             contents=contents,
             config=types.GenerateContentConfig(

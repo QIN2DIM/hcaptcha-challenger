@@ -1,3 +1,4 @@
+import asyncio
 import os
 from pathlib import Path
 from typing import Union
@@ -40,7 +41,7 @@ class SpatialPathReasoner(_Reasoner):
             f"Retry request ({retry_state.attempt_number}/2) - Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
         ),
     )
-    def invoke(
+    async def invoke_async(
         self,
         challenge_screenshot: Union[str, Path, os.PathLike],
         grid_divisions: Union[str, Path, os.PathLike],
@@ -58,10 +59,10 @@ class SpatialPathReasoner(_Reasoner):
         client = genai.Client(api_key=self._api_key)
 
         # Upload the challenge image file
-        files = [
-            client.files.upload(file=challenge_screenshot),
-            client.files.upload(file=grid_divisions),
-        ]
+        files = await asyncio.gather(
+            client.aio.files.upload(file=challenge_screenshot),
+            client.aio.files.upload(file=grid_divisions),
+        )
 
         # Create content with only the image
         parts = [
@@ -75,7 +76,7 @@ class SpatialPathReasoner(_Reasoner):
 
         # Change to JSON mode
         if not constraint_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
-            self._response = client.models.generate_content(
+            self._response = await client.aio.models.generate_content(
                 model=model,
                 contents=contents,
                 config=types.GenerateContentConfig(
@@ -85,7 +86,7 @@ class SpatialPathReasoner(_Reasoner):
             return ImageDragDropChallenge(**extract_first_json_block(self._response.text))
 
         # Structured output with Constraint encoding
-        self._response = client.models.generate_content(
+        self._response = await client.aio.models.generate_content(
             model=model,
             contents=contents,
             config=types.GenerateContentConfig(

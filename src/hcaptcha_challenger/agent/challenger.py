@@ -382,7 +382,7 @@ class RoboticArm:
             cache_path = self.config.cache_dir.joinpath(f"challenge_view/_artifacts/{uuid4()}.png")
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             await challenge_view.screenshot(type="png", path=cache_path)
-            challenge_type = self._challenge_classifier.invoke(
+            challenge_type = await self._challenge_classifier.invoke_async(
                 challenge_screenshot=cache_path, model=self.config.CHALLENGE_CLASSIFIER_MODEL
             )
             return challenge_type
@@ -515,7 +515,7 @@ class RoboticArm:
             await challenge_view.screenshot(type="png", path=challenge_screenshot)
 
             # Image classification
-            response = self._image_classifier.invoke(
+            response = await self._image_classifier.invoke_async(
                 challenge_screenshot=challenge_screenshot,
                 model=self.config.IMAGE_CLASSIFIER_MODEL,
                 constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
@@ -562,7 +562,7 @@ class RoboticArm:
             except Exception as e:
                 logger.warning(f"Error while processing captcha payload: {e}")
 
-            response = self._spatial_path_reasoner.invoke(
+            response = await self._spatial_path_reasoner.invoke_async(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 model=self.config.SPATIAL_PATH_REASONER_MODEL,
@@ -598,7 +598,7 @@ class RoboticArm:
             elif job_type == ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT:
                 user_prompt += "\nIf you answer correctly, I will reward you with a tip of $20."
 
-            response = self._spatial_point_reasoner.invoke(
+            response = await self._spatial_point_reasoner.invoke_async(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 model=self.config.SPATIAL_POINT_REASONER_MODEL,

@@ -1,8 +1,41 @@
+import asyncio
 import json
 import re
-from typing import List
+from typing import List, Any, Coroutine, TypeVar
 
 from loguru import logger
+
+T = TypeVar("T")
+
+
+def run_sync(coro: Coroutine[Any, Any, T]) -> T:
+    """
+    Run an async coroutine as a sync function, handling different threading scenarios.
+    """
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        # No event loop in this thread at all:
+        return asyncio.run(coro)
+
+    # If the loop is idle, run it directly
+    if not loop.is_running():
+        return loop.run_until_complete(coro)
+
+    # If we get here, the loop *is* running in this thread.
+    # We schedule the work on the loop's default executor:
+    def _worker():
+        # Create a fresh loop in this worker thread
+        worker_loop = asyncio.new_event_loop()
+        try:
+            return worker_loop.run_until_complete(coro)
+        finally:
+            worker_loop.close()
+
+    # Schedule on the default executor (None == use loop’s ThreadPoolExecutor)
+    future = loop.run_in_executor(None, _worker)
+    # Block until it's done and return the result/raise
+    return future.result()
 
 
 def extract_json_blocks(text: str) -> List[str]:
@@ -31,9 +64,9 @@ def extract_json_blocks(text: str) -> List[str]:
         return []
 
 
-def extract_first_json_block(text: str) -> dict:
+def extract_first_json_block(text: str) -> Any | None:
     """
-    Extract the first JSON code block contents surrounded by ```json and ``` from the text.
+    Extract the first JSON code block contents surrounded by ```JSON and ``` from the text.
 
     Args:
         text: String containing possible JSON code blocks

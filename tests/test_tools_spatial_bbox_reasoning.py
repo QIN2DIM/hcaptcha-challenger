@@ -11,9 +11,11 @@ from hcaptcha_challenger.tools import SpatialBboxReasoner
 dotenv.load_dotenv()
 gic = SpatialBboxReasoner(gemini_api_key=os.getenv("GEMINI_API_KEY"))
 
+CHALLENGE_VIEW_DIR = Path(__file__).parent.joinpath("challenge_view/image_drag_drop")
+
 
 def test_gemini_bbox_reasoning():
-    challenge_screenshot = Path("challenge_view/image_drag_drop/single_5.png")
+    challenge_screenshot = CHALLENGE_VIEW_DIR.joinpath("single_5.png")
     grid_divisions_path = challenge_screenshot.parent.joinpath(
         f'coordinate_grid_{challenge_screenshot.name}'
     )

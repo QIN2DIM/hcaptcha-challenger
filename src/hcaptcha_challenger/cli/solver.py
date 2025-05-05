@@ -90,9 +90,9 @@ def check_cost(
             box=box.ROUNDED,
             border_style="blue",
             padding=(0, 1),
-            width=None
+            width=None,
         )
-        
+
         summary_table.add_column("Metric", style="cyan")
         summary_table.add_column("Value", style="green")
 
@@ -102,18 +102,22 @@ def check_cost(
         summary_table.add_row("Total Input Tokens", f"{stats.total_input_tokens:,}")
         summary_table.add_row("Total Output Tokens", f"{stats.total_output_tokens:,}")
         summary_table.add_row("Total API Cost", f"${stats.total_cost:.3f}")
-        summary_table.add_row("Average Cost per Challenge", f"${stats.average_cost_per_challenge:.3f}")
-        summary_table.add_row("Median Cost per Challenge", f"${stats.median_cost_per_challenge:.3f}")
-        
+        summary_table.add_row(
+            "Average Cost per Challenge", f"${stats.average_cost_per_challenge:.3f}"
+        )
+        summary_table.add_row(
+            "Median Cost per Challenge", f"${stats.median_cost_per_challenge:.3f}"
+        )
+
         # Model details table with more compact design
         model_table = Table(
-            title="Model Usage Breakdown", 
-            box=box.ROUNDED, 
+            title="Model Usage Breakdown",
+            box=box.ROUNDED,
             border_style="cyan",
             padding=(0, 1),
-            width=None
+            width=None,
         )
-        
+
         model_table.add_column("Model", style="magenta", no_wrap=True)
         model_table.add_column("Calls", style="yellow", justify="right")
         model_table.add_column("Input Tokens", style="green", justify="right")
