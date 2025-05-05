@@ -24,7 +24,7 @@ class _Reasoner(ABC):
             logger.warning(e)
 
     @abstractmethod
-    def invoke_async(self, **kwargs):
+    def invoke_async(self, *args, **kwargs):
         raise NotImplementedError
 
     # for backward compatibility
