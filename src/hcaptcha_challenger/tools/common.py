@@ -5,7 +5,6 @@ from typing import List, Any, Coroutine, TypeVar
 
 from loguru import logger
 
-
 T = TypeVar("T")
 
 
@@ -65,9 +64,9 @@ def extract_json_blocks(text: str) -> List[str]:
         return []
 
 
-def extract_first_json_block(text: str) -> dict:
+def extract_first_json_block(text: str) -> Any | None:
     """
-    Extract the first JSON code block contents surrounded by ```json and ``` from the text.
+    Extract the first JSON code block contents surrounded by ```JSON and ``` from the text.
 
     Args:
         text: String containing possible JSON code blocks
