@@ -90,8 +90,9 @@ filterwarnings = "ignore::DeprecationWarning"
 
 [tool.black]
 line-length = 100
-target-version = ["py310", "py311", "py312"]
+target-version = ["py310", "py311", "py312", "py313"]
 skip-string-normalization = true
+exclude = "_archive|.venv|docs/.*\\.ipynb"
 
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
@@ -104,7 +105,7 @@ bump = true
 [dependency-groups]
 dev = [
     "ipykernel>=6.29.5",
-    "ipywidgets>=8.1.6",
+    "ipywidgets>=8.1.7",
     "jupyterlab-language-pack-zh-cn>=4.4.post0",
     "notebook>=7.4.0",
     "pip>=25.1.1",
