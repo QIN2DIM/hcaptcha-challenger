@@ -119,7 +119,7 @@ class SiteKey:
 
     @staticmethod
     def as_sitelink(
-        sitekey: Literal["discord", "epic", "easy", "moderate", "difficult", "user"] | str,
+        sitekey: Literal["discord", "epic", "easy", "moderate", "difficult", "user"] | str
     ):
         keymap = {
             "discord": SiteKey.discord,
