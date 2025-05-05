@@ -1,7 +1,7 @@
 import os
 from enum import Enum
 from pathlib import Path
-from typing import Union, Coroutine, Any
+from typing import Union
 
 from google import genai
 from google.genai import types
@@ -77,7 +77,7 @@ class ChallengeClassifier(_Reasoner):
         self,
         challenge_screenshot: Union[str, Path, os.PathLike],
         model: FastShotModelType = "gemini-2.0-flash",
-    ) -> Coroutine[Any, Any, ChallengeTypeEnum]:
+    ) -> ChallengeTypeEnum:
         # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)
 
