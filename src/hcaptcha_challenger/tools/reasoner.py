@@ -24,3 +24,7 @@ class _Reasoner(ABC):
     @abstractmethod
     def invoke(self, **kwargs):
         raise NotImplementedError
+
+    @abstractmethod
+    def invoke_async(self, **kwargs):
+        raise NotImplementedError

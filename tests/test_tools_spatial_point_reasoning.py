@@ -13,7 +13,9 @@ gic = SpatialPointReasoner(gemini_api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def test_gemini_point_reasoning():
-    challenge_screenshot = Path("challenge_view/image_label_area_select/single_5.png")
+    challenge_screenshot = Path(os.path.dirname(__file__)).joinpath(
+        "challenge_view/image_label_area_select/single_5.png"
+    )
     grid_divisions_path = challenge_screenshot.parent.joinpath(
         f'coordinate_grid_{challenge_screenshot.name}'
     )

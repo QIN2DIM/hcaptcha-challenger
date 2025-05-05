@@ -11,6 +11,9 @@ from hcaptcha_challenger.models import SCoTModelType, ImageBinaryChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
+from .common import run_sync
+
+
 SYSTEM_INSTRUCTION = """
 Solve the challenge, use [0,0] ~ [2,2] to locate 9grid, output the coordinates of the correct answer as json.
 
@@ -47,7 +50,7 @@ class ImageClassifier(_Reasoner):
             f"Retry request ({retry_state.attempt_number}/2) - Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
         ),
     )
-    def invoke(
+    async def invoke_async(
         self,
         challenge_screenshot: Union[str, Path, os.PathLike],
         model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
@@ -75,14 +78,14 @@ class ImageClassifier(_Reasoner):
         client = genai.Client(api_key=self._api_key)
 
         # Upload the challenge image file
-        files = [client.files.upload(file=challenge_screenshot)]
+        files = [await client.aio.files.upload(file=challenge_screenshot)]
 
         parts = [types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type)]
         contents = [types.Content(role="user", parts=parts)]
 
         # Change to JSON mode
         if not constraint_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
-            self._response = client.models.generate_content(
+            self._response = await client.aio.models.generate_content(
                 model=model,
                 contents=contents,
                 config=types.GenerateContentConfig(
@@ -95,7 +98,7 @@ class ImageClassifier(_Reasoner):
         parts.append(types.Part.from_text(text=USER_PROMPT.strip()))
 
         # Structured output with Constraint encoding
-        self._response = client.models.generate_content(
+        self._response = await client.aio.models.generate_content(
             model=model,
             contents=contents,
             config=types.GenerateContentConfig(
@@ -107,3 +110,7 @@ class ImageClassifier(_Reasoner):
         if _result := self._response.parsed:
             return ImageBinaryChallenge(**self._response.parsed.model_dump())
         return ImageBinaryChallenge(**extract_first_json_block(self._response.text))
+
+    # for backward compatibility
+    def invoke(self, *args, **kwargs) -> ImageBinaryChallenge:
+        return run_sync(self.invoke_async(*args, **kwargs))
