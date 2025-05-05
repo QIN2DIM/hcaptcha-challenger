@@ -12,9 +12,6 @@ from hcaptcha_challenger.models import SCoTModelType, ImageDragDropChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
-from .common import run_sync
-
-
 THINKING_PROMPT = """
 **Rule for 'Find the Notched Rectangular Area' Tasks:**
 1. Identify challenge prompt about the Challenge Image
@@ -102,7 +99,3 @@ class SpatialPathReasoner(_Reasoner):
         if _result := self._response.parsed:
             return ImageDragDropChallenge(**self._response.parsed.model_dump())
         return ImageDragDropChallenge(**extract_first_json_block(self._response.text))
-
-    # for backward compatibility
-    def invoke(self, *args, **kwargs) -> ImageDragDropChallenge:
-        return run_sync(self.invoke_async(*args, **kwargs))

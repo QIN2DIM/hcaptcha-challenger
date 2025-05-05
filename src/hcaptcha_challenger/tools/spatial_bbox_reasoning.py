@@ -12,9 +12,6 @@ from hcaptcha_challenger.models import SCoTModelType, ImageBboxChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
-from .common import run_sync
-
-
 SYSTEM_INSTRUCTIONS = """
 <Instruction>
 Analyze the input image (which includes a visible coordinate grid) and the accompanying challenge prompt text.
@@ -105,7 +102,3 @@ class SpatialBboxReasoner(_Reasoner):
         if _result := self._response.parsed:
             return ImageBboxChallenge(**self._response.parsed.model_dump())
         return ImageBboxChallenge(**extract_first_json_block(self._response.text))
-
-    # for backward compatibility
-    def invoke(self, *args, **kwargs) -> ImageBboxChallenge:
-        return run_sync(self.invoke_async(*args, **kwargs))

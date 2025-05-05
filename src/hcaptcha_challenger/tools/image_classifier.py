@@ -11,9 +11,6 @@ from hcaptcha_challenger.models import SCoTModelType, ImageBinaryChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
-from .common import run_sync
-
-
 SYSTEM_INSTRUCTION = """
 Solve the challenge, use [0,0] ~ [2,2] to locate 9grid, output the coordinates of the correct answer as json.
 
@@ -110,7 +107,3 @@ class ImageClassifier(_Reasoner):
         if _result := self._response.parsed:
             return ImageBinaryChallenge(**self._response.parsed.model_dump())
         return ImageBinaryChallenge(**extract_first_json_block(self._response.text))
-
-    # for backward compatibility
-    def invoke(self, *args, **kwargs) -> ImageBinaryChallenge:
-        return run_sync(self.invoke_async(*args, **kwargs))

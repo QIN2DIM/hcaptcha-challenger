@@ -12,9 +12,6 @@ from hcaptcha_challenger.models import SCoTModelType, ImageAreaSelectChallenge
 from hcaptcha_challenger.tools.common import extract_first_json_block
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
-from .common import run_sync
-
-
 THINKING_PROMPT = """
 **Rule for 'Find the Different Object' Tasks:**
 
@@ -118,7 +115,3 @@ class SpatialPointReasoner(_Reasoner):
         if _result := self._response.parsed:
             return ImageAreaSelectChallenge(**self._response.parsed.model_dump())
         return ImageAreaSelectChallenge(**extract_first_json_block(self._response.text))
-
-    # for backward compatibility
-    def invoke(self, *args, **kwargs) -> ImageAreaSelectChallenge:
-        return run_sync(self.invoke_async(*args, **kwargs))

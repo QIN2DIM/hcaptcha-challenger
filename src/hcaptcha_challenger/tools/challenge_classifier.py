@@ -11,8 +11,6 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from hcaptcha_challenger.models import FastShotModelType
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
-from .common import run_sync
-
 CHALLENGE_CLASSIFIER_INSTRUCTIONS = """
 # Instructions
 
@@ -129,7 +127,3 @@ class ChallengeClassifier(_Reasoner):
 
         # Return parsed response as ImageBinaryChallenge object
         return ChallengeTypeEnum(self._response.text)
-
-    # for backward compatibility
-    def invoke(self, *args, **kwargs) -> ChallengeTypeEnum:
-        return run_sync(self.invoke_async(*args, **kwargs))
