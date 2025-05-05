@@ -1,3 +1,7 @@
+## v0.18.0
+
+- feat: Use Gemini async api to avoid blocking event loop ([#1031](https://github.com/QIN2DIM/hcaptcha-challenger/pull/1031))  [@cheewba](https://github.com/cheewba), [@chemiron](https://github.com/chemiron)
+
 ## v0.17.1
 
 - fix(challenge): HSW reverse fallback ([#1030](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1030))
