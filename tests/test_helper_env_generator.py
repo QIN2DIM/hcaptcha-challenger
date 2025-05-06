@@ -1,9 +1,12 @@
+from pathlib import Path
+
 from hcaptcha_challenger.agent.challenger import AgentConfig
 from hcaptcha_challenger.helper.env_generator import generate_env_example
 
 
 def test_env_generator():
-    output_file = generate_env_example(AgentConfig)
+    output_dir = Path(__file__).parent
+    output_file = generate_env_example(AgentConfig, output_dir=output_dir)
 
     print(f"\nContent Preview ({output_file}):")
     print("-" * 60)

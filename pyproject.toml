@@ -104,6 +104,7 @@ bump = true
 
 [dependency-groups]
 dev = [
+    "black>=25.1.0",
     "ipykernel>=6.29.5",
     "ipywidgets>=8.1.7",
     "jupyterlab-language-pack-zh-cn>=4.4.post0",

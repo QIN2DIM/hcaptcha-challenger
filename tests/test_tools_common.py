@@ -20,12 +20,12 @@ gemini_models = [
     "gemini-2.0-flash-lite",
 ]
 
-output_dir = Path("generate_content")
+output_dir = Path(__file__).parent.joinpath("generate_content")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 
 def test_count_tokens():
-    har_path = Path("har/hcaptcha.html")
+    har_path = Path(__file__).parent.joinpath("har/hcaptcha.html")
     if har_path.is_file():
         contents = har_path.read_text(encoding="utf8")
         for model in gemini_models:

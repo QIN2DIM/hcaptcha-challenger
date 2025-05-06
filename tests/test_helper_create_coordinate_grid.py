@@ -9,7 +9,7 @@ from PIL import Image
 
 from hcaptcha_challenger.helper.create_coordinate_grid import create_coordinate_grid, FloatRect
 
-BASE_PATH = Path("challenge_view")
+BASE_PATH = Path(__file__).parent.joinpath("challenge_view")
 DATASET_IMAGE_DRAG_DROP = BASE_PATH / "image_drag_drop"
 DATASET_IMAGE_LABEL_AREA_SELECT = BASE_PATH / "image_label_area_select"
 
