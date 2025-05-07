@@ -1,9 +1,11 @@
 import json
 from abc import abstractmethod, ABC
 from pathlib import Path
+from typing import Union
 
 from loguru import logger
 
+from hcaptcha_challenger.models import SCoTModelType, FastShotModelType
 from hcaptcha_challenger.tools.common import run_sync
 
 
@@ -24,9 +26,19 @@ class _Reasoner(ABC):
             logger.warning(e)
 
     @abstractmethod
-    async def invoke_async(self, *args, **kwargs):
+    async def invoke_async(
+        self,
+        model: Union[SCoTModelType, FastShotModelType] = "gemini-2.5-pro-exp-03-25",
+        *args,
+        **kwargs,
+    ):
         raise NotImplementedError
 
     # for backward compatibility
-    def invoke(self, *args, **kwargs):
-        return run_sync(self.invoke_async(*args, **kwargs))
+    def invoke(
+        self,
+        model: Union[SCoTModelType, FastShotModelType] = "gemini-2.5-pro-exp-03-25",
+        *args,
+        **kwargs,
+    ):
+        return run_sync(self.invoke_async(model=model, *args, **kwargs))

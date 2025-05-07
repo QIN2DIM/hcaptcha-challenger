@@ -15,7 +15,7 @@ CHALLENGE_VIEW_DIR = Path(__file__).parent.joinpath("challenge_view/image_drag_d
 
 
 def test_gemini_path_reasoning():
-    challenge_screenshot = CHALLENGE_VIEW_DIR.joinpath("single_3.png")
+    challenge_screenshot = CHALLENGE_VIEW_DIR.joinpath("single_9.png")
     grid_divisions_path = challenge_screenshot.parent.joinpath(
         f'coordinate_grid_{challenge_screenshot.name}'
     )
@@ -27,6 +27,7 @@ def test_gemini_path_reasoning():
     results = gic.invoke(
         challenge_screenshot=challenge_screenshot,
         grid_divisions=grid_divisions_path,
-        model="gemini-2.5-flash-preview-04-17",
+        model="gemini-2.5-pro-preview-05-06",
+        enable_scot=True,
     )
     logger.debug(f'ToolInvokeMessage: {results.log_message}')

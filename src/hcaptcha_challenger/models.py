@@ -325,3 +325,29 @@ class ImageBboxChallenge(BaseModel):
     @property
     def log_message(self) -> str:
         return json.dumps(self.model_dump(mode="json"), indent=2, ensure_ascii=False)
+
+
+SPATIAL_PATH_STRUCTURED_OUTPUT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "challenge_prompt": {"type": "string"},
+        "paths": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "start_point": {
+                        "type": "object",
+                        "properties": {"x": {"type": "integer"}, "y": {"type": "integer"}},
+                    },
+                    "end_point": {
+                        "type": "object",
+                        "properties": {"x": {"type": "integer"}, "y": {"type": "integer"}},
+                    },
+                },
+                "required": ["start_point", "end_point"],
+            },
+        },
+    },
+    "required": ["challenge_prompt", "paths"],
+}
