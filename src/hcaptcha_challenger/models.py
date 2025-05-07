@@ -199,6 +199,7 @@ IGNORE_REQUEST_TYPE_LITERAL = Literal[
 SCoTModelType = Literal[
     # This model is not available in the free plan.
     # Recommended for production environments for more tolerant rate limits.
+    "gemini-2.5-pro-preview-05-06",
     "gemini-2.5-pro-preview-03-25",
     # The following is a free experimental model that may fail at any time and is for demo only
     "gemini-2.5-pro-exp-03-25",
