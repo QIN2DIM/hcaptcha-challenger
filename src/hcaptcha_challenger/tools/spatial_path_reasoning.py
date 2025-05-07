@@ -34,6 +34,33 @@ Finally, solve the challenge, locate the object, output the coordinates of the c
 
 class SpatialPathReasoner(_Reasoner):
 
+    async def draw_speculative_sampling_parts(
+        self,
+        client: genai.Client,
+        grid_divisions: Union[str, Path, os.PathLike],
+        auxiliary_information: str,
+    ):
+        scot_few_shot_path = Path(__file__).parent.joinpath("scot/image_drag_drop_few_shot_001.png")
+        if not scot_few_shot_path.is_file():
+            return None
+
+        files = await asyncio.gather(
+            client.aio.files.upload(file=scot_few_shot_path),
+            client.aio.files.upload(file=grid_divisions),
+        )
+
+        parts = [
+            types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type),
+            types.Part.from_uri(file_uri=files[1].uri, mime_type=files[1].mime_type),
+        ]
+
+        user_prompt = "请延续相同的思路解决新的 image_drag_drop challenge。返回正确答案的坐标。"
+        if auxiliary_information and isinstance(auxiliary_information, str):
+            user_prompt += f"\n{auxiliary_information}"
+            parts.append(types.Part.from_text(text=auxiliary_information))
+
+        return None
+
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_fixed(3),
@@ -48,6 +75,7 @@ class SpatialPathReasoner(_Reasoner):
         auxiliary_information: str | None = "",
         model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
         *,
+        enable_scot: bool = False,
         constraint_response_schema: bool = False,
         **kwargs,
     ) -> ImageDragDropChallenge:

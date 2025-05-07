@@ -15,7 +15,7 @@ async def challenge(page: Page) -> AgentV:
         # Disable image drag-and-drop challenge
         ignore_request_types=[RequestType.IMAGE_DRAG_DROP],
         # Disable special challenge
-        ignore_request_questions=["Click on the object that you can see in the sample image"],
+        ignore_request_questions=["Drag each segment to its position on the line"],
         # Change default models
         IMAGE_CLASSIFIER_MODEL='gemini-2.5-pro-preview-05-06',
         SPATIAL_PATH_REASONER_MODEL='gemini-2.5-pro-preview-05-06',
