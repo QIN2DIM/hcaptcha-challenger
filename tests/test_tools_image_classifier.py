@@ -2,10 +2,9 @@ import os
 from pathlib import Path
 
 import dotenv
-import pytest
 from loguru import logger
 
-from hcaptcha_challenger.tools import ImageClassifier
+from hcaptcha_challenger import ImageClassifier
 
 dotenv.load_dotenv()
 

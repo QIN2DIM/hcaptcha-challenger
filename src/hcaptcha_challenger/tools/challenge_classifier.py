@@ -1,5 +1,4 @@
 import os
-from enum import Enum
 from pathlib import Path
 from typing import Union
 
@@ -8,7 +7,7 @@ from google.genai import types
 from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from hcaptcha_challenger.models import FastShotModelType
+from hcaptcha_challenger.models import FastShotModelType, ChallengeTypeEnum
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
 CHALLENGE_CLASSIFIER_INSTRUCTIONS = """
@@ -55,13 +54,6 @@ Your task is to classify challenge questions into one of four types:
     - image_drag_single (dragging ONE element/piece)
     - image_drag_multi (dragging MULTIPLE elements/pieces)
 """
-
-
-class ChallengeTypeEnum(str, Enum):
-    IMAGE_LABEL_SINGLE_SELECT = "image_label_single_select"
-    IMAGE_LABEL_MULTI_SELECT = "image_label_multi_select"
-    IMAGE_DRAG_SINGLE = "image_drag_single"
-    IMAGE_DRAG_MULTI = "image_drag_multi"
 
 
 class ChallengeClassifier(_Reasoner):

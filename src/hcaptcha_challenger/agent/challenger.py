@@ -13,7 +13,7 @@ from asyncio import Queue
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 from typing import List, Tuple
 from uuid import uuid4
 
@@ -24,7 +24,6 @@ from playwright.async_api import Locator, expect, Page, Response, TimeoutError, 
 from pydantic import Field, field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from hcaptcha_challenger.agent.prompts import match_user_prompt
 from hcaptcha_challenger.helper import create_coordinate_grid
 from hcaptcha_challenger.models import (
     CaptchaResponse,
@@ -36,13 +35,14 @@ from hcaptcha_challenger.models import (
     CaptchaPayload,
     IGNORE_REQUEST_TYPE_LITERAL,
 )
+from hcaptcha_challenger.models import ChallengeTypeEnum
+from hcaptcha_challenger.prompts import match_user_prompt
 from hcaptcha_challenger.tools import (
     ImageClassifier,
     ChallengeClassifier,
     SpatialPathReasoner,
     SpatialPointReasoner,
 )
-from hcaptcha_challenger.tools.challenge_classifier import ChallengeTypeEnum
 
 
 def _generate_bezier_trajectory(
@@ -386,6 +386,7 @@ class RoboticArm:
                 challenge_screenshot=cache_path, model=self.config.CHALLENGE_CLASSIFIER_MODEL
             )
             return challenge_type
+        return None
 
     async def _wait_for_all_loaders_complete(self):
         """Wait for all loading indicators to complete (become invisible)"""

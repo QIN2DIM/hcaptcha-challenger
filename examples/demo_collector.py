@@ -3,7 +3,7 @@ from pathlib import Path
 
 from playwright.async_api import async_playwright
 
-from hcaptcha_challenger.agent.collector import Collector, CollectorConfig
+from hcaptcha_challenger import Collector, CollectorConfig
 from hcaptcha_challenger.utils import SiteKey
 
 dataset_dir = Path("tmp/.cache/dataset").resolve()
