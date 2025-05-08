@@ -1,3 +1,11 @@
+## v0.18.1
+
+- **fix(image_classifier):** coordinate hallucination ([#1035](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1035))
+
+  `Gemini 2.5 pro preview 05 06` Command following capability has been slightly reduced. This tweak adds more contextual information, reduces ambiguity, emphasises return formatting, and improves the model's command following capability.
+
+- add: Gemini 2.5 pro preview 05 06 ([#1033](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1033))
+
 ## v0.18.0
 
 - feat: Use Gemini async api to avoid blocking event loop ([#1031](https://github.com/QIN2DIM/hcaptcha-challenger/pull/1031))  [@cheewba](https://github.com/cheewba), [@chemiron](https://github.com/chemiron)
