@@ -1,6 +1,6 @@
 from loguru import logger
 
-from hcaptcha_challenger.tools.challenge_classifier import ChallengeTypeEnum
+from hcaptcha_challenger.models import ChallengeTypeEnum
 
 IMAGE_DRAG_MULTI_COMPLETE_THE_PAIRS = """
 **游戏背景:"**

@@ -2,12 +2,11 @@ import os
 from pathlib import Path
 
 import dotenv
-import pytest
 from loguru import logger
 from matplotlib import pyplot as plt
 
+from hcaptcha_challenger import SpatialPointReasoner
 from hcaptcha_challenger.helper import create_coordinate_grid, FloatRect
-from hcaptcha_challenger.tools import SpatialPointReasoner
 
 dotenv.load_dotenv()
 gic = SpatialPointReasoner(gemini_api_key=os.getenv("GEMINI_API_KEY"))

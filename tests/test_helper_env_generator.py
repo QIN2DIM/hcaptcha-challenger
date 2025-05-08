@@ -1,7 +1,7 @@
 import shutil
 from pathlib import Path
 
-from hcaptcha_challenger.agent.challenger import AgentConfig
+from hcaptcha_challenger import AgentConfig
 from hcaptcha_challenger.helper.env_generator import generate_env_example
 
 

@@ -35,6 +35,7 @@ from hcaptcha_challenger.models import (
     CaptchaPayload,
     IGNORE_REQUEST_TYPE_LITERAL,
 )
+from hcaptcha_challenger.models import ChallengeTypeEnum
 from hcaptcha_challenger.prompts import match_user_prompt
 from hcaptcha_challenger.tools import (
     ImageClassifier,
@@ -42,7 +43,6 @@ from hcaptcha_challenger.tools import (
     SpatialPathReasoner,
     SpatialPointReasoner,
 )
-from hcaptcha_challenger.tools.challenge_classifier import ChallengeTypeEnum
 
 
 def _generate_bezier_trajectory(

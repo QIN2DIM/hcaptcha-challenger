@@ -5,8 +5,7 @@ from browserforge.fingerprints import Screen
 from camoufox import AsyncCamoufox
 from playwright.async_api import Page
 
-from hcaptcha_challenger.agent import AgentV, AgentConfig
-from hcaptcha_challenger.models import CaptchaResponse
+from hcaptcha_challenger import AgentV, AgentConfig, CaptchaResponse
 from hcaptcha_challenger.utils import SiteKey
 
 
@@ -37,7 +36,7 @@ async def main():
     ) as browser:
         page = browser.pages[-1] if browser.pages else await browser.new_page()
 
-        await page.goto(SiteKey.as_site_link(SiteKey.user))
+        await page.goto(SiteKey.as_site_link(SiteKey.discord))
 
         # --- When you encounter hCaptcha in your workflow ---
         agent: AgentV = await challenge(page)

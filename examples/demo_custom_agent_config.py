@@ -3,8 +3,8 @@ import json
 
 from playwright.async_api import async_playwright, Page
 
-from hcaptcha_challenger.agent import AgentV, AgentConfig
-from hcaptcha_challenger.models import CaptchaResponse, RequestType
+from hcaptcha_challenger import AgentV, AgentConfig, CaptchaResponse
+from hcaptcha_challenger import types
 from hcaptcha_challenger.utils import SiteKey
 
 
@@ -12,8 +12,11 @@ async def challenge(page: Page) -> AgentV:
     """Automates the process of solving an hCaptcha challenge."""
     # [IMPORTANT] Initialize the Agent before triggering hCaptcha
     agent_config = AgentConfig(
-        # Disable image drag-and-drop challenge
-        ignore_request_types=[RequestType.IMAGE_DRAG_DROP],
+        # Disable image drag-and-drop & image-label-area-select(single) challenge
+        ignore_request_types=[
+            types.RequestType.IMAGE_DRAG_DROP,
+            types.ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT,
+        ],
         # Disable special challenge
         ignore_request_questions=["Drag each segment to its position on the line"],
         # Change default models
@@ -36,9 +39,7 @@ async def challenge(page: Page) -> AgentV:
 async def main():
     async with async_playwright() as p:
         context = await p.chromium.launch_persistent_context(
-            user_data_dir="tmp/.cache/user_data",
-            headless=False,
-            locale="en-US",
+            user_data_dir="tmp/.cache/user_data", headless=False, locale="en-US"
         )
 
         page = await context.new_page()

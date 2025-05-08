@@ -6,8 +6,7 @@ from typing import Dict, Tuple, List
 import dotenv
 import pytest
 
-from hcaptcha_challenger.agent.challenger import FastShotModelType
-from hcaptcha_challenger.tools.challenge_classifier import ChallengeClassifier, ChallengeTypeEnum
+from hcaptcha_challenger import FastShotModelType, ChallengeClassifier, ChallengeTypeEnum
 
 # Load environment variables
 dotenv.load_dotenv()

@@ -185,6 +185,13 @@ class RequestType(str, Enum):
     MULTI_CHALLENGE = "multi_challenge"
 
 
+class ChallengeTypeEnum(str, Enum):
+    IMAGE_LABEL_SINGLE_SELECT = "image_label_single_select"
+    IMAGE_LABEL_MULTI_SELECT = "image_label_multi_select"
+    IMAGE_DRAG_SINGLE = "image_drag_single"
+    IMAGE_DRAG_MULTI = "image_drag_multi"
+
+
 IGNORE_REQUEST_TYPE_LITERAL = Literal[
     "image_label_binary",
     "image_label_area_select",

@@ -5,8 +5,8 @@ import dotenv
 from loguru import logger
 from matplotlib import pyplot as plt
 
+from hcaptcha_challenger import SpatialBboxReasoner
 from hcaptcha_challenger.helper import create_coordinate_grid, FloatRect
-from hcaptcha_challenger.tools import SpatialBboxReasoner
 
 dotenv.load_dotenv()
 gic = SpatialBboxReasoner(gemini_api_key=os.getenv("GEMINI_API_KEY"))

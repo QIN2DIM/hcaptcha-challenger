@@ -6,7 +6,7 @@ from loguru import logger
 from matplotlib import pyplot as plt
 
 from hcaptcha_challenger.helper import create_coordinate_grid, FloatRect
-from hcaptcha_challenger.tools import SpatialPathReasoner
+from hcaptcha_challenger import SpatialPathReasoner
 
 dotenv.load_dotenv()
 gic = SpatialPathReasoner(gemini_api_key=os.getenv("GEMINI_API_KEY"))
