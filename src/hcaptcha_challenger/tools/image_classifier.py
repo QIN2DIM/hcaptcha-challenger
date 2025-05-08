@@ -97,6 +97,9 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
         system_instruction = SYSTEM_INSTRUCTION
         config = types.GenerateContentConfig(temperature=0, system_instruction=system_instruction)
 
+        if model_to_use in ["gemini-2.5-flash-preview-04-17"]:
+            config.thinking_config = types.ThinkingConfig(thinking_budget=0)
+
         # Change to JSON mode
         if not constraint_response_schema or model_to_use in [
             "gemini-2.0-flash-thinking-exp-01-21"
