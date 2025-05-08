@@ -32,13 +32,16 @@ Solve the challenge, use [0,0] ~ [2,2] to locate 9grid, output the coordinates o
 """
 
 
-class ImageClassifier(_Reasoner):
+class ImageClassifier(_Reasoner[SCoTModelType]):
     """
     A classifier that uses Google's Gemini AI models to analyze and solve image-based challenges.
 
     This class provides functionality to process screenshots of binary image challenges
     (typically grid-based selection challenges) and determines the correct answer coordinates.
     """
+
+    def __init__(self, gemini_api_key: str, model: SCoTModelType = "gemini-2.5-pro-exp-03-25"):
+        super().__init__(gemini_api_key, model)
 
     @retry(
         stop=stop_after_attempt(3),
@@ -49,9 +52,8 @@ class ImageClassifier(_Reasoner):
     )
     async def invoke_async(
         self,
-        challenge_screenshot: Union[str, Path, os.PathLike],
-        model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
         *,
+        challenge_screenshot: Union[str, Path, os.PathLike],
         constraint_response_schema: bool = False,
         **kwargs,
     ) -> ImageBinaryChallenge:
@@ -61,12 +63,15 @@ class ImageClassifier(_Reasoner):
         Args:
             constraint_response_schema:
             challenge_screenshot: The image file containing the challenge to solve
-            model: The Gemini model to use for processing. Must support both visual
-               capabilities and Spatial chain-of-thought (S-COT) reasoning.
 
         Returns:
             ImageBinaryChallenge: Object containing the solution coordinates
         """
+        model_to_use = kwargs.pop("model", self._model)
+        if model_to_use is None:
+            # Or raise an error, or use a default defined in this class if appropriate
+            raise ValueError("Model must be provided either at initialization or via kwargs.")
+
         enable_response_schema = kwargs.get("enable_response_schema")
         if enable_response_schema is not None:
             constraint_response_schema = enable_response_schema
@@ -80,30 +85,27 @@ class ImageClassifier(_Reasoner):
         parts = [types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type)]
         contents = [types.Content(role="user", parts=parts)]
 
+        system_instruction = SYSTEM_INSTRUCTION
+        config = types.GenerateContentConfig(temperature=0, system_instruction=system_instruction)
+
         # Change to JSON mode
-        if not constraint_response_schema or model in ["gemini-2.0-flash-thinking-exp-01-21"]:
+        if not constraint_response_schema or model_to_use in [
+            "gemini-2.0-flash-thinking-exp-01-21"
+        ]:
             self._response = await client.aio.models.generate_content(
-                model=model,
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    temperature=0, system_instruction=SYSTEM_INSTRUCTION
-                ),
+                model=model_to_use, contents=contents, config=config
             )
             return ImageBinaryChallenge(**extract_first_json_block(self._response.text))
 
         # Handle models that support JSON response schema
         parts.append(types.Part.from_text(text=USER_PROMPT.strip()))
 
+        config.response_mime_type = "application/json"
+        config.response_schema = ImageBinaryChallenge
+
         # Structured output with Constraint encoding
         self._response = await client.aio.models.generate_content(
-            model=model,
-            contents=contents,
-            config=types.GenerateContentConfig(
-                temperature=0,
-                response_mime_type="application/json",
-                response_schema=ImageBinaryChallenge,
-                system_instruction=SYSTEM_INSTRUCTION,
-            ),
+            model=model_to_use, contents=contents, config=config
         )
         if _result := self._response.parsed:
             return ImageBinaryChallenge(**self._response.parsed.model_dump())

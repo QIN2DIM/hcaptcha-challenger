@@ -1,16 +1,20 @@
 import json
 from abc import abstractmethod, ABC
 from pathlib import Path
+from typing import TypeVar, Generic
 
 from loguru import logger
 
 from hcaptcha_challenger.tools.common import run_sync
 
+M = TypeVar("M")
 
-class _Reasoner(ABC):
 
-    def __init__(self, gemini_api_key: str):
+class _Reasoner(ABC, Generic[M]):
+
+    def __init__(self, gemini_api_key: str, model: M | None = None):
         self._api_key: str = gemini_api_key
+        self._model: M | None = model
         self._response = None
 
     def cache_response(self, path: Path):
