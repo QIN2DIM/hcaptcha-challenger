@@ -225,6 +225,38 @@ class BoundingBoxCoordinate(BaseModel):
         max_length=2,
     )
 
+    def model_post_init(self, context: Any, /) -> None:
+        val_for_x = self.box_2d[0]
+        val_for_y = self.box_2d[1]
+
+        # Determine the new x-coordinate
+        if not (0 <= val_for_x <= 2):  # Needs conversion if not in [0, 2] range
+            if val_for_x < 0:
+                new_x = 0
+            elif val_for_x < 333:  # Covers small positive out-of-range (e.g., 3) and lower part of percentage
+                new_x = 0
+            elif val_for_x < 667:
+                new_x = 1
+            else:  # Covers >= 667
+                new_x = 2
+        else:  # Already a valid grid index
+            new_x = val_for_x
+
+        # Determine the new y-coordinate
+        if not (0 <= val_for_y <= 2):  # Needs conversion if not in [0, 2] range
+            if val_for_y < 0:
+                new_y = 0
+            elif val_for_y < 333: # Covers small positive out-of-range (e.g., 3) and lower part of percentage
+                new_y = 0
+            elif val_for_y < 667:
+                new_y = 1
+            else:  # Covers >= 667
+                new_y = 2
+        else:  # Already a valid grid index
+            new_y = val_for_y
+            
+        self.box_2d = [new_x, new_y]
+
 
 class ImageBinaryChallenge(BaseModel):
     challenge_prompt: str
