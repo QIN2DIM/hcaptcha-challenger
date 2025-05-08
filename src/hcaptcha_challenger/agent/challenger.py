@@ -24,7 +24,6 @@ from playwright.async_api import Locator, expect, Page, Response, TimeoutError, 
 from pydantic import Field, field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from hcaptcha_challenger.agent.prompts import match_user_prompt
 from hcaptcha_challenger.helper import create_coordinate_grid
 from hcaptcha_challenger.models import (
     CaptchaResponse,
@@ -36,6 +35,7 @@ from hcaptcha_challenger.models import (
     CaptchaPayload,
     IGNORE_REQUEST_TYPE_LITERAL,
 )
+from hcaptcha_challenger.prompts import match_user_prompt
 from hcaptcha_challenger.tools import (
     ImageClassifier,
     ChallengeClassifier,
