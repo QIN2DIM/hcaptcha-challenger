@@ -56,7 +56,10 @@ Your task is to classify challenge questions into one of four types:
 """
 
 
-class ChallengeClassifier(_Reasoner):
+class ChallengeClassifier(_Reasoner[FastShotModelType]):
+
+    def __init__(self, gemini_api_key: str, model: FastShotModelType = "gemini-2.0-flash"):
+        super().__init__(gemini_api_key, model)
 
     @retry(
         stop=stop_after_attempt(3),
@@ -66,10 +69,12 @@ class ChallengeClassifier(_Reasoner):
         ),
     )
     async def invoke_async(
-        self,
-        challenge_screenshot: Union[str, Path, os.PathLike],
-        model: FastShotModelType = "gemini-2.0-flash",
+        self, challenge_screenshot: Union[str, Path, os.PathLike], **kwargs
     ) -> ChallengeTypeEnum:
+        model_to_use = kwargs.pop("model", self._model)
+        if model_to_use is None:
+            raise ValueError("Model must be provided either at initialization or via kwargs.")
+
         # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)
 
@@ -77,7 +82,7 @@ class ChallengeClassifier(_Reasoner):
         files = [await client.aio.files.upload(file=challenge_screenshot)]
 
         # Handle models that don't support JSON response schema
-        if model in ["gemini-2.0-flash-thinking-exp-01-21"]:
+        if model_to_use in ["gemini-2.0-flash-thinking-exp-01-21"]:
             # Create content with only the image
             contents = [
                 types.Content(
@@ -89,7 +94,7 @@ class ChallengeClassifier(_Reasoner):
             ]
             # Generate response using thinking prompt
             self._response = await client.aio.models.generate_content(
-                model=model,
+                model=model_to_use,
                 contents=contents,
                 config=types.GenerateContentConfig(
                     temperature=0, system_instruction=CHALLENGE_CLASSIFIER_INSTRUCTIONS
@@ -110,7 +115,7 @@ class ChallengeClassifier(_Reasoner):
         ]
         # Generate structured JSON response
         self._response = await client.aio.models.generate_content(
-            model=model,
+            model=model_to_use,
             contents=contents,
             config=types.GenerateContentConfig(
                 temperature=0, response_mime_type="text/x.enum", response_schema=ChallengeTypeEnum

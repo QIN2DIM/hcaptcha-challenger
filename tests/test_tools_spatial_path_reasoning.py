@@ -5,11 +5,13 @@ import dotenv
 from loguru import logger
 from matplotlib import pyplot as plt
 
-from hcaptcha_challenger.helper import create_coordinate_grid, FloatRect
 from hcaptcha_challenger import SpatialPathReasoner
+from hcaptcha_challenger.helper import create_coordinate_grid, FloatRect
 
 dotenv.load_dotenv()
-gic = SpatialPathReasoner(gemini_api_key=os.getenv("GEMINI_API_KEY"))
+gic = SpatialPathReasoner(
+    gemini_api_key=os.getenv("GEMINI_API_KEY"), model="gemini-2.5-flash-preview-04-17"
+)
 
 CHALLENGE_VIEW_DIR = Path(__file__).parent.joinpath("challenge_view/image_drag_drop")
 
@@ -27,7 +29,6 @@ async def test_gemini_path_reasoning():
     results = await gic.invoke_async(
         challenge_screenshot=challenge_screenshot,
         grid_divisions=grid_divisions_path,
-        model="gemini-2.5-pro-preview-05-06",
         constraint_response_schema=True,
     )
     logger.debug(f'ToolInvokeMessage: {results.log_message}')

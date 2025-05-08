@@ -244,17 +244,24 @@ class RoboticArm:
         self.page = page
         self.config = config
 
-        self._image_classifier = ImageClassifier(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
-        )
         self._challenge_classifier = ChallengeClassifier(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
+            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
+            model=self.config.CHALLENGE_CLASSIFIER_MODEL,
+        )
+        self._image_classifier = ImageClassifier(
+            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
+            model=self.config.IMAGE_CLASSIFIER_MODEL,
+            constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
         )
         self._spatial_path_reasoner = SpatialPathReasoner(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
+            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
+            model=self.config.SPATIAL_PATH_REASONER_MODEL,
+            constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
         )
         self._spatial_point_reasoner = SpatialPointReasoner(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value()
+            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
+            model=self.config.SPATIAL_POINT_REASONER_MODEL,
+            constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
         )
         self.signal_crumb_count: int | None = None
         self.captcha_payload: CaptchaPayload | None = None
@@ -383,7 +390,7 @@ class RoboticArm:
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             await challenge_view.screenshot(type="png", path=cache_path)
             challenge_type = await self._challenge_classifier.invoke_async(
-                challenge_screenshot=cache_path, model=self.config.CHALLENGE_CLASSIFIER_MODEL
+                challenge_screenshot=cache_path
             )
             return challenge_type
         return None
@@ -517,9 +524,7 @@ class RoboticArm:
 
             # Image classification
             response = await self._image_classifier.invoke_async(
-                challenge_screenshot=challenge_screenshot,
-                model=self.config.IMAGE_CLASSIFIER_MODEL,
-                constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
+                challenge_screenshot=challenge_screenshot
             )
             boolean_matrix = response.convert_box_to_boolean_matrix()
 
@@ -566,9 +571,7 @@ class RoboticArm:
             response = await self._spatial_path_reasoner.invoke_async(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
-                model=self.config.SPATIAL_PATH_REASONER_MODEL,
                 auxiliary_information=auxiliary_information,
-                constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
             self._spatial_path_reasoner.cache_response(
@@ -602,9 +605,7 @@ class RoboticArm:
             response = await self._spatial_point_reasoner.invoke_async(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
-                model=self.config.SPATIAL_POINT_REASONER_MODEL,
                 auxiliary_information=user_prompt,
-                constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
             self._spatial_point_reasoner.cache_response(
