@@ -121,7 +121,6 @@ class SpatialPathReasoner(_Reasoner[SCoTModelType]):
         if model_to_use is None:
             raise ValueError("Model must be provided either at initialization or via kwargs.")
 
-        # 处理constraint_response_schema参数
         if constraint_response_schema is None:
             constraint_response_schema = self._constraint_response_schema
 
