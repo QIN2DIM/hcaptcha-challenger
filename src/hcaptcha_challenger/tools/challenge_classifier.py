@@ -69,7 +69,7 @@ class ChallengeClassifier(_Reasoner[FastShotModelType]):
         ),
     )
     async def invoke_async(
-        self, *, challenge_screenshot: Union[str, Path, os.PathLike], **kwargs
+        self, challenge_screenshot: Union[str, Path, os.PathLike], **kwargs
     ) -> ChallengeTypeEnum:
         model_to_use = kwargs.pop("model", self._model)
         if model_to_use is None:

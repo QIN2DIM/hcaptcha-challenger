@@ -93,8 +93,13 @@ async def draw_thoughts_parts(
 
 class SpatialPathReasoner(_Reasoner[SCoTModelType]):
 
-    def __init__(self, gemini_api_key: str, model: SCoTModelType = "gemini-2.5-pro-exp-03-25"):
-        super().__init__(gemini_api_key, model)
+    def __init__(
+        self,
+        gemini_api_key: str,
+        model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
+        constraint_response_schema: bool = False,
+    ):
+        super().__init__(gemini_api_key, model, constraint_response_schema)
 
     @retry(
         stop=stop_after_attempt(3),
@@ -105,16 +110,20 @@ class SpatialPathReasoner(_Reasoner[SCoTModelType]):
     )
     async def invoke_async(
         self,
-        *,
         challenge_screenshot: Union[str, Path, os.PathLike],
+        *,
         grid_divisions: Union[str, Path, os.PathLike],
         auxiliary_information: str | None = "",
-        constraint_response_schema: bool = False,
+        constraint_response_schema: bool | None = None,
         **kwargs,
     ) -> ImageDragDropChallenge:
         model_to_use = kwargs.pop("model", self._model)
         if model_to_use is None:
             raise ValueError("Model must be provided either at initialization or via kwargs.")
+
+        # 处理constraint_response_schema参数
+        if constraint_response_schema is None:
+            constraint_response_schema = self._constraint_response_schema
 
         enable_response_schema = kwargs.get("enable_response_schema")
         if enable_response_schema is not None:

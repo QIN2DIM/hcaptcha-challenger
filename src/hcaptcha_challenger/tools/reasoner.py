@@ -12,9 +12,12 @@ M = TypeVar("M")
 
 class _Reasoner(ABC, Generic[M]):
 
-    def __init__(self, gemini_api_key: str, model: M | None = None):
+    def __init__(
+        self, gemini_api_key: str, model: M | None = None, constraint_response_schema: bool = False
+    ):
         self._api_key: str = gemini_api_key
         self._model: M | None = model
+        self._constraint_response_schema = constraint_response_schema
         self._response = None
 
     def cache_response(self, path: Path):
