@@ -7,7 +7,27 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from hcaptcha_challenger.agent.challenger import AgentV, AgentConfig
+from hcaptcha_challenger.models import RequestType
+from hcaptcha_challenger.tools.challenge_classifier import ChallengeClassifier
+from hcaptcha_challenger.tools.challenge_classifier import ChallengeTypeEnum
+from hcaptcha_challenger.tools.image_classifier import ImageClassifier
+from hcaptcha_challenger.tools.spatial_bbox_reasoning import SpatialBboxReasoner
+from hcaptcha_challenger.tools.spatial_path_reasoning import SpatialPathReasoner
+from hcaptcha_challenger.tools.spatial_point_reasoning import SpatialPointReasoner
 from hcaptcha_challenger.utils import init_log
+
+__all__ = [
+    "ChallengeTypeEnum",
+    "RequestType",
+    "AgentV",
+    "AgentConfig",
+    "ImageClassifier",
+    'ChallengeClassifier',
+    'SpatialPathReasoner',
+    'SpatialPointReasoner',
+    'SpatialBboxReasoner',
+]
 
 LOG_DIR = Path(__file__).parent.joinpath("logs", "{time:YYYY-MM-DD}")
 
