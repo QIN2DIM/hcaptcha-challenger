@@ -1,3 +1,8 @@
+## v0.18.2
+
+- refactor: generic tools ([#1039](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1039))
+- improve: update `IMAGE_DRAG_SINGLE_MOST_SIMILAR` ([#1038](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1038))
+
 ## v0.18.1
 
 - feat(BoundingBoxCoordinate): Coordinate system mapping ([#1037](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1037))
