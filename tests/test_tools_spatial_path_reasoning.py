@@ -14,8 +14,8 @@ gic = SpatialPathReasoner(gemini_api_key=os.getenv("GEMINI_API_KEY"))
 CHALLENGE_VIEW_DIR = Path(__file__).parent.joinpath("challenge_view/image_drag_drop")
 
 
-def test_gemini_path_reasoning():
-    challenge_screenshot = CHALLENGE_VIEW_DIR.joinpath("single_9.png")
+async def test_gemini_path_reasoning():
+    challenge_screenshot = CHALLENGE_VIEW_DIR.joinpath("single_10.png")
     grid_divisions_path = challenge_screenshot.parent.joinpath(
         f'coordinate_grid_{challenge_screenshot.name}'
     )
@@ -24,10 +24,10 @@ def test_gemini_path_reasoning():
     grid_divisions_image = create_coordinate_grid(challenge_screenshot, bbox)
     plt.imsave(str(grid_divisions_path.resolve()), grid_divisions_image)
 
-    results = gic.invoke(
+    results = await gic.invoke_async(
         challenge_screenshot=challenge_screenshot,
         grid_divisions=grid_divisions_path,
         model="gemini-2.5-pro-preview-05-06",
-        enable_scot=True,
+        constraint_response_schema=True,
     )
     logger.debug(f'ToolInvokeMessage: {results.log_message}')
