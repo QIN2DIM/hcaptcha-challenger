@@ -28,7 +28,7 @@ Follow the following format to return a coordinates wrapped with a json code blo
 """
 
 USER_PROMPT = """
-Solve the challenge, use [0,0] ~ [2,2] to locate 9grid, output the coordinates of the correct answer as json.
+Solve the challenge, use [0,0] ~ [2,2] to locate 9grid, output the coordinates of the correct answer as JSON.
 """
 
 
@@ -102,6 +102,7 @@ class ImageClassifier(_Reasoner):
                 temperature=0,
                 response_mime_type="application/json",
                 response_schema=ImageBinaryChallenge,
+                system_instruction=SYSTEM_INSTRUCTION,
             ),
         )
         if _result := self._response.parsed:
