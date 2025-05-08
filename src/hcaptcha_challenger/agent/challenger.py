@@ -13,7 +13,7 @@ from asyncio import Queue
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 from typing import List, Tuple
 from uuid import uuid4
 
@@ -386,6 +386,7 @@ class RoboticArm:
                 challenge_screenshot=cache_path, model=self.config.CHALLENGE_CLASSIFIER_MODEL
             )
             return challenge_type
+        return None
 
     async def _wait_for_all_loaders_complete(self):
         """Wait for all loading indicators to complete (become invisible)"""
@@ -568,6 +569,7 @@ class RoboticArm:
                 model=self.config.SPATIAL_PATH_REASONER_MODEL,
                 auxiliary_information=auxiliary_information,
                 constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
+                enable_scot=False,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
             self._spatial_path_reasoner.cache_response(

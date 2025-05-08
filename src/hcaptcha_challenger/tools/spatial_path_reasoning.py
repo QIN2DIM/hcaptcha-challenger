@@ -132,9 +132,10 @@ class SpatialPathReasoner(_Reasoner):
             parts = await self.draw_thoughts_parts(
                 client, challenge_screenshot, grid_divisions, auxiliary_information
             )
+
         contents = [types.Content(role="user", parts=parts)]
 
-        config = types.GenerateContentConfig(temperature=0.5, system_instruction=system_instruction)
+        config = types.GenerateContentConfig(temperature=0, system_instruction=system_instruction)
 
         if model in ["gemini-2.5-flash-preview-04-17"]:
             config.thinking_config = types.ThinkingConfig(thinking_budget=0)
