@@ -1,5 +1,7 @@
 ## v0.18.1
 
+- feat(BoundingBoxCoordinate): Coordinate system mapping ([#1037](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1037))
+
 - **fix(image_classifier):** coordinate hallucination ([#1035](https://github.com/QIN2DIM/hcaptcha-challenger/issues/1035))
 
   `Gemini 2.5 pro preview 05 06` Command following capability has been slightly reduced. This tweak adds more contextual information, reduces ambiguity, emphasises return formatting, and improves the model's command following capability.
