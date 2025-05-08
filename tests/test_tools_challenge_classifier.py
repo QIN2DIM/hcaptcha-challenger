@@ -1,7 +1,7 @@
 import os
-import time
+from collections import defaultdict
 from pathlib import Path
-from typing import Dict, Tuple, List
+from typing import Dict, List, Any
 
 import dotenv
 import pytest
@@ -12,7 +12,80 @@ from hcaptcha_challenger import FastShotModelType, ChallengeClassifier, Challeng
 dotenv.load_dotenv()
 
 # Test configuration
-TEST_MODELS: List[FastShotModelType] = ["gemini-2.0-flash", "gemini-2.0-flash-lite"]
+TEST_MODEL: FastShotModelType = "gemini-2.0-flash"
+
+CHALLENGE_CONFIGURATIONS: List[Dict[str, Any]] = [
+    {
+        "dir_name": "image_drag_drop",
+        "expected_map": {
+            "single": ChallengeTypeEnum.IMAGE_DRAG_SINGLE,
+            "multi": ChallengeTypeEnum.IMAGE_DRAG_MULTI,
+        },
+    },
+    {
+        "dir_name": "image_label_area_select",
+        "expected_map": {
+            "single": ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT,
+            "multi": ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT,
+        },
+    },
+]
+
+MAX_IMAGES_PER_TYPE = 2
+
+
+def generate_individual_test_cases():
+    """Generates test cases for each image file based on CHALLENGE_CONFIGURATIONS,
+    limiting to MAX_IMAGES_PER_TYPE images per ChallengeTypeEnum per directory."""
+    test_cases = []
+    base_data_path = Path(__file__).parent / "challenge_view"
+
+    for config in CHALLENGE_CONFIGURATIONS:
+        dir_name = config["dir_name"]
+        expected_map = config["expected_map"]
+        dataset_dir = base_data_path / dir_name
+
+        # Counter for images per type within the current directory/config
+        type_counts = defaultdict(int)
+
+        if not dataset_dir.is_dir():
+            print(f"Warning: Test data directory does not exist: {dataset_dir}, skipping.")
+            continue
+
+        images = [
+            img for img in dataset_dir.rglob("*.png") if not img.name.startswith("coordinate_grid")
+        ]
+
+        if not images:
+            print(f"Warning: No images found in {dataset_dir}, skipping for this directory.")
+            continue
+
+        for image_file in images:
+            determined_expected_type = None
+            image_name_lower = image_file.name.lower()
+            for keyword, enum_val in expected_map.items():
+                if keyword.lower() in image_name_lower:
+                    determined_expected_type = enum_val
+                    break
+
+            if determined_expected_type:
+                if type_counts[determined_expected_type] < MAX_IMAGES_PER_TYPE:
+                    test_cases.append(
+                        pytest.param(
+                            image_file, determined_expected_type, id=f"{dir_name}-{image_file.name}"
+                        )
+                    )
+                    type_counts[determined_expected_type] += 1
+                # else:
+                #     print(f"Skipping {image_file.name} for {dir_name} as limit for {determined_expected_type.name} reached.")
+            else:
+                print(
+                    f"Warning: Could not determine expected type for {image_file.name} in {dir_name}. "
+                    f"Skipping this file. Ensure filename contains one of: {list(expected_map.keys())}"
+                )
+    if not test_cases:
+        print("Warning: No test cases were generated. Check configurations and data paths.")
+    return test_cases
 
 
 class TestChallengeClassifier:
@@ -26,132 +99,25 @@ class TestChallengeClassifier:
             pytest.skip("GEMINI_API_KEY environment variable not set")
         return ChallengeClassifier(gemini_api_key=api_key)
 
-    @staticmethod
-    def _run_classification_test(
+    @pytest.mark.parametrize("image_file, expected_type_enum", generate_individual_test_cases())
+    def test_challenge_classifier(
+        self,
         classifier: ChallengeClassifier,
-        dataset_dir: Path,
-        expected_types: Dict[str, ChallengeTypeEnum],
-        model: FastShotModelType,
-    ) -> Tuple[int, int, float]:
-        """
-        Run classification test and return statistics
+        image_file: Path,
+        expected_type_enum: ChallengeTypeEnum,
+    ):
+        """Test challenge classification for a single image file."""
 
-        Args:
-            classifier: Challenge classifier instance
-            dataset_dir: Test dataset directory
-            expected_types: Expected classification types {keyword: enum_type}
-            model: Model to use
+        actual_challenge_type = classifier.invoke(image_file, model=TEST_MODEL)
 
-        Returns:
-            total_samples, correct_classifications, average_processing_time
-        """
-        if not dataset_dir.is_dir():
-            return 0, 0, 0.0
+        assert isinstance(actual_challenge_type, ChallengeTypeEnum), (
+            f"Classifier for '{image_file.name}' returned type "
+            f"{type(actual_challenge_type).__name__} instead of ChallengeTypeEnum. "
+            f"Value: {actual_challenge_type}"
+        )
 
-        # Collect all valid images
-        images = [
-            img for img in dataset_dir.rglob("*.png") if not img.name.startswith("coordinate_grid")
-        ]
-
-        if not images:
-            return 0, 0, 0.0
-
-        total_time = 0
-        correct_cases = 0
-
-        # Process images sequentially
-        for image in images:
-            start_time = time.perf_counter()
-            challenge_type = classifier.invoke(image, model=model)
-            end_time = time.perf_counter()
-            process_time = end_time - start_time
-
-            # Check if classification is correct
-            if isinstance(challenge_type, ChallengeTypeEnum):
-                for keyword, expected_type in expected_types.items():
-                    if keyword in image.name and challenge_type == expected_type:
-                        correct_cases += 1
-                        break
-
-            total_time += process_time
-
-        return len(images), correct_cases, total_time / len(images) if images else 0
-
-    @pytest.mark.parametrize(
-        "challenge_type,expected_types",
-        [
-            (
-                "image_drag_drop",
-                {
-                    "single": ChallengeTypeEnum.IMAGE_DRAG_SINGLE,
-                    "multi": ChallengeTypeEnum.IMAGE_DRAG_MULTI,
-                },
-            ),
-            (
-                "image_label_area_select",
-                {
-                    "single": ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT,
-                    "multi": ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT,
-                },
-            ),
-        ],
-    )
-    def test_challenge_classifier(self, classifier, challenge_type, expected_types):
-        """Test different types of challenge classification"""
-        # Get test data directory
-        dataset_dir = Path(__file__).parent.joinpath(f"challenge_view/{challenge_type}")
-        if not dataset_dir.is_dir():
-            pytest.skip(f"Test data directory does not exist: {dataset_dir}")
-
-        # Record overall results
-        overall_results = []
-
-        # Test each model sequentially
-        for model in TEST_MODELS:
-            print(f"\n=== Model: {model} ===")
-
-            # Run sequential test
-            total, correct, avg_time = self._run_classification_test(
-                classifier, dataset_dir, expected_types, model
-            )
-
-            print(f"\n--- {challenge_type} [{model}] ---")
-            print(f"Total samples: {total}")
-            print(f"Correct classifications: {correct}")
-            print(f"Accuracy: {correct/total * 100:.1f}%" if total > 0 else "Accuracy: N/A")
-            print(
-                f"Average processing time: {avg_time:.2f}s/image"
-                if total > 0
-                else "Average processing time: N/A"
-            )
-
-            # Record model results
-            overall_results.append(
-                {
-                    "model": model,
-                    "total": total,
-                    "correct": correct,
-                    "accuracy": correct / total * 100 if total > 0 else 0,
-                    "avg_time": avg_time,
-                }
-            )
-
-        # Print model comparison results
-        if overall_results:
-            print(f"\n=== {challenge_type} Model Comparison ===")
-            for result in overall_results:
-                print(
-                    f"Model: {result['model']}, Accuracy: {result['accuracy']:.1f}%, Average time: {result['avg_time']:.2f}s"
-                )
-
-            # Sort to find the best model
-            best_model = max(overall_results, key=lambda x: (x["accuracy"], -x["avg_time"]))
-            print(
-                f"\nRecommended model: {best_model['model']} (Accuracy: {best_model['accuracy']:.1f}%, Average time: {best_model['avg_time']:.2f}s)"
-            )
-
-        # Assert only when there are test samples
-        if overall_results and overall_results[0]["total"] > 0:
-            assert any(
-                result["correct"] > 0 for result in overall_results
-            ), f"No samples passed for {challenge_type} test"
+        assert actual_challenge_type == expected_type_enum, (
+            f"Failed classification for '{image_file.name}': "
+            f"Expected {expected_type_enum.name}, "
+            f"got {actual_challenge_type.name if isinstance(actual_challenge_type, ChallengeTypeEnum) else actual_challenge_type}"
+        )

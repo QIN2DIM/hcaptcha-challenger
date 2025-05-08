@@ -10,7 +10,7 @@ from hcaptcha_challenger.helper import create_coordinate_grid, FloatRect
 
 dotenv.load_dotenv()
 gic = SpatialPathReasoner(
-    gemini_api_key=os.getenv("GEMINI_API_KEY"), model="gemini-2.5-pro-preview-05-06"
+    gemini_api_key=os.getenv("GEMINI_API_KEY"), model="gemini-2.5-flash-preview-04-17"
 )
 
 CHALLENGE_VIEW_DIR = Path(__file__).parent.joinpath("challenge_view/image_drag_drop")
