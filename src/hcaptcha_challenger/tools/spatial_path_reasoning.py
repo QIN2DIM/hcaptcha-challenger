@@ -109,13 +109,14 @@ class SpatialPathReasoner(_Reasoner):
         auxiliary_information: str | None = "",
         model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
         *,
-        enable_scot: bool = False,
         constraint_response_schema: bool = False,
         **kwargs,
     ) -> ImageDragDropChallenge:
         enable_response_schema = kwargs.get("enable_response_schema")
         if enable_response_schema is not None:
             constraint_response_schema = enable_response_schema
+
+        enable_scot = False
 
         system_instruction = THINKING_PROMPT
 

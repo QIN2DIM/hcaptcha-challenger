@@ -569,7 +569,6 @@ class RoboticArm:
                 model=self.config.SPATIAL_PATH_REASONER_MODEL,
                 auxiliary_information=auxiliary_information,
                 constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
-                enable_scot=False,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
             self._spatial_path_reasoner.cache_response(
