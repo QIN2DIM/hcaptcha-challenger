@@ -15,8 +15,9 @@ body:
       label: request_type
       options: 
         - "image_label_binary (for ex. Please click each image containing a fox)"
-        - "image_label_area_select: point (fox ex. Please click on the X)"
-        - "image_label_area_select: bounding_box (fox ex. Draw a tight bounding box around the X)"
+        - "image_label_area_select: point (for ex. Please click on the X)"
+        - "image_label_area_select: bounding_box (for ex. Draw a tight bounding box around the X)"
+        - "image_drag_drop (for ex. Please click, hold, and drag the element on the right to the shape that is most similar.)"
     validations:
       required: true
   - type: input
