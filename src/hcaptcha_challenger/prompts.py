@@ -26,8 +26,8 @@ IMAGE_LABEL_MULTI_SELECT_SAME_NUMBER_OF_HOLES = """
 画布上展示了若干个多边形（通常为5个），每个多边形内有若干个 hole 图案。
 **任务:**
 step1. 锁定画布上所有多边形的位置。
-step2. 根据“数觉”判断每个多边形内的 hole 数量，hole 数量较少的多边形内的 hole 数量通常是一致的
-step3. 选择 hole 数量一致的 1 组多边形，也即，之多点击两个点
+step2. 根据“数觉”判断每个多边形内的 hole 数量，hole 数量较少的多边形内的 hole 数量通常是一致的。
+step3. 选择 hole 数量一致的 1 组多边形，也即，之多点击两个点。
 """
 
 
