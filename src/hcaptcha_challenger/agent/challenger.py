@@ -599,11 +599,14 @@ class RoboticArm:
 
             raw, projection = await self._capture_spatial_mapping(frame_challenge, cache_key, cid)
 
-            user_prompt = f"**JobType:** {job_type.value}"
-            if job_type == ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT:
-                user_prompt += "\nWhen multiple clickable objects appear on Canvas, you need to carefully distinguish whether all objects are clickable."
-            elif job_type == ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT:
-                user_prompt += "\nIf you answer correctly, I will reward you with a tip of $20."
+            user_prompt = ""
+            try:
+                user_prompt = match_user_prompt(
+                    job_type, self.captcha_payload.get_requester_question()
+                )
+            except Exception as e:
+                logger.warning(f"Error while processing captcha payload: {e}")
+            user_prompt += f"\n**JobType:** {job_type.value}"
 
             response = await self._spatial_point_reasoner.invoke_async(
                 challenge_screenshot=raw,

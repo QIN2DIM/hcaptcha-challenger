@@ -21,6 +21,20 @@ step3. 在左侧画布上找出与右侧图案元素在**整体形状和内部�
 step4. 将右侧面板的图案元素拖拽并精确地覆盖到左侧画布上找到的最相似图案之上。
 """
 
+IMAGE_LABEL_MULTI_SELECT_SAME_NUMBER_OF_HOLES = """
+**游戏背景:**
+画布上展示了若干个多边形（通常为5个），每个多边形内有若干个 hole 图案。
+**任务:**
+step1. 锁定画布上所有多边形的位置。
+step2: 根据“数觉”直觉判断 hole 数量最少的两个多边形
+step3. 依次判断每个多边形内的 hole 数量，hole 数量较少的多边形内的 hole 数量通常是一致的。
+step4. 选择 hole 数量一致的 1 组多边形，也即，至多点击两个点。
+**Tips:**
+- 请忽视 hole 的大小以及在多边形内的位置，仅关注 hole 数量。
+- 请根据“数觉”标准，正确答案多边形内的 hole 数量不会超过5，也即多边形内的 hole 数量越少，越有可能是正确答案。换句话说，如果一个多边形内 hole 又多又密集，它很有可能不是正确答案。
+- 请注意，在给出正确答案坐标时，你应该点击正确答案多边形的中心区域，而非多边形的边缘。
+"""
+
 
 def match_user_prompt(job_type: ChallengeTypeEnum, challenge_prompt: str) -> str:
     try:
@@ -32,6 +46,12 @@ def match_user_prompt(job_type: ChallengeTypeEnum, challenge_prompt: str) -> str
             case ChallengeTypeEnum.IMAGE_DRAG_MULTI:
                 if "pairs" in challenge_prompt:
                     return IMAGE_DRAG_MULTI_COMPLETE_THE_PAIRS.strip()
+            case ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT:
+                return "If you answer correctly, I will reward you with a tip of $20."
+            case ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT:
+                if "holes" in challenge_prompt and "same number" in challenge_prompt:
+                    return IMAGE_LABEL_MULTI_SELECT_SAME_NUMBER_OF_HOLES.strip()
+                return "When multiple clickable objects appear on Canvas, you need to carefully distinguish whether all objects are clickable."
             case _:
                 return ""
     except Exception as e:
