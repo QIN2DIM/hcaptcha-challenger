@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 from enum import Enum
 from typing import Literal, List, Dict, Any, Union
+from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
@@ -402,3 +403,55 @@ SPATIAL_PATH_STRUCTURED_OUTPUT_SCHEMA = {
     },
     "required": ["challenge_prompt", "paths"],
 }
+
+GameRuleMathType = Union[
+    ChallengeTypeEnum,
+    Literal[
+        "image_label_single_select",
+        "image_label_multi_select",
+        "image_drag_single",
+        "image_drag_multi",
+    ],
+]
+
+
+class GameRule(BaseModel):
+    rule: str
+    name: str = Field(default="game-rule-default", description="Name of the rule")
+    match_keys: List[str] | None = Field(
+        default_factory=list,
+        description="""
+        Call the challenge by keyword matching, can also be set to full challenge_prompt.
+        Only effective when `insert_mode=router`
+        """,
+    )
+    challenge_type: GameRuleMathType | None = None
+    insert_mode: Literal["router", "always"] = Field(
+        default="router",
+        description="""
+    - router: Decide whether to insert the rule through the routing of `challenge_prompt + challenge_type`
+    - always: Always as part of user_prompt
+    """,
+    )
+
+    def model_post_init(self, context: Any, /) -> None:
+        self.rule = f"\n{self.rule.strip()}"
+
+        self.name = self.name or f"game-rule-{uuid4()}"
+
+        if self.insert_mode == "router":
+            if not self.challenge_type:
+                raise ValueError("challenge_type is required when insert_mode is router")
+            if not self.match_keys:
+                raise ValueError("match_keys is required when insert_mode is router")
+
+
+class GameRuleGroup(BaseModel):
+    name: str = Field(default="custom")
+    type: str = Field(default="select", description="Reserved fields, not used yet")
+    rules: List[GameRule] = Field(default_factory=list)
+
+
+class PluggableUserPrompt(BaseModel):
+    rules: List[GameRule] = Field(default_factory=list)
+    rule_groups: List[GameRule]
