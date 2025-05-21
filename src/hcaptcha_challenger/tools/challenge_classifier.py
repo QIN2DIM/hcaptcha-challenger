@@ -7,7 +7,8 @@ from google.genai import types
 from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from hcaptcha_challenger.models import FastShotModelType, ChallengeTypeEnum
+from hcaptcha_challenger.models import FastShotModelType, ChallengeRouterResult, ChallengeTypeEnum
+from hcaptcha_challenger.tools.common import extract_first_json_block
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
 CHALLENGE_CLASSIFIER_INSTRUCTIONS = """
@@ -124,3 +125,48 @@ class ChallengeClassifier(_Reasoner[FastShotModelType]):
 
         # Return parsed response as ImageBinaryChallenge object
         return ChallengeTypeEnum(self._response.text)
+
+
+class ChallengeRouter(_Reasoner[FastShotModelType]):
+    def __init__(self, gemini_api_key: str, model: FastShotModelType = "gemini-2.0-flash"):
+        super().__init__(gemini_api_key, model)
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_fixed(3),
+        before_sleep=lambda retry_state: logger.warning(
+            f"Retry request ({retry_state.attempt_number}/2) - Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
+        ),
+    )
+    async def invoke_async(
+        self, challenge_screenshot: Union[str, Path, os.PathLike], **kwargs
+    ) -> ChallengeRouterResult:
+        model_to_use = kwargs.pop("model", self._model)
+        if model_to_use is None:
+            raise ValueError("Model must be provided either at initialization or via kwargs.")
+
+        # Initialize Gemini client with API_KEY
+        client = genai.Client(api_key=self._api_key)
+
+        # Upload the challenge image file
+        files = [await client.aio.files.upload(file=challenge_screenshot)]
+
+        # Handle models that support JSON response schema
+        parts = [
+            types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type),
+            types.Part.from_text(text=USER_PROMPT.strip()),
+        ]
+        contents = [types.Content(role="user", parts=parts)]
+
+        # Generate structured JSON response
+        config = types.GenerateContentConfig(
+            temperature=0,
+            response_mime_type="application/json",
+            response_schema=ChallengeRouterResult,
+        )
+        self._response = await client.aio.models.generate_content(
+            model=model_to_use, contents=contents, config=config
+        )
+        if _result := self._response.parsed:
+            return ChallengeRouterResult(**self._response.parsed.model_dump())
+        return ChallengeRouterResult(**extract_first_json_block(self._response.text))

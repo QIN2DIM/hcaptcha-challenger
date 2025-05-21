@@ -232,6 +232,11 @@ FastShotModelType = Union[
 ]
 
 
+class ChallengeRouterResult(BaseModel):
+    challenge_prompt: str
+    challenge_type: ChallengeTypeEnum
+
+
 class BoundingBoxCoordinate(BaseModel):
     box_2d: List[int] = Field(
         description="It can only be in planar coordinate format, e.g. [0,2] for the 3rd element in the first row",

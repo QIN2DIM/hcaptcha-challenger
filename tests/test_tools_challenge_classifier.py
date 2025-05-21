@@ -7,6 +7,7 @@ import dotenv
 import pytest
 
 from hcaptcha_challenger import FastShotModelType, ChallengeClassifier, ChallengeTypeEnum
+from hcaptcha_challenger.tools.challenge_classifier import ChallengeRouter
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -121,3 +122,13 @@ class TestChallengeClassifier:
             f"Expected {expected_type_enum.name}, "
             f"got {actual_challenge_type.name if isinstance(actual_challenge_type, ChallengeTypeEnum) else actual_challenge_type}"
         )
+
+
+CHALLENGE_VIEW_DIR = Path(__file__).parent.joinpath("challenge_view/image_label_area_select")
+gic = ChallengeRouter(gemini_api_key=os.getenv("GEMINI_API_KEY"))
+
+
+async def test_challenge_classifier():
+    screenshot_path = CHALLENGE_VIEW_DIR.joinpath("coordinate_grid_multi_1.png")
+    result = await gic.invoke_async(screenshot_path)
+    print(result)

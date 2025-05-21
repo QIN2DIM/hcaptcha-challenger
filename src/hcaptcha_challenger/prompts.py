@@ -47,11 +47,11 @@ def match_user_prompt(job_type: ChallengeTypeEnum, challenge_prompt: str) -> str
                 if "pairs" in challenge_prompt:
                     return IMAGE_DRAG_MULTI_COMPLETE_THE_PAIRS.strip()
             case ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT:
-                return "If you answer correctly, I will reward you with a tip of $20."
+                return f"**JobType:** {job_type.value}\nIf you answer correctly, I will reward you with a tip of $20."
             case ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT:
                 if "holes" in challenge_prompt and "same number" in challenge_prompt:
                     return IMAGE_LABEL_MULTI_SELECT_SAME_NUMBER_OF_HOLES.strip()
-                return "When multiple clickable objects appear on Canvas, you need to carefully distinguish whether all objects are clickable."
+                return f"**JobType:** {job_type.value}\nWhen multiple clickable objects appear on Canvas, you need to carefully distinguish whether all objects are clickable."
             case _:
                 return ""
     except Exception as e:
