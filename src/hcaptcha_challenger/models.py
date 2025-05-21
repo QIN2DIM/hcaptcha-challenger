@@ -214,7 +214,7 @@ SCoTModelType = Union[
         "gemini-2.5-pro-exp-03-25",
         "gemini-2.0-flash-thinking-exp-01-21",
         # "learnlm-2.0-flash-experimental",
-        "gemini-2.5-flash-preview-04-17",
+        # "gemini-2.5-flash-preview-04-17",
         "gemini-2.5-flash-preview-05-20",
     ],
 ]
@@ -227,8 +227,7 @@ FastShotModelType = Union[
         # https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite
         "gemini-2.0-flash-lite",
         # https://ai.google.dev/gemini-api/docs/models?hl=zh-cn#gemini-2.5-flash-preview
-        "gemini-2.5-flash-preview-04-17",
-        "gemini-2.5-flash-preview-05-20",
+        # "gemini-2.5-flash-preview-04-17",
     ],
 ]
 
