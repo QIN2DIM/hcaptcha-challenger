@@ -44,6 +44,7 @@ from hcaptcha_challenger.tools import (
     SpatialPathReasoner,
     SpatialPointReasoner,
 )
+from hcaptcha_challenger.tools.challenge_classifier import ChallengeRouter
 
 
 def _generate_bezier_trajectory(
@@ -251,6 +252,10 @@ class RoboticArm:
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.CHALLENGE_CLASSIFIER_MODEL,
         )
+        self._challenge_router = ChallengeRouter(
+            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
+            model=self.config.CHALLENGE_CLASSIFIER_MODEL,
+        )
         self._image_classifier = ImageClassifier(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.IMAGE_CLASSIFIER_MODEL,
@@ -268,6 +273,7 @@ class RoboticArm:
         )
         self.signal_crumb_count: int | None = None
         self.captcha_payload: CaptchaPayload | None = None
+        self._challenge_prompt: str | None = None
 
         self._checkbox_selector = "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=checkbox')]"
         self._challenge_selector = "//iframe[starts-with(@src,'https://newassets.hcaptcha.com/captcha/v1/') and contains(@src, 'frame=challenge')]"
@@ -339,6 +345,22 @@ class RoboticArm:
 
         return None
 
+    def _match_user_prompt(self, job_type: ChallengeTypeEnum) -> str:
+        user_prompt = ""
+
+        try:
+            challenge_prompt = (
+                self.captcha_payload.get_requester_question()
+                if self.captcha_payload
+                else self._challenge_prompt
+            )
+            if challenge_prompt and isinstance(challenge_prompt, str):
+                user_prompt = match_user_prompt(job_type, challenge_prompt)
+        except Exception as e:
+            logger.warning(f"Error while processing captcha payload: {e}")
+
+        return user_prompt
+
     async def click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()
 
@@ -392,10 +414,11 @@ class RoboticArm:
             cache_path = self.config.cache_dir.joinpath(f"challenge_view/_artifacts/{uuid4()}.png")
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             await challenge_view.screenshot(type="png", path=cache_path)
-            challenge_type = await self._challenge_classifier.invoke_async(
+            router_result = await self._challenge_router.invoke_async(
                 challenge_screenshot=cache_path
             )
-            return challenge_type
+            self._challenge_prompt = router_result.challenge_prompt
+            return router_result.challenge_type
         return None
 
     async def _wait_for_all_loaders_complete(self):
@@ -563,18 +586,12 @@ class RoboticArm:
 
             raw, projection = await self._capture_spatial_mapping(frame_challenge, cache_key, cid)
 
-            auxiliary_information = None
-            try:
-                auxiliary_information = match_user_prompt(
-                    job_type, self.captcha_payload.get_requester_question()
-                )
-            except Exception as e:
-                logger.warning(f"Error while processing captcha payload: {e}")
+            user_prompt = self._match_user_prompt(job_type)
 
             response = await self._spatial_path_reasoner.invoke_async(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
-                auxiliary_information=auxiliary_information,
+                auxiliary_information=user_prompt,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
             self._spatial_path_reasoner.cache_response(
@@ -599,14 +616,7 @@ class RoboticArm:
 
             raw, projection = await self._capture_spatial_mapping(frame_challenge, cache_key, cid)
 
-            user_prompt = ""
-            try:
-                user_prompt = match_user_prompt(
-                    job_type, self.captcha_payload.get_requester_question()
-                )
-            except Exception as e:
-                logger.warning(f"Error while processing captcha payload: {e}")
-            user_prompt += f"\n**JobType:** {job_type.value}"
+            user_prompt = self._match_user_prompt(job_type)
 
             response = await self._spatial_point_reasoner.invoke_async(
                 challenge_screenshot=raw,

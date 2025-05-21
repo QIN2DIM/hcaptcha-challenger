@@ -1,4 +1,5 @@
 import os
+import random
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Any
@@ -7,6 +8,7 @@ import dotenv
 import pytest
 
 from hcaptcha_challenger import FastShotModelType, ChallengeClassifier, ChallengeTypeEnum
+from hcaptcha_challenger.tools.challenge_classifier import ChallengeRouter
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -121,3 +123,30 @@ class TestChallengeClassifier:
             f"Expected {expected_type_enum.name}, "
             f"got {actual_challenge_type.name if isinstance(actual_challenge_type, ChallengeTypeEnum) else actual_challenge_type}"
         )
+
+
+async def test_challenge_classifier():
+    challenge_dir = Path(__file__).parent / "challenge_view"
+    challenge_router = ChallengeRouter(gemini_api_key=os.getenv("GEMINI_API_KEY"))
+
+    groups = {
+        "image_drag_drop": {
+            "single": {"type": ChallengeTypeEnum.IMAGE_DRAG_SINGLE, "samples": []},
+            "multi": {"type": ChallengeTypeEnum.IMAGE_DRAG_MULTI, "samples": []},
+        },
+        "image_label_area_select": {
+            "single": {"type": ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT, "samples": []},
+            "multi": {"type": ChallengeTypeEnum.IMAGE_LABEL_MULTI_SELECT, "samples": []},
+        },
+    }
+    for x in groups:
+        view_dir = challenge_dir.joinpath(x)
+        groups[x]["single"]["samples"] = list(view_dir.rglob("single*"))
+        groups[x]["multi"]["samples"] = list(view_dir.rglob("multi*"))
+
+    for g in groups:
+        for t in groups[g]:
+            s = random.choice(groups[g][t]["samples"])
+            result = await challenge_router.invoke_async(s)
+            assert result.challenge_prompt
+            assert result.challenge_type == groups[g][t]["type"]
