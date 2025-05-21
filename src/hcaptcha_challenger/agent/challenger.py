@@ -34,6 +34,7 @@ from hcaptcha_challenger.models import (
     SpatialPath,
     CaptchaPayload,
     IGNORE_REQUEST_TYPE_LITERAL,
+    INV,
 )
 from hcaptcha_challenger.models import ChallengeTypeEnum
 from hcaptcha_challenger.prompts import match_user_prompt
@@ -214,6 +215,8 @@ class AgentConfig(BaseSettings):
         """
         current_datetime = datetime.now()
         current_time = current_datetime.strftime("%Y%m%d/%Y%m%d%H%M%S%f")
+
+        prompt = prompt.translate(str.maketrans("", "", "".join(INV)))
 
         if not captcha_payload:
             return self.challenge_dir.joinpath(request_type, prompt, current_time)
