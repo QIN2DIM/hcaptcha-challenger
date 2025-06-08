@@ -7,7 +7,12 @@ from google.genai import types
 from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from hcaptcha_challenger.models import FastShotModelType, ChallengeRouterResult, ChallengeTypeEnum
+from hcaptcha_challenger.models import (
+    FastShotModelType,
+    ChallengeRouterResult,
+    ChallengeTypeEnum,
+    DEFAULT_FAST_SHOT_MODEL,
+)
 from hcaptcha_challenger.tools.common import extract_first_json_block
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
@@ -59,7 +64,7 @@ Your task is to classify challenge questions into one of four types:
 
 class ChallengeClassifier(_Reasoner[FastShotModelType]):
 
-    def __init__(self, gemini_api_key: str, model: FastShotModelType = "gemini-2.0-flash"):
+    def __init__(self, gemini_api_key: str, model: FastShotModelType = DEFAULT_FAST_SHOT_MODEL):
         super().__init__(gemini_api_key, model)
 
     @retry(
@@ -128,7 +133,7 @@ class ChallengeClassifier(_Reasoner[FastShotModelType]):
 
 
 class ChallengeRouter(_Reasoner[FastShotModelType]):
-    def __init__(self, gemini_api_key: str, model: FastShotModelType = "gemini-2.0-flash"):
+    def __init__(self, gemini_api_key: str, model: FastShotModelType = DEFAULT_FAST_SHOT_MODEL):
         super().__init__(gemini_api_key, model)
 
     @retry(

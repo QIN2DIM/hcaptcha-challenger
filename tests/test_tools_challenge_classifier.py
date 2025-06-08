@@ -8,13 +8,14 @@ import dotenv
 import pytest
 
 from hcaptcha_challenger import FastShotModelType, ChallengeClassifier, ChallengeTypeEnum
+from hcaptcha_challenger.models import DEFAULT_FAST_SHOT_MODEL
 from hcaptcha_challenger.tools.challenge_classifier import ChallengeRouter
 
 # Load environment variables
 dotenv.load_dotenv()
 
 # Test configuration
-TEST_MODEL: FastShotModelType = "gemini-2.0-flash"
+TEST_MODEL: FastShotModelType = DEFAULT_FAST_SHOT_MODEL
 
 CHALLENGE_CONFIGURATIONS: List[Dict[str, Any]] = [
     {

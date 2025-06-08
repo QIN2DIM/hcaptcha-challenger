@@ -14,8 +14,4 @@ services:
       - .env
     environment:
       <<: *runtime_args
-    volumes:
-      - "./app:/app"
-      - "./caches:/app/.cache"
-      - "./logs:/app/logs"
-    command: sh -c "Xvfb :99 -screen 0 1920x1080x16 & python deploy.py"
+    command: sh -c "Xvfb :99 -screen 0 1920x1080x16 & uv"

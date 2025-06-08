@@ -7,7 +7,7 @@ from google.genai import types
 from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from hcaptcha_challenger.models import SCoTModelType, ImageBinaryChallenge
+from hcaptcha_challenger.models import SCoTModelType, ImageBinaryChallenge, DEFAULT_SCOT_MODEL
 from hcaptcha_challenger.tools.common import extract_first_json_block
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
@@ -43,7 +43,7 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
     def __init__(
         self,
         gemini_api_key: str,
-        model: SCoTModelType = "gemini-2.5-pro-exp-03-25",
+        model: SCoTModelType = DEFAULT_SCOT_MODEL,
         constraint_response_schema: bool = False,
     ):
         super().__init__(gemini_api_key, model, constraint_response_schema)

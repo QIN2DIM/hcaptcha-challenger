@@ -7,13 +7,7 @@ from hcaptcha_challenger.models import BoundingBoxCoordinate, ImageBinaryChallen
 class TestBoundingBoxCoordinate:
     @pytest.mark.parametrize(
         "input_coords, expected_coords",
-        [
-            ([0, 0], [0, 0]),
-            ([1, 1], [1, 1]),
-            ([2, 2], [2, 2]),
-            ([0, 2], [0, 2]),
-            ([2, 0], [2, 0]),
-        ],
+        [([0, 0], [0, 0]), ([1, 1], [1, 1]), ([2, 2], [2, 2]), ([0, 2], [0, 2]), ([2, 0], [2, 0])],
     )
     def test_direct_mapping(self, input_coords, expected_coords):
         """Test coordinates already in the [0, 2] range."""
@@ -99,10 +93,7 @@ class TestImageBinaryChallenge:
     @pytest.mark.parametrize(
         "coords_data, expected_matrix",
         [
-            (
-                [[0, 0]],
-                [True, False, False, False, False, False, False, False, False],
-            ),
+            ([[0, 0]], [True, False, False, False, False, False, False, False, False]),
             (
                 [[0, 0], [1, 1], [2, 2]],
                 [True, False, False, False, True, False, False, False, True],
@@ -115,10 +106,7 @@ class TestImageBinaryChallenge:
                 [[-5, 1], [1, 600], [800, -10]],  # Raw: [[0,1], [1,1], [2,0]]
                 [False, True, False, False, True, False, True, False, False],
             ),
-            (
-                [],
-                [False, False, False, False, False, False, False, False, False],
-            ),
+            ([], [False, False, False, False, False, False, False, False, False]),
             (
                 [[0, 0], [0, 0], [0, 1]],  # Test duplicates and multiple entries
                 [True, True, False, False, False, False, False, False, False],
