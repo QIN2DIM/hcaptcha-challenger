@@ -3,8 +3,14 @@ name: Publish Container Image
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ main,ci-builder ]
     tags: [ 'v*' ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/publish.yaml'
+      - 'docker/Dockerfile'
+      - 'pyproject.toml'
+      - 'uv.lock'
 
 env:
   REGISTRY: ghcr.io
