@@ -1,23 +1,35 @@
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy as builder
+FROM mcr.microsoft.com/playwright/python:v1.50.0-noble as builder
+
+USER root
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    xvfb \
-    --no-install-recommends && rm -rf /var/lib/apt/lists/*
+SHELL ["/bin/bash", "-c"]
 
-RUN apt-get update && apt-get install -y tini
+ENV UV_LINK_MODE=copy \
+    DISPLAY=:99
+
+# Install dependencies
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-cache
+
+RUN apt-get update -y && \
+    apt-get install -y \
+    xvfb \
+    tini \
+    wget \
+    libx11-xcb1 \
+    libgtk-3-0t64 \
+    libnss3 \
+    libxss1 \
+    libxtst6 \
+    libasound2t64 && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN uv run camoufox fetch
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
-ENV DISPLAY=:99
-
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-RUN pip install undetected-playwright-patch
-
-RUN chmod -R 755 /usr/local/lib/python3.10/dist-packages/undetected_playwright/driver/ && \
-    chmod +x /usr/local/lib/python3.10/dist-packages/undetected_playwright/driver/playwright.sh && \
-    chmod +x /usr/local/lib/python3.10/dist-packages/undetected_playwright/driver/node
-
-RUN chown -R root:root /usr/local/lib/python3.10/dist-packages/undetected_playwright/
+ADD . /app

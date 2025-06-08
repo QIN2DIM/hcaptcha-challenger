@@ -209,6 +209,7 @@ SCoTModelType = Union[
     Literal[
         # This model is not available in the free plan.
         # Recommended for production environments for more tolerant rate limits.
+        "gemini-2.5-pro-preview-06-05",
         "gemini-2.5-pro-preview-05-06",
         "gemini-2.5-pro-preview-03-25",
         # The following is a free experimental model that may fail at any time and is for demo only
@@ -219,6 +220,8 @@ SCoTModelType = Union[
         "gemini-2.5-flash-preview-05-20",
     ],
 ]
+
+DEFAULT_SCOT_MODEL: SCoTModelType = "gemini-2.5-pro-preview-06-05"
 
 FastShotModelType = Union[
     str,
@@ -231,6 +234,8 @@ FastShotModelType = Union[
         # "gemini-2.5-flash-preview-04-17",
     ],
 ]
+
+DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.0-flash"
 
 
 class ChallengeRouterResult(BaseModel):
