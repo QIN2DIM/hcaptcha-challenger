@@ -29,7 +29,7 @@ RUN apt-get update -y && \
     libasound2t64 && \
     rm -rf /var/lib/apt/lists/*
 
-RUN uv run camoufox fetch
+RUN camoufox fetch
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
