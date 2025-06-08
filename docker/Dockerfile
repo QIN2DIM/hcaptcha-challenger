@@ -27,14 +27,10 @@ RUN apt-get update -y && \
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --locked --no-install-project
+    --mount=type=bind,source=README.md,target=README.md \
+    --mount=type=bind,source=src,target=src \
+    uv sync --frozen --no-cache --no-dev
 
 ADD . /app
-
-# Install dependencies
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked
-
-RUN uv run camoufox fetch
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
