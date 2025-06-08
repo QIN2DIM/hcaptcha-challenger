@@ -14,7 +14,9 @@ ENV UV_LINK_MODE=copy \
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-cache --no-install-project
+    --mount=type=bind,source=README.md,target=README.md \
+    --mount=type=bind,source=src,target=src \
+    uv sync --frozen --no-cache --no-dev
 
 RUN apt-get update -y && \
     apt-get install -y \
