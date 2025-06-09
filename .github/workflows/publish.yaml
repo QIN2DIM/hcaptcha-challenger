@@ -2,9 +2,6 @@ name: Publish Container Image
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main,ci-builder ]
-    tags: [ 'v*' ]
 
 env:
   REGISTRY: ghcr.io
