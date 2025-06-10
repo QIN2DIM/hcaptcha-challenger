@@ -12,7 +12,7 @@ async def challenge(page: Page) -> AgentV:
     """Automates the process of solving an hCaptcha challenge."""
     # [IMPORTANT] Initialize the Agent before triggering hCaptcha
     agent_config = AgentConfig(
-        # Disable image drag-and-drop & image-label-area-select(single) challenge
+        # Skip image drag-and-drop & image-label-area-select(single) challenge
         ignore_request_types=[
             types.RequestType.IMAGE_DRAG_DROP,
             types.ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT,
@@ -20,9 +20,9 @@ async def challenge(page: Page) -> AgentV:
         # Disable special challenge
         ignore_request_questions=["Drag each segment to its position on the line"],
         # Change default models
-        IMAGE_CLASSIFIER_MODEL='gemini-2.5-pro-preview-05-06',
-        SPATIAL_PATH_REASONER_MODEL='gemini-2.5-pro-preview-05-06',
-        SPATIAL_POINT_REASONER_MODEL='gemini-2.5-pro-preview-05-06',
+        IMAGE_CLASSIFIER_MODEL='gemini-2.5-pro-preview-06-05',
+        SPATIAL_PATH_REASONER_MODEL='gemini-2.5-pro-preview-06-05',
+        SPATIAL_POINT_REASONER_MODEL='gemini-2.5-pro-preview-06-05',
     )
     agent = AgentV(page=page, agent_config=agent_config)
 
