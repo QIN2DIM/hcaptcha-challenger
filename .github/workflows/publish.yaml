@@ -2,7 +2,8 @@ name: Publish Container Image
 
 on:
   workflow_dispatch:
-
+  release:
+    types: [created, edited]
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
