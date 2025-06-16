@@ -3,9 +3,7 @@ from typing import Annotated, Optional
 
 import typer
 from rich import box
-from rich.box import ROUNDED
 from rich.console import Console
-from rich.layout import Layout
 from rich.panel import Panel
 from rich.table import Table
 

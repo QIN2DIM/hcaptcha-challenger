@@ -5,6 +5,9 @@ from pathlib import Path
 
 import typer
 from playwright.async_api import async_playwright
+from rich import box
+from rich.console import Console
+from rich.panel import Panel
 from rich.progress import (
     Progress,
     TextColumn,
@@ -13,11 +16,8 @@ from rich.progress import (
     TimeRemainingColumn,
     SpinnerColumn,
 )
-from typing_extensions import Annotated
-from rich.console import Console
-from rich.panel import Panel
 from rich.table import Table
-from rich import box
+from typing_extensions import Annotated
 
 from hcaptcha_challenger.agent.collector import CollectorConfig, Collector, check_dataset
 from hcaptcha_challenger.models import CaptchaPayload

@@ -8,7 +8,12 @@ from google.genai import types
 from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from hcaptcha_challenger.models import SCoTModelType, ImageAreaSelectChallenge, DEFAULT_SCOT_MODEL
+from hcaptcha_challenger.models import (
+    SCoTModelType,
+    ImageAreaSelectChallenge,
+    DEFAULT_SCOT_MODEL,
+    THINKING_BUDGET_MODELS,
+)
 from hcaptcha_challenger.tools.common import extract_first_json_block
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
@@ -107,8 +112,11 @@ class SpatialPointReasoner(_Reasoner[SCoTModelType]):
         system_instruction = THINKING_PROMPT
         config = types.GenerateContentConfig(temperature=0, system_instruction=system_instruction)
 
-        if model_to_use in ["gemini-2.5-flash-preview-04-17"]:
-            config.thinking_config = types.ThinkingConfig(thinking_budget=0)
+        thinking_budget = kwargs.get("thinking_budget")
+        if model_to_use in THINKING_BUDGET_MODELS and isinstance(thinking_budget, int):
+            config.thinking_config = types.ThinkingConfig(
+                include_thoughts=True, thinking_budget=thinking_budget
+            )
 
         # Change to JSON mode
         if not constraint_response_schema or model_to_use in [

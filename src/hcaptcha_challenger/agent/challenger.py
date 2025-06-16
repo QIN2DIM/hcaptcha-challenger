@@ -172,6 +172,16 @@ class AgentConfig(BaseSettings):
         description="For the challenge type: `image_drag_drop` (single/multi)",
     )
 
+    IMAGE_CLASSIFIER_THINKING_BUDGET: int = Field(
+        default=970, description="How many tokens should the thinking budget be?", le=32768, ge=128
+    )
+    SPATIAL_POINT_THINKING_BUDGET: int = Field(
+        default=1391, description="How many tokens should the thinking budget be?", le=32768, ge=128
+    )
+    SPATIAL_PATH_THINKING_BUDGET: int = Field(
+        default=1652, description="How many tokens should the thinking budget be?", le=32768, ge=128
+    )
+
     @field_validator('GEMINI_API_KEY', mode="before")
     @classmethod
     def validate_api_key(cls, v: Any) -> str:
@@ -551,7 +561,8 @@ class RoboticArm:
 
             # Image classification
             response = await self._image_classifier.invoke_async(
-                challenge_screenshot=challenge_screenshot
+                challenge_screenshot=challenge_screenshot,
+                thinking_budget=self.config.IMAGE_CLASSIFIER_THINKING_BUDGET,
             )
             boolean_matrix = response.convert_box_to_boolean_matrix()
 
@@ -593,6 +604,7 @@ class RoboticArm:
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 auxiliary_information=user_prompt,
+                thinking_budget=self.config.SPATIAL_PATH_THINKING_BUDGET,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
             self._spatial_path_reasoner.cache_response(
@@ -623,6 +635,7 @@ class RoboticArm:
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 auxiliary_information=user_prompt,
+                thinking_budget=self.config.SPATIAL_POINT_THINKING_BUDGET,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
             self._spatial_point_reasoner.cache_response(

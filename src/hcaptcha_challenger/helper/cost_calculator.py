@@ -4,11 +4,9 @@ https://ai.google.dev/gemini-api/docs/pricing
 
 import json
 import pathlib
-import re
 from collections import defaultdict
 from statistics import median
 from typing import TypedDict, List, Dict, Union, Optional
-from pathlib import Path
 
 from google.genai import types
 from pydantic import BaseModel, Field

@@ -237,6 +237,12 @@ FastShotModelType = Union[
 
 DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.0-flash"
 
+THINKING_BUDGET_MODELS: List[SCoTModelType] = [
+    "gemini-2.5-flash-preview-04-17",
+    "gemini-2.5-flash-preview-05-20",
+    "gemini-2.5-pro-preview-06-05",
+]
+
 
 class ChallengeRouterResult(BaseModel):
     challenge_prompt: str
