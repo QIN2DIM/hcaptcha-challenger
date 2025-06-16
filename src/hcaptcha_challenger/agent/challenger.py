@@ -176,7 +176,7 @@ class AgentConfig(BaseSettings):
         default=970, description="How many tokens should the thinking budget be?", le=32768, ge=128
     )
     SPATIAL_POINT_THINKING_BUDGET: int = Field(
-        default=1391, description="How many tokens should the thinking budget be?", le=32768, ge=128
+        default=1387, description="How many tokens should the thinking budget be?", le=32768, ge=128
     )
     SPATIAL_PATH_THINKING_BUDGET: int = Field(
         default=1652, description="How many tokens should the thinking budget be?", le=32768, ge=128
