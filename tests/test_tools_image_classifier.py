@@ -15,5 +15,5 @@ CHALLENGE_VIEW_DIR = Path(__file__).parent.joinpath("challenge_view/image_label_
 
 async def test_gemini_image_classifier():
     screenshot_path = CHALLENGE_VIEW_DIR.joinpath("1.png")
-    results = await gic.invoke_async(screenshot_path, model="gemini-2.5-flash-preview-04-17")
+    results = await gic.invoke_async(screenshot_path, model="gemini-2.5-flash")
     logger.debug(f'ToolInvokeMessage: {results.log_message}')

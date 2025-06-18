@@ -20,9 +20,9 @@ async def challenge(page: Page) -> AgentV:
         # Disable special challenge
         ignore_request_questions=["Drag each segment to its position on the line"],
         # Change default models
-        IMAGE_CLASSIFIER_MODEL='gemini-2.5-pro-preview-06-05',
-        SPATIAL_PATH_REASONER_MODEL='gemini-2.5-pro-preview-06-05',
-        SPATIAL_POINT_REASONER_MODEL='gemini-2.5-pro-preview-06-05',
+        IMAGE_CLASSIFIER_MODEL='gemini-2.5-pro',
+        SPATIAL_PATH_REASONER_MODEL='gemini-2.5-pro',
+        SPATIAL_POINT_REASONER_MODEL='gemini-2.5-pro',
     )
     agent = AgentV(page=page, agent_config=agent_config)
 

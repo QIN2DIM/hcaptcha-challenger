@@ -209,38 +209,43 @@ SCoTModelType = Union[
     Literal[
         # This model is not available in the free plan.
         # Recommended for production environments for more tolerant rate limits.
+        # [✨] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro
+        "gemini-2.5-pro",
         "gemini-2.5-pro-preview-06-05",
         "gemini-2.5-pro-preview-05-06",
         "gemini-2.5-pro-preview-03-25",
+        # [🤷‍♂️] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
+        "gemini-2.5-flash",
         # The following is a free experimental model that may fail at any time and is for demo only
         "gemini-2.5-pro-exp-03-25",
-        "gemini-2.0-flash-thinking-exp-01-21",
-        # "learnlm-2.0-flash-experimental",
-        # "gemini-2.5-flash-preview-04-17",
-        "gemini-2.5-flash-preview-05-20",
     ],
 ]
 
-DEFAULT_SCOT_MODEL: SCoTModelType = "gemini-2.5-pro-preview-06-05"
+DEFAULT_SCOT_MODEL: SCoTModelType = "gemini-2.5-pro"
 
 FastShotModelType = Union[
     str,
     Literal[
+        # [✨] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
+        "gemini-2.5-flash",
         # https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash
         "gemini-2.0-flash",
+        # https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-lite
+        "gemini-2.5-flash-lite-preview-06-17",
         # https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite
         "gemini-2.0-flash-lite",
-        # https://ai.google.dev/gemini-api/docs/models?hl=zh-cn#gemini-2.5-flash-preview
-        # "gemini-2.5-flash-preview-04-17",
     ],
 ]
 
-DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.0-flash"
+DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.5-flash"
 
-THINKING_BUDGET_MODELS: List[SCoTModelType] = [
+THINKING_BUDGET_MODELS: List[Union[SCoTModelType, FastShotModelType]] = [
+    "gemini-2.5-flash-lite-preview-06-17",
     "gemini-2.5-flash-preview-04-17",
     "gemini-2.5-flash-preview-05-20",
+    "gemini-2.5-flash",
     "gemini-2.5-pro-preview-06-05",
+    "gemini-2.5-pro",
 ]
 
 

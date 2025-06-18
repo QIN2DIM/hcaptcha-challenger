@@ -12,6 +12,7 @@ from hcaptcha_challenger.models import (
     ChallengeRouterResult,
     ChallengeTypeEnum,
     DEFAULT_FAST_SHOT_MODEL,
+    THINKING_BUDGET_MODELS,
 )
 from hcaptcha_challenger.tools.common import extract_first_json_block
 from hcaptcha_challenger.tools.reasoner import _Reasoner
@@ -169,6 +170,10 @@ class ChallengeRouter(_Reasoner[FastShotModelType]):
             response_mime_type="application/json",
             response_schema=ChallengeRouterResult,
         )
+
+        if model_to_use in THINKING_BUDGET_MODELS and "pro" not in model_to_use:
+            config.thinking_config = types.ThinkingConfig(include_thoughts=False)
+
         self._response = await client.aio.models.generate_content(
             model=model_to_use, contents=contents, config=config
         )
