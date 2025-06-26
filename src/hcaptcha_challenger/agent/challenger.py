@@ -38,7 +38,7 @@ from hcaptcha_challenger.models import (
     IGNORE_REQUEST_TYPE_LITERAL,
     INV,
 )
-from hcaptcha_challenger.models import ChallengeTypeEnum
+from hcaptcha_challenger.models import ChallengeTypeEnum, CoordinateGrid
 from hcaptcha_challenger.prompts import match_user_prompt
 from hcaptcha_challenger.tools import (
     ImageClassifier,
@@ -182,6 +182,10 @@ class AgentConfig(BaseSettings):
         default=1652, description="How many tokens should the thinking budget be?", le=32768, ge=128
     )
 
+    coordinate_grid: CoordinateGrid | None = Field(default_factory=CoordinateGrid)
+
+    enable_challenger_debug: bool | None = Field(default=False, description="Enable debug mode")
+
     @field_validator('GEMINI_API_KEY', mode="before")
     @classmethod
     def validate_api_key(cls, v: Any) -> str:
@@ -231,7 +235,10 @@ class AgentConfig(BaseSettings):
         prompt = prompt.translate(str.maketrans("", "", "".join(INV)))
 
         if not captcha_payload:
-            return self.challenge_dir.joinpath(request_type, prompt, current_time)
+            _cache_key_temp = self.challenge_dir.joinpath(request_type, prompt, current_time)
+            if self.enable_challenger_debug:
+                logger.debug(f"Create cache-key [NotCaptchaPayload] - {_cache_key_temp.resolve()}")
+            return _cache_key_temp
 
         cache_key = self.challenge_dir.joinpath(
             captcha_payload.request_type.value,
@@ -250,6 +257,9 @@ class AgentConfig(BaseSettings):
         except Exception as e:
             logger.error(f"Failed to write captcha payload to cache: {e}")
 
+        if self.enable_challenger_debug:
+            logger.debug(f"Create cache-key [Direct] - {cache_key.resolve()}")
+
         return cache_key
 
 
@@ -258,6 +268,7 @@ class RoboticArm:
     def __init__(self, page: Page, config: AgentConfig):
         self.page = page
         self.config = config
+        self._debug = config.enable_challenger_debug
 
         self._challenge_classifier = ChallengeClassifier(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
@@ -370,6 +381,9 @@ class RoboticArm:
         except Exception as e:
             logger.warning(f"Error while processing captcha payload: {e}")
 
+        if not user_prompt:
+            user_prompt = f"Please note that the current task type is: {job_type.value}"
+
         return user_prompt
 
     async def click_by_mouse(self, locator: Locator):
@@ -460,9 +474,8 @@ class RoboticArm:
 
         return True
 
-    @staticmethod
     async def _capture_spatial_mapping(
-        frame_challenge: FrameLocator | Frame, cache_key: Path, crumb_id: int | str
+        self, frame_challenge: FrameLocator | Frame, cache_key: Path, crumb_id: int | str
     ):
         # Capture challenge-view
         challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
@@ -476,10 +489,10 @@ class RoboticArm:
         result = create_coordinate_grid(
             challenge_screenshot,
             bbox,
-            x_line_space_num=15,
-            y_line_space_num=20,
-            color="gray",
-            adaptive_contrast=False,
+            x_line_space_num=self.config.coordinate_grid.x_line_space_num,
+            y_line_space_num=self.config.coordinate_grid.y_line_space_num,
+            color=self.config.coordinate_grid.color,
+            adaptive_contrast=self.config.coordinate_grid.adaptive_contrast,
         )
 
         grid_divisions = cache_key.joinpath(f"{cache_key.name}_{crumb_id}_spatial_helper.png")

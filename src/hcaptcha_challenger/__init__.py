@@ -16,6 +16,7 @@ from hcaptcha_challenger.models import (
     ChallengeTypeEnum,
     FastShotModelType,
     SCoTModelType,
+    CoordinateGrid,
 )
 from hcaptcha_challenger.tools.challenge_classifier import ChallengeClassifier
 from hcaptcha_challenger.tools.image_classifier import ImageClassifier
@@ -28,6 +29,7 @@ __all__ = [
     "ChallengeTypeEnum",
     "FastShotModelType",
     "SCoTModelType",
+    "CoordinateGrid",
     "RequestType",
     "AgentV",
     "AgentConfig",

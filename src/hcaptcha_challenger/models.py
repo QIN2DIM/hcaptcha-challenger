@@ -471,3 +471,18 @@ class GameRuleGroup(BaseModel):
 class PluggableUserPrompt(BaseModel):
     rules: List[GameRule] = Field(default_factory=list)
     rule_groups: List[GameRule]
+
+
+class CoordinateGrid(BaseModel):
+    x_line_space_num: int | None = Field(
+        default=15, description="Number of horizontal lines", ge=3, le=30
+    )
+    y_line_space_num: int | None = Field(
+        default=20, description="Number of vertical lines", ge=3, le=30
+    )
+    color: str | None = Field(
+        default="gray", description="The color of the auxiliary line, supports RGB and hexadecimal"
+    )
+    adaptive_contrast: bool | None = Field(
+        default=False, description="Visual assist effects for enhancing high-contrast scenes"
+    )

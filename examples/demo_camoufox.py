@@ -32,7 +32,7 @@ async def main():
         persistent_context=True,
         user_data_dir="tmp/.cache/camoufox",
         screen=Screen(max_width=1920, max_height=1080),
-        humanize=0.5,  # humanize=True,
+        humanize=0.2,  # humanize=True,
     ) as browser:
         page = browser.pages[-1] if browser.pages else await browser.new_page()
 
