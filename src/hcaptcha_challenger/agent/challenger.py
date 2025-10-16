@@ -145,6 +145,14 @@ class AgentConfig(BaseSettings):
         Only manually change this value if you are working on a very specific task that prevents the `_review_challenge_type` from hijacking the task information and the maximum number of tasks > 2.
         """,
     )
+    WAIT_FOR_CAPTURE_SPATIAL_SCREENSHOT: float = Field(
+        default=500,
+        description="""
+        The number of milliseconds to wait for the spatial screenshot to be captured.
+        Add some delay waiting to give the screenshot+save image process enough execution window 
+        to avoid encountering unforeseen errors such as not reading the image.
+        """,
+    )
 
     EXECUTION_TIMEOUT: float = Field(
         default=120,
@@ -503,6 +511,11 @@ class RoboticArm:
         challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
         challenge_screenshot = cache_key.joinpath(f"{cache_key.name}_{crumb_id}_challenge_view.png")
         await challenge_view.screenshot(type="png", path=challenge_screenshot)
+
+        with suppress(Exception):
+            _sc_timeout = self.config.WAIT_FOR_CAPTURE_SPATIAL_SCREENSHOT
+            if (isinstance(_sc_timeout, float) or isinstance(_sc_timeout, int)) and _sc_timeout > 0:
+                await frame_challenge.wait_for_timeout(_sc_timeout)
 
         challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
         bbox = await challenge_view.bounding_box()

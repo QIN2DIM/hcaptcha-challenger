@@ -26,7 +26,7 @@ async def challenge(page: Page) -> AgentV:
 
 
 async def main():
-    # playwright install --with-deps
+    # uv run playwright install --with-deps
     async with async_playwright() as p:
         context = await p.chromium.launch_persistent_context(
             user_data_dir="tmp/.cache/user_data",
