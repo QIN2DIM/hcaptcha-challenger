@@ -136,6 +136,16 @@ class AgentConfig(BaseSettings):
         "and use Camoufox(humanize=True)",
     )
 
+    MAX_CRUMB_COUNT: int = Field(
+        default=2,
+        description="""
+        CRUMB_COUNT: The number of challenge rounds you need to solve once the challenge starts.
+        In the vast majority of cases this value will be 2, some specialized sites will set this value to 3.
+        In most cases you don't need to change this value, the `_review_challenge_type` task determines the exact value of `CRUMB_COUNT` based on the information of the assigned task.
+        Only manually change this value if you are working on a very specific task that prevents the `_review_challenge_type` from hijacking the task information and the maximum number of tasks > 2.
+        """,
+    )
+
     EXECUTION_TIMEOUT: float = Field(
         default=120,
         description="When your local network is poor, increase this value appropriately [unit: second]",
@@ -428,7 +438,10 @@ class RoboticArm:
         await self.page.wait_for_timeout(500)
         frame_challenge = await self.get_challenge_frame_locator()
         crumbs = frame_challenge.locator("//div[@class='Crumb']")
-        return 2 if await crumbs.first.is_visible() else 1
+        with suppress(Exception):
+            crumbs_count = await crumbs.count()
+            return crumbs_count if crumbs_count else 1
+        return self.config.MAX_CRUMB_COUNT if await crumbs.first.is_visible() else 1
 
     async def check_challenge_type(self) -> RequestType | ChallengeTypeEnum | None:
         # fixme
