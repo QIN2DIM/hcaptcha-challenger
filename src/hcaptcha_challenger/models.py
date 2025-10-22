@@ -340,6 +340,7 @@ class SpatialPath(BaseModel):
 
 class ImageDragDropChallenge(BaseModel):
     challenge_prompt: str
+    inferred_rule: str
     paths: List[SpatialPath]
 
     @property
@@ -351,7 +352,11 @@ class ImageDragDropChallenge(BaseModel):
             }
             for i in self.paths
         ]
-        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": str(_coordinates)}
+        bundle = {
+            "Challenge Prompt": self.challenge_prompt,
+            "Inferred Rule": self.inferred_rule,
+            "Coordinates": str(_coordinates),
+        }
         return json.dumps(bundle, indent=2, ensure_ascii=False)
 
     def get_approximate_paths(self, bbox) -> List[SpatialPath]:

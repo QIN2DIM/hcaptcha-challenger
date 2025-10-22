@@ -30,16 +30,7 @@ THINKING_PROMPT = """
 2. Think about what the challenge requires identification goals, and where are they in the picture
 3. Based on the plane rectangular coordinate system, reasoning about the absolute position of the "answer object" in the coordinate system
 
-Finally, solve the challenge, locate the object, output the coordinates of the correct answer as json. Follow the following format to return a coordinates wrapped with a json code block:
-
-```json
-{
-  "challenge_prompt": "Task description",
-  "points": [
-    {"x": x1, "y": y1}
-  ]
-}
-```
+Finally, solve the challenge, locate the object, output the coordinates of the correct answer as json. 
 """
 
 
