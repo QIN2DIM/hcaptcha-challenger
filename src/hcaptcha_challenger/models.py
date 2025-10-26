@@ -94,17 +94,17 @@ class CaptchaRequestConfig(BaseModel):
 
 
 class CaptchaTaskEntity(BaseModel):
-    entity_id: str
-    entity_uri: str
-    coords: List[int]
-    size: List[int]
-    metadata: dict
+    entity_id: str | None = Field(default="")
+    entity_uri: str | None = Field(default="")
+    coords: List[int] | None = Field(default_factory=list)
+    size: List[int] | None = Field(default_factory=list)
+    metadata: dict | None = Field(default_factory=dict)
 
 
 class CaptchaTask(BaseModel):
-    datapoint_uri: str
-    task_key: str
-    entities: List[CaptchaTaskEntity] = Field(default_factory=list)
+    datapoint_uri: str | None = Field(default="")
+    task_key: str | None = Field(default="")
+    entities: List[CaptchaTaskEntity] | None = Field(default_factory=list)
 
 
 class CaptchaPayload(BaseModel):
