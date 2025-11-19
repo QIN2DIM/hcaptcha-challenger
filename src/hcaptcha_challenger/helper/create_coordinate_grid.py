@@ -16,18 +16,23 @@ class FloatRect(TypedDict):
 def _create_adaptive_contrast_grid(
     image: np.ndarray,
     bbox: Union[FloatRect, Tuple[float, float, float, float], List[float]],
-    **kwargs,
+    *,
+    x_line_space_num: int = 11,
+    y_line_space_num: int = 20,
+    tick_labels_size: int = 12,
 ) -> np.ndarray:
     """
-    Create coordinate grids with adaptive contrast colors
+    Create coordinate grids with adaptive contrast colors.
 
     Args:
-        image: input image (numpy array)
-        bbox: Bounding box of image in web page (x, y, width, height)
-        **kwargs: Additional parameters
+        image: Input image (numpy array).
+        bbox: Bounding box of image in web page (x, y, width, height).
+        x_line_space_num: Number of vertical grid lines. Defaults to 11.
+        y_line_space_num: Number of horizontal grid lines. Defaults to 20.
+        tick_labels_size: Font size of the axis tick labels. Defaults to 12.
 
     Returns:
-        Processed image with adaptive contrasting color coordinate grid
+        Processed image with adaptive contrasting color coordinate grid.
     """
     img = image.copy()
 
@@ -57,14 +62,12 @@ def _create_adaptive_contrast_grid(
     for spine in ax.spines.values():
         spine.set_color(grid_color)
 
-    ax.tick_params(axis='x', colors=grid_color)
-    ax.tick_params(axis='y', colors=grid_color)
+    ax.tick_params(axis='x', colors=grid_color, labelsize=tick_labels_size)
+    ax.tick_params(axis='y', colors=grid_color, labelsize=tick_labels_size)
 
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
-    x_line_space_num = kwargs.get("x_line_space_num", 11)
-    y_line_space_num = kwargs.get("y_line_space_num", 20)
     x_ticks = np.linspace(x, x + width, x_line_space_num)
     y_ticks = np.linspace(y, y + height, y_line_space_num)
 
@@ -118,21 +121,27 @@ def _create_adaptive_contrast_grid(
 def create_coordinate_grid(
     image: Union[str, np.ndarray, Path],
     bbox: Union[FloatRect, Tuple[float, float, float, float], List[float]],
-    **kwargs,
+    *,
+    x_line_space_num: int = 11,
+    y_line_space_num: int = 20,
+    adaptive_contrast: bool = False,
+    tick_labels_size: int = 12,
+    color: str = "gray",
 ) -> np.ndarray:
     """
     Convert a web image to a scientific-style coordinate system image.
 
     Args:
-        image: Input image (path or numpy array)
-        bbox: Bounding box (x, y, width, height) of the image in the webpage
-        **kwargs: Additional parameters including:
-          - x_line_space_num: Number of vertical grid lines (default: 11)
-          - y_line_space_num: Number of horizontal grid lines (default: 20)
-          - adaptive_contrast: Whether to use adaptive contrast grid (default: False)
+        image: Input image (path or numpy array).
+        bbox: Bounding box (x, y, width, height) of the image in the webpage.
+        x_line_space_num: Number of vertical grid lines. Defaults to 11.
+        y_line_space_num: Number of horizontal grid lines. Defaults to 20.
+        adaptive_contrast: Whether to use adaptive contrast grid. Defaults to False.
+        tick_labels_size: Font size of the axis tick labels. Defaults to 12.
+        color: Color of the grid lines. Defaults to "gray".
 
     Returns:
-        Processed image with coordinate grid
+        Processed image with coordinate grid.
     """
     # Load image if path is provided
     if isinstance(image, (str, Path)):
@@ -144,9 +153,14 @@ def create_coordinate_grid(
         img = image.copy()
 
     # Check if adaptive contrast mode is enabled
-    adaptive_contrast = kwargs.get("adaptive_contrast", False)
     if adaptive_contrast:
-        return _create_adaptive_contrast_grid(img, bbox, **kwargs)
+        return _create_adaptive_contrast_grid(
+            img,
+            bbox,
+            x_line_space_num=x_line_space_num,
+            y_line_space_num=y_line_space_num,
+            tick_labels_size=tick_labels_size,
+        )
 
     # Extract bbox parameters
     if isinstance(bbox, dict):
@@ -174,21 +188,19 @@ def create_coordinate_grid(
     ax.spines['right'].set_visible(False)
 
     # Create grid lines
-    x_line_space_num = kwargs.get("x_line_space_num", 11)
-    y_line_space_num = kwargs.get("y_line_space_num", 20)
     x_ticks = np.linspace(x, x + width, x_line_space_num)
     y_ticks = np.linspace(y, y + height, y_line_space_num)
 
     # Set ticks
     ax.set_xticks(x_ticks)
     ax.set_yticks(y_ticks)
+    ax.tick_params(axis='both', which='major', labelsize=tick_labels_size)
 
     # Format tick labels as rounded integers
     ax.set_xticklabels([str(round(tick)) for tick in x_ticks])
     ax.set_yticklabels([str(round(tick)) for tick in y_ticks])
 
     # Add grid with semi-transparent purple lines
-    color = kwargs.get("color", "gray")
     ax.grid(True, color=color, alpha=0.5, linestyle='-', linewidth=1.0)
     # ax.grid(True, color='gray', alpha=0.5, linestyle='--', linewidth=1.0)
     # ax.grid(True, color='lightgray', alpha=0.2, linestyle='-', linewidth=0.8)

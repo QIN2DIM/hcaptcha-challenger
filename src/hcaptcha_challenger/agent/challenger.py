@@ -163,9 +163,6 @@ class AgentConfig(BaseSettings):
         description="When your local network is poor, increase this value appropriately [unit: millisecond]",
     )
 
-    CONSTRAINT_RESPONSE_SCHEMA: bool = Field(
-        default=True, description="Whether to enable constraint encoding"
-    )
     CHALLENGE_CLASSIFIER_MODEL: FastShotModelType = Field(
         default=DEFAULT_FAST_SHOT_MODEL,
         description="For the challenge classification task \n"
@@ -181,25 +178,6 @@ class AgentConfig(BaseSettings):
     SPATIAL_PATH_REASONER_MODEL: SCoTModelType = Field(
         default=DEFAULT_SCOT_MODEL,
         description="For the challenge type: `image_drag_drop` (single/multi)",
-    )
-
-    IMAGE_CLASSIFIER_THINKING_BUDGET: int = Field(
-        default=970,
-        description="Indicates the thinking budget in tokens. 0 is DISABLED. -1 is AUTOMATIC. The default values and allowed ranges are model dependent.",
-        le=32768,
-        ge=-1,
-    )
-    SPATIAL_POINT_THINKING_BUDGET: int = Field(
-        default=1387,
-        description="Indicates the thinking budget in tokens. 0 is DISABLED. -1 is AUTOMATIC. The default values and allowed ranges are model dependent.",
-        le=32768,
-        ge=-1,
-    )
-    SPATIAL_PATH_THINKING_BUDGET: int = Field(
-        default=-1,
-        description="Indicates the thinking budget in tokens. 0 is DISABLED. -1 is AUTOMATIC. The default values and allowed ranges are model dependent.",
-        le=32768,
-        ge=-1,
     )
 
     coordinate_grid: CoordinateGrid | None = Field(default_factory=CoordinateGrid)
@@ -301,17 +279,14 @@ class RoboticArm:
         self._image_classifier = ImageClassifier(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.IMAGE_CLASSIFIER_MODEL,
-            constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
         )
         self._spatial_path_reasoner = SpatialPathReasoner(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.SPATIAL_PATH_REASONER_MODEL,
-            constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
         )
         self._spatial_point_reasoner = SpatialPointReasoner(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.SPATIAL_POINT_REASONER_MODEL,
-            constraint_response_schema=self.config.CONSTRAINT_RESPONSE_SCHEMA,
         )
         self.signal_crumb_count: int | None = None
         self.captcha_payload: CaptchaPayload | None = None
@@ -604,8 +579,7 @@ class RoboticArm:
 
             # Image classification
             response = await self._image_classifier.invoke_async(
-                challenge_screenshot=challenge_screenshot,
-                thinking_budget=self.config.IMAGE_CLASSIFIER_THINKING_BUDGET,
+                challenge_screenshot=challenge_screenshot
             )
             boolean_matrix = response.convert_box_to_boolean_matrix()
 
@@ -639,15 +613,17 @@ class RoboticArm:
         for cid in range(crumb_count):
             await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
+            logger.debug("capture spatial mapping")
             raw, projection = await self._capture_spatial_mapping(frame_challenge, cache_key, cid)
 
+            logger.debug("match user prompt")
             user_prompt = self._match_user_prompt(job_type)
 
+            logger.debug("invoke reasoner")
             response = await self._spatial_path_reasoner.invoke_async(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 auxiliary_information=user_prompt,
-                thinking_budget=self.config.SPATIAL_PATH_THINKING_BUDGET,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
             self._spatial_path_reasoner.cache_response(
@@ -670,15 +646,17 @@ class RoboticArm:
         for cid in range(crumb_count):
             await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
+            logger.debug("capture spatial mapping")
             raw, projection = await self._capture_spatial_mapping(frame_challenge, cache_key, cid)
 
+            logger.debug("match user prompt")
             user_prompt = self._match_user_prompt(job_type)
 
+            logger.debug("invoke reasoner")
             response = await self._spatial_point_reasoner.invoke_async(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 auxiliary_information=user_prompt,
-                thinking_budget=self.config.SPATIAL_POINT_THINKING_BUDGET,
             )
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
             self._spatial_point_reasoner.cache_response(

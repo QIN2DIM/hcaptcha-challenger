@@ -209,6 +209,8 @@ SCoTModelType = Union[
     Literal[
         # This model is not available in the free plan.
         # Recommended for production environments for more tolerant rate limits.
+        # [✨] https://ai.google.dev/gemini-api/docs/models?hl=zh-cn#gemini-3-pro
+        "gemini-3-pro-preview",
         # [✨] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro
         "gemini-2.5-pro",
         # [🤷‍♂️] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
@@ -216,7 +218,7 @@ SCoTModelType = Union[
     ],
 ]
 
-DEFAULT_SCOT_MODEL: SCoTModelType = "gemini-2.5-pro"
+DEFAULT_SCOT_MODEL: SCoTModelType = "gemini-3-pro-preview"
 
 FastShotModelType = Union[
     str,
@@ -233,6 +235,13 @@ DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.5-flash"
 THINKING_BUDGET_MODELS: List[Union[SCoTModelType, FastShotModelType]] = [
     "gemini-2.5-flash",
     "gemini-2.5-pro",
+]
+
+THINKING_LEVEL_MODELS: List[str] = [
+    "gemini-3-pro-preview",
+    "gemini-3-pro",
+    "gemini-3-flash",
+    "gemini-3-flash-preview",
 ]
 
 

@@ -73,25 +73,31 @@ Please follow your core principles and provide your step-by-step reasoning below
 
 async def draw_speculative_sampling_parts(
     client: genai.Client,
-    challenge_screenshot: Union[str, Path, os.PathLike],
     grid_divisions: Union[str, Path, os.PathLike],
     auxiliary_information: str,
+    challenge_screenshot: Union[str, Path, os.PathLike] | None = None,
 ) -> List[types.Part] | None:
     scot_dir = Path(__file__).parent.joinpath("scot")
 
-    files = await asyncio.gather(
+    upload_tasks = [
         client.aio.files.upload(file=scot_dir.joinpath("image_drag_drop_few_shot_001.png")),
         client.aio.files.upload(file=scot_dir.joinpath("image_drag_drop_few_shot_002.png")),
-        client.aio.files.upload(file=challenge_screenshot),
-        client.aio.files.upload(file=grid_divisions),
-    )
+    ]
+    if challenge_screenshot:
+        upload_tasks.append(client.aio.files.upload(file=challenge_screenshot))
+    upload_tasks.append(client.aio.files.upload(file=grid_divisions))
+
+    files = await asyncio.gather(*upload_tasks)
 
     parts = [
         types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type),
         types.Part.from_uri(file_uri=files[1].uri, mime_type=files[1].mime_type),
-        types.Part.from_uri(file_uri=files[2].uri, mime_type=files[2].mime_type),
-        types.Part.from_uri(file_uri=files[3].uri, mime_type=files[3].mime_type),
     ]
+    if challenge_screenshot:
+        parts.append(types.Part.from_uri(file_uri=files[2].uri, mime_type=files[2].mime_type))
+        parts.append(types.Part.from_uri(file_uri=files[3].uri, mime_type=files[3].mime_type))
+    else:
+        parts.append(types.Part.from_uri(file_uri=files[2].uri, mime_type=files[2].mime_type))
 
     user_prompt = USER_PROMPT
     if auxiliary_information and isinstance(auxiliary_information, str):
@@ -104,21 +110,25 @@ async def draw_speculative_sampling_parts(
 
 async def draw_thoughts_parts(
     client: genai.Client,
-    challenge_screenshot: Union[str, Path, os.PathLike],
     grid_divisions: Union[str, Path, os.PathLike],
     auxiliary_information: str,
+    challenge_screenshot: Union[str, Path, os.PathLike] | None = None,
 ) -> List[types.Part]:
     # Upload the challenge image file
-    files = await asyncio.gather(
-        client.aio.files.upload(file=challenge_screenshot),
-        client.aio.files.upload(file=grid_divisions),
-    )
+    upload_tasks = []
+    if challenge_screenshot:
+        upload_tasks.append(client.aio.files.upload(file=challenge_screenshot))
+    upload_tasks.append(client.aio.files.upload(file=grid_divisions))
+
+    files = await asyncio.gather(*upload_tasks)
 
     # Create content with only the image
-    parts = [
-        types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type),
-        types.Part.from_uri(file_uri=files[1].uri, mime_type=files[1].mime_type),
-    ]
+    parts = []
+    if challenge_screenshot:
+        parts.append(types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type))
+        parts.append(types.Part.from_uri(file_uri=files[1].uri, mime_type=files[1].mime_type))
+    else:
+        parts.append(types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type))
     if auxiliary_information and isinstance(auxiliary_information, str):
         ait = AUXILIARY_INFORMATION_TPL.format(auxiliary_information=auxiliary_information)
         parts.append(types.Part.from_text(text=f"{ait}{USER_PROMPT_1022}"))
@@ -130,13 +140,8 @@ async def draw_thoughts_parts(
 
 class SpatialPathReasoner(_Reasoner[SCoTModelType]):
 
-    def __init__(
-        self,
-        gemini_api_key: str,
-        model: SCoTModelType = DEFAULT_SCOT_MODEL,
-        constraint_response_schema: bool = False,
-    ):
-        super().__init__(gemini_api_key, model, constraint_response_schema)
+    def __init__(self, gemini_api_key: str, model: SCoTModelType = DEFAULT_SCOT_MODEL, **kwargs):
+        super().__init__(gemini_api_key, model, **kwargs)
 
     @retry(
         stop=stop_after_attempt(3),
@@ -147,64 +152,52 @@ class SpatialPathReasoner(_Reasoner[SCoTModelType]):
     )
     async def invoke_async(
         self,
-        challenge_screenshot: Union[str, Path, os.PathLike],
         *,
         grid_divisions: Union[str, Path, os.PathLike],
+        challenge_screenshot: Union[str, Path, os.PathLike] | None = None,
         auxiliary_information: str | None = "",
-        constraint_response_schema: bool | None = None,
         **kwargs,
     ) -> ImageDragDropChallenge:
         model_to_use = kwargs.pop("model", self._model)
         if model_to_use is None:
             raise ValueError("Model must be provided either at initialization or via kwargs.")
 
-        if constraint_response_schema is None:
-            constraint_response_schema = self._constraint_response_schema
-
-        enable_response_schema = kwargs.get("enable_response_schema")
-        if enable_response_schema is not None:
-            constraint_response_schema = enable_response_schema
-
         enable_scot = False
-
-        system_instruction = THINKING_PROMPT_1022
 
         # Initialize Gemini client with API key
         client = genai.Client(api_key=self._api_key)
 
-        if enable_scot and model_to_use not in ["gemini-2.0-flash-thinking-exp-01-21"]:
+        if enable_scot:
             parts = await draw_speculative_sampling_parts(
-                client, challenge_screenshot, grid_divisions, auxiliary_information
+                client=client,
+                challenge_screenshot=challenge_screenshot,
+                grid_divisions=grid_divisions,
+                auxiliary_information=auxiliary_information,
             )
-            constraint_response_schema = True
-            system_instruction = None
         else:
             parts = await draw_thoughts_parts(
-                client, challenge_screenshot, grid_divisions, auxiliary_information
+                client=client,
+                challenge_screenshot=challenge_screenshot,
+                grid_divisions=grid_divisions,
+                auxiliary_information=auxiliary_information,
             )
 
         contents = [types.Content(role="user", parts=parts)]
 
         config = types.GenerateContentConfig(
-            temperature=kwargs.get("temperature", 0),
-            system_instruction=system_instruction,
-            thinking_config=self._pin_thinking_config(
-                model_to_use=model_to_use, thinking_budget=kwargs.get("thinking_budget")
-            ),
+            system_instruction=THINKING_PROMPT,
+            media_resolution=types.MediaResolution.MEDIA_RESOLUTION_HIGH,
+            response_mime_type="application/json",
+            response_schema=ImageDragDropChallenge,
         )
 
-        # Change to JSON mode
-        if not constraint_response_schema or model_to_use in [
-            "gemini-2.0-flash-thinking-exp-01-21"
-        ]:
-            self._response = await client.aio.models.generate_content(
-                model=model_to_use, contents=contents, config=config
-            )
-            return ImageDragDropChallenge(**extract_first_json_block(self._response.text))
+        self._set_temperature(config=config, model_to_use=model_to_use)
 
-        # Structured output with Constraint encoding
-        config.response_mime_type = "application/json"
-        config.response_schema = ImageDragDropChallenge
+        self._set_thinking_config(
+            config=config,
+            model_to_use=model_to_use,
+            thinking_level=kwargs.get("thinking_level", types.ThinkingLevel.LOW),
+        )
 
         self._response = await client.aio.models.generate_content(
             model=model_to_use, contents=contents, config=config

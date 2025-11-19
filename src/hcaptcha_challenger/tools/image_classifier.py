@@ -40,13 +40,8 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
     (typically grid-based selection challenges) and determines the correct answer coordinates.
     """
 
-    def __init__(
-        self,
-        gemini_api_key: str,
-        model: SCoTModelType = DEFAULT_SCOT_MODEL,
-        constraint_response_schema: bool = False,
-    ):
-        super().__init__(gemini_api_key, model, constraint_response_schema)
+    def __init__(self, gemini_api_key: str, model: SCoTModelType = DEFAULT_SCOT_MODEL, **kwargs):
+        super().__init__(gemini_api_key, model, **kwargs)
 
     @retry(
         stop=stop_after_attempt(3),
@@ -56,17 +51,12 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
         ),
     )
     async def invoke_async(
-        self,
-        challenge_screenshot: Union[str, Path, os.PathLike],
-        *,
-        constraint_response_schema: bool | None = None,
-        **kwargs,
+        self, challenge_screenshot: Union[str, Path, os.PathLike], **kwargs
     ) -> ImageBinaryChallenge:
         """
         Process an image challenge and return the solution coordinates.
 
         Args:
-            constraint_response_schema:
             challenge_screenshot: The image file containing the challenge to solve
 
         Returns:
@@ -77,13 +67,6 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
             # Or raise an error, or use a default defined in this class if appropriate
             raise ValueError("Model must be provided either at initialization or via kwargs.")
 
-        if constraint_response_schema is None:
-            constraint_response_schema = self._constraint_response_schema
-
-        enable_response_schema = kwargs.get("enable_response_schema")
-        if enable_response_schema is not None:
-            constraint_response_schema = enable_response_schema
-
         # Initialize Gemini client with API_KEY
         client = genai.Client(api_key=self._api_key)
 
@@ -93,30 +76,23 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
         parts = [types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type)]
         contents = [types.Content(role="user", parts=parts)]
 
-        system_instruction = SYSTEM_INSTRUCTION
-
         config = types.GenerateContentConfig(
-            temperature=kwargs.get("temperature", 0),
-            system_instruction=system_instruction,
-            thinking_config=self._pin_thinking_config(
-                model_to_use=model_to_use, thinking_budget=kwargs.get("thinking_budget")
-            ),
+            system_instruction=SYSTEM_INSTRUCTION,
+            media_resolution=types.MediaResolution.MEDIA_RESOLUTION_HIGH,
+            response_mime_type="application/json",
+            response_schema=ImageBinaryChallenge,
         )
 
-        # Change to JSON mode
-        if not constraint_response_schema or model_to_use in [
-            "gemini-2.0-flash-thinking-exp-01-21"
-        ]:
-            self._response = await client.aio.models.generate_content(
-                model=model_to_use, contents=contents, config=config
-            )
-            return ImageBinaryChallenge(**extract_first_json_block(self._response.text))
+        self._set_temperature(config=config, model_to_use=model_to_use)
+
+        self._set_thinking_config(
+            config=config,
+            model_to_use=model_to_use,
+            thinking_level=kwargs.get("thinking_level", types.ThinkingLevel.LOW),
+        )
 
         # Handle models that support JSON response schema
         parts.append(types.Part.from_text(text=USER_PROMPT.strip()))
-
-        config.response_mime_type = "application/json"
-        config.response_schema = ImageBinaryChallenge
 
         # Structured output with Constraint encoding
         self._response = await client.aio.models.generate_content(

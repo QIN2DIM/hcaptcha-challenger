@@ -134,8 +134,10 @@ class ChallengeClassifier(_Reasoner[FastShotModelType]):
 
 
 class ChallengeRouter(_Reasoner[FastShotModelType]):
-    def __init__(self, gemini_api_key: str, model: FastShotModelType = DEFAULT_FAST_SHOT_MODEL):
-        super().__init__(gemini_api_key, model)
+    def __init__(
+        self, gemini_api_key: str, model: FastShotModelType = DEFAULT_FAST_SHOT_MODEL, **kwargs
+    ):
+        super().__init__(gemini_api_key, model, **kwargs)
 
     @retry(
         stop=stop_after_attempt(3),
