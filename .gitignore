@@ -179,3 +179,4 @@ docs/assets/3d_spatial_understanding
 generate_content
 
 docs/assets/**/coordinate_grid*.png
+tests/show_answer/
