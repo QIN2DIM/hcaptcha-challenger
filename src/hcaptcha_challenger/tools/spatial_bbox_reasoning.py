@@ -35,8 +35,8 @@ class SpatialBboxReasoner(_Reasoner[SCoTModelType]):
     async def invoke_async(
         self,
         *,
+        challenge_screenshot: Union[str, Path, os.PathLike],
         grid_divisions: Union[str, Path, os.PathLike],
-        challenge_screenshot: Union[str, Path, os.PathLike] | None = None,
         auxiliary_information: str | None = "",
         **kwargs,
     ) -> ImageBboxChallenge:

@@ -613,13 +613,10 @@ class RoboticArm:
         for cid in range(crumb_count):
             await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
-            logger.debug("capture spatial mapping")
             raw, projection = await self._capture_spatial_mapping(frame_challenge, cache_key, cid)
 
-            logger.debug("match user prompt")
             user_prompt = self._match_user_prompt(job_type)
 
-            logger.debug("invoke reasoner")
             response = await self._spatial_path_reasoner.invoke_async(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
@@ -646,13 +643,10 @@ class RoboticArm:
         for cid in range(crumb_count):
             await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
 
-            logger.debug("capture spatial mapping")
             raw, projection = await self._capture_spatial_mapping(frame_challenge, cache_key, cid)
 
-            logger.debug("match user prompt")
             user_prompt = self._match_user_prompt(job_type)
 
-            logger.debug("invoke reasoner")
             response = await self._spatial_point_reasoner.invoke_async(
                 challenge_screenshot=raw,
                 grid_divisions=projection,

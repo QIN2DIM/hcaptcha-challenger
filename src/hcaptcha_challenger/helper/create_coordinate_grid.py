@@ -125,7 +125,7 @@ def create_coordinate_grid(
     x_line_space_num: int = 11,
     y_line_space_num: int = 20,
     adaptive_contrast: bool = False,
-    tick_labels_size: int = 12,
+    tick_labels_size: int = 10,
     color: str = "gray",
 ) -> np.ndarray:
     """

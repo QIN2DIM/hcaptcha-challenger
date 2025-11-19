@@ -17,7 +17,7 @@ SHOW_ANSWER_DIR = Path(__file__).parent.joinpath("show_answer/image_drag_drop")
 
 
 async def test_gemini_path_reasoning():
-    challenge_screenshot = CHALLENGE_VIEW_DIR.joinpath("single_10.png")
+    challenge_screenshot = CHALLENGE_VIEW_DIR.joinpath("single_7.png")
     grid_divisions_path = challenge_screenshot.parent.joinpath(
         f'coordinate_grid_{challenge_screenshot.name}'
     )
@@ -26,7 +26,9 @@ async def test_gemini_path_reasoning():
     grid_divisions_image = create_coordinate_grid(challenge_screenshot, bbox)
     plt.imsave(str(grid_divisions_path.resolve()), grid_divisions_image)
 
-    results = await gic.invoke_async(grid_divisions=grid_divisions_path)
+    results = await gic.invoke_async(
+        challenge_screenshot=challenge_screenshot, grid_divisions=grid_divisions_path
+    )
     logger.debug(f'ToolInvokeMessage: {results.log_message}')
 
     # Visualize the answer on the actual image

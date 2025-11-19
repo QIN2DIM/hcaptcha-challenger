@@ -38,7 +38,7 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
     """
 
     async def invoke_async(
-        self, challenge_screenshot: Union[str, Path, os.PathLike], **kwargs
+        self, *, challenge_screenshot: Union[str, Path, os.PathLike], **kwargs
     ) -> ImageBinaryChallenge:
         """
         Process an image challenge and return the solution coordinates.
