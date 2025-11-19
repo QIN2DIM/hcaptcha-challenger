@@ -4,11 +4,8 @@ from typing import Union
 
 from google import genai
 from google.genai import types
-from loguru import logger
-from tenacity import retry, stop_after_attempt, wait_fixed
 
-from hcaptcha_challenger.models import SCoTModelType, ImageBinaryChallenge, DEFAULT_SCOT_MODEL
-from hcaptcha_challenger.tools.common import extract_first_json_block
+from hcaptcha_challenger.models import SCoTModelType, ImageBinaryChallenge
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
 SYSTEM_INSTRUCTION = """
@@ -40,16 +37,6 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
     (typically grid-based selection challenges) and determines the correct answer coordinates.
     """
 
-    def __init__(self, gemini_api_key: str, model: SCoTModelType = DEFAULT_SCOT_MODEL, **kwargs):
-        super().__init__(gemini_api_key, model, **kwargs)
-
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_fixed(3),
-        before_sleep=lambda retry_state: logger.warning(
-            f"Retry request ({retry_state.attempt_number}/2) - Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
-        ),
-    )
     async def invoke_async(
         self, challenge_screenshot: Union[str, Path, os.PathLike], **kwargs
     ) -> ImageBinaryChallenge:
@@ -71,9 +58,14 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
         client = genai.Client(api_key=self._api_key)
 
         # Upload the challenge image file
-        files = [await client.aio.files.upload(file=challenge_screenshot)]
+        files_to_upload = [challenge_screenshot]
+        uploaded_files = await self._upload_files(client, files_to_upload)
 
-        parts = [types.Part.from_uri(file_uri=files[0].uri, mime_type=files[0].mime_type)]
+        parts = self._files_to_parts(uploaded_files)
+
+        # Handle models that support JSON response schema
+        parts.append(types.Part.from_text(text=USER_PROMPT.strip()))
+
         contents = [types.Content(role="user", parts=parts)]
 
         config = types.GenerateContentConfig(
@@ -91,13 +83,10 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
             thinking_level=kwargs.get("thinking_level", types.ThinkingLevel.LOW),
         )
 
-        # Handle models that support JSON response schema
-        parts.append(types.Part.from_text(text=USER_PROMPT.strip()))
-
-        # Structured output with Constraint encoding
-        self._response = await client.aio.models.generate_content(
-            model=model_to_use, contents=contents, config=config
+        return await self._generate_content(
+            client=client,
+            model=model_to_use,
+            contents=contents,
+            config=config,
+            response_schema=ImageBinaryChallenge,
         )
-        if _result := self._response.parsed:
-            return ImageBinaryChallenge(**self._response.parsed.model_dump())
-        return ImageBinaryChallenge(**extract_first_json_block(self._response.text))

@@ -1,15 +1,20 @@
+import asyncio
 import json
+import os
 from abc import abstractmethod, ABC
 from pathlib import Path
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Union, List, Type
 
+from google import genai
 from google.genai import types
 from loguru import logger
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from hcaptcha_challenger.models import THINKING_BUDGET_MODELS, THINKING_LEVEL_MODELS
-from hcaptcha_challenger.tools.common import run_sync
+from hcaptcha_challenger.tools.common import run_sync, extract_first_json_block
 
 M = TypeVar("M")
+R = TypeVar("R")
 
 
 class _Reasoner(ABC, Generic[M]):
@@ -28,6 +33,45 @@ class _Reasoner(ABC, Generic[M]):
             )
         except Exception as e:
             logger.warning(e)
+
+    @staticmethod
+    async def _upload_files(
+        client: genai.Client, files: List[Union[str, Path, os.PathLike]]
+    ) -> List[types.File]:
+        """Upload multiple files concurrently."""
+        valid_files = [f for f in files if f]
+        if not valid_files:
+            return []
+        upload_tasks = [client.aio.files.upload(file=f) for f in valid_files]
+        return await asyncio.gather(*upload_tasks)
+
+    @staticmethod
+    def _files_to_parts(files: List[types.File]) -> List[types.Part]:
+        """Convert uploaded files to parts."""
+        return [types.Part.from_uri(file_uri=f.uri, mime_type=f.mime_type) for f in files]
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_fixed(3),
+        before_sleep=lambda retry_state: logger.warning(
+            f"Retry request ({retry_state.attempt_number}/2) - Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
+        ),
+    )
+    async def _generate_content(
+        self,
+        client: genai.Client,
+        model: str,
+        contents: List[types.Content],
+        config: types.GenerateContentConfig,
+        response_schema: Type[R],
+    ) -> R:
+        """Generate content with retry logic and response parsing."""
+        self._response = await client.aio.models.generate_content(
+            model=model, contents=contents, config=config
+        )
+        if self._response.parsed:
+            return response_schema(**self._response.parsed.model_dump())
+        return response_schema(**extract_first_json_block(self._response.text))
 
     @abstractmethod
     async def invoke_async(self, *args, **kwargs):
