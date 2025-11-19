@@ -8,7 +8,7 @@ from hcaptcha_challenger.models import SCoTModelType, ImageDragDropChallenge
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
 
-THINKING_PROMPT_1022 = """
+SYSTEM_INSTRUCTION = """
 You are a Visual Spatial Reasoning System specialized in solving interactive placement puzzles.
 
 Your task: Analyze the image to identify which draggable element should be moved to which target location based on visual patterns and implicit matching rules.
@@ -29,7 +29,7 @@ AUXILIARY_INFORMATION_TPL = """
 {auxiliary_information}
 """
 
-USER_PROMPT_1022 = """
+USER_PROMPT = """
 Analyze the visual puzzle:
 - Identify the draggable element and available target zones
 - Recognize the matching pattern (visual similarity, categorical logic, or spatial rules)
@@ -54,9 +54,9 @@ class SpatialPathReasoner(_Reasoner[SCoTModelType]):
 
         if auxiliary_information and isinstance(auxiliary_information, str):
             ait = AUXILIARY_INFORMATION_TPL.format(auxiliary_information=auxiliary_information)
-            parts.append(types.Part.from_text(text=f"{ait}{USER_PROMPT_1022}"))
+            parts.append(types.Part.from_text(text=f"{ait}{USER_PROMPT}"))
         else:
-            parts.append(types.Part.from_text(text=USER_PROMPT_1022))
+            parts.append(types.Part.from_text(text=USER_PROMPT))
 
         return parts
 
@@ -85,7 +85,7 @@ class SpatialPathReasoner(_Reasoner[SCoTModelType]):
 
         config = types.GenerateContentConfig(
             temperature=0,
-            system_instruction=THINKING_PROMPT_1022,
+            system_instruction=SYSTEM_INSTRUCTION,
             media_resolution=types.MediaResolution.MEDIA_RESOLUTION_HIGH,
             response_mime_type="application/json",
             response_schema=ImageDragDropChallenge,
@@ -94,7 +94,7 @@ class SpatialPathReasoner(_Reasoner[SCoTModelType]):
         self._set_thinking_config(
             config=config,
             model_to_use=model_to_use,
-            thinking_level=kwargs.get("thinking_level", types.ThinkingLevel.LOW),
+            thinking_level=kwargs.get("thinking_level", types.ThinkingLevel.HIGH),
         )
 
         return await self._generate_content(

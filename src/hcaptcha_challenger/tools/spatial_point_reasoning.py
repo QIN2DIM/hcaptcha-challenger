@@ -8,7 +8,7 @@ from google.genai import types
 from hcaptcha_challenger.models import SCoTModelType, ImageAreaSelectChallenge
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
-THINKING_PROMPT = """
+SYSTEM_INSTRUCTION = """
 **Rule for 'Find the Different Object' Tasks:**
 
 *   **Constraint:** Do **NOT** consider size differences caused by perspective (near/far).
@@ -57,8 +57,8 @@ class SpatialPointReasoner(_Reasoner[SCoTModelType]):
         contents = [types.Content(role="user", parts=parts)]
 
         config = types.GenerateContentConfig(
-            temperature=0,
-            system_instruction=THINKING_PROMPT,
+            temperature=1.0,
+            system_instruction=SYSTEM_INSTRUCTION,
             media_resolution=types.MediaResolution.MEDIA_RESOLUTION_HIGH,
             response_mime_type="application/json",
             response_schema=ImageAreaSelectChallenge,
@@ -67,7 +67,7 @@ class SpatialPointReasoner(_Reasoner[SCoTModelType]):
         self._set_thinking_config(
             config=config,
             model_to_use=model_to_use,
-            thinking_level=kwargs.get("thinking_level", types.ThinkingLevel.LOW),
+            thinking_level=kwargs.get("thinking_level", types.ThinkingLevel.HIGH),
         )
 
         return await self._generate_content(
