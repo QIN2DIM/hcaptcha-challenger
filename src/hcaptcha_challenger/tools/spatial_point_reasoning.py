@@ -57,13 +57,12 @@ class SpatialPointReasoner(_Reasoner[SCoTModelType]):
         contents = [types.Content(role="user", parts=parts)]
 
         config = types.GenerateContentConfig(
+            temperature=0,
             system_instruction=THINKING_PROMPT,
             media_resolution=types.MediaResolution.MEDIA_RESOLUTION_HIGH,
             response_mime_type="application/json",
             response_schema=ImageAreaSelectChallenge,
         )
-
-        self._set_temperature(config=config, model_to_use=model_to_use)
 
         self._set_thinking_config(
             config=config,

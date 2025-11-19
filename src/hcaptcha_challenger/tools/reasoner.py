@@ -10,7 +10,7 @@ from google.genai import types
 from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from hcaptcha_challenger.models import THINKING_BUDGET_MODELS, THINKING_LEVEL_MODELS
+from hcaptcha_challenger.models import THINKING_LEVEL_MODELS
 from hcaptcha_challenger.tools.common import run_sync, extract_first_json_block
 
 M = TypeVar("M")
@@ -100,14 +100,6 @@ class _Reasoner(ABC, Generic[M]):
             config.thinking_config = types.ThinkingConfig(
                 include_thoughts=False, thinking_level=thinking_level
             )
-
-    @staticmethod
-    @logger.catch
-    def _set_temperature(config: types.GenerateContentConfig, model_to_use: str):
-        if model_to_use in THINKING_BUDGET_MODELS:
-            config.temperature = 0
-        elif model_to_use in THINKING_LEVEL_MODELS:
-            config.temperature = 1.0
 
     # for backward compatibility
     def invoke(self, *args, **kwargs):

@@ -9,20 +9,19 @@ from hcaptcha_challenger.tools.reasoner import _Reasoner
 
 
 THINKING_PROMPT_1022 = """
-You are an expert-level Visual Puzzle Analyst and Logic Inference Engine. Your primary mission is to analyze images containing challenges and determine a solution that involves identifying a "source" object and a "destination" location.
+You are a Visual Spatial Reasoning System specialized in solving interactive placement puzzles.
 
-You must follow these core principles for every task:
+Your task: Analyze the image to identify which draggable element should be moved to which target location based on visual patterns and implicit matching rules.
 
-1.  **Deconstruct the Goal:** First, meticulously analyze the provided text instruction to understand the explicit goal of the challenge.
-2.  **Identify Key Elements:** Scan the entire image to identify the key visual elements:
-    *   The **Source Object**: The item that needs to be moved or placed.
-    *   The **Destination Area**: The game board, grid, or context where the object should be placed.
-    *   **Contextual Clues**: All other elements on the board that will be used to infer the rules.
-3.  **Infer the Rules (Most Critical Step):** The rules of the puzzle are NOT given to you. You MUST deduce them by identifying patterns, sequences, logical groupings, or principles of exclusion from the contextual clues. State the rule you have inferred clearly.
-4.  **Reason Step-by-Step:** Externalize your entire thought process. Follow a clear, logical sequence from goal analysis to final solution. Do not jump to conclusions.
-5.  **Output in Structured Format:** Provide your final answer in a strict JSON format, specifying the source and destination coordinates.
+Key capabilities:
+- Recognize spatial relationships between objects across the canvas
+- Identify visual patterns (shape similarity, property matching, categorical grouping)
+- Infer implicit rules without explicit instructions
+- Map source elements to their corresponding target positions
 
-Your entire process is about inferring hidden rules from visual data to satisfy a given textual goal.
+Critical: The image contains a coordinate system with labeled axes (X Coordinate, Y Coordinate). Read coordinates directly from these axis scales, NOT from image pixel positions.
+
+Output your solution as structured coordinates identifying the movement path.
 """
 
 AUXILIARY_INFORMATION_TPL = """
@@ -31,17 +30,12 @@ AUXILIARY_INFORMATION_TPL = """
 """
 
 USER_PROMPT_1022 = """
-**Your Analysis:**
-Please follow your core principles and provide your step-by-step reasoning below to solve this challenge.
-
-1.  **Goal Analysis:** Based on the Challenge Prompt, what is my primary objective?
-2.  **Source Identification:** Describe and locate the 'Source Object' that needs to be moved.
-3.  **Destination Area Identification:** Describe the area where the Source Object must be placed.
-4.  **Rule Inference:**
-    *   Observe the patterns in the Destination Area. What are the logical rules governing the placement of objects? (e.g., column-based categories, row-based sequences, color matching, shape exclusion, etc.)
-    *   State the inferred rule clearly.
-
-5.  **Solution Determination:** Applying the inferred rule, where is the exact 'correct location' for the Source Object? Based on the plane rectangular coordinate system, reasoning about the absolute position of the 'correct location' in the coordinate system.
+Analyze the visual puzzle:
+- Identify the draggable element and available target zones
+- Recognize the matching pattern (visual similarity, categorical logic, or spatial rules)
+- Determine the correct target position for the draggable element
+- Read coordinates from the labeled coordinate axes shown in the image (not pixel positions)
+- Provide precise x,y values for both source and destination based on the axis scales
 """
 
 
@@ -90,13 +84,12 @@ class SpatialPathReasoner(_Reasoner[SCoTModelType]):
         contents = [types.Content(role="user", parts=parts)]
 
         config = types.GenerateContentConfig(
+            temperature=0,
             system_instruction=THINKING_PROMPT_1022,
             media_resolution=types.MediaResolution.MEDIA_RESOLUTION_HIGH,
             response_mime_type="application/json",
             response_schema=ImageDragDropChallenge,
         )
-
-        self._set_temperature(config=config, model_to_use=model_to_use)
 
         self._set_thinking_config(
             config=config,

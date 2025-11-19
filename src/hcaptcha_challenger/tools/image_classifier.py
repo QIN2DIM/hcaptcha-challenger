@@ -69,13 +69,12 @@ class ImageClassifier(_Reasoner[SCoTModelType]):
         contents = [types.Content(role="user", parts=parts)]
 
         config = types.GenerateContentConfig(
+            temperature=0,
             system_instruction=SYSTEM_INSTRUCTION,
             media_resolution=types.MediaResolution.MEDIA_RESOLUTION_HIGH,
             response_mime_type="application/json",
             response_schema=ImageBinaryChallenge,
         )
-
-        self._set_temperature(config=config, model_to_use=model_to_use)
 
         self._set_thinking_config(
             config=config,
