@@ -7,29 +7,6 @@ from google.genai import types
 from hcaptcha_challenger.models import SCoTModelType, ImageDragDropChallenge
 from hcaptcha_challenger.tools.reasoner import _Reasoner
 
-THINKING_PROMPT = """
-**Rule for 'Find the Notched Rectangular Area' Tasks:**
-1. Identify challenge prompt about the Challenge Image
-2. Think about what the challenge requires identification goals, and where are they in the picture
-3. Think about what object should be dragged to which position
-4. Based on the plane rectangular coordinate system, reasoning about the absolute position of the "answer object" in the coordinate system
-
-Finally, solve the challenge, locate the object, output the coordinates of the correct answer as json. Follow the following format to return a coordinates wrapped with a json code block:
-
-```json
-{
-  "challenge_prompt": "Task description",
-  "paths": [
-    {"start_point": {"x":  x1, "y": y1}, "end_point": {"x":  x2, "y": y2}}
-  ]
-}
-```
-"""
-
-USER_PROMPT = """
-请根据教程学习规则、模式和思路，尝试解决新的 image_drag_drop challenge，最后返回正确答案的坐标。
-将右侧的拼图方块移至左侧画布上的正确位置，使得画布上的物体形状完整和连续。
-"""
 
 THINKING_PROMPT_1022 = """
 You are an expert-level Visual Puzzle Analyst and Logic Inference Engine. Your primary mission is to analyze images containing challenges and determine a solution that involves identifying a "source" object and a "destination" location.
@@ -47,10 +24,12 @@ You must follow these core principles for every task:
 
 Your entire process is about inferring hidden rules from visual data to satisfy a given textual goal.
 """
+
 AUXILIARY_INFORMATION_TPL = """
 **Challenge Prompt:**
 {auxiliary_information}
 """
+
 USER_PROMPT_1022 = """
 **Your Analysis:**
 Please follow your core principles and provide your step-by-step reasoning below to solve this challenge.
@@ -111,7 +90,7 @@ class SpatialPathReasoner(_Reasoner[SCoTModelType]):
         contents = [types.Content(role="user", parts=parts)]
 
         config = types.GenerateContentConfig(
-            system_instruction=THINKING_PROMPT,
+            system_instruction=THINKING_PROMPT_1022,
             media_resolution=types.MediaResolution.MEDIA_RESOLUTION_HIGH,
             response_mime_type="application/json",
             response_schema=ImageDragDropChallenge,
