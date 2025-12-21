@@ -8,8 +8,6 @@ exclude = [
 
 [rules]
 invalid-argument-type = "ignore"
-#invalid-assignment = "ignore"
-no-matching-overload = "ignore"
 unsupported-operator = "ignore"
 invalid-parameter-default = "ignore"
 invalid-type-form = "ignore"

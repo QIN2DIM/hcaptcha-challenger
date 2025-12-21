@@ -254,7 +254,7 @@ def check(
 
                 # Update type statistics
                 if request_type not in dataset_stats["types"]:
-                    dataset_stats["types"][request_type] = {"total": 0, "valid": 0, "invalid": 0}
+                    dataset_stats["types"][request_type] = TypeStats(total=0, valid=0, invalid=0)
                 dataset_stats["types"][request_type]["total"] += 1
 
                 # Perform check

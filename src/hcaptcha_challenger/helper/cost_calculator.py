@@ -208,6 +208,9 @@ def export_stats(
         # This shouldn't happen as we specified detailed=True
         raise ValueError("Failed to generate detailed statistics")
 
+    # Type assertion for type checker after isinstance check
+    assert isinstance(stats, ModelUsageStats)
+
     # Ensure all cost values are rounded to 3 decimal places
     stats.total_cost = round(stats.total_cost, 3)
     stats.average_cost_per_challenge = round(stats.average_cost_per_challenge, 3)
