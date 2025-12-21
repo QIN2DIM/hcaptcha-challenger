@@ -8,8 +8,6 @@ the challenge requirements, using global-to-local visual analysis.
 from pathlib import Path
 from typing import Union
 
-from google.genai import types
-
 from hcaptcha_challenger.models import ImageAreaSelectChallenge
 from hcaptcha_challenger.tools.spatial.base import SpatialReasoner
 from hcaptcha_challenger.utils import load_desc
@@ -34,7 +32,6 @@ class SpatialPointReasoner(SpatialReasoner[ImageAreaSelectChallenge]):
         challenge_screenshot: Union[str, Path],
         grid_divisions: Union[str, Path],
         auxiliary_information: str | None = None,
-        thinking_level: types.ThinkingLevel | None = types.ThinkingLevel.HIGH,
         **kwargs,
     ) -> ImageAreaSelectChallenge:
         """
@@ -54,7 +51,6 @@ class SpatialPointReasoner(SpatialReasoner[ImageAreaSelectChallenge]):
             challenge_screenshot=Path(challenge_screenshot),
             grid_divisions=Path(grid_divisions),
             auxiliary_information=auxiliary_information,
-            thinking_level=thinking_level,
             response_schema=ImageAreaSelectChallenge,
             **kwargs,
         )

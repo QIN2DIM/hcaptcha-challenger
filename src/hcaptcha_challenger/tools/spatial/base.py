@@ -9,7 +9,6 @@ from abc import ABC
 from pathlib import Path
 from typing import TypeVar, List
 
-from google.genai import types
 from pydantic import BaseModel
 
 from hcaptcha_challenger.models import SCoTModelType
@@ -28,18 +27,13 @@ class SpatialReasoner(Reasoner[SCoTModelType, ResponseT], ABC):
     - Standard image upload pattern (challenge + grid)
     """
 
-    DEFAULT_TEMPERATURE: float = 1.0
-    DEFAULT_THINKING_LEVEL: types.ThinkingLevel = types.ThinkingLevel.HIGH
-
     async def _invoke_spatial(
         self,
         *,
         challenge_screenshot: Path,
         grid_divisions: Path,
         auxiliary_information: str | None = None,
-        thinking_level: types.ThinkingLevel | None = None,
         response_schema: type[ResponseT],
-        temperature: float | None = None,
         **kwargs,
     ) -> ResponseT:
         """
@@ -68,7 +62,5 @@ class SpatialReasoner(Reasoner[SCoTModelType, ResponseT], ABC):
             user_prompt=user_prompt,
             description=self.description,
             response_schema=response_schema,
-            temperature=temperature or self.DEFAULT_TEMPERATURE,
-            thinking_level=thinking_level or self.DEFAULT_THINKING_LEVEL,
             **kwargs,
         )

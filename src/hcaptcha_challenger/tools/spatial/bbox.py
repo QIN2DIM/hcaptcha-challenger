@@ -8,8 +8,6 @@ for the target area that fulfills the challenge requirements.
 from pathlib import Path
 from typing import Union
 
-from google.genai import types
-
 from hcaptcha_challenger.models import ImageBboxChallenge
 from hcaptcha_challenger.tools.spatial.base import SpatialReasoner
 from hcaptcha_challenger.utils import load_desc
@@ -34,7 +32,6 @@ class SpatialBboxReasoner(SpatialReasoner[ImageBboxChallenge]):
         challenge_screenshot: Union[str, Path],
         grid_divisions: Union[str, Path],
         auxiliary_information: str | None = None,
-        thinking_level: types.ThinkingLevel | None = types.ThinkingLevel.HIGH,
         **kwargs,
     ) -> ImageBboxChallenge:
         """
@@ -54,7 +51,6 @@ class SpatialBboxReasoner(SpatialReasoner[ImageBboxChallenge]):
             challenge_screenshot=Path(challenge_screenshot),
             grid_divisions=Path(grid_divisions),
             auxiliary_information=auxiliary_information,
-            thinking_level=thinking_level,
             response_schema=ImageBboxChallenge,
             **kwargs,
         )

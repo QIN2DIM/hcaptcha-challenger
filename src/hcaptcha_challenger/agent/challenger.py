@@ -42,7 +42,6 @@ from hcaptcha_challenger.models import ChallengeTypeEnum, CoordinateGrid
 from hcaptcha_challenger.prompts import match_user_prompt
 from hcaptcha_challenger.tools import (
     ImageClassifier,
-    ChallengeClassifier,
     ChallengeRouter,
     SpatialPathReasoner,
     SpatialPointReasoner,
@@ -266,10 +265,6 @@ class RoboticArm:
         self.config = config
         self._debug = config.enable_challenger_debug
 
-        self._challenge_classifier = ChallengeClassifier(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
-            model=self.config.CHALLENGE_CLASSIFIER_MODEL,
-        )
         self._challenge_router = ChallengeRouter(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.CHALLENGE_CLASSIFIER_MODEL,

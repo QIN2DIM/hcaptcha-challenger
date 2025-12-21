@@ -8,16 +8,9 @@ moved to which target location based on visual patterns and implicit matching ru
 from pathlib import Path
 from typing import Union
 
-from google.genai import types
-
 from hcaptcha_challenger.models import ImageDragDropChallenge
 from hcaptcha_challenger.tools.spatial.base import SpatialReasoner
 from hcaptcha_challenger.utils import load_desc
-
-AUXILIARY_INFORMATION_TPL = """
-**Challenge Prompt:**
-{auxiliary_information}
-"""
 
 
 class SpatialPathReasoner(SpatialReasoner[ImageDragDropChallenge]):
@@ -39,7 +32,6 @@ class SpatialPathReasoner(SpatialReasoner[ImageDragDropChallenge]):
         challenge_screenshot: Union[str, Path],
         grid_divisions: Union[str, Path],
         auxiliary_information: str | None = None,
-        thinking_level: types.ThinkingLevel | None = types.ThinkingLevel.HIGH,
         **kwargs,
     ) -> ImageDragDropChallenge:
         """
@@ -55,12 +47,10 @@ class SpatialPathReasoner(SpatialReasoner[ImageDragDropChallenge]):
         Returns:
             ImageDragDropChallenge containing the drag paths.
         """
-        # Build user prompt with auxiliary information
         return await self._invoke_spatial(
             challenge_screenshot=Path(challenge_screenshot),
             grid_divisions=Path(grid_divisions),
             auxiliary_information=auxiliary_information,
-            thinking_level=thinking_level,
             response_schema=ImageDragDropChallenge,
             **kwargs,
         )

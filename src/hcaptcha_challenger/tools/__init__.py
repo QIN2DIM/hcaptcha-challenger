@@ -11,8 +11,8 @@ This module provides AI-powered tools for solving various hCaptcha challenge typ
 
 Available Tools:
     - ImageClassifier: 9-grid image selection challenges
-    - ChallengeClassifier: Simple challenge type classification
-    - ChallengeRouter: Full classification with prompt extraction
+    - ChallengeRouter: Challenge type classification with prompt extraction
+    - ChallengeClassifier: Alias for ChallengeRouter (backward compatibility)
     - SpatialPathReasoner: Drag-and-drop path challenges
     - SpatialPointReasoner: Point/area selection challenges
     - SpatialBboxReasoner: Bounding box challenges

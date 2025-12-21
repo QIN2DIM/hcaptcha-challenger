@@ -77,17 +77,12 @@ class GeminiProvider:
         """Convert uploaded files to parts."""
         return [types.Part.from_uri(file_uri=f.uri, mime_type=f.mime_type) for f in files]
 
-    def _set_thinking_config(
-        self,
-        config: types.GenerateContentConfig,
-        thinking_level: types.ThinkingLevel | str | None = None,
-    ) -> None:
+    def _set_thinking_config(self, config: types.GenerateContentConfig) -> None:
         """Configure thinking settings based on model capabilities."""
         config.thinking_config = types.ThinkingConfig(include_thoughts=True)
 
         if self._model in THINKING_LEVEL_MODELS:
-            if not isinstance(thinking_level, types.ThinkingLevel):
-                thinking_level = types.ThinkingLevel.HIGH
+            thinking_level = types.ThinkingLevel.HIGH
 
             config.thinking_config = types.ThinkingConfig(
                 include_thoughts=False, thinking_level=thinking_level
@@ -108,7 +103,6 @@ class GeminiProvider:
         user_prompt: str,
         description: str,
         response_schema: Type[ResponseT],
-        thinking_level: types.ThinkingLevel | None = types.ThinkingLevel.HIGH,
         **kwargs,
     ) -> ResponseT:
         """
@@ -119,8 +113,6 @@ class GeminiProvider:
             user_prompt: User-provided prompt/instructions.
             description: System instruction/description for the model.
             response_schema: Pydantic model class for structured output.
-            temperature: Sampling temperature (default: 0.0).
-            thinking_level: Thinking level for supported models.
             **kwargs: Additional options passed to the API.
 
         Returns:
@@ -145,7 +137,7 @@ class GeminiProvider:
         )
 
         # Set thinking config if applicable
-        self._set_thinking_config(config=config, thinking_level=thinking_level)
+        self._set_thinking_config(config=config)
 
         # Generate response
         self._response: types.GenerateContentResponse = (
