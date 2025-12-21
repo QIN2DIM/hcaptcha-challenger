@@ -31,9 +31,9 @@ class ChatProvider(Protocol[ResponseT]):
         self,
         *,
         images: List[Path],
-        user_prompt: str,
-        description: str,
         response_schema: type[ResponseT],
+        user_prompt: str | None = None,
+        description: str | None = None,
         **kwargs,
     ) -> ResponseT:
         """
@@ -41,9 +41,9 @@ class ChatProvider(Protocol[ResponseT]):
 
         Args:
             images: List of image file paths to include in the request.
+            response_schema: Pydantic model class for structured output.
             user_prompt: User-provided prompt/instructions.
             description: System instruction/description for the model.
-            response_schema: Pydantic model class for structured output.
             **kwargs: Provider-specific options (e.g., thinking_level, temperature).
 
         Returns:

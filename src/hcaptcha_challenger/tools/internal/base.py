@@ -70,7 +70,7 @@ class Reasoner(ABC, Generic[ModelT, ResponseT]):
         return GeminiProvider(api_key=self._api_key, model=self._model)
 
     @abstractmethod
-    async def __call__(self, **kwargs) -> ResponseT:
+    async def __call__(self, *args, **kwargs) -> ResponseT:
         """
         Invoke the reasoning tool asynchronously.
 
@@ -91,8 +91,9 @@ class Reasoner(ABC, Generic[ModelT, ResponseT]):
         Args:
             path: Path to save the response JSON.
         """
-        if hasattr(self._provider, "cache_response"):
-            self._provider.cache_response(path)
+        cache_fn = getattr(self._provider, "cache_response", None)
+        if cache_fn is not None and callable(cache_fn):
+            cache_fn(path)
         elif self._response:
             try:
                 path.parent.mkdir(parents=True, exist_ok=True)

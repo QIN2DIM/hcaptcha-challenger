@@ -7,7 +7,7 @@ This provider wraps the google-genai SDK to provide image-based content generati
 import asyncio
 import json
 from pathlib import Path
-from typing import List, Type, TypeVar
+from typing import List, Type, TypeVar, cast
 
 from google import genai
 from google.genai import types
@@ -100,9 +100,9 @@ class GeminiProvider:
         self,
         *,
         images: List[Path],
-        user_prompt: str,
-        description: str,
         response_schema: Type[ResponseT],
+        user_prompt: str | None = None,
+        description: str | None = None,
         **kwargs,
     ) -> ResponseT:
         """
@@ -148,14 +148,19 @@ class GeminiProvider:
 
         # Parse response
         if self._response.parsed:
-            return response_schema(**self._response.parsed.model_dump())
+            parsed = self._response.parsed
+            if isinstance(parsed, BaseModel):
+                return response_schema(**parsed.model_dump())
+            if isinstance(parsed, dict):
+                return response_schema(**cast(dict[str, object], parsed))
 
         # Fallback to JSON extraction
-        json_data = extract_first_json_block(self._response.text)
-        if json_data:
-            return response_schema(**json_data)
+        if response_text := self._response.text:
+            json_data = extract_first_json_block(response_text)
+            if json_data:
+                return response_schema(**json_data)
 
-        raise ValueError(f"Failed to parse response: {self._response.text}")
+        raise ValueError(f"Failed to parse response: {response_text}")
 
     def cache_response(self, path: Path) -> None:
         """Cache the last response to a file."""
