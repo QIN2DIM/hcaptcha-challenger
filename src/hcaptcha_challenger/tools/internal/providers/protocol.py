@@ -16,7 +16,7 @@ from typing import Protocol, TypeVar, runtime_checkable, List
 
 from pydantic import BaseModel
 
-ResponseT = TypeVar("ResponseT", bound=BaseModel, covariant=True)
+ResponseT = TypeVar("ResponseT", bound=BaseModel)
 
 
 @runtime_checkable

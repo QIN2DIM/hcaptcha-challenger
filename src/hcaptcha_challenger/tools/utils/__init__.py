@@ -83,3 +83,4 @@ def extract_first_json_block(text: str) -> Any | None:
     """
     if blocks := extract_json_blocks(text):
         return json.loads(blocks[0])
+    return None

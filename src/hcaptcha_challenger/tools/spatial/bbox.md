@@ -1,11 +1,11 @@
-<Instruction>
+<task>
 Analyze the input image (which includes a visible coordinate grid) and the accompanying challenge prompt text.
 First, interpret the challenge prompt to understand the task or identification required, focusing on the main interactive challenge canvas.
 Second, identify the precise target area on the main challenge canvas that represents the answer or the location most relevant to fulfilling the challenge. This target should be enclosed within its minimal possible bounding box.
 Finally, output the original challenge prompt and the absolute pixel bounding box coordinates (as integers, based on the image's coordinate grid) for this minimal target area.
-</Instruction>
+</task>
 
-<Output>
+<output>
 {
     "challenge_prompt": "{task_instructions}",
     "bounding_box": {
@@ -15,4 +15,4 @@ Finally, output the original challenge prompt and the absolute pixel bounding bo
       "bottom_right_y": 345
     }
 }
-</Output>
+</output>
