@@ -57,9 +57,9 @@ def init_log(**sink_channel):
         filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
     )
 
-    if sink_channel.get("error"):
+    if error_sink := sink_channel.get("error"):
         logger.add(
-            sink=sink_channel.get("error"),
+            sink=error_sink,
             level="ERROR",
             rotation="5 MB",
             retention="7 days",
@@ -68,9 +68,9 @@ def init_log(**sink_channel):
             filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
         )
 
-    if sink_channel.get("runtime"):
+    if runtime_sink := sink_channel.get("runtime"):
         logger.add(
-            sink=sink_channel.get("runtime"),
+            sink=runtime_sink,
             level="TRACE",
             rotation="5 MB",
             retention="7 days",
@@ -79,9 +79,9 @@ def init_log(**sink_channel):
             filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
         )
 
-    if sink_channel.get("serialize"):
+    if serialize_sink := sink_channel.get("serialize"):
         logger.add(
-            sink=sink_channel.get("serialize"),
+            sink=serialize_sink,
             level="DEBUG",
             format=persistent_format,
             encoding="utf8",

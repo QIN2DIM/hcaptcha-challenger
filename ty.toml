@@ -8,4 +8,3 @@ exclude = [
 
 [rules]
 missing-argument = "ignore" # TODO: restore when **args for constructor is supported properly
-possibly-unbound-attribute = "ignore"
