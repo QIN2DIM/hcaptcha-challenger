@@ -1,0 +1,3362 @@
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+ --> docs\001.spatial_understanding.ipynb:cell 16:4:14
+  |
+3 | im = Image.open(image)
+4 | im.thumbnail([620, 620], Image.Resampling.LANCZOS)
+  |              ^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+5 | im
+  |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+ --> docs\001.spatial_understanding.ipynb:cell 18:7:14
+  |
+5 | # Load and resize image
+6 | im = Image.open(BytesIO(open(image, "rb").read()))
+7 | im.thumbnail([1024, 1024], Image.Resampling.LANCZOS)
+  |              ^^^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+8 |
+9 | # Run model to find bounding boxes
+  |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+ --> docs\001.spatial_understanding.ipynb:cell 23:6:14
+  |
+4 | # Load and resize image
+5 | im = Image.open(image)
+6 | im.thumbnail([640, 640], Image.Resampling.LANCZOS)
+  |              ^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+7 |
+8 | # Run model to find bounding boxes
+  |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unresolved-reference]: Name `challenge_instruction` used when not defined
+  --> docs\001.spatial_understanding.ipynb:cell 23:13:28
+   |
+11 |     contents=[prompt, im],
+12 |     config=types.GenerateContentConfig(
+13 |         system_instruction=challenge_instruction,
+   |                            ^^^^^^^^^^^^^^^^^^^^^
+14 |         temperature=0.5,
+15 |     )
+   |
+info: rule `unresolved-reference` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+ --> docs\001.spatial_understanding.ipynb:cell 26:6:14
+  |
+4 | # Load and resize image
+5 | im = Image.open(image)
+6 | im.thumbnail([640, 640], Image.Resampling.LANCZOS)
+  |              ^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+7 |
+8 | # Run model to find bounding boxes
+  |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+ --> docs\001.spatial_understanding.ipynb:cell 28:6:14
+  |
+4 | # Load and resize image
+5 | im = Image.open(image)
+6 | im.thumbnail([640, 640], Image.Resampling.LANCZOS)
+  |              ^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+7 |
+8 | # Run model to find bounding boxes
+  |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+ --> docs\001.spatial_understanding.ipynb:cell 30:6:14
+  |
+4 | # Load and resize image
+5 | im = Image.open(image)
+6 | im.thumbnail([1024, 1024], Image.Resampling.LANCZOS)
+  |              ^^^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+7 |
+8 | # Run model to find bounding boxes
+  |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-type-form]: Variable of type `Overload[(object: Unknown, dtype: None = ..., *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: Literal[True], ndmin: int = ..., like: None | _SupportsArrayFunc = ...) -> Unknown, (object: numpy._core.multiarray._SupportsArray[Unknown], dtype: None = ..., *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: Literal[True], ndmin: Literal[0] = ..., like: None | _SupportsArrayFunc = ...) -> Unknown, (object: numpy._typing._array_like._SupportsArray[dtype[Unknown]] | _NestedSequence[numpy._typing._array_like._SupportsArray[dtype[Unknown]]], dtype: None = ..., *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: bool = ..., ndmin: int = ..., like: None | _SupportsArrayFunc = ...) -> ndarray[tuple[int, ...], dtype[Unknown]], (object: object, dtype: None = ..., *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: bool = ..., ndmin: int = ..., like: None | _SupportsArrayFunc = ...) -> ndarray[tuple[int, ...], dtype[Any]], (object: Any, dtype: dtype[Unknown] | type[Unknown] | _SupportsDType[dtype[Unknown]], *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: bool = ..., ndmin: int = ..., like: None | _SupportsArrayFunc = ...) -> ndarray[tuple[int, ...], dtype[Unknown]], (object: Any, dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements, *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: bool = ..., ndmin: int = ..., like: None | _SupportsArrayFunc = ...) -> ndarray[tuple[int, ...], dtype[Any]]]` is not allowed in a type expression
+  --> docs\001.spatial_understanding.ipynb:cell 35:16:11
+   |
+14 |     y1: int  # in [0..height - 1]
+15 |     x1: int  # in [0..width - 1]
+16 |     mask: np.array  # [img_height, img_width] with values 0..255
+   |           ^^^^^^^^
+17 |     label: str
+   |
+info: rule `invalid-type-form` is enabled by default
+
+error[invalid-type-form]: Module `PIL.Image` is not valid in a type expression
+  --> docs\001.spatial_understanding.ipynb:cell 35:55:14
+   |
+54 | def overlay_mask_on_img(
+55 |         img: Image,
+   |              ^^^^^ Did you mean to use the module's member `Image.Image`?
+56 |         mask: np.ndarray,
+57 |         color: str,
+   |
+info: rule `invalid-type-form` is enabled by default
+
+error[invalid-assignment]: Object of type `tuple[int, int, int] | tuple[int, int, int, int]` is not assignable to `tuple[int, int, int]`
+  --> docs\001.spatial_understanding.ipynb:cell 35:88:20
+   |
+86 |     # Convert the color name string to an RGB tuple
+87 |     try:
+88 |         color_rgb: Tuple[int, int, int] = ImageColor.getrgb(color)
+   |                    --------------------   ^^^^^^^^^^^^^^^^^^^^^^^^ Incompatible value of type `tuple[int, int, int] | tuple[int, int, int, int]`
+   |                    |
+   |                    Declared type
+89 |     except ValueError as e:
+90 |         # Re-raise with a more informative message if color name is invalid
+   |
+info: rule `invalid-assignment` is enabled by default
+
+error[invalid-type-form]: Module `PIL.Image` is not valid in a type expression
+   --> docs\001.spatial_understanding.ipynb:cell 35:121:34
+    |
+121 | def plot_segmentation_masks(img: Image, segmentation_masks: list[SegmentationMask]):
+    |                                  ^^^^^ Did you mean to use the module's member `Image.Image`?
+122 |     """
+123 |     Plots bounding boxes on an image with markers for each a name, using PIL, normalized coordinates, and different colors.
+    |
+info: rule `invalid-type-form` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+ --> docs\001.spatial_understanding.ipynb:cell 36:6:14
+  |
+4 | # Load and resize image
+5 | im = Image.open(BytesIO(open(image, "rb").read()))
+6 | im.thumbnail([1024, 1024], Image.Resampling.LANCZOS)
+  |              ^^^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+7 |
+8 | # Run model to find segmentation masks
+  |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to function `parse_segmentation_masks` is incorrect
+ --> docs\001.spatial_understanding.ipynb:cell 37:1:47
+  |
+1 | segmentation_masks = parse_segmentation_masks(response.text, img_height=im.size[1], img_width=im.size[0])
+  |                                               ^^^^^^^^^^^^^ Expected `str`, found `str | None`
+  |
+info: Element `None` of this union is not assignable to `str`
+info: Function defined here
+  --> docs\001.spatial_understanding.ipynb:cell 35:20:5
+   |
+20 | def parse_segmentation_masks(
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+21 |         predicted_str: str, *, img_height: int, img_width: int
+   |         ------------------ Parameter declared here
+22 | ) -> list[SegmentationMask]:
+23 |     items = json.loads(parse_json(predicted_str))
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+  --> docs\001.spatial_understanding.ipynb:cell 39:16:14
+   |
+14 | # Load and resize image
+15 | im = Image.open(BytesIO(open(image, "rb").read()))
+16 | im.thumbnail([1024, 1024], Image.Resampling.LANCZOS)
+   |              ^^^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+17 |
+18 | # Run model to find segmentation masks
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to function `parse_segmentation_masks` is incorrect
+ --> docs\001.spatial_understanding.ipynb:cell 40:1:47
+  |
+1 | segmentation_masks = parse_segmentation_masks(response.text, img_height=im.size[1], img_width=im.size[0])
+  |                                               ^^^^^^^^^^^^^ Expected `str`, found `str | None`
+  |
+info: Element `None` of this union is not assignable to `str`
+info: Function defined here
+  --> docs\001.spatial_understanding.ipynb:cell 35:20:5
+   |
+20 | def parse_segmentation_masks(
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+21 |         predicted_str: str, *, img_height: int, img_width: int
+   |         ------------------ Parameter declared here
+22 | ) -> list[SegmentationMask]:
+23 |     items = json.loads(parse_json(predicted_str))
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 19:22:1
+   |
+21 | # Display the dots on the image
+22 | IPython.display.HTML(generate_point_html(img, image_response.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 21:22:1
+   |
+21 | # Display the dots on the image
+22 | IPython.display.HTML(generate_point_html(img, image_response.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `generate_content` is incorrect
+  --> docs\002.spatial_understanding_3d.ipynb:cell 23:14:5
+   |
+12 |   image_response = client.models.generate_content(
+13 |       model=MODEL_ID,
+14 | /     contents=[
+15 | |         img,
+16 | |         # Text prompt
+17 | |         prompt
+18 | |     ],
+   | |_____^ Expected `Content | ContentDict | str | ... omitted 7 union elements`, found `list[Unknown | None | str]`
+19 |       config=types.GenerateContentConfig(
+20 |           temperature=0.1
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\google\genai\models.py:5089:7
+     |
+5087 |     return return_value
+5088 |
+5089 |   def generate_content(
+     |       ^^^^^^^^^^^^^^^^
+5090 |       self,
+5091 |       *,
+5092 |       model: str,
+5093 |       contents: types.ContentListUnionDict,
+     |       ------------------------------------ Parameter declared here
+5094 |       config: Optional[types.GenerateContentConfigOrDict] = None,
+5095 |   ) -> types.GenerateContentResponse:
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 23:27:1
+   |
+25 | print(image_response.text)
+26 | # Display the dots on the image
+27 | IPython.display.HTML(generate_point_html(img, image_response.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `generate_content` is incorrect
+  --> docs\002.spatial_understanding_3d.ipynb:cell 25:13:5
+   |
+11 |   image_response = client.models.generate_content(
+12 |       model=MODEL_ID,
+13 | /     contents=[
+14 | |         img,
+15 | |         # Text prompt
+16 | |         prompt
+17 | |     ],
+   | |_____^ Expected `Content | ContentDict | str | ... omitted 7 union elements`, found `list[Unknown | None | str]`
+18 |       config=types.GenerateContentConfig(
+19 |           temperature=0.1
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\google\genai\models.py:5089:7
+     |
+5087 |     return return_value
+5088 |
+5089 |   def generate_content(
+     |       ^^^^^^^^^^^^^^^^
+5090 |       self,
+5091 |       *,
+5092 |       model: str,
+5093 |       contents: types.ContentListUnionDict,
+     |       ------------------------------------ Parameter declared here
+5094 |       config: Optional[types.GenerateContentConfigOrDict] = None,
+5095 |   ) -> types.GenerateContentResponse:
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 25:26:1
+   |
+24 | print(image_response.text)
+25 | # Display the dots on the image
+26 | IPython.display.HTML(generate_point_html(img, image_response.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 29:33:1
+   |
+32 | # Display the dots on the image
+33 | IPython.display.HTML(generate_point_html(img_0, image_response_0.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `generate_content` is incorrect
+  --> docs\002.spatial_understanding_3d.ipynb:cell 31:7:5
+   |
+ 5 |   image_response_1 = client.models.generate_content(
+ 6 |       model=MODEL_ID,
+ 7 | /     contents=[
+ 8 | |
+ 9 | |         # The first view of the scene
+10 | |         img_0,
+11 | |
+12 | |         # The new prompt
+13 | |         """For the following images, predict if the points referenced in the first image are in frame.
+14 | |         If they are, also predict their 2D coordinates.
+15 | |         Each entry in the response should be a single line and have the following keys:
+16 | |         If the point is out of frame: 'in_frame': false, 'label' : <label>.
+17 | |         If the point is in frame: 'in_frame', 'point', 'label'.""",
+18 | |
+19 | |         # The coordinates returned by Gemini for the first view, in step #1
+20 | |         image_response_0.text,
+21 | |
+22 | |         # A new view of the same scene
+23 | |         img_1
+24 | |     ],
+   | |_____^ Expected `Content | ContentDict | str | ... omitted 7 union elements`, found `list[Unknown | Image | str | None]`
+25 |       config=types.GenerateContentConfig(
+26 |           temperature=0.1
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\google\genai\models.py:5089:7
+     |
+5087 |     return return_value
+5088 |
+5089 |   def generate_content(
+     |       ^^^^^^^^^^^^^^^^
+5090 |       self,
+5091 |       *,
+5092 |       model: str,
+5093 |       contents: types.ContentListUnionDict,
+     |       ------------------------------------ Parameter declared here
+5094 |       config: Optional[types.GenerateContentConfigOrDict] = None,
+5095 |   ) -> types.GenerateContentResponse:
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 31:34:1
+   |
+33 | # Display the dots on the image
+34 | IPython.display.HTML(generate_point_html(img_1, image_response_1.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `generate_content` is incorrect
+  --> docs\002.spatial_understanding_3d.ipynb:cell 33:9:5
+   |
+ 7 |   image_response_0 = client.models.generate_content(
+ 8 |       model=MODEL_ID,
+ 9 | /     contents=[
+10 | |         # The first view of the scene
+11 | |         img_0,
+12 | |
+13 | |         # Text prompt
+14 | |         """
+15 | |           Point to the each of the shoes in the image, and the toy jellyfish and backpack:
+16 | |
+17 | |           The answer should follow the json format: [{"point": <point>, "label": <label1>}, ...]. The points are in [y, x] format norm…
+18 | |           The point labels should be 'a', 'b', 'c' etc.
+19 | |         """
+20 | |     ],
+   | |_____^ Expected `Content | ContentDict | str | ... omitted 7 union elements`, found `list[Unknown | None | str]`
+21 |       config=types.GenerateContentConfig(
+22 |           temperature=0.1
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\google\genai\models.py:5089:7
+     |
+5087 |     return return_value
+5088 |
+5089 |   def generate_content(
+     |       ^^^^^^^^^^^^^^^^
+5090 |       self,
+5091 |       *,
+5092 |       model: str,
+5093 |       contents: types.ContentListUnionDict,
+     |       ------------------------------------ Parameter declared here
+5094 |       config: Optional[types.GenerateContentConfigOrDict] = None,
+5095 |   ) -> types.GenerateContentResponse:
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 33:29:1
+   |
+27 | print(image_response_0.text)
+28 | # Display the dots on the image
+29 | IPython.display.HTML(generate_point_html(img_0, image_response_0.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `generate_content` is incorrect
+  --> docs\002.spatial_understanding_3d.ipynb:cell 35:7:5
+   |
+ 5 |   image_response_1 = client.models.generate_content(
+ 6 |       model=MODEL_ID,
+ 7 | /     contents=[
+ 8 | |         # The first view of the scene.
+ 9 | |         img_0,
+10 | |         """For the following images, predict if the points referenced in the first image are in frame.
+11 | |         If they are, also predict their 2D coordinates.
+12 | |         Each entry in the response should be a single line and have the following keys:
+13 | |         If the point is out of frame: 'in_frame': false, 'label' : <label>.
+14 | |         If the point is in frame: 'in_frame', 'point', 'label'.""",
+15 | |
+16 | |         # The coordinates provided by Gemini in step #1.
+17 | |         image_response_0.text,
+18 | |
+19 | |         # A new view of the same scene.
+20 | |         img_1
+21 | |     ],
+   | |_____^ Expected `Content | ContentDict | str | ... omitted 7 union elements`, found `list[Unknown | None | str]`
+22 |       config=types.GenerateContentConfig(
+23 |           temperature=0.1
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\google\genai\models.py:5089:7
+     |
+5087 |     return return_value
+5088 |
+5089 |   def generate_content(
+     |       ^^^^^^^^^^^^^^^^
+5090 |       self,
+5091 |       *,
+5092 |       model: str,
+5093 |       contents: types.ContentListUnionDict,
+     |       ------------------------------------ Parameter declared here
+5094 |       config: Optional[types.GenerateContentConfigOrDict] = None,
+5095 |   ) -> types.GenerateContentResponse:
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 35:31:1
+   |
+30 | # Display the dots on the image
+31 | IPython.display.HTML(generate_point_html(img_1, image_response_1.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+ --> docs\002.spatial_understanding_3d.ipynb:cell 40:3:1
+  |
+1 | # Display the 3D boundinx boxes
+2 |
+3 | IPython.display.HTML(generate_3d_box_html(img, image_response.text))
+  | ^^^^^^^^^^^^^^^
+  |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 42:21:1
+   |
+20 | # Display the 3D boundinx boxes
+21 | IPython.display.HTML(generate_3d_box_html(img, image_response.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 45:21:1
+   |
+20 | # Display the 3D boundinx boxes
+21 | IPython.display.HTML(generate_3d_box_html(img, image_response.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Submodule `display` may not be available as an attribute on module `IPython`
+  --> docs\002.spatial_understanding_3d.ipynb:cell 47:18:1
+   |
+16 | )
+17 |
+18 | IPython.display.HTML(generate_3d_box_html(img, image_response.text))
+   | ^^^^^^^^^^^^^^^
+   |
+help: Consider explicitly importing `IPython.display`
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-type-form]: Variable of type `Overload[(object: Unknown, dtype: None = ..., *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: Literal[True], ndmin: int = ..., like: None | _SupportsArrayFunc = ...) -> Unknown, (object: numpy._core.multiarray._SupportsArray[Unknown], dtype: None = ..., *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: Literal[True], ndmin: Literal[0] = ..., like: None | _SupportsArrayFunc = ...) -> Unknown, (object: numpy._typing._array_like._SupportsArray[dtype[Unknown]] | _NestedSequence[numpy._typing._array_like._SupportsArray[dtype[Unknown]]], dtype: None = ..., *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: bool = ..., ndmin: int = ..., like: None | _SupportsArrayFunc = ...) -> ndarray[tuple[int, ...], dtype[Unknown]], (object: object, dtype: None = ..., *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: bool = ..., ndmin: int = ..., like: None | _SupportsArrayFunc = ...) -> ndarray[tuple[int, ...], dtype[Any]], (object: Any, dtype: dtype[Unknown] | type[Unknown] | _SupportsDType[dtype[Unknown]], *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: bool = ..., ndmin: int = ..., like: None | _SupportsArrayFunc = ...) -> ndarray[tuple[int, ...], dtype[Unknown]], (object: Any, dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements, *, copy: None | bool | Unknown = ..., order: None | Literal["K", "A", "C", "F"] = ..., subok: bool = ..., ndmin: int = ..., like: None | _SupportsArrayFunc = ...) -> ndarray[tuple[int, ...], dtype[Any]]]` is not allowed in a type expression
+  --> docs\003.zero_shot_image_segmentation.ipynb:cell 4:16:11
+   |
+14 |     y1: int  # in [0..height - 1]
+15 |     x1: int  # in [0..width - 1]
+16 |     mask: np.array  # [img_height, img_width] with values 0..255
+   |           ^^^^^^^^
+17 |     label: str
+   |
+info: rule `invalid-type-form` is enabled by default
+
+error[invalid-type-form]: Module `PIL.Image` is not valid in a type expression
+  --> docs\003.zero_shot_image_segmentation.ipynb:cell 4:55:14
+   |
+54 | def overlay_mask_on_img(
+55 |         img: Image,
+   |              ^^^^^ Did you mean to use the module's member `Image.Image`?
+56 |         mask: np.ndarray,
+57 |         color: str,
+   |
+info: rule `invalid-type-form` is enabled by default
+
+error[invalid-assignment]: Object of type `tuple[int, int, int] | tuple[int, int, int, int]` is not assignable to `tuple[int, int, int]`
+  --> docs\003.zero_shot_image_segmentation.ipynb:cell 4:88:20
+   |
+86 |     # Convert the color name string to an RGB tuple
+87 |     try:
+88 |         color_rgb: Tuple[int, int, int] = ImageColor.getrgb(color)
+   |                    --------------------   ^^^^^^^^^^^^^^^^^^^^^^^^ Incompatible value of type `tuple[int, int, int] | tuple[int, int, int, int]`
+   |                    |
+   |                    Declared type
+89 |     except ValueError as e:
+90 |         # Re-raise with a more informative message if color name is invalid
+   |
+info: rule `invalid-assignment` is enabled by default
+
+error[invalid-type-form]: Module `PIL.Image` is not valid in a type expression
+   --> docs\003.zero_shot_image_segmentation.ipynb:cell 4:121:34
+    |
+121 | def plot_segmentation_masks(img: Image, segmentation_masks: list[SegmentationMask]):
+    |                                  ^^^^^ Did you mean to use the module's member `Image.Image`?
+122 |     """
+123 |     Plots bounding boxes on an image with markers for each a name, using PIL, normalized coordinates, and different colors.
+    |
+info: rule `invalid-type-form` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+  --> docs\003.zero_shot_image_segmentation.ipynb:cell 7:22:14
+   |
+20 | # Load and resize image
+21 | im = Image.open(BytesIO(open(image, "rb").read()))
+22 | im.thumbnail([1024, 1024], Image.Resampling.LANCZOS)
+   |              ^^^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+23 |
+24 | # Run model to find segmentation masks
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to function `parse_segmentation_masks` is incorrect
+ --> docs\003.zero_shot_image_segmentation.ipynb:cell 8:1:47
+  |
+1 | segmentation_masks = parse_segmentation_masks(response.text, img_height=im.size[1], img_width=im.size[0])
+  |                                               ^^^^^^^^^^^^^ Expected `str`, found `str | None`
+  |
+info: Element `None` of this union is not assignable to `str`
+info: Function defined here
+  --> docs\003.zero_shot_image_segmentation.ipynb:cell 4:20:5
+   |
+20 | def parse_segmentation_masks(
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+21 |         predicted_str: str, *, img_height: int, img_width: int
+   |         ------------------ Parameter declared here
+22 | ) -> list[SegmentationMask]:
+23 |     items = json.loads(parse_json(predicted_str))
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+  --> docs\004.zero_shot_object_detection.ipynb:cell 8:21:14
+   |
+19 | # Load and resize image
+20 | im = Image.open(BytesIO(open(image, "rb").read()))
+21 | im.thumbnail([1024, 1024], Image.Resampling.LANCZOS)
+   |              ^^^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+22 |
+23 | # Run model to find bounding boxes
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+  --> docs\004.zero_shot_object_detection.ipynb:cell 11:16:18
+   |
+14 | # Load and resize image
+15 | im_raw = Image.open(BytesIO(open(image, "rb").read()))
+16 | im_raw.thumbnail([1024, 1024], Image.Resampling.LANCZOS)
+   |                  ^^^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+17 |
+18 | # Run model to find bounding boxes
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to function `loads` is incorrect
+  --> docs\004.zero_shot_object_detection.ipynb:cell 11:28:17
+   |
+26 | )
+27 |
+28 | JSON(json.loads(response.text))
+   |                 ^^^^^^^^^^^^^ Expected `str | bytes | bytearray`, found `str | None`
+   |
+info: Element `None` of this union is not assignable to `str | bytes | bytearray`
+info: Function defined here
+   --> stdlib\json\__init__.pyi:224:5
+    |
+222 |     """
+223 |
+224 | def loads(
+    |     ^^^^^
+225 |     s: str | bytes | bytearray,
+    |     -------------------------- Parameter declared here
+226 |     *,
+227 |     cls: type[JSONDecoder] | None = None,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `generate_content` is incorrect
+  --> docs\004.zero_shot_object_detection.ipynb:cell 13:13:5
+   |
+11 | response_l2 = client.models.generate_content(
+12 |     model="gemini-2.5-pro-preview-03-25",
+13 |     contents=[prompt_l1, im_l2, response.text, prompt_l2],
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `Content | ContentDict | str | ... omitted 7 union elements`, found `list[Unknown | str | Image | None]`
+14 |     config=types.GenerateContentConfig(
+15 |         temperature=0,
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\google\genai\models.py:5089:7
+     |
+5087 |     return return_value
+5088 |
+5089 |   def generate_content(
+     |       ^^^^^^^^^^^^^^^^
+5090 |       self,
+5091 |       *,
+5092 |       model: str,
+5093 |       contents: types.ContentListUnionDict,
+     |       ------------------------------------ Parameter declared here
+5094 |       config: Optional[types.GenerateContentConfigOrDict] = None,
+5095 |   ) -> types.GenerateContentResponse:
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to function `loads` is incorrect
+  --> docs\004.zero_shot_object_detection.ipynb:cell 13:19:17
+   |
+17 |     )
+18 | )
+19 | JSON(json.loads(response_l2.text))
+   |                 ^^^^^^^^^^^^^^^^ Expected `str | bytes | bytearray`, found `str | None`
+   |
+info: Element `None` of this union is not assignable to `str | bytes | bytearray`
+info: Function defined here
+   --> stdlib\json\__init__.pyi:224:5
+    |
+222 |     """
+223 |
+224 | def loads(
+    |     ^^^^^
+225 |     s: str | bytes | bytearray,
+    |     -------------------------- Parameter declared here
+226 |     *,
+227 |     cls: type[JSONDecoder] | None = None,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unresolved-reference]: Name `client` used when not defined
+  --> docs\005.zero_shot_spatial_understanding_3d.ipynb:cell 4:26:18
+   |
+25 | # Analyze the image using Gemini
+26 | image_response = client.models.generate_content(
+   |                  ^^^^^^
+27 |     model='gemini-2.5-flash-preview-04-17',
+28 |     contents=[img, prompt],
+   |
+info: rule `unresolved-reference` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `thumbnail` is incorrect
+  --> docs\006.l2_detection.ipynb:cell 6:28:18
+   |
+26 | # Load and resize image
+27 | im_raw = Image.open(BytesIO(open(image, "rb").read()))
+28 | im_raw.thumbnail([1024, 1024], Image.Resampling.LANCZOS)
+   |                  ^^^^^^^^^^^^ Expected `tuple[int | float, int | float]`, found `list[Unknown | int]`
+29 |
+30 | MODEL_ID = "gemini-2.5-pro-preview-03-25"
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\PIL\Image.py:2689:9
+     |
+2687 |         return 0
+2688 |
+2689 |     def thumbnail(
+     |         ^^^^^^^^^
+2690 |         self,
+2691 |         size: tuple[float, float],
+     |         ------------------------- Parameter declared here
+2692 |         resample: Resampling = Resampling.BICUBIC,
+2693 |         reducing_gap: float | None = 2.0,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `__init__` is incorrect
+ --> docs\008.visualize_attention_points.ipynb:cell 5:3:9
+  |
+1 | try:
+2 |     gic = SpatialPathReasoner(
+3 |         gemini_api_key=os.getenv("GEMINI_API_KEY"), model="gemini-2.5-flash"
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `str`, found `str | None`
+4 |     )
+  |
+info: Element `None` of this union is not assignable to `str`
+info: Method defined here
+  --> src\hcaptcha_challenger\tools\internal\base.py:46:9
+   |
+44 |     """The description of the tool."""
+45 |
+46 |     def __init__(
+   |         ^^^^^^^^
+47 |         self,
+48 |         gemini_api_key: str,
+   |         ------------------- Parameter declared here
+49 |         model: ModelT | None = None,
+50 |         *,
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unresolved-attribute]: Object of type `SpatialPathReasoner` has no attribute `invoke_async`
+ --> docs\008.visualize_attention_points.ipynb:cell 5:7:21
+  |
+6 |     # Ignore trace malloc issues
+7 |     results = await gic.invoke_async(
+  |                     ^^^^^^^^^^^^^^^^
+8 |         challenge_screenshot=challenge_screenshot,
+9 |         grid_divisions=grid_divisions_path,
+  |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-import]: Cannot resolve imported module `openai`
+  --> docs\009.gpt-5_spatial_reasoning.ipynb:cell 2:8:6
+   |
+ 6 | from IPython.display import JSON, Image
+ 7 | from matplotlib import pyplot as plt
+ 8 | from openai import OpenAI
+   |      ^^^^^^
+ 9 |
+10 | from hcaptcha_challenger import ChallengeTypeEnum
+   |
+info: Searched in the following paths during module resolution:
+info:   1. D:\_GitHubProjects\Sources\hcaptcha-challenger\src (first-party code)
+info:   2. D:\_GitHubProjects\Sources\hcaptcha-challenger (first-party code)
+info:   3. vendored://stdlib (stdlib typeshed stubs vendored by ty)
+info:   4. D:\_GitHubProjects\Sources\hcaptcha-challenger\.venv\Lib\site-packages (site-packages)
+info: make sure your Python environment is properly configured: https://docs.astral.sh/ty/modules/#python-environment
+info: rule `unresolved-import` is enabled by default
+
+error[unresolved-import]: Module `hcaptcha_challenger.tools` has no member `spatial_point_reasoning`
+  --> docs\009.gpt-5_spatial_reasoning.ipynb:cell 2:13:39
+   |
+11 | from hcaptcha_challenger.helper import FloatRect, create_coordinate_grid
+12 | from hcaptcha_challenger.helper.visualize_attention_points import show_answer_points
+13 | from hcaptcha_challenger.tools import spatial_point_reasoning, spatial_path_reasoning, image_classifier
+   |                                       ^^^^^^^^^^^^^^^^^^^^^^^
+14 |
+15 | dotenv.load_dotenv()
+   |
+info: rule `unresolved-import` is enabled by default
+
+error[unresolved-import]: Module `hcaptcha_challenger.tools` has no member `spatial_path_reasoning`
+  --> docs\009.gpt-5_spatial_reasoning.ipynb:cell 2:13:64
+   |
+11 | from hcaptcha_challenger.helper import FloatRect, create_coordinate_grid
+12 | from hcaptcha_challenger.helper.visualize_attention_points import show_answer_points
+13 | from hcaptcha_challenger.tools import spatial_point_reasoning, spatial_path_reasoning, image_classifier
+   |                                                                ^^^^^^^^^^^^^^^^^^^^^^
+14 |
+15 | dotenv.load_dotenv()
+   |
+info: rule `unresolved-import` is enabled by default
+
+error[unresolved-attribute]: Module `hcaptcha_challenger.tools.image_classifier` has no member `USER_PROMPT`
+ --> docs\009.gpt-5_spatial_reasoning.ipynb:cell 7:6:9
+  |
+4 |     reasoning_effort="minimal",
+5 |     messages=build_messages(
+6 |         image_classifier.USER_PROMPT,
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |         image_label_binary_filepath,
+8 |         image_classifier.SYSTEM_INSTRUCTION,
+  |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Module `hcaptcha_challenger.tools.image_classifier` has no member `SYSTEM_INSTRUCTION`
+  --> docs\009.gpt-5_spatial_reasoning.ipynb:cell 7:8:9
+   |
+ 6 |         image_classifier.USER_PROMPT,
+ 7 |         image_label_binary_filepath,
+ 8 |         image_classifier.SYSTEM_INSTRUCTION,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 9 |         enable_helper=False
+10 |     ),
+   |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-import]: Cannot resolve imported module `openai`
+  --> docs\010.oai_spatial_reasoning.ipynb:cell 3:9:6
+   |
+ 7 | from IPython.display import JSON, Image
+ 8 | from matplotlib import pyplot as plt
+ 9 | from openai import OpenAI
+   |      ^^^^^^
+10 |
+11 | from hcaptcha_challenger import ChallengeTypeEnum
+   |
+info: Searched in the following paths during module resolution:
+info:   1. D:\_GitHubProjects\Sources\hcaptcha-challenger\src (first-party code)
+info:   2. D:\_GitHubProjects\Sources\hcaptcha-challenger (first-party code)
+info:   3. vendored://stdlib (stdlib typeshed stubs vendored by ty)
+info:   4. D:\_GitHubProjects\Sources\hcaptcha-challenger\.venv\Lib\site-packages (site-packages)
+info: make sure your Python environment is properly configured: https://docs.astral.sh/ty/modules/#python-environment
+info: rule `unresolved-import` is enabled by default
+
+error[unresolved-import]: Module `hcaptcha_challenger.tools` has no member `spatial_point_reasoning`
+  --> docs\010.oai_spatial_reasoning.ipynb:cell 3:14:39
+   |
+12 | from hcaptcha_challenger.helper import FloatRect, create_coordinate_grid
+13 | from hcaptcha_challenger.helper.visualize_attention_points import show_answer_points
+14 | from hcaptcha_challenger.tools import spatial_point_reasoning, spatial_path_reasoning, image_classifier
+   |                                       ^^^^^^^^^^^^^^^^^^^^^^^
+15 |
+16 | dotenv.load_dotenv()
+   |
+info: rule `unresolved-import` is enabled by default
+
+error[unresolved-import]: Module `hcaptcha_challenger.tools` has no member `spatial_path_reasoning`
+  --> docs\010.oai_spatial_reasoning.ipynb:cell 3:14:64
+   |
+12 | from hcaptcha_challenger.helper import FloatRect, create_coordinate_grid
+13 | from hcaptcha_challenger.helper.visualize_attention_points import show_answer_points
+14 | from hcaptcha_challenger.tools import spatial_point_reasoning, spatial_path_reasoning, image_classifier
+   |                                                                ^^^^^^^^^^^^^^^^^^^^^^
+15 |
+16 | dotenv.load_dotenv()
+   |
+info: rule `unresolved-import` is enabled by default
+
+error[unresolved-attribute]: Module `hcaptcha_challenger.tools.image_classifier` has no member `USER_PROMPT`
+ --> docs\010.oai_spatial_reasoning.ipynb:cell 8:6:9
+  |
+4 |     model=DEFAULT_MODEL,
+5 |     messages=build_messages(
+6 |         image_classifier.USER_PROMPT,
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |         image_label_binary_filepath,
+8 |         image_classifier.SYSTEM_INSTRUCTION,
+  |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Module `hcaptcha_challenger.tools.image_classifier` has no member `SYSTEM_INSTRUCTION`
+  --> docs\010.oai_spatial_reasoning.ipynb:cell 8:8:9
+   |
+ 6 |         image_classifier.USER_PROMPT,
+ 7 |         image_label_binary_filepath,
+ 8 |         image_classifier.SYSTEM_INSTRUCTION,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 9 |         enable_helper=False
+10 |     ),
+   |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `ImageClassifier` has no attribute `invoke_async`
+ --> docs\011.gemini_attention_challenge.ipynb:cell 7:3:45
+  |
+1 | image_label_binary_filepath = Path("assets/image_label_binary/20250817200551586876_0_challenge_view.png")
+2 |
+3 | challenge_result_image_label_binary = await image_classifier.invoke_async(
+  |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4 |     challenge_screenshot=image_label_binary_filepath,
+5 |     constraint_response_schema=True,
+  |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `SpatialPointReasoner` has no attribute `invoke_async`
+ --> docs\011.gemini_attention_challenge.ipynb:cell 10:6:52
+  |
+4 | image_label_area_select_filepath_1 = Path("assets/image_label_area_select/20250426225911341786_0_challenge_view.png")
+5 |
+6 | challenge_result_image_label_area_select_1 = await spatial_point_reasoner.invoke_async(
+  |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |     challenge_screenshot=image_label_area_select_filepath_1,
+8 |     grid_divisions=build_helper(image_label_area_select_filepath_1),
+  |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `SpatialPointReasoner` has no attribute `invoke_async`
+ --> docs\011.gemini_attention_challenge.ipynb:cell 13:6:52
+  |
+4 | image_label_area_select_filepath_2 = Path("assets/image_label_area_select/20250818003234074379_0_challenge_view.png")
+5 |
+6 | challenge_result_image_label_area_select_2 = await spatial_point_reasoner.invoke_async(
+  |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |     challenge_screenshot=image_label_area_select_filepath_2,
+8 |     grid_divisions=build_helper(image_label_area_select_filepath_2),
+  |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `SpatialPathReasoner` has no attribute `invoke_async`
+ --> docs\011.gemini_attention_challenge.ipynb:cell 16:6:49
+  |
+4 | image_drag_drop_single_single_filepath = Path("assets/image_drag_drop/20250717190455891095_0_challenge_view.png")
+5 |
+6 | challenge_result_image_drag_drop_single = await spatial_path_reasoner.invoke_async(
+  |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |     challenge_screenshot=image_drag_drop_single_single_filepath,
+8 |     grid_divisions=build_helper(image_drag_drop_single_single_filepath),
+  |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `SpatialPathReasoner` has no attribute `invoke_async`
+ --> docs\011.gemini_attention_challenge.ipynb:cell 19:6:48
+  |
+4 | image_drag_drop_single_multi_filepath = Path("assets/image_drag_drop/20250818003210373861_0_challenge_view.png")
+5 |
+6 | challenge_result_image_drag_drop_multi = await spatial_path_reasoner.invoke_async(
+  |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |     challenge_screenshot=image_drag_drop_single_multi_filepath,
+8 |     grid_divisions=build_helper(image_drag_drop_single_multi_filepath),
+  |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `SpatialPathReasoner` has no attribute `invoke_async`
+ --> docs\011.gemini_attention_challenge.ipynb:cell 22:6:50
+  |
+4 | image_drag_drop_single_multi_filepath_2 = Path("assets/image_drag_drop/single_9.png")
+5 |
+6 | challenge_result_image_drag_drop_multi_2 = await spatial_path_reasoner.invoke_async(
+  |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |     model="gemini-2.5-pro",
+8 |     challenge_screenshot=image_drag_drop_single_multi_filepath_2,
+  |
+info: rule `unresolved-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `pages` may be missing on object of type `Browser | BrowserContext`
+  --> examples\demo_camoufox.py:37:16
+   |
+35 |         humanize=0.2,  # humanize=True,
+36 |     ) as browser:
+37 |         page = browser.pages[-1] if browser.pages else await browser.new_page()
+   |                ^^^^^^^^^^^^^
+38 |
+39 |         await page.goto(SiteKey.as_site_link(SiteKey.discord))
+   |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `pages` may be missing on object of type `Browser | BrowserContext`
+  --> examples\demo_camoufox.py:37:37
+   |
+35 |         humanize=0.2,  # humanize=True,
+36 |     ) as browser:
+37 |         page = browser.pages[-1] if browser.pages else await browser.new_page()
+   |                                     ^^^^^^^^^^^^^
+38 |
+39 |         await page.goto(SiteKey.as_site_link(SiteKey.discord))
+   |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `None` with no `__getitem__` method
+   --> src\hcaptcha_challenger\agent\challenger.py:390:20
+    |
+388 |         bbox = await locator.bounding_box()
+389 |
+390 |         center_x = bbox['x'] + bbox['width'] / 2
+    |                    ^^^^^^^^^
+391 |         center_y = bbox['y'] + bbox['height'] / 2
+    |
+info: rule `non-subscriptable` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `None` with no `__getitem__` method
+   --> src\hcaptcha_challenger\agent\challenger.py:390:32
+    |
+388 |         bbox = await locator.bounding_box()
+389 |
+390 |         center_x = bbox['x'] + bbox['width'] / 2
+    |                                ^^^^^^^^^^^^^
+391 |         center_y = bbox['y'] + bbox['height'] / 2
+    |
+info: rule `non-subscriptable` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `None` with no `__getitem__` method
+   --> src\hcaptcha_challenger\agent\challenger.py:391:20
+    |
+390 |         center_x = bbox['x'] + bbox['width'] / 2
+391 |         center_y = bbox['y'] + bbox['height'] / 2
+    |                    ^^^^^^^^^
+392 |
+393 |         await self.page.mouse.move(center_x, center_y)
+    |
+info: rule `non-subscriptable` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `None` with no `__getitem__` method
+   --> src\hcaptcha_challenger\agent\challenger.py:391:32
+    |
+390 |         center_x = bbox['x'] + bbox['width'] / 2
+391 |         center_y = bbox['y'] + bbox['height'] / 2
+    |                                ^^^^^^^^^^^^^^
+392 |
+393 |         await self.page.mouse.move(center_x, center_y)
+    |
+info: rule `non-subscriptable` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:405:31
+    |
+403 |         try:
+404 |             refresh_frame = await self.get_challenge_frame_locator()
+405 |             refresh_element = refresh_frame.locator("//div[@class='refresh button']")
+    |                               ^^^^^^^^^^^^^^^^^^^^^
+406 |             await self.click_by_mouse(refresh_element)
+407 |         except TimeoutError as err:
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:419:18
+    |
+417 |         await self.page.wait_for_timeout(500)
+418 |         frame_challenge = await self.get_challenge_frame_locator()
+419 |         crumbs = frame_challenge.locator("//div[@class='Crumb']")
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^
+420 |         with suppress(Exception):
+421 |             crumbs_count = await crumbs.count()
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:432:19
+    |
+430 |         frame_challenge = await self.get_challenge_frame_locator()
+431 |
+432 |         samples = frame_challenge.locator("//div[@class='task-image']")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^
+433 |         count = await samples.count()
+434 |         if isinstance(count, int) and count == 9:
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:439:30
+    |
+437 |             tms = self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS * 1.5
+438 |             await self.page.wait_for_timeout(tms)
+439 |             challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^
+440 |             cache_path = self.config.cache_dir.joinpath(f"challenge_view/_artifacts/{uuid4()}.png")
+441 |             cache_path.parent.mkdir(parents=True, exist_ok=True)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:454:30
+    |
+452 |         await self.page.wait_for_timeout(self.config.WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS)
+453 |
+454 |         loading_indicators = frame_challenge.locator("//div[@class='loading-indicator']")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^
+455 |         count = await loading_indicators.count()
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to function `create_coordinate_grid` is incorrect
+   --> src\hcaptcha_challenger\agent\challenger.py:498:13
+    |
+496 |         result = create_coordinate_grid(
+497 |             challenge_screenshot,
+498 |             bbox,
+    |             ^^^^ Expected `hcaptcha_challenger.helper.create_coordinate_grid.FloatRect | tuple[int | float, int | float, int | float, int | float] | list[int | float]`, found `playwright._impl._api_structures.FloatRect | None`
+499 |             x_line_space_num=self.config.coordinate_grid.x_line_space_num,
+500 |             y_line_space_num=self.config.coordinate_grid.y_line_space_num,
+    |
+info: Element `None` of this union is not assignable to `hcaptcha_challenger.helper.create_coordinate_grid.FloatRect | tuple[int | float, int | float, int | float, int | float] | list[int | float]`
+info: Function defined here
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:121:5
+    |
+121 | def create_coordinate_grid(
+    |     ^^^^^^^^^^^^^^^^^^^^^^
+122 |     image: Union[str, np.ndarray, Path],
+123 |     bbox: Union[FloatRect, Tuple[float, float, float, float], List[float]],
+    |     ---------------------------------------------------------------------- Parameter declared here
+124 |     *,
+125 |     x_line_space_num: int = 11,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to function `create_coordinate_grid` is incorrect
+   --> src\hcaptcha_challenger\agent\challenger.py:499:13
+    |
+497 |             challenge_screenshot,
+498 |             bbox,
+499 |             x_line_space_num=self.config.coordinate_grid.x_line_space_num,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `int`, found `Unknown | int | None`
+500 |             y_line_space_num=self.config.coordinate_grid.y_line_space_num,
+501 |             color=self.config.coordinate_grid.color,
+    |
+info: Element `None` of this union is not assignable to `int`
+info: Function defined here
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:121:5
+    |
+121 | def create_coordinate_grid(
+    |     ^^^^^^^^^^^^^^^^^^^^^^
+122 |     image: Union[str, np.ndarray, Path],
+123 |     bbox: Union[FloatRect, Tuple[float, float, float, float], List[float]],
+124 |     *,
+125 |     x_line_space_num: int = 11,
+    |     -------------------------- Parameter declared here
+126 |     y_line_space_num: int = 20,
+127 |     adaptive_contrast: bool = False,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `x_line_space_num` may be missing on object of type `Unknown | CoordinateGrid | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:499:30
+    |
+497 |             challenge_screenshot,
+498 |             bbox,
+499 |             x_line_space_num=self.config.coordinate_grid.x_line_space_num,
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+500 |             y_line_space_num=self.config.coordinate_grid.y_line_space_num,
+501 |             color=self.config.coordinate_grid.color,
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to function `create_coordinate_grid` is incorrect
+   --> src\hcaptcha_challenger\agent\challenger.py:500:13
+    |
+498 |             bbox,
+499 |             x_line_space_num=self.config.coordinate_grid.x_line_space_num,
+500 |             y_line_space_num=self.config.coordinate_grid.y_line_space_num,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `int`, found `Unknown | int | None`
+501 |             color=self.config.coordinate_grid.color,
+502 |             adaptive_contrast=self.config.coordinate_grid.adaptive_contrast,
+    |
+info: Element `None` of this union is not assignable to `int`
+info: Function defined here
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:121:5
+    |
+121 | def create_coordinate_grid(
+    |     ^^^^^^^^^^^^^^^^^^^^^^
+122 |     image: Union[str, np.ndarray, Path],
+123 |     bbox: Union[FloatRect, Tuple[float, float, float, float], List[float]],
+124 |     *,
+125 |     x_line_space_num: int = 11,
+126 |     y_line_space_num: int = 20,
+    |     -------------------------- Parameter declared here
+127 |     adaptive_contrast: bool = False,
+128 |     tick_labels_size: int = 10,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `y_line_space_num` may be missing on object of type `Unknown | CoordinateGrid | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:500:30
+    |
+498 |             bbox,
+499 |             x_line_space_num=self.config.coordinate_grid.x_line_space_num,
+500 |             y_line_space_num=self.config.coordinate_grid.y_line_space_num,
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+501 |             color=self.config.coordinate_grid.color,
+502 |             adaptive_contrast=self.config.coordinate_grid.adaptive_contrast,
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to function `create_coordinate_grid` is incorrect
+   --> src\hcaptcha_challenger\agent\challenger.py:501:13
+    |
+499 |             x_line_space_num=self.config.coordinate_grid.x_line_space_num,
+500 |             y_line_space_num=self.config.coordinate_grid.y_line_space_num,
+501 |             color=self.config.coordinate_grid.color,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `str`, found `Unknown | str | None`
+502 |             adaptive_contrast=self.config.coordinate_grid.adaptive_contrast,
+503 |         )
+    |
+info: Element `None` of this union is not assignable to `str`
+info: Function defined here
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:121:5
+    |
+121 | def create_coordinate_grid(
+    |     ^^^^^^^^^^^^^^^^^^^^^^
+122 |     image: Union[str, np.ndarray, Path],
+123 |     bbox: Union[FloatRect, Tuple[float, float, float, float], List[float]],
+    |
+   ::: src\hcaptcha_challenger\helper\create_coordinate_grid.py:129:5
+    |
+127 |     adaptive_contrast: bool = False,
+128 |     tick_labels_size: int = 10,
+129 |     color: str = "gray",
+    |     ------------------- Parameter declared here
+130 | ) -> np.ndarray:
+131 |     """
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `color` may be missing on object of type `Unknown | CoordinateGrid | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:501:19
+    |
+499 |             x_line_space_num=self.config.coordinate_grid.x_line_space_num,
+500 |             y_line_space_num=self.config.coordinate_grid.y_line_space_num,
+501 |             color=self.config.coordinate_grid.color,
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+502 |             adaptive_contrast=self.config.coordinate_grid.adaptive_contrast,
+503 |         )
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to function `create_coordinate_grid` is incorrect
+   --> src\hcaptcha_challenger\agent\challenger.py:502:13
+    |
+500 |             y_line_space_num=self.config.coordinate_grid.y_line_space_num,
+501 |             color=self.config.coordinate_grid.color,
+502 |             adaptive_contrast=self.config.coordinate_grid.adaptive_contrast,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `bool`, found `Unknown | bool | None`
+503 |         )
+    |
+info: Element `None` of this union is not assignable to `bool`
+info: Function defined here
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:121:5
+    |
+121 | def create_coordinate_grid(
+    |     ^^^^^^^^^^^^^^^^^^^^^^
+122 |     image: Union[str, np.ndarray, Path],
+123 |     bbox: Union[FloatRect, Tuple[float, float, float, float], List[float]],
+    |
+   ::: src\hcaptcha_challenger\helper\create_coordinate_grid.py:127:5
+    |
+125 |     x_line_space_num: int = 11,
+126 |     y_line_space_num: int = 20,
+127 |     adaptive_contrast: bool = False,
+    |     ------------------------------- Parameter declared here
+128 |     tick_labels_size: int = 10,
+129 |     color: str = "gray",
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `adaptive_contrast` may be missing on object of type `Unknown | CoordinateGrid | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:502:31
+    |
+500 |             y_line_space_num=self.config.coordinate_grid.y_line_space_num,
+501 |             color=self.config.coordinate_grid.color,
+502 |             adaptive_contrast=self.config.coordinate_grid.adaptive_contrast,
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+503 |         )
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:578:30
+    |
+577 |             # Get challenge-view
+578 |             challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^
+579 |             challenge_screenshot = cache_key.joinpath(f"{cache_key.name}_{cid}_challenge_view.png")
+580 |             await challenge_view.screenshot(type="png", path=challenge_screenshot)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:596:34
+    |
+594 |             for i, should_be_clicked in enumerate(boolean_matrix):
+595 |                 if should_be_clicked:
+596 |                     task_image = frame_challenge.locator(xpath_task_image.format(index=i + 1))
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^
+597 |                     await self.click_by_mouse(task_image)
+598 |                     positive_cases += 1
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:600:34
+    |
+598 |                     positive_cases += 1
+599 |                 elif positive_cases == 0 and i == len(boolean_matrix) - 1:
+600 |                     task_image = frame_challenge.locator(xpath_task_image.format(index=1))
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^
+601 |                     await self.click_by_mouse(task_image)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:605:30
+    |
+603 |             # {{< Verify >}}
+604 |             with suppress(TimeoutError):
+605 |                 submit_btn = frame_challenge.locator("//div[@class='button-submit button']")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^
+606 |                 await self.click_by_mouse(submit_btn)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:635:30
+    |
+633 |             # {{< Verify >}}
+634 |             with suppress(TimeoutError):
+635 |                 submit_btn = frame_challenge.locator("//div[@class='button-submit button']")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^
+636 |                 await self.click_by_mouse(submit_btn)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `locator` may be missing on object of type `Frame | None`
+   --> src\hcaptcha_challenger\agent\challenger.py:666:30
+    |
+664 |             # {{< Verify >}}
+665 |             with suppress(TimeoutError):
+666 |                 submit_btn = frame_challenge.locator("//div[@class='button-submit button']")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^
+667 |                 await self.click_by_mouse(submit_btn)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-return-type]: Return type does not match returned value
+   --> src\hcaptcha_challenger\agent\challenger.py:796:20
+    |
+794 |         self.robotic_arm.captcha_payload = None
+795 |         if not self._captcha_payload:
+796 |             return await self.robotic_arm.check_challenge_type()
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `RequestType | ChallengeTypeEnum`, found `Unknown | RequestType | ChallengeTypeEnum | None`
+797 |
+798 |         try:
+    |
+   ::: src\hcaptcha_challenger\agent\challenger.py:783:47
+    |
+781 |                 logger.exception(err)
+782 |
+783 |     async def _review_challenge_type(self) -> RequestType | ChallengeTypeEnum:
+    |                                               ------------------------------- Expected `RequestType | ChallengeTypeEnum` because of return type
+784 |         try:
+785 |             self._captcha_payload = await asyncio.wait_for(
+    |
+info: rule `invalid-return-type` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `max_shapes_per_image` may be missing on object of type `CaptchaRequestConfig | dict[Unknown, Unknown]`
+   --> src\hcaptcha_challenger\agent\challenger.py:809:34
+    |
+807 |                 case RequestType.IMAGE_LABEL_AREA_SELECT:
+808 |                     self.robotic_arm.signal_crumb_count = tasklist_length
+809 |                     max_shapes = self._captcha_payload.request_config.max_shapes_per_image
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+810 |                     if not isinstance(max_shapes, int):
+811 |                         return await self.robotic_arm.check_challenge_type()
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-return-type]: Return type does not match returned value
+   --> src\hcaptcha_challenger\agent\challenger.py:811:32
+    |
+809 |                     max_shapes = self._captcha_payload.request_config.max_shapes_per_image
+810 |                     if not isinstance(max_shapes, int):
+811 |                         return await self.robotic_arm.check_challenge_type()
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `RequestType | ChallengeTypeEnum`, found `Unknown | RequestType | ChallengeTypeEnum | None`
+812 |                     return (
+813 |                         ChallengeTypeEnum.IMAGE_LABEL_SINGLE_SELECT
+    |
+   ::: src\hcaptcha_challenger\agent\challenger.py:783:47
+    |
+781 |                 logger.exception(err)
+782 |
+783 |     async def _review_challenge_type(self) -> RequestType | ChallengeTypeEnum:
+    |                                               ------------------------------- Expected `RequestType | ChallengeTypeEnum` because of return type
+784 |         try:
+785 |             self._captcha_payload = await asyncio.wait_for(
+    |
+info: rule `invalid-return-type` is enabled by default
+
+error[invalid-argument-type]: Argument to function `len` is incorrect
+   --> src\hcaptcha_challenger\agent\challenger.py:821:32
+    |
+819 |                     return (
+820 |                         ChallengeTypeEnum.IMAGE_DRAG_SINGLE
+821 |                         if len(tasklist[0].entities) == 1
+    |                                ^^^^^^^^^^^^^^^^^^^^ Expected `Sized`, found `list[CaptchaTaskEntity] | None`
+822 |                         else ChallengeTypeEnum.IMAGE_DRAG_MULTI
+823 |                     )
+    |
+info: Element `None` of this union is not assignable to `Sized`
+info: Function defined here
+    --> stdlib\builtins.pyi:3784:5
+     |
+3782 |     """
+3783 |
+3784 | def len(obj: Sized, /) -> int:
+     |     ^^^ ---------- Parameter declared here
+3785 |     """Return the number of items in a container."""
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-return-type]: Return type does not match returned value
+   --> src\hcaptcha_challenger\agent\challenger.py:830:16
+    |
+829 |         # Fallback to visual recognition solution
+830 |         return await self.robotic_arm.check_challenge_type()
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `RequestType | ChallengeTypeEnum`, found `Unknown | RequestType | ChallengeTypeEnum | None`
+831 |
+832 |     async def _solve_captcha(self):
+    |
+   ::: src\hcaptcha_challenger\agent\challenger.py:783:47
+    |
+781 |                 logger.exception(err)
+782 |
+783 |     async def _review_challenge_type(self) -> RequestType | ChallengeTypeEnum:
+    |                                               ------------------------------- Expected `RequestType | ChallengeTypeEnum` because of return type
+784 |         try:
+785 |             self._captcha_payload = await asyncio.wait_for(
+    |
+info: rule `invalid-return-type` is enabled by default
+
+error[unsupported-operator]: Unsupported `not in` operation
+   --> src\hcaptcha_challenger\agent\challenger.py:851:24
+    |
+849 |             match challenge_type:
+850 |                 case RequestType.IMAGE_LABEL_BINARY:
+851 |                     if RequestType.IMAGE_LABEL_BINARY not in self.config.ignore_request_types:
+    |                        ------------------------------^^^^^^^^--------------------------------
+    |                        |                                     |
+    |                        |                                     Has type `Unknown | list[Literal["image_label_binary", "image_label_area_select", "image_drag_drop", "image_label_single_select", "image_label_multi_select", "image_drag_single", "image_drag_multi"] | RequestType | ChallengeTypeEnum] | None`
+    |                        Has type `Literal[RequestType.IMAGE_LABEL_BINARY]`
+852 |                         return await self.robotic_arm.challenge_image_label_binary()
+853 |                 case challenge_type.IMAGE_LABEL_SINGLE_SELECT:
+    |
+info: Operation fails because operator `not in` is not supported between objects of type `Literal[RequestType.IMAGE_LABEL_BINARY]` and `None`
+info: rule `unsupported-operator` is enabled by default
+
+error[unresolved-attribute]: Object of type `Literal[RequestType.HCI, RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP, RequestType.IMAGE_LABEL_MULTIPLE_CHOICE, RequestType.TEXT_FREE_ENTRY, ... omitted 10 literals]` has no attribute `IMAGE_LABEL_SINGLE_SELECT`
+   --> src\hcaptcha_challenger\agent\challenger.py:853:22
+    |
+851 |                     if RequestType.IMAGE_LABEL_BINARY not in self.config.ignore_request_types:
+852 |                         return await self.robotic_arm.challenge_image_label_binary()
+853 |                 case challenge_type.IMAGE_LABEL_SINGLE_SELECT:
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+854 |                     if (
+855 |                         RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unsupported-operator]: Unsupported `not in` operation
+   --> src\hcaptcha_challenger\agent\challenger.py:855:25
+    |
+853 |                 case challenge_type.IMAGE_LABEL_SINGLE_SELECT:
+854 |                     if (
+855 |                         RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types
+    |                         -----------------------------------^^^^^^^^--------------------------------
+    |                         |                                          |
+    |                         |                                          Has type `Unknown | list[Literal["image_label_binary", "image_label_area_select", "image_drag_drop", "image_label_single_select", "image_label_multi_select", "image_drag_single", "image_drag_multi"] | RequestType | ChallengeTypeEnum] | None`
+    |                         Has type `Literal[RequestType.IMAGE_LABEL_AREA_SELECT]`
+856 |                         and challenge_type.IMAGE_LABEL_SINGLE_SELECT
+857 |                         not in self.config.ignore_request_types
+    |
+info: Operation fails because operator `not in` is not supported between objects of type `Literal[RequestType.IMAGE_LABEL_AREA_SELECT]` and `None`
+info: rule `unsupported-operator` is enabled by default
+
+error[unresolved-attribute]: Object of type `Literal[RequestType.HCI, RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP, RequestType.IMAGE_LABEL_MULTIPLE_CHOICE, RequestType.TEXT_FREE_ENTRY, ... omitted 10 literals]` has no attribute `IMAGE_LABEL_SINGLE_SELECT`
+   --> src\hcaptcha_challenger\agent\challenger.py:856:29
+    |
+854 |                     if (
+855 |                         RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types
+856 |                         and challenge_type.IMAGE_LABEL_SINGLE_SELECT
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+857 |                         not in self.config.ignore_request_types
+858 |                     ):
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unsupported-operator]: Unsupported `not in` operation
+   --> src\hcaptcha_challenger\agent\challenger.py:856:29
+    |
+854 |                       if (
+855 |                           RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types
+856 |                           and challenge_type.IMAGE_LABEL_SINGLE_SELECT
+    |  _____________________________^---------------------------------------
+    | |                             |
+    | |                             Has type `Unknown`
+857 | |                         not in self.config.ignore_request_types
+    | |________________________________-------------------------------^
+    |                                  |
+    |                                  Has type `Unknown | list[Literal["image_label_binary", "image_label_area_select", "image_drag_drop", "image_label_single_select", "image_label_multi_select", "image_drag_single", "image_drag_multi"] | RequestType | ChallengeTypeEnum] | None`
+858 |                       ):
+859 |                           return await self.robotic_arm.challenge_image_label_select(challenge_type)
+    |
+info: Operation fails because operator `not in` is not supported between objects of type `Unknown` and `None`
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `challenge_image_label_select` is incorrect
+   --> src\hcaptcha_challenger\agent\challenger.py:859:84
+    |
+857 |                         not in self.config.ignore_request_types
+858 |                     ):
+859 |                         return await self.robotic_arm.challenge_image_label_select(challenge_type)
+    |                                                                                    ^^^^^^^^^^^^^^ Expected `ChallengeTypeEnum`, found `Literal[RequestType.HCI, RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP, RequestType.IMAGE_LABEL_MULTIPLE_CHOICE, RequestType.TEXT_FREE_ENTRY, ... omitted 10 literals]`
+860 |                 case challenge_type.IMAGE_LABEL_MULTI_SELECT:
+861 |                     if (
+    |
+info: Method defined here
+   --> src\hcaptcha_challenger\agent\challenger.py:638:15
+    |
+636 |                 await self.click_by_mouse(submit_btn)
+637 |
+638 |     async def challenge_image_label_select(self, job_type: ChallengeTypeEnum):
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^       --------------------------- Parameter declared here
+639 |         frame_challenge = await self.get_challenge_frame_locator()
+640 |         crumb_count = await self.check_crumb_count()
+    |
+info: Union variant `bound method RoboticArm.challenge_image_label_select(job_type: ChallengeTypeEnum) -> Unknown` is incompatible with this call site
+info: Attempted to call union type `Unknown | (bound method RoboticArm.challenge_image_label_select(job_type: ChallengeTypeEnum) -> Unknown)`
+info: rule `invalid-argument-type` is enabled by default
+
+error[unresolved-attribute]: Object of type `Literal[RequestType.HCI, RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP, RequestType.IMAGE_LABEL_MULTIPLE_CHOICE, RequestType.TEXT_FREE_ENTRY, ... omitted 10 literals]` has no attribute `IMAGE_LABEL_MULTI_SELECT`
+   --> src\hcaptcha_challenger\agent\challenger.py:860:22
+    |
+858 |                     ):
+859 |                         return await self.robotic_arm.challenge_image_label_select(challenge_type)
+860 |                 case challenge_type.IMAGE_LABEL_MULTI_SELECT:
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+861 |                     if (
+862 |                         RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unsupported-operator]: Unsupported `not in` operation
+   --> src\hcaptcha_challenger\agent\challenger.py:862:25
+    |
+860 |                 case challenge_type.IMAGE_LABEL_MULTI_SELECT:
+861 |                     if (
+862 |                         RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types
+    |                         -----------------------------------^^^^^^^^--------------------------------
+    |                         |                                          |
+    |                         |                                          Has type `Unknown | list[Literal["image_label_binary", "image_label_area_select", "image_drag_drop", "image_label_single_select", "image_label_multi_select", "image_drag_single", "image_drag_multi"] | RequestType | ChallengeTypeEnum] | None`
+    |                         Has type `Literal[RequestType.IMAGE_LABEL_AREA_SELECT]`
+863 |                         and challenge_type.IMAGE_LABEL_MULTI_SELECT
+864 |                         not in self.config.ignore_request_types
+    |
+info: Operation fails because operator `not in` is not supported between objects of type `Literal[RequestType.IMAGE_LABEL_AREA_SELECT]` and `None`
+info: rule `unsupported-operator` is enabled by default
+
+error[unresolved-attribute]: Object of type `Literal[RequestType.HCI, RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP, RequestType.IMAGE_LABEL_MULTIPLE_CHOICE, RequestType.TEXT_FREE_ENTRY, ... omitted 10 literals]` has no attribute `IMAGE_LABEL_MULTI_SELECT`
+   --> src\hcaptcha_challenger\agent\challenger.py:863:29
+    |
+861 |                     if (
+862 |                         RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types
+863 |                         and challenge_type.IMAGE_LABEL_MULTI_SELECT
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+864 |                         not in self.config.ignore_request_types
+865 |                     ):
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unsupported-operator]: Unsupported `not in` operation
+   --> src\hcaptcha_challenger\agent\challenger.py:863:29
+    |
+861 |                       if (
+862 |                           RequestType.IMAGE_LABEL_AREA_SELECT not in self.config.ignore_request_types
+863 |                           and challenge_type.IMAGE_LABEL_MULTI_SELECT
+    |  _____________________________^--------------------------------------
+    | |                             |
+    | |                             Has type `Unknown`
+864 | |                         not in self.config.ignore_request_types
+    | |________________________________-------------------------------^
+    |                                  |
+    |                                  Has type `Unknown | list[Literal["image_label_binary", "image_label_area_select", "image_drag_drop", "image_label_single_select", "image_label_multi_select", "image_drag_single", "image_drag_multi"] | RequestType | ChallengeTypeEnum] | None`
+865 |                       ):
+866 |                           return await self.robotic_arm.challenge_image_label_select(challenge_type)
+    |
+info: Operation fails because operator `not in` is not supported between objects of type `Unknown` and `None`
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `challenge_image_label_select` is incorrect
+   --> src\hcaptcha_challenger\agent\challenger.py:866:84
+    |
+864 |                         not in self.config.ignore_request_types
+865 |                     ):
+866 |                         return await self.robotic_arm.challenge_image_label_select(challenge_type)
+    |                                                                                    ^^^^^^^^^^^^^^ Expected `ChallengeTypeEnum`, found `Literal[RequestType.HCI, RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP, RequestType.IMAGE_LABEL_MULTIPLE_CHOICE, RequestType.TEXT_FREE_ENTRY, ... omitted 10 literals]`
+867 |                 case challenge_type.IMAGE_DRAG_SINGLE:
+868 |                     if (
+    |
+info: Method defined here
+   --> src\hcaptcha_challenger\agent\challenger.py:638:15
+    |
+636 |                 await self.click_by_mouse(submit_btn)
+637 |
+638 |     async def challenge_image_label_select(self, job_type: ChallengeTypeEnum):
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^       --------------------------- Parameter declared here
+639 |         frame_challenge = await self.get_challenge_frame_locator()
+640 |         crumb_count = await self.check_crumb_count()
+    |
+info: Union variant `bound method RoboticArm.challenge_image_label_select(job_type: ChallengeTypeEnum) -> Unknown` is incompatible with this call site
+info: Attempted to call union type `Unknown | (bound method RoboticArm.challenge_image_label_select(job_type: ChallengeTypeEnum) -> Unknown)`
+info: rule `invalid-argument-type` is enabled by default
+
+error[unresolved-attribute]: Object of type `Literal[RequestType.HCI, RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP, RequestType.IMAGE_LABEL_MULTIPLE_CHOICE, RequestType.TEXT_FREE_ENTRY, ... omitted 10 literals]` has no attribute `IMAGE_DRAG_SINGLE`
+   --> src\hcaptcha_challenger\agent\challenger.py:867:22
+    |
+865 |                     ):
+866 |                         return await self.robotic_arm.challenge_image_label_select(challenge_type)
+867 |                 case challenge_type.IMAGE_DRAG_SINGLE:
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+868 |                     if (
+869 |                         RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unsupported-operator]: Unsupported `not in` operation
+   --> src\hcaptcha_challenger\agent\challenger.py:869:25
+    |
+867 |                 case challenge_type.IMAGE_DRAG_SINGLE:
+868 |                     if (
+869 |                         RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types
+    |                         ---------------------------^^^^^^^^--------------------------------
+    |                         |                                  |
+    |                         |                                  Has type `Unknown | list[Literal["image_label_binary", "image_label_area_select", "image_drag_drop", "image_label_single_select", "image_label_multi_select", "image_drag_single", "image_drag_multi"] | RequestType | ChallengeTypeEnum] | None`
+    |                         Has type `Literal[RequestType.IMAGE_DRAG_DROP]`
+870 |                         and ChallengeTypeEnum.IMAGE_DRAG_SINGLE
+871 |                         not in self.config.ignore_request_types
+    |
+info: Operation fails because operator `not in` is not supported between objects of type `Literal[RequestType.IMAGE_DRAG_DROP]` and `None`
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `not in` operation
+   --> src\hcaptcha_challenger\agent\challenger.py:870:29
+    |
+868 |                       if (
+869 |                           RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types
+870 |                           and ChallengeTypeEnum.IMAGE_DRAG_SINGLE
+    |  _____________________________^----------------------------------
+    | |                             |
+    | |                             Has type `Literal[ChallengeTypeEnum.IMAGE_DRAG_SINGLE]`
+871 | |                         not in self.config.ignore_request_types
+    | |________________________________-------------------------------^
+    |                                  |
+    |                                  Has type `Unknown | list[Literal["image_label_binary", "image_label_area_select", "image_drag_drop", "image_label_single_select", "image_label_multi_select", "image_drag_single", "image_drag_multi"] | RequestType | ChallengeTypeEnum] | None`
+872 |                       ):
+873 |                           return await self.robotic_arm.challenge_image_drag_drop(challenge_type)
+    |
+info: Operation fails because operator `not in` is not supported between objects of type `Literal[ChallengeTypeEnum.IMAGE_DRAG_SINGLE]` and `None`
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `challenge_image_drag_drop` is incorrect
+   --> src\hcaptcha_challenger\agent\challenger.py:873:81
+    |
+871 |                         not in self.config.ignore_request_types
+872 |                     ):
+873 |                         return await self.robotic_arm.challenge_image_drag_drop(challenge_type)
+    |                                                                                 ^^^^^^^^^^^^^^ Expected `ChallengeTypeEnum`, found `Literal[RequestType.HCI, RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP, RequestType.IMAGE_LABEL_MULTIPLE_CHOICE, RequestType.TEXT_FREE_ENTRY, ... omitted 10 literals]`
+874 |                 case challenge_type.IMAGE_DRAG_MULTI:
+875 |                     if (
+    |
+info: Method defined here
+   --> src\hcaptcha_challenger\agent\challenger.py:608:15
+    |
+606 |                 await self.click_by_mouse(submit_btn)
+607 |
+608 |     async def challenge_image_drag_drop(self, job_type: ChallengeTypeEnum):
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^       --------------------------- Parameter declared here
+609 |         frame_challenge = await self.get_challenge_frame_locator()
+610 |         crumb_count = await self.check_crumb_count()
+    |
+info: Union variant `bound method RoboticArm.challenge_image_drag_drop(job_type: ChallengeTypeEnum) -> Unknown` is incompatible with this call site
+info: Attempted to call union type `Unknown | (bound method RoboticArm.challenge_image_drag_drop(job_type: ChallengeTypeEnum) -> Unknown)`
+info: rule `invalid-argument-type` is enabled by default
+
+error[unresolved-attribute]: Object of type `Literal[RequestType.HCI, RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP, RequestType.IMAGE_LABEL_MULTIPLE_CHOICE, RequestType.TEXT_FREE_ENTRY, ... omitted 10 literals]` has no attribute `IMAGE_DRAG_MULTI`
+   --> src\hcaptcha_challenger\agent\challenger.py:874:22
+    |
+872 |                     ):
+873 |                         return await self.robotic_arm.challenge_image_drag_drop(challenge_type)
+874 |                 case challenge_type.IMAGE_DRAG_MULTI:
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+875 |                     if (
+876 |                         RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unsupported-operator]: Unsupported `not in` operation
+   --> src\hcaptcha_challenger\agent\challenger.py:876:25
+    |
+874 |                 case challenge_type.IMAGE_DRAG_MULTI:
+875 |                     if (
+876 |                         RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types
+    |                         ---------------------------^^^^^^^^--------------------------------
+    |                         |                                  |
+    |                         |                                  Has type `Unknown | list[Literal["image_label_binary", "image_label_area_select", "image_drag_drop", "image_label_single_select", "image_label_multi_select", "image_drag_single", "image_drag_multi"] | RequestType | ChallengeTypeEnum] | None`
+    |                         Has type `Literal[RequestType.IMAGE_DRAG_DROP]`
+877 |                         and ChallengeTypeEnum.IMAGE_DRAG_MULTI
+878 |                         not in self.config.ignore_request_types
+    |
+info: Operation fails because operator `not in` is not supported between objects of type `Literal[RequestType.IMAGE_DRAG_DROP]` and `None`
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `not in` operation
+   --> src\hcaptcha_challenger\agent\challenger.py:877:29
+    |
+875 |                       if (
+876 |                           RequestType.IMAGE_DRAG_DROP not in self.config.ignore_request_types
+877 |                           and ChallengeTypeEnum.IMAGE_DRAG_MULTI
+    |  _____________________________^---------------------------------
+    | |                             |
+    | |                             Has type `Literal[ChallengeTypeEnum.IMAGE_DRAG_MULTI]`
+878 | |                         not in self.config.ignore_request_types
+    | |________________________________-------------------------------^
+    |                                  |
+    |                                  Has type `Unknown | list[Literal["image_label_binary", "image_label_area_select", "image_drag_drop", "image_label_single_select", "image_label_multi_select", "image_drag_single", "image_drag_multi"] | RequestType | ChallengeTypeEnum] | None`
+879 |                       ):
+880 |                           return await self.robotic_arm.challenge_image_drag_drop(challenge_type)
+    |
+info: Operation fails because operator `not in` is not supported between objects of type `Literal[ChallengeTypeEnum.IMAGE_DRAG_MULTI]` and `None`
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `challenge_image_drag_drop` is incorrect
+   --> src\hcaptcha_challenger\agent\challenger.py:880:81
+    |
+878 |                         not in self.config.ignore_request_types
+879 |                     ):
+880 |                         return await self.robotic_arm.challenge_image_drag_drop(challenge_type)
+    |                                                                                 ^^^^^^^^^^^^^^ Expected `ChallengeTypeEnum`, found `Literal[RequestType.HCI, RequestType.IMAGE_LABEL_AREA_SELECT, RequestType.IMAGE_DRAG_DROP, RequestType.IMAGE_LABEL_MULTIPLE_CHOICE, RequestType.TEXT_FREE_ENTRY, ... omitted 10 literals]`
+881 |                 # {{< HCI >}}
+882 |                 case _:
+    |
+info: Method defined here
+   --> src\hcaptcha_challenger\agent\challenger.py:608:15
+    |
+606 |                 await self.click_by_mouse(submit_btn)
+607 |
+608 |     async def challenge_image_drag_drop(self, job_type: ChallengeTypeEnum):
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^       --------------------------- Parameter declared here
+609 |         frame_challenge = await self.get_challenge_frame_locator()
+610 |         crumb_count = await self.check_crumb_count()
+    |
+info: Union variant `bound method RoboticArm.challenge_image_drag_drop(job_type: ChallengeTypeEnum) -> Unknown` is incompatible with this call site
+info: Attempted to call union type `Unknown | (bound method RoboticArm.challenge_image_drag_drop(job_type: ChallengeTypeEnum) -> Unknown)`
+info: rule `invalid-argument-type` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `None` with no `__getitem__` method
+  --> src\hcaptcha_challenger\agent\collector.py:82:20
+   |
+80 |         bbox = await locator.bounding_box()
+81 |
+82 |         center_x = bbox['x'] + bbox['width'] / 2
+   |                    ^^^^^^^^^
+83 |         center_y = bbox['y'] + bbox['height'] / 2
+   |
+info: rule `non-subscriptable` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `None` with no `__getitem__` method
+  --> src\hcaptcha_challenger\agent\collector.py:82:32
+   |
+80 |         bbox = await locator.bounding_box()
+81 |
+82 |         center_x = bbox['x'] + bbox['width'] / 2
+   |                                ^^^^^^^^^^^^^
+83 |         center_y = bbox['y'] + bbox['height'] / 2
+   |
+info: rule `non-subscriptable` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `None` with no `__getitem__` method
+  --> src\hcaptcha_challenger\agent\collector.py:83:20
+   |
+82 |         center_x = bbox['x'] + bbox['width'] / 2
+83 |         center_y = bbox['y'] + bbox['height'] / 2
+   |                    ^^^^^^^^^
+84 |
+85 |         await self.page.mouse.move(center_x, center_y)
+   |
+info: rule `non-subscriptable` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `None` with no `__getitem__` method
+  --> src\hcaptcha_challenger\agent\collector.py:83:32
+   |
+82 |         center_x = bbox['x'] + bbox['width'] / 2
+83 |         center_y = bbox['y'] + bbox['height'] / 2
+   |                                ^^^^^^^^^^^^^^
+84 |
+85 |         await self.page.mouse.move(center_x, center_y)
+   |
+info: rule `non-subscriptable` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `get` is incorrect
+   --> src\hcaptcha_challenger\agent\collector.py:261:55
+    |
+259 |                     i = 0 if j <= 8 else 1
+260 |                     j = j if j <= 8 else j - 9
+261 |                     image_response = await client.get(task.datapoint_uri)
+    |                                                       ^^^^^^^^^^^^^^^^^^ Expected `URL | str`, found `str | None`
+262 |                     cache_path_challenge = cache_key.joinpath(f"{crt}_{i}_{j}_task.png")
+263 |                     cache_path_challenge.write_bytes(image_response.content)
+    |
+info: Element `None` of this union is not assignable to `URL | str`
+info: Method defined here
+    --> .venv\Lib\site-packages\httpx\_client.py:1751:15
+     |
+1749 |         return response
+1750 |
+1751 |     async def get(
+     |               ^^^
+1752 |         self,
+1753 |         url: URL | str,
+     |         -------------- Parameter declared here
+1754 |         *,
+1755 |         params: QueryParamTypes | None = None,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `get` is incorrect
+   --> src\hcaptcha_challenger\agent\collector.py:276:56
+    |
+274 |             case RequestType.IMAGE_LABEL_AREA_SELECT:
+275 |                 for i, task in enumerate(cp.tasklist):
+276 |                     canvas_response = await client.get(task.datapoint_uri)
+    |                                                        ^^^^^^^^^^^^^^^^^^ Expected `URL | str`, found `str | None`
+277 |                     cache_path_canvas = cache_key.joinpath(f"{crt}_{i}_canvas.png")
+278 |                     cache_path_canvas.write_bytes(canvas_response.content)
+    |
+info: Element `None` of this union is not assignable to `URL | str`
+info: Method defined here
+    --> .venv\Lib\site-packages\httpx\_client.py:1751:15
+     |
+1749 |         return response
+1750 |
+1751 |     async def get(
+     |               ^^^
+1752 |         self,
+1753 |         url: URL | str,
+     |         -------------- Parameter declared here
+1754 |         *,
+1755 |         params: QueryParamTypes | None = None,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `get` is incorrect
+   --> src\hcaptcha_challenger\agent\collector.py:291:56
+    |
+289 |             case RequestType.IMAGE_DRAG_DROP:
+290 |                 for i, task in enumerate(cp.tasklist):
+291 |                     canvas_response = await client.get(task.datapoint_uri)
+    |                                                        ^^^^^^^^^^^^^^^^^^ Expected `URL | str`, found `str | None`
+292 |                     cache_path_canvas = cache_key.joinpath(f"{crt}_{i}_canvas.png")
+293 |                     cache_path_canvas.write_bytes(canvas_response.content)
+    |
+info: Element `None` of this union is not assignable to `URL | str`
+info: Method defined here
+    --> .venv\Lib\site-packages\httpx\_client.py:1751:15
+     |
+1749 |         return response
+1750 |
+1751 |     async def get(
+     |               ^^^
+1752 |         self,
+1753 |         url: URL | str,
+     |         -------------- Parameter declared here
+1754 |         *,
+1755 |         params: QueryParamTypes | None = None,
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to function `__new__` is incorrect
+   --> src\hcaptcha_challenger\agent\collector.py:294:48
+    |
+292 |                     cache_path_canvas = cache_key.joinpath(f"{crt}_{i}_canvas.png")
+293 |                     cache_path_canvas.write_bytes(canvas_response.content)
+294 |                     for j, entity in enumerate(task.entities):
+    |                                                ^^^^^^^^^^^^^ Expected `Iterable[CaptchaTaskEntity]`, found `list[CaptchaTaskEntity] | None`
+295 |                         entity_response = await client.get(entity.entity_uri)
+296 |                         cache_path_entity = cache_key.joinpath(f"{crt}_{i}_{j}_entity.png")
+    |
+info: Element `None` of this union is not assignable to `Iterable[CaptchaTaskEntity]`
+info: Function defined here
+    --> stdlib\builtins.pyi:3257:9
+     |
+3255 |     """
+3256 |
+3257 |     def __new__(cls, iterable: Iterable[_T], start: int = 0) -> Self: ...
+     |         ^^^^^^^      ---------------------- Parameter declared here
+3258 |     def __iter__(self) -> Self:
+3259 |         """Implement iter(self)."""
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `_create_cache_key` is incorrect
+   --> src\hcaptcha_challenger\agent\collector.py:353:53
+    |
+352 |             # Download Images
+353 |             crt, cache_key = self._create_cache_key(captcha_payload)
+    |                                                     ^^^^^^^^^^^^^^^ Expected `CaptchaPayload`, found `CaptchaPayload | None`
+354 |             await self._build_dataset(captcha_payload, crt, cache_key, client)
+355 |             await self._capture_challenge_view(captcha_payload, crt, cache_key)
+    |
+info: Element `None` of this union is not assignable to `CaptchaPayload`
+info: Method defined here
+   --> src\hcaptcha_challenger\agent\collector.py:199:9
+    |
+197 |                 self._captcha_payload_queue.put_nowait(None)
+198 |
+199 |     def _create_cache_key(self, captcha_payload: CaptchaPayload) -> Tuple[str, Path]:
+    |         ^^^^^^^^^^^^^^^^^       ------------------------------- Parameter declared here
+200 |         """
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `_build_dataset` is incorrect
+   --> src\hcaptcha_challenger\agent\collector.py:354:39
+    |
+352 |             # Download Images
+353 |             crt, cache_key = self._create_cache_key(captcha_payload)
+354 |             await self._build_dataset(captcha_payload, crt, cache_key, client)
+    |                                       ^^^^^^^^^^^^^^^ Expected `CaptchaPayload`, found `CaptchaPayload | None`
+355 |             await self._capture_challenge_view(captcha_payload, crt, cache_key)
+    |
+info: Element `None` of this union is not assignable to `CaptchaPayload`
+info: Method defined here
+   --> src\hcaptcha_challenger\agent\collector.py:240:15
+    |
+238 |                     await self._click_by_mouse(submit_btn)
+239 |
+240 |     async def _build_dataset(
+    |               ^^^^^^^^^^^^^^
+241 |         self, cp: CaptchaPayload, crt: str, cache_key: Path, client: httpx.AsyncClient
+    |               ------------------ Parameter declared here
+242 |     ):
+243 |         if not isinstance(cp, CaptchaPayload):
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `_capture_challenge_view` is incorrect
+   --> src\hcaptcha_challenger\agent\collector.py:355:48
+    |
+353 |             crt, cache_key = self._create_cache_key(captcha_payload)
+354 |             await self._build_dataset(captcha_payload, crt, cache_key, client)
+355 |             await self._capture_challenge_view(captcha_payload, crt, cache_key)
+    |                                                ^^^^^^^^^^^^^^^ Expected `CaptchaPayload`, found `CaptchaPayload | None`
+356 |
+357 |             if not _by_cli:
+    |
+info: Element `None` of this union is not assignable to `CaptchaPayload`
+info: Method defined here
+   --> src\hcaptcha_challenger\agent\collector.py:218:15
+    |
+216 |         return crt, cache_key
+217 |
+218 |     async def _capture_challenge_view(self, cp: CaptchaPayload, crt: str, cache_key: Path):
+    |               ^^^^^^^^^^^^^^^^^^^^^^^       ------------------ Parameter declared here
+219 |         frame_challenge = self.page.frame_locator(self.challenge_selector)
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `request_type` may be missing on object of type `CaptchaPayload | None`
+   --> src\hcaptcha_challenger\agent\collector.py:359:70
+    |
+357 |             if not _by_cli:
+358 |                 qsize = self._loop_control.qsize()
+359 |                 logger.debug(f"Download images - qsize={qsize} type={captcha_payload.request_type}")
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+360 |
+361 |         if not _by_cli:
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to function `len` is incorrect
+   --> src\hcaptcha_challenger\agent\collector.py:397:34
+    |
+395 |                 _verify_file_count(
+396 |                     actual=len(list(root.glob(f"*{i}_entity.png"))),
+397 |                     expected=len(task.entities),
+    |                                  ^^^^^^^^^^^^^ Expected `Sized`, found `list[CaptchaTaskEntity] | None`
+398 |                     file_type="entity",
+399 |                 )
+    |
+info: Element `None` of this union is not assignable to `Sized`
+info: Function defined here
+    --> stdlib\builtins.pyi:3784:5
+     |
+3782 |     """
+3783 |
+3784 | def len(obj: Sized, /) -> int:
+     |     ^^^ ---------- Parameter declared here
+3785 |     """Return the number of items in a container."""
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unsupported-operator]: Unsupported `not in` operation
+   --> src\hcaptcha_challenger\cli\dataset.py:233:20
+    |
+232 |                 # Update type statistics
+233 |                 if request_type not in dataset_stats["types"]:
+    |                    ------------^^^^^^^^----------------------
+    |                    |                   |
+    |                    |                   Has type `Unknown | int | dict[Unknown, Unknown]`
+    |                    Has type `Any | Literal["unknown"]`
+234 |                     dataset_stats["types"][request_type] = {"total": 0, "valid": 0, "invalid": 0}
+235 |                 dataset_stats["types"][request_type]["total"] += 1
+    |
+info: Operation fails because operator `not in` is not supported between objects of type `Any` and `int`
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-assignment]: Cannot assign to a subscript on an object of type `int`
+   --> src\hcaptcha_challenger\cli\dataset.py:234:21
+    |
+232 |                 # Update type statistics
+233 |                 if request_type not in dataset_stats["types"]:
+234 |                     dataset_stats["types"][request_type] = {"total": 0, "valid": 0, "invalid": 0}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+235 |                 dataset_stats["types"][request_type]["total"] += 1
+    |
+info: The full type of the subscripted object is `Unknown | int | dict[Unknown, Unknown]`
+info: `int` does not have a `__setitem__` method.
+info: rule `invalid-assignment` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `int` with no `__getitem__` method
+   --> src\hcaptcha_challenger\cli\dataset.py:235:17
+    |
+233 |                 if request_type not in dataset_stats["types"]:
+234 |                     dataset_stats["types"][request_type] = {"total": 0, "valid": 0, "invalid": 0}
+235 |                 dataset_stats["types"][request_type]["total"] += 1
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+236 |
+237 |                 # Perform check
+    |
+info: rule `non-subscriptable` is enabled by default
+
+error[unsupported-operator]: Unsupported `+=` operation
+   --> src\hcaptcha_challenger\cli\dataset.py:241:17
+    |
+240 |                 # Check passed, update statistics
+241 |                 dataset_stats["valid"] += 1
+    |                 ----------------------^^^^-
+    |                 |                         |
+    |                 |                         Has type `Literal[1]`
+    |                 Has type `dict[Unknown, Unknown]`
+242 |                 dataset_stats["types"][request_type]["valid"] += 1
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `int` with no `__getitem__` method
+   --> src\hcaptcha_challenger\cli\dataset.py:242:17
+    |
+240 |                 # Check passed, update statistics
+241 |                 dataset_stats["valid"] += 1
+242 |                 dataset_stats["types"][request_type]["valid"] += 1
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+243 |
+244 |             except Exception as e:
+    |
+info: rule `non-subscriptable` is enabled by default
+
+error[unsupported-operator]: Unsupported `+=` operation
+   --> src\hcaptcha_challenger\cli\dataset.py:254:17
+    |
+253 |                 # Update statistics
+254 |                 dataset_stats["invalid"] += 1
+    |                 ------------------------^^^^-
+    |                 |                           |
+    |                 |                           Has type `Literal[1]`
+    |                 Has type `dict[Unknown, Unknown]`
+255 |                 if 'request_type' in locals() and request_type in dataset_stats["types"]:
+256 |                     dataset_stats["types"][request_type]["invalid"] += 1
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `in` operation
+   --> src\hcaptcha_challenger\cli\dataset.py:255:51
+    |
+253 |                 # Update statistics
+254 |                 dataset_stats["invalid"] += 1
+255 |                 if 'request_type' in locals() and request_type in dataset_stats["types"]:
+    |                                                   ------------^^^^----------------------
+    |                                                   |               |
+    |                                                   |               Has type `Unknown | int | dict[Unknown, Unknown]`
+    |                                                   Has type `Any | Literal["unknown"]`
+256 |                     dataset_stats["types"][request_type]["invalid"] += 1
+    |
+info: Operation fails because operator `in` is not supported between objects of type `Any` and `int`
+info: rule `unsupported-operator` is enabled by default
+
+error[non-subscriptable]: Cannot subscript object of type `int` with no `__getitem__` method
+   --> src\hcaptcha_challenger\cli\dataset.py:256:21
+    |
+254 |                 dataset_stats["invalid"] += 1
+255 |                 if 'request_type' in locals() and request_type in dataset_stats["types"]:
+256 |                     dataset_stats["types"][request_type]["invalid"] += 1
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+257 |
+258 |             # Update progress bar
+    |
+info: rule `non-subscriptable` is enabled by default
+
+error[unsupported-operator]: Unsupported `/` operation
+   --> src\hcaptcha_challenger\cli\dataset.py:292:16
+    |
+290 |         str(dataset_stats['valid']),
+291 |         (
+292 |             f"{dataset_stats['valid']/dataset_stats['total']*100:.1f}%"
+    |                ----------------------^----------------------
+    |                |
+    |                Both operands have type `Unknown | int | dict[Unknown, Unknown]`
+293 |             if dataset_stats['total'] > 0
+294 |             else "0%"
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `>` operation
+   --> src\hcaptcha_challenger\cli\dataset.py:293:16
+    |
+291 |         (
+292 |             f"{dataset_stats['valid']/dataset_stats['total']*100:.1f}%"
+293 |             if dataset_stats['total'] > 0
+    |                ----------------------^^^-
+    |                |                        |
+    |                |                        Has type `Literal[0]`
+    |                Has type `Unknown | int | dict[Unknown, Unknown]`
+294 |             else "0%"
+295 |         ),
+    |
+info: Operation fails because operator `>` is not supported between objects of type `dict[Unknown, Unknown]` and `Literal[0]`
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `/` operation
+   --> src\hcaptcha_challenger\cli\dataset.py:301:16
+    |
+299 |         str(dataset_stats['invalid']),
+300 |         (
+301 |             f"{dataset_stats['invalid']/dataset_stats['total']*100:.1f}%"
+    |                ------------------------^----------------------
+    |                |
+    |                Both operands have type `Unknown | int | dict[Unknown, Unknown]`
+302 |             if dataset_stats['total'] > 0
+303 |             else "0%"
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `>` operation
+   --> src\hcaptcha_challenger\cli\dataset.py:302:16
+    |
+300 |         (
+301 |             f"{dataset_stats['invalid']/dataset_stats['total']*100:.1f}%"
+302 |             if dataset_stats['total'] > 0
+    |                ----------------------^^^-
+    |                |                        |
+    |                |                        Has type `Literal[0]`
+    |                Has type `Unknown | int | dict[Unknown, Unknown]`
+303 |             else "0%"
+304 |         ),
+    |
+info: Operation fails because operator `>` is not supported between objects of type `dict[Unknown, Unknown]` and `Literal[0]`
+info: rule `unsupported-operator` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `items` may be missing on object of type `(Unknown & ~AlwaysFalsy) | (int & ~AlwaysFalsy) | (dict[Unknown, Unknown] & ~AlwaysFalsy)`
+   --> src\hcaptcha_challenger\cli\dataset.py:318:38
+    |
+316 |         type_table.add_column("Valid %", style="yellow")
+317 |
+318 |         for type_name, type_stats in dataset_stats["types"].items():
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+319 |             valid_percent = (
+320 |                 type_stats["valid"] / type_stats["total"] * 100 if type_stats["total"] > 0 else 0
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[unsupported-operator]: Unsupported `/` operation
+   --> src\hcaptcha_challenger\cli\dataset.py:334:9
+    |
+332 |     # Show summary in panel
+333 |     valid_percent = (
+334 |         dataset_stats['valid'] / dataset_stats['total'] * 100 if dataset_stats['total'] > 0 else 0
+    |         ----------------------^^^----------------------
+    |         |
+    |         Both operands have type `Unknown | int | dict[Unknown, Unknown]`
+335 |     )
+336 |     summary = f"[bold]Dataset Integrity:[/bold] {valid_percent:.1f}% valid"
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `>` operation
+   --> src\hcaptcha_challenger\cli\dataset.py:334:66
+    |
+332 |     # Show summary in panel
+333 |     valid_percent = (
+334 |         dataset_stats['valid'] / dataset_stats['total'] * 100 if dataset_stats['total'] > 0 else 0
+    |                                                                  ----------------------^^^-
+    |                                                                  |                        |
+    |                                                                  |                        Has type `Literal[0]`
+    |                                                                  Has type `Unknown | int | dict[Unknown, Unknown]`
+335 |     )
+336 |     summary = f"[bold]Dataset Integrity:[/bold] {valid_percent:.1f}% valid"
+    |
+info: Operation fails because operator `>` is not supported between objects of type `dict[Unknown, Unknown]` and `Literal[0]`
+info: rule `unsupported-operator` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `get_help` may be missing on object of type `Unknown | Context | None`
+  --> src\hcaptcha_challenger\cli\main.py:42:15
+   |
+40 |     if not command_path:
+41 |         # If `hc help` is called with no arguments, show main help
+42 |         print(ctx.parent.get_help())
+   |               ^^^^^^^^^^^^^^^^^^^
+43 |         raise typer.Exit()
+   |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `command` may be missing on object of type `Unknown | Context | None`
+  --> src\hcaptcha_challenger\cli\main.py:53:20
+   |
+52 |         # Try to find command in current context
+53 |         if hasattr(current_ctx.command, "commands"):
+   |                    ^^^^^^^^^^^^^^^^^^^
+54 |             for name, command in current_ctx.command.commands.items():
+55 |                 if name == cmd:
+   |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `object` has no attribute `items`
+  --> src\hcaptcha_challenger\cli\main.py:54:34
+   |
+52 |         # Try to find command in current context
+53 |         if hasattr(current_ctx.command, "commands"):
+54 |             for name, command in current_ctx.command.commands.items():
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+55 |                 if name == cmd:
+56 |                     # Create a new context for this command
+   |
+info: rule `unresolved-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `command` may be missing on object of type `Unknown | Context | None`
+  --> src\hcaptcha_challenger\cli\main.py:54:34
+   |
+52 |         # Try to find command in current context
+53 |         if hasattr(current_ctx.command, "commands"):
+54 |             for name, command in current_ctx.command.commands.items():
+   |                                  ^^^^^^^^^^^^^^^^^^^
+55 |                 if name == cmd:
+56 |                     # Create a new context for this command
+   |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `get_help` may be missing on object of type `Unknown | Context | None`
+  --> src\hcaptcha_challenger\cli\main.py:78:11
+   |
+77 |     # Print help for the found command
+78 |     print(current_ctx.get_help())
+   |           ^^^^^^^^^^^^^^^^^^^^
+79 |     raise typer.Exit()
+   |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `prompt_token_count` may be missing on object of type `GenerateContentResponseUsageMetadata | None`
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:125:28
+    |
+124 |             # Calculate input cost
+125 |             input_tokens = record.usage_metadata.prompt_token_count
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+126 |             input_cost = round(input_tokens * cost_item["input_price"] * cost_item["unit"], 3)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[unsupported-operator]: Unsupported `*` operation
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:126:32
+    |
+124 |             # Calculate input cost
+125 |             input_tokens = record.usage_metadata.prompt_token_count
+126 |             input_cost = round(input_tokens * cost_item["input_price"] * cost_item["unit"], 3)
+    |                                ------------^^^------------------------
+    |                                |              |
+    |                                |              Has type `int | float | Unknown`
+    |                                Has type `int | None`
+127 |
+128 |             # Calculate output cost
+    |
+info: rule `unsupported-operator` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `candidates_token_count` may be missing on object of type `GenerateContentResponseUsageMetadata | None`
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:129:29
+    |
+128 |             # Calculate output cost
+129 |             output_tokens = record.usage_metadata.candidates_token_count
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+130 |             output_cost = round(output_tokens * cost_item["output_price"] * cost_item["unit"], 3)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[unsupported-operator]: Unsupported `*` operation
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:130:33
+    |
+128 |             # Calculate output cost
+129 |             output_tokens = record.usage_metadata.candidates_token_count
+130 |             output_cost = round(output_tokens * cost_item["output_price"] * cost_item["unit"], 3)
+    |                                 -------------^^^-------------------------
+    |                                 |               |
+    |                                 |               Has type `int | float | Unknown`
+    |                                 Has type `int | None`
+131 |
+132 |             # Calculate total cost for this item
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `+=` operation
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:136:13
+    |
+135 |             # Update global stats
+136 |             stats.total_input_tokens += input_tokens
+    |             ------------------------^^^^------------
+    |             |                           |
+    |             |                           Has type `int | None`
+    |             Has type `int`
+137 |             stats.total_output_tokens += output_tokens
+138 |             stats.total_cost = round(stats.total_cost + item_total_cost, 3)
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `+=` operation
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:137:13
+    |
+135 |             # Update global stats
+136 |             stats.total_input_tokens += input_tokens
+137 |             stats.total_output_tokens += output_tokens
+    |             -------------------------^^^^-------------
+    |             |                            |
+    |             |                            Has type `int | None`
+    |             Has type `int`
+138 |             stats.total_cost = round(stats.total_cost + item_total_cost, 3)
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `+=` operation
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:158:17
+    |
+156 |                     }
+157 |
+158 |                 stats.model_details[model_name]["input_tokens"] += input_tokens
+    |                 -----------------------------------------------^^^^------------
+    |                 |                                                  |
+    |                 |                                                  Has type `int | None`
+    |                 Has type `int`
+159 |                 stats.model_details[model_name]["output_tokens"] += output_tokens
+160 |                 stats.model_details[model_name]["input_cost"] = round(
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `+=` operation
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:158:17
+    |
+156 |                     }
+157 |
+158 |                 stats.model_details[model_name]["input_tokens"] += input_tokens
+    |                 -----------------------------------------------^^^^------------
+    |                 |                                                  |
+    |                 |                                                  Has type `int | None`
+    |                 Has type `float`
+159 |                 stats.model_details[model_name]["output_tokens"] += output_tokens
+160 |                 stats.model_details[model_name]["input_cost"] = round(
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `+=` operation
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:159:17
+    |
+158 |                 stats.model_details[model_name]["input_tokens"] += input_tokens
+159 |                 stats.model_details[model_name]["output_tokens"] += output_tokens
+    |                 ------------------------------------------------^^^^-------------
+    |                 |                                                   |
+    |                 |                                                   Has type `int | None`
+    |                 Has type `int`
+160 |                 stats.model_details[model_name]["input_cost"] = round(
+161 |                     stats.model_details[model_name]["input_cost"] + input_cost, 3
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `+=` operation
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:159:17
+    |
+158 |                 stats.model_details[model_name]["input_tokens"] += input_tokens
+159 |                 stats.model_details[model_name]["output_tokens"] += output_tokens
+    |                 ------------------------------------------------^^^^-------------
+    |                 |                                                   |
+    |                 |                                                   Has type `int | None`
+    |                 Has type `float`
+160 |                 stats.model_details[model_name]["input_cost"] = round(
+161 |                     stats.model_details[model_name]["input_cost"] + input_cost, 3
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-assignment]: Object of type `Unknown` is not assignable to attribute `total_cost` on type `int | ModelUsageStats`
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:212:5
+    |
+211 |     # Ensure all cost values are rounded to 3 decimal places
+212 |     stats.total_cost = round(stats.total_cost, 3)
+    |     ^^^^^^^^^^^^^^^^
+213 |     stats.average_cost_per_challenge = round(stats.average_cost_per_challenge, 3)
+214 |     stats.median_cost_per_challenge = round(stats.median_cost_per_challenge, 3)
+    |
+info: rule `invalid-assignment` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `total_cost` may be missing on object of type `int | ModelUsageStats`
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:212:30
+    |
+211 |     # Ensure all cost values are rounded to 3 decimal places
+212 |     stats.total_cost = round(stats.total_cost, 3)
+    |                              ^^^^^^^^^^^^^^^^
+213 |     stats.average_cost_per_challenge = round(stats.average_cost_per_challenge, 3)
+214 |     stats.median_cost_per_challenge = round(stats.median_cost_per_challenge, 3)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-assignment]: Object of type `Unknown` is not assignable to attribute `average_cost_per_challenge` on type `int | ModelUsageStats`
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:213:5
+    |
+211 |     # Ensure all cost values are rounded to 3 decimal places
+212 |     stats.total_cost = round(stats.total_cost, 3)
+213 |     stats.average_cost_per_challenge = round(stats.average_cost_per_challenge, 3)
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+214 |     stats.median_cost_per_challenge = round(stats.median_cost_per_challenge, 3)
+    |
+info: rule `invalid-assignment` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `average_cost_per_challenge` may be missing on object of type `int | ModelUsageStats`
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:213:46
+    |
+211 |     # Ensure all cost values are rounded to 3 decimal places
+212 |     stats.total_cost = round(stats.total_cost, 3)
+213 |     stats.average_cost_per_challenge = round(stats.average_cost_per_challenge, 3)
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+214 |     stats.median_cost_per_challenge = round(stats.median_cost_per_challenge, 3)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-assignment]: Object of type `Unknown` is not assignable to attribute `median_cost_per_challenge` on type `int | ModelUsageStats`
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:214:5
+    |
+212 |     stats.total_cost = round(stats.total_cost, 3)
+213 |     stats.average_cost_per_challenge = round(stats.average_cost_per_challenge, 3)
+214 |     stats.median_cost_per_challenge = round(stats.median_cost_per_challenge, 3)
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+215 |
+216 |     for model_data in stats.model_details.values():
+    |
+info: rule `invalid-assignment` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `median_cost_per_challenge` may be missing on object of type `int | ModelUsageStats`
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:214:45
+    |
+212 |     stats.total_cost = round(stats.total_cost, 3)
+213 |     stats.average_cost_per_challenge = round(stats.average_cost_per_challenge, 3)
+214 |     stats.median_cost_per_challenge = round(stats.median_cost_per_challenge, 3)
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+215 |
+216 |     for model_data in stats.model_details.values():
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `model_details` may be missing on object of type `int | ModelUsageStats`
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:216:23
+    |
+214 |     stats.median_cost_per_challenge = round(stats.median_cost_per_challenge, 3)
+215 |
+216 |     for model_data in stats.model_details.values():
+    |                       ^^^^^^^^^^^^^^^^^^^
+217 |         for cost_key in ["input_cost", "output_cost", "total_cost"]:
+218 |             if cost_key in model_data:
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `save_to_json` may be missing on object of type `int | ModelUsageStats`
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:222:9
+    |
+221 |     if output_file:
+222 |         stats.save_to_json(output_file)
+    |         ^^^^^^^^^^^^^^^^^^
+223 |
+224 |     return stats
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-return-type]: Return type does not match returned value
+   --> src\hcaptcha_challenger\helper\cost_calculator.py:224:12
+    |
+222 |         stats.save_to_json(output_file)
+223 |
+224 |     return stats
+    |            ^^^^^ expected `ModelUsageStats`, found `int | ModelUsageStats`
+    |
+   ::: src\hcaptcha_challenger\helper\cost_calculator.py:194:6
+    |
+192 | def export_stats(
+193 |     challenge_path: Union[str, pathlib.Path], output_file: Optional[Union[str, pathlib.Path]] = None
+194 | ) -> ModelUsageStats:
+    |      --------------- Expected `ModelUsageStats` because of return type
+195 |     """
+196 |     Calculate and export detailed statistics for model usage
+    |
+info: rule `invalid-return-type` is enabled by default
+
+error[invalid-type-form]: Module `PIL.ImageDraw` is not valid in a type expression
+  --> src\hcaptcha_challenger\helper\create_comparison_image.py:10:11
+   |
+ 9 | def draw_xyz_coordinate_system(
+10 |     draw: ImageDraw,
+   |           ^^^^^^^^^ Did you mean to use the module's member `ImageDraw.ImageDraw`?
+11 |     center_x: int,
+12 |     center_y: int,
+   |
+info: rule `invalid-type-form` is enabled by default
+
+error[invalid-parameter-default]: Default value of type `None` is not assignable to annotated parameter type `int`
+   --> src\hcaptcha_challenger\helper\create_comparison_image.py:166:44
+    |
+165 | def create_comparison_image(
+166 |     image_source: Union[str, bytes, Path], reference_width: int = None
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+167 | ) -> Tuple[Image.Image, Image.Image]:
+168 |     """
+    |
+info: rule `invalid-parameter-default` is enabled by default
+
+error[no-matching-overload]: No overload of function `mean` matches arguments
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:46:22
+   |
+45 |     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+46 |     avg_brightness = np.mean(gray) / 255
+   |                      ^^^^^^^^^^^^^
+47 |
+48 |     grid_color = 'black' if avg_brightness > 0.5 else 'white'
+   |
+info: First overload defined here
+    --> .venv\Lib\site-packages\numpy\_core\fromnumeric.pyi:1437:5
+     |
+1436 |   @overload
+1437 |   def mean(
+     |  _____^
+1438 | |     a: _ArrayLikeFloat_co,
+1439 | |     axis: None = ...,
+1440 | |     dtype: None = ...,
+1441 | |     out: None = ...,
+1442 | |     keepdims: Literal[False] | _NoValueType = ...,
+1443 | |     *,
+1444 | |     where: _ArrayLikeBool_co | _NoValueType = ...,
+1445 | | ) -> floating[Any]: ...
+     | |__________________^
+1446 |   @overload
+1447 |   def mean(
+     |
+info: Possible overloads for function `mean`:
+info:   (a: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], axis: None = ..., dtype: None = ..., out: None = ..., keepdims: Literal[False] | _NoValueType = ..., *, where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> floating[Any]
+info:   (a: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, axis: None = ..., dtype: None = ..., out: None = ..., keepdims: Literal[False] | _NoValueType = ..., *, where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> complexfloating[Any, Any]
+info:   (a: _SupportsArray[dtype[timedelta64[timedelta | int | None]]] | _NestedSequence[_SupportsArray[dtype[timedelta64[timedelta | int | None]]]], axis: None = ..., dtype: None = ..., out: None = ..., keepdims: Literal[False] | _NoValueType = ..., *, where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> timedelta64[timedelta | int | None]
+info:   (a: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 5 union elements, axis: SupportsIndex | Sequence[SupportsIndex] | None, dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements, out: _ArrayT@mean, keepdims: bool | _NoValueType = ..., *, where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> _ArrayT@mean
+info:   (a: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 5 union elements, axis: SupportsIndex | Sequence[SupportsIndex] | None = ..., dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements = ..., *, out: _ArrayT@mean, keepdims: bool | _NoValueType = ..., where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> _ArrayT@mean
+info:   (a: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 5 union elements, axis: None, dtype: dtype[_SCT@mean] | type[_SCT@mean] | _SupportsDType[dtype[_SCT@mean]], out: None = ..., keepdims: Literal[False] | _NoValueType = ..., *, where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> _SCT@mean
+info:   (a: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 5 union elements, axis: None = ..., *, dtype: dtype[_SCT@mean] | type[_SCT@mean] | _SupportsDType[dtype[_SCT@mean]], out: None = ..., keepdims: Literal[False] | _NoValueType = ..., where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> _SCT@mean
+info:   (a: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 5 union elements, axis: SupportsIndex | Sequence[SupportsIndex] | None, dtype: dtype[_SCT@mean] | type[_SCT@mean] | _SupportsDType[dtype[_SCT@mean]], out: None, keepdims: Literal[True, 1], *, where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> ndarray[tuple[int, ...], dtype[_SCT@mean]]
+info:   (a: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 5 union elements, axis: SupportsIndex | Sequence[SupportsIndex] | None, dtype: dtype[_SCT@mean] | type[_SCT@mean] | _SupportsDType[dtype[_SCT@mean]], out: None = ..., *, keepdims: bool | _NoValueType = ..., where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> _SCT@mean | ndarray[tuple[int, ...], dtype[_SCT@mean]]
+info:   (a: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 5 union elements, axis: SupportsIndex | Sequence[SupportsIndex] | None = ..., *, dtype: dtype[_SCT@mean] | type[_SCT@mean] | _SupportsDType[dtype[_SCT@mean]], out: None = ..., keepdims: bool | _NoValueType = ..., where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> _SCT@mean | ndarray[tuple[int, ...], dtype[_SCT@mean]]
+info:   (a: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 5 union elements, axis: SupportsIndex | Sequence[SupportsIndex] | None = ..., dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements = ..., out: None = ..., keepdims: bool | _NoValueType = ..., *, where: _SupportsArray[dtype[bool[bool]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]]]] | bool | _NestedSequence[bool] | _NoValueType = ...) -> Any
+info: rule `no-matching-overload` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `imshow` is incorrect
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:54:20
+   |
+52 |     fig, ax = plt.subplots(figsize=(10, 10))
+53 |
+54 |     ax.imshow(img, extent=(x, x + width, y + height, y))
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `tuple[int | float, int | float, int | float, int | float] | None`, found `tuple[@Todo | str | int | float, Unknown, Unknown, @Todo | str | int | float]`
+55 |
+56 |     ax.set_xlim(x, x + width)
+   |
+info: Method defined here
+   --> .venv\Lib\site-packages\matplotlib\axes\_axes.pyi:479:9
+    |
+477 |         **kwargs
+478 |     ) -> FillBetweenPolyCollection: ...
+479 |     def imshow(
+    |         ^^^^^^
+480 |         self,
+481 |         X: ArrayLike | PIL.Image.Image,
+    |
+   ::: .venv\Lib\site-packages\matplotlib\axes\_axes.pyi:492:9
+    |
+490 |         colorizer: Colorizer | None = ...,
+491 |         origin: Literal["upper", "lower"] | None = ...,
+492 |         extent: tuple[float, float, float, float] | None = ...,
+    |         ------------------------------------------------------ Parameter declared here
+493 |         interpolation_stage: Literal["data", "rgba", "auto"] | None = ...,
+494 |         filternorm: bool = ...,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:54:31
+   |
+52 |     fig, ax = plt.subplots(figsize=(10, 10))
+53 |
+54 |     ax.imshow(img, extent=(x, x + width, y + height, y))
+   |                               -^^^-----
+   |                               |
+   |                               Both operands have type `@Todo | str | int | float`
+55 |
+56 |     ax.set_xlim(x, x + width)
+   |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:54:42
+   |
+52 |     fig, ax = plt.subplots(figsize=(10, 10))
+53 |
+54 |     ax.imshow(img, extent=(x, x + width, y + height, y))
+   |                                          -^^^------
+   |                                          |
+   |                                          Both operands have type `@Todo | str | int | float`
+55 |
+56 |     ax.set_xlim(x, x + width)
+   |
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `set_xlim` is incorrect
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:56:17
+   |
+54 |     ax.imshow(img, extent=(x, x + width, y + height, y))
+55 |
+56 |     ax.set_xlim(x, x + width)
+   |                 ^ Expected `int | float | tuple[int | float, int | float] | None`, found `@Todo | str | int | float`
+57 |     ax.set_ylim(y + height, y)
+   |
+info: Element `str` of this union is not assignable to `int | float | tuple[int | float, int | float] | None`
+info: Method defined here
+   --> .venv\Lib\site-packages\matplotlib\axes\_base.pyi:323:9
+    |
+321 |     ) -> None: ...
+322 |     def get_xlim(self) -> tuple[float, float]: ...
+323 |     def set_xlim(
+    |         ^^^^^^^^
+324 |         self,
+325 |         left: float | tuple[float, float] | None = ...,
+    |         ---------------------------------------------- Parameter declared here
+326 |         right: float | None = ...,
+327 |         *,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:56:20
+   |
+54 |     ax.imshow(img, extent=(x, x + width, y + height, y))
+55 |
+56 |     ax.set_xlim(x, x + width)
+   |                    -^^^-----
+   |                    |
+   |                    Both operands have type `@Todo | str | int | float`
+57 |     ax.set_ylim(y + height, y)
+   |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:57:17
+   |
+56 |     ax.set_xlim(x, x + width)
+57 |     ax.set_ylim(y + height, y)
+   |                 -^^^------
+   |                 |
+   |                 Both operands have type `@Todo | str | int | float`
+58 |
+59 |     ax.spines['left'].set_position(('data', x))  # type: ignore[arg-type]
+   |
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `set_ylim` is incorrect
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:57:29
+   |
+56 |     ax.set_xlim(x, x + width)
+57 |     ax.set_ylim(y + height, y)
+   |                             ^ Expected `int | float | None`, found `@Todo | str | int | float`
+58 |
+59 |     ax.spines['left'].set_position(('data', x))  # type: ignore[arg-type]
+   |
+info: Element `str` of this union is not assignable to `int | float | None`
+info: Method defined here
+   --> .venv\Lib\site-packages\matplotlib\axes\_base.pyi:349:9
+    |
+347 |     ) -> None: ...
+348 |     def get_ylim(self) -> tuple[float, float]: ...
+349 |     def set_ylim(
+    |         ^^^^^^^^
+350 |         self,
+351 |         bottom: float | tuple[float, float] | None = ...,
+352 |         top: float | None = ...,
+    |         ----------------------- Parameter declared here
+353 |         *,
+354 |         emit: bool = ...,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[no-matching-overload]: No overload of function `linspace` matches arguments
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:71:15
+   |
+69 |     ax.spines['right'].set_visible(False)
+70 |
+71 |     x_ticks = np.linspace(x, x + width, x_line_space_num)
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+72 |     y_ticks = np.linspace(y, y + height, y_line_space_num)
+   |
+info: First overload defined here
+  --> .venv\Lib\site-packages\numpy\_core\function_base.pyi:23:5
+   |
+22 |   @overload
+23 |   def linspace(
+   |  _____^
+24 | |     start: _ArrayLikeFloat_co,
+25 | |     stop: _ArrayLikeFloat_co,
+26 | |     num: SupportsIndex = ...,
+27 | |     endpoint: bool = ...,
+28 | |     retstep: L[False] = ...,
+29 | |     dtype: None = ...,
+30 | |     axis: SupportsIndex = ...,
+31 | |     *,
+32 | |     device: L["cpu"] | None = ...,
+33 | | ) -> NDArray[floating]: ...
+   | |______________________^
+34 |   @overload
+35 |   def linspace(
+   |
+info: Possible overloads for function `linspace`:
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: None = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[floating[Any]]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: None = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[complexfloating[Any, Any]]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex, endpoint: bool, retstep: Literal[False], dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[_SCT@linspace]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., *, dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[_SCT@linspace]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: None = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[floating[Any]]], floating[Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: None = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[complexfloating[Any, Any]]], complexfloating[Any, Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[_SCT@linspace]], _SCT@linspace]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[Any]], Any]
+info: rule `no-matching-overload` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:71:30
+   |
+69 |     ax.spines['right'].set_visible(False)
+70 |
+71 |     x_ticks = np.linspace(x, x + width, x_line_space_num)
+   |                              -^^^-----
+   |                              |
+   |                              Both operands have type `@Todo | str | int | float`
+72 |     y_ticks = np.linspace(y, y + height, y_line_space_num)
+   |
+info: rule `unsupported-operator` is enabled by default
+
+error[no-matching-overload]: No overload of function `linspace` matches arguments
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:72:15
+   |
+71 |     x_ticks = np.linspace(x, x + width, x_line_space_num)
+72 |     y_ticks = np.linspace(y, y + height, y_line_space_num)
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+73 |
+74 |     ax.set_xticks(x_ticks)
+   |
+info: First overload defined here
+  --> .venv\Lib\site-packages\numpy\_core\function_base.pyi:23:5
+   |
+22 |   @overload
+23 |   def linspace(
+   |  _____^
+24 | |     start: _ArrayLikeFloat_co,
+25 | |     stop: _ArrayLikeFloat_co,
+26 | |     num: SupportsIndex = ...,
+27 | |     endpoint: bool = ...,
+28 | |     retstep: L[False] = ...,
+29 | |     dtype: None = ...,
+30 | |     axis: SupportsIndex = ...,
+31 | |     *,
+32 | |     device: L["cpu"] | None = ...,
+33 | | ) -> NDArray[floating]: ...
+   | |______________________^
+34 |   @overload
+35 |   def linspace(
+   |
+info: Possible overloads for function `linspace`:
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: None = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[floating[Any]]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: None = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[complexfloating[Any, Any]]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex, endpoint: bool, retstep: Literal[False], dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[_SCT@linspace]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., *, dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[_SCT@linspace]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: None = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[floating[Any]]], floating[Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: None = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[complexfloating[Any, Any]]], complexfloating[Any, Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[_SCT@linspace]], _SCT@linspace]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[Any]], Any]
+info: rule `no-matching-overload` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+  --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:72:30
+   |
+71 |     x_ticks = np.linspace(x, x + width, x_line_space_num)
+72 |     y_ticks = np.linspace(y, y + height, y_line_space_num)
+   |                              -^^^------
+   |                              |
+   |                              Both operands have type `@Todo | str | int | float`
+73 |
+74 |     ax.set_xticks(x_ticks)
+   |
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `imshow` is incorrect
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:176:20
+    |
+175 |     # Display the image
+176 |     ax.imshow(img, extent=(x, x + width, y + height, y))  # Note the y-axis inversion
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `tuple[int | float, int | float, int | float, int | float] | None`, found `tuple[@Todo | str | int | float, Unknown, Unknown, @Todo | str | int | float]`
+177 |
+178 |     # Set axis limits
+    |
+info: Method defined here
+   --> .venv\Lib\site-packages\matplotlib\axes\_axes.pyi:479:9
+    |
+477 |         **kwargs
+478 |     ) -> FillBetweenPolyCollection: ...
+479 |     def imshow(
+    |         ^^^^^^
+480 |         self,
+481 |         X: ArrayLike | PIL.Image.Image,
+    |
+   ::: .venv\Lib\site-packages\matplotlib\axes\_axes.pyi:492:9
+    |
+490 |         colorizer: Colorizer | None = ...,
+491 |         origin: Literal["upper", "lower"] | None = ...,
+492 |         extent: tuple[float, float, float, float] | None = ...,
+    |         ------------------------------------------------------ Parameter declared here
+493 |         interpolation_stage: Literal["data", "rgba", "auto"] | None = ...,
+494 |         filternorm: bool = ...,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:176:31
+    |
+175 |     # Display the image
+176 |     ax.imshow(img, extent=(x, x + width, y + height, y))  # Note the y-axis inversion
+    |                               -^^^-----
+    |                               |
+    |                               Both operands have type `@Todo | str | int | float`
+177 |
+178 |     # Set axis limits
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:176:42
+    |
+175 |     # Display the image
+176 |     ax.imshow(img, extent=(x, x + width, y + height, y))  # Note the y-axis inversion
+    |                                          -^^^------
+    |                                          |
+    |                                          Both operands have type `@Todo | str | int | float`
+177 |
+178 |     # Set axis limits
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `set_xlim` is incorrect
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:179:17
+    |
+178 |     # Set axis limits
+179 |     ax.set_xlim(x, x + width)
+    |                 ^ Expected `int | float | tuple[int | float, int | float] | None`, found `@Todo | str | int | float`
+180 |     ax.set_ylim(y + height, y)  # Inverted y-axis to match image coordinates
+    |
+info: Element `str` of this union is not assignable to `int | float | tuple[int | float, int | float] | None`
+info: Method defined here
+   --> .venv\Lib\site-packages\matplotlib\axes\_base.pyi:323:9
+    |
+321 |     ) -> None: ...
+322 |     def get_xlim(self) -> tuple[float, float]: ...
+323 |     def set_xlim(
+    |         ^^^^^^^^
+324 |         self,
+325 |         left: float | tuple[float, float] | None = ...,
+    |         ---------------------------------------------- Parameter declared here
+326 |         right: float | None = ...,
+327 |         *,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:179:20
+    |
+178 |     # Set axis limits
+179 |     ax.set_xlim(x, x + width)
+    |                    -^^^-----
+    |                    |
+    |                    Both operands have type `@Todo | str | int | float`
+180 |     ax.set_ylim(y + height, y)  # Inverted y-axis to match image coordinates
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:180:17
+    |
+178 |     # Set axis limits
+179 |     ax.set_xlim(x, x + width)
+180 |     ax.set_ylim(y + height, y)  # Inverted y-axis to match image coordinates
+    |                 -^^^------
+    |                 |
+    |                 Both operands have type `@Todo | str | int | float`
+181 |
+182 |     # Set origin in the top-left corner
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `set_ylim` is incorrect
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:180:29
+    |
+178 |     # Set axis limits
+179 |     ax.set_xlim(x, x + width)
+180 |     ax.set_ylim(y + height, y)  # Inverted y-axis to match image coordinates
+    |                             ^ Expected `int | float | None`, found `@Todo | str | int | float`
+181 |
+182 |     # Set origin in the top-left corner
+    |
+info: Element `str` of this union is not assignable to `int | float | None`
+info: Method defined here
+   --> .venv\Lib\site-packages\matplotlib\axes\_base.pyi:349:9
+    |
+347 |     ) -> None: ...
+348 |     def get_ylim(self) -> tuple[float, float]: ...
+349 |     def set_ylim(
+    |         ^^^^^^^^
+350 |         self,
+351 |         bottom: float | tuple[float, float] | None = ...,
+352 |         top: float | None = ...,
+    |         ----------------------- Parameter declared here
+353 |         *,
+354 |         emit: bool = ...,
+    |
+info: rule `invalid-argument-type` is enabled by default
+
+error[no-matching-overload]: No overload of function `linspace` matches arguments
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:191:15
+    |
+190 |     # Create grid lines
+191 |     x_ticks = np.linspace(x, x + width, x_line_space_num)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+192 |     y_ticks = np.linspace(y, y + height, y_line_space_num)
+    |
+info: First overload defined here
+  --> .venv\Lib\site-packages\numpy\_core\function_base.pyi:23:5
+   |
+22 |   @overload
+23 |   def linspace(
+   |  _____^
+24 | |     start: _ArrayLikeFloat_co,
+25 | |     stop: _ArrayLikeFloat_co,
+26 | |     num: SupportsIndex = ...,
+27 | |     endpoint: bool = ...,
+28 | |     retstep: L[False] = ...,
+29 | |     dtype: None = ...,
+30 | |     axis: SupportsIndex = ...,
+31 | |     *,
+32 | |     device: L["cpu"] | None = ...,
+33 | | ) -> NDArray[floating]: ...
+   | |______________________^
+34 |   @overload
+35 |   def linspace(
+   |
+info: Possible overloads for function `linspace`:
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: None = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[floating[Any]]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: None = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[complexfloating[Any, Any]]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex, endpoint: bool, retstep: Literal[False], dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[_SCT@linspace]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., *, dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[_SCT@linspace]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: None = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[floating[Any]]], floating[Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: None = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[complexfloating[Any, Any]]], complexfloating[Any, Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[_SCT@linspace]], _SCT@linspace]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[Any]], Any]
+info: rule `no-matching-overload` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:191:30
+    |
+190 |     # Create grid lines
+191 |     x_ticks = np.linspace(x, x + width, x_line_space_num)
+    |                              -^^^-----
+    |                              |
+    |                              Both operands have type `@Todo | str | int | float`
+192 |     y_ticks = np.linspace(y, y + height, y_line_space_num)
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[no-matching-overload]: No overload of function `linspace` matches arguments
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:192:15
+    |
+190 |     # Create grid lines
+191 |     x_ticks = np.linspace(x, x + width, x_line_space_num)
+192 |     y_ticks = np.linspace(y, y + height, y_line_space_num)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+193 |
+194 |     # Set ticks
+    |
+info: First overload defined here
+  --> .venv\Lib\site-packages\numpy\_core\function_base.pyi:23:5
+   |
+22 |   @overload
+23 |   def linspace(
+   |  _____^
+24 | |     start: _ArrayLikeFloat_co,
+25 | |     stop: _ArrayLikeFloat_co,
+26 | |     num: SupportsIndex = ...,
+27 | |     endpoint: bool = ...,
+28 | |     retstep: L[False] = ...,
+29 | |     dtype: None = ...,
+30 | |     axis: SupportsIndex = ...,
+31 | |     *,
+32 | |     device: L["cpu"] | None = ...,
+33 | | ) -> NDArray[floating]: ...
+   | |______________________^
+34 |   @overload
+35 |   def linspace(
+   |
+info: Possible overloads for function `linspace`:
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: None = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[floating[Any]]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: None = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[complexfloating[Any, Any]]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex, endpoint: bool, retstep: Literal[False], dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[_SCT@linspace]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., *, dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[_SCT@linspace]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., retstep: Literal[False] = ..., dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements = ..., axis: SupportsIndex = ..., *, device: Literal["cpu"] | None = ...) -> ndarray[tuple[int, ...], dtype[Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]]]] | int | float | _NestedSequence[int | float], num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: None = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[floating[Any]]], floating[Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: None = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[complexfloating[Any, Any]]], complexfloating[Any, Any]]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: dtype[_SCT@linspace] | type[_SCT@linspace] | _SupportsDType[dtype[_SCT@linspace]], axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[_SCT@linspace]], _SCT@linspace]
+info:   (start: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, stop: _SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]] | _NestedSequence[_SupportsArray[dtype[bool[bool]] | dtype[integer[Any]] | dtype[floating[Any]] | dtype[complexfloating[Any, Any]]]] | int | ... omitted 3 union elements, num: SupportsIndex = ..., endpoint: bool = ..., *, retstep: Literal[True], dtype: dtype[Any] | None | type[Any] | ... omitted 6 union elements = ..., axis: SupportsIndex = ..., device: Literal["cpu"] | None = ...) -> tuple[ndarray[tuple[int, ...], dtype[Any]], Any]
+info: rule `no-matching-overload` is enabled by default
+
+error[unsupported-operator]: Unsupported `+` operation
+   --> src\hcaptcha_challenger\helper\create_coordinate_grid.py:192:30
+    |
+190 |     # Create grid lines
+191 |     x_ticks = np.linspace(x, x + width, x_line_space_num)
+192 |     y_ticks = np.linspace(y, y + height, y_line_space_num)
+    |                              -^^^------
+    |                              |
+    |                              Both operands have type `@Todo | str | int | float`
+193 |
+194 |     # Set ticks
+    |
+info: rule `unsupported-operator` is enabled by default
+
+error[no-matching-overload]: No overload of function `cvtColor` matches arguments
+  --> src\hcaptcha_challenger\helper\mark_element_point.py:42:17
+   |
+40 |         # This ensures good color distribution and visibility
+41 |         hue = (i * 30) % 180  # Rotate through hues, avoiding similar adjacent colors
+42 |         color = cv2.cvtColor(np.uint8([[[hue, 255, 255]]]), cv2.COLOR_HSV2BGR)[0][0].tolist()
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+43 |
+44 |         # Draw a filled circle at the point
+   |
+info: First overload defined here
+    --> .venv\Lib\site-packages\cv2\__init__.pyi:5157:5
+     |
+5156 | @_typing.overload
+5157 | def cvtColor(src: cv2.typing.MatLike, code: int, dst: cv2.typing.MatLike | None = ..., dstCn: int = ..., hint: AlgorithmHint = ...) -> cv2.typing.MatLike: ...
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5158 | @_typing.overload
+5159 | def cvtColor(src: UMat, code: int, dst: UMat | None = ..., dstCn: int = ..., hint: AlgorithmHint = ...) -> UMat: ...
+     |
+info: Possible overloads for function `cvtColor`:
+info:   (src: ndarray[Any, dtype[integer[Any] | floating[Any]]], code: int, dst: ndarray[Any, dtype[integer[Any] | floating[Any]]] | None = ..., dstCn: int = ..., hint: int = ...) -> ndarray[Any, dtype[integer[Any] | floating[Any]]]
+info:   (src: UMat, code: int, dst: UMat | None = ..., dstCn: int = ..., hint: int = ...) -> UMat
+info: rule `no-matching-overload` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `__init__` is incorrect
+  --> src\hcaptcha_challenger\helper\mark_element_point.py:42:39
+   |
+40 |         # This ensures good color distribution and visibility
+41 |         hue = (i * 30) % 180  # Rotate through hues, avoiding similar adjacent colors
+42 |         color = cv2.cvtColor(np.uint8([[[hue, 255, 255]]]), cv2.COLOR_HSV2BGR)[0][0].tolist()
+   |                                       ^^^^^^^^^^^^^^^^^^^ Expected `SupportsInt | SupportsIndex | str | bytes`, found `list[Unknown | list[Unknown | list[Unknown | int]]]`
+43 |
+44 |         # Draw a filled circle at the point
+   |
+info: Method defined here
+    --> .venv\Lib\site-packages\numpy\__init__.pyi:4073:9
+     |
+4071 | class unsignedinteger(integer[_NBit1]):
+4072 |     # NOTE: `uint64 + signedinteger -> float64`
+4073 |     def __init__(self, value: _ConvertibleToInt = ..., /) -> None: ...
+     |         ^^^^^^^^       ------------------------------ Parameter declared here
+4074 |
+4075 |     __add__: _UnsignedIntOp[_NBit1]
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+error[no-matching-overload]: No overload of function `cvtColor` matches arguments
+   --> src\hcaptcha_challenger\helper\visualize_attention_points.py:269:20
+    |
+267 |     if isinstance(original_image, (str, Path)):
+268 |         orig_img = cv2.imread(str(original_image))
+269 |         orig_img = cv2.cvtColor(orig_img, cv2.COLOR_BGR2RGB)
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+270 |     else:
+271 |         orig_img = original_image.copy()
+    |
+info: First overload defined here
+    --> .venv\Lib\site-packages\cv2\__init__.pyi:5157:5
+     |
+5156 | @_typing.overload
+5157 | def cvtColor(src: cv2.typing.MatLike, code: int, dst: cv2.typing.MatLike | None = ..., dstCn: int = ..., hint: AlgorithmHint = ...) -> cv2.typing.MatLike: ...
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5158 | @_typing.overload
+5159 | def cvtColor(src: UMat, code: int, dst: UMat | None = ..., dstCn: int = ..., hint: AlgorithmHint = ...) -> UMat: ...
+     |
+info: Possible overloads for function `cvtColor`:
+info:   (src: ndarray[Any, dtype[integer[Any] | floating[Any]]], code: int, dst: ndarray[Any, dtype[integer[Any] | floating[Any]]] | None = ..., dstCn: int = ..., hint: int = ...) -> ndarray[Any, dtype[integer[Any] | floating[Any]]]
+info:   (src: UMat, code: int, dst: UMat | None = ..., dstCn: int = ..., hint: int = ...) -> UMat
+info: rule `no-matching-overload` is enabled by default
+
+error[no-matching-overload]: No overload of function `cvtColor` matches arguments
+   --> src\hcaptcha_challenger\helper\visualize_attention_points.py:275:21
+    |
+273 |     if isinstance(coordinate_image, (str, Path)):
+274 |         coord_img = cv2.imread(str(coordinate_image))
+275 |         coord_img = cv2.cvtColor(coord_img, cv2.COLOR_BGR2RGB)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+276 |     else:
+277 |         coord_img = coordinate_image.copy()
+    |
+info: First overload defined here
+    --> .venv\Lib\site-packages\cv2\__init__.pyi:5157:5
+     |
+5156 | @_typing.overload
+5157 | def cvtColor(src: cv2.typing.MatLike, code: int, dst: cv2.typing.MatLike | None = ..., dstCn: int = ..., hint: AlgorithmHint = ...) -> cv2.typing.MatLike: ...
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5158 | @_typing.overload
+5159 | def cvtColor(src: UMat, code: int, dst: UMat | None = ..., dstCn: int = ..., hint: AlgorithmHint = ...) -> UMat: ...
+     |
+info: Possible overloads for function `cvtColor`:
+info:   (src: ndarray[Any, dtype[integer[Any] | floating[Any]]], code: int, dst: ndarray[Any, dtype[integer[Any] | floating[Any]]] | None = ..., dstCn: int = ..., hint: int = ...) -> ndarray[Any, dtype[integer[Any] | floating[Any]]]
+info:   (src: UMat, code: int, dst: UMat | None = ..., dstCn: int = ..., hint: int = ...) -> UMat
+info: rule `no-matching-overload` is enabled by default
+
+error[invalid-assignment]: Object of type `dataclasses.Field[Literal[""] | RequestType]` is not assignable to `RequestType`
+   --> src\hcaptcha_challenger\models.py:146:19
+    |
+144 |     key: str = Field(default="")
+145 |     request_config: CaptchaRequestConfig | dict = Field(default_factory=dict)
+146 |     request_type: RequestType = Field(default="")
+    |                   -----------   ^^^^^^^^^^^^^^^^^ Incompatible value of type `dataclasses.Field[Literal[""] | RequestType]`
+    |                   |
+    |                   Declared type
+147 |     requester_question: Dict[str, str] | None = Field(default_factory=dict)
+148 |     requester_restricted_answer_set: Dict[str, Any] | None = Field(default_factory=dict)
+    |
+info: rule `invalid-assignment` is enabled by default
+
+warning[possibly-missing-attribute]: Attribute `get` may be missing on object of type `dict[str, str] | None`
+   --> src\hcaptcha_challenger\models.py:156:14
+    |
+155 |     def get_requester_question(self, language: str = "en") -> str:
+156 |         rq = self.requester_question.get(language, "unknown")
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+157 |         return normalize_unicode_text(rq)
+    |
+info: rule `possibly-missing-attribute` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `__init__` is incorrect
+  --> src\hcaptcha_challenger\tools\internal\base.py:70:54
+   |
+68 |     def _create_default_provider(self) -> GeminiProvider:
+69 |         """Create the default Gemini provider."""
+70 |         return GeminiProvider(api_key=self._api_key, model=self._model)
+   |                                                      ^^^^^^^^^^^^^^^^^ Expected `str`, found `Unknown | ModelT@Reasoner | None`
+71 |
+72 |     @abstractmethod
+   |
+info: Element `None` of this union is not assignable to `str`
+info: Method defined here
+  --> src\hcaptcha_challenger\tools\internal\providers\gemini.py:42:9
+   |
+40 |     """
+41 |
+42 |     def __init__(self, api_key: str, model: str):
+   |         ^^^^^^^^                     ---------- Parameter declared here
+43 |         """
+44 |         Initialize the Gemini provider.
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `from_uri` is incorrect
+  --> src\hcaptcha_challenger\tools\internal\providers\gemini.py:78:37
+   |
+76 |     def _files_to_parts(files: List[types.File]) -> List[types.Part]:
+77 |         """Convert uploaded files to parts."""
+78 |         return [types.Part.from_uri(file_uri=f.uri, mime_type=f.mime_type) for f in files]
+   |                                     ^^^^^^^^^^^^^^ Expected `str`, found `str | None`
+79 |
+80 |     def _set_thinking_config(self, config: types.GenerateContentConfig) -> None:
+   |
+info: Element `None` of this union is not assignable to `str`
+info: Method defined here
+    --> .venv\Lib\site-packages\google\genai\types.py:1673:7
+     |
+1672 |   @classmethod
+1673 |   def from_uri(
+     |       ^^^^^^^^
+1674 |       cls,
+1675 |       *,
+1676 |       file_uri: str,
+     |       ------------- Parameter declared here
+1677 |       mime_type: Optional[str] = None,
+1678 |       media_resolution: Optional[
+     |
+info: rule `invalid-argument-type` is enabled by default
+
+Found 198 diagnostics
