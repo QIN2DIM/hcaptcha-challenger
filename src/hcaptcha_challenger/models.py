@@ -224,6 +224,12 @@ class ChallengeTypeEnum(str, Enum):
     IMAGE_DRAG_MULTI = "image_drag_multi"
 
 
+# Type alias for skill rule job_type field - mirrors ChallengeTypeEnum values
+JobTypeLiteral = Literal[
+    "image_label_single_select", "image_label_multi_select", "image_drag_single", "image_drag_multi"
+]
+
+
 IGNORE_REQUEST_TYPE_LITERAL = Literal[
     "image_label_binary",
     "image_label_area_select",

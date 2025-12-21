@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=./rules.schema.json
+version: "0.1.0"
+base_url: "https://raw.githubusercontent.com/QIN2DIM/hcaptcha-challenger/main/src/hcaptcha_challenger/skills/library"
+rules:
+  - triggers: ["similar"]
+    job_type: "image_drag_single"
+    template: "drag_similar.md"
+
+  - triggers: ["pattern that match"]
+    job_type: "image_drag_single"
+    template: "drag_object_to_shadow_v3_cn.md"
+
+  - triggers: ["pairs"]
+    job_type: "image_drag_multi"
+    template: "drag_pairs.md"
+
+  - triggers: ["holes", "same number"]
+    job_type: "image_label_multi_select"
+    template: "label_holes.md"
+
+  - triggers: ["Please drag the eagle to the tree it is connected to"]
+    job_type: "image_drag_single"
+    template: "drag_connection.md"

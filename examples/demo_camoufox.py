@@ -1,6 +1,7 @@
 import asyncio
 import json
 
+# uv pip install -U camoufox
 from browserforge.fingerprints import Screen
 from camoufox import AsyncCamoufox
 from playwright.async_api import Page
@@ -27,8 +28,6 @@ async def challenge(page: Page) -> AgentV:
 
 # noinspection DuplicatedCode
 async def main():
-    """uv pip install -U hcaptcha-challenger[camoufox]"""
-
     async with AsyncCamoufox(
         persistent_context=True,
         user_data_dir="tmp/.cache/camoufox",

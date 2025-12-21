@@ -6,6 +6,7 @@
 import asyncio
 import json
 import math
+import os
 import random
 import re
 from asyncio import Queue
@@ -39,7 +40,7 @@ from hcaptcha_challenger.models import (
     INV,
 )
 from hcaptcha_challenger.models import ChallengeTypeEnum, CoordinateGrid
-from hcaptcha_challenger.prompts import match_user_prompt
+from hcaptcha_challenger.skills import SkillManager
 from hcaptcha_challenger.tools import (
     ImageClassifier,
     ChallengeRouter,
@@ -118,7 +119,8 @@ class AgentConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
     GEMINI_API_KEY: SecretStr = Field(
-        default="", description="Create API Key https://aistudio.google.com/app/apikey"
+        default_factory=lambda: SecretStr(os.environ.get("GEMINI_API_KEY", "")),
+        description="Create API Key https://aistudio.google.com/app/apikey",
     )
 
     cache_dir: Path = Path("tmp/.cache")
@@ -180,6 +182,18 @@ class AgentConfig(BaseSettings):
     coordinate_grid: CoordinateGrid | None = Field(default_factory=CoordinateGrid)
 
     enable_challenger_debug: bool | None = Field(default=False, description="Enable debug mode")
+
+    # == Skills Configuration == #
+    custom_skills_path: Path | None = Field(
+        default=None, description="Path to custom skills rules.yaml"
+    )
+    enable_skills_update: bool = Field(
+        default=True, description="Enable auto-update of skills from GitHub"
+    )
+    skills_update_repo: str = Field(
+        default="QIN2DIM/hcaptcha-challenger", description="GitHub repo for skills update"
+    )
+    skills_update_branch: str = Field(default="main", description="GitHub branch for skills update")
 
     @field_validator('GEMINI_API_KEY', mode="before")
     @classmethod
@@ -281,6 +295,7 @@ class RoboticArm:
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.SPATIAL_POINT_REASONER_MODEL,
         )
+        self._skill_manager = SkillManager(agent_config=config)
         self.signal_crumb_count: int | None = None
         self.captcha_payload: CaptchaPayload | None = None
         self._challenge_prompt: str | None = None
@@ -356,8 +371,6 @@ class RoboticArm:
         return None
 
     def _match_user_prompt(self, job_type: ChallengeTypeEnum) -> str:
-        user_prompt = ""
-
         try:
             challenge_prompt = (
                 self.captcha_payload.get_requester_question()
@@ -365,14 +378,11 @@ class RoboticArm:
                 else self._challenge_prompt
             )
             if challenge_prompt and isinstance(challenge_prompt, str):
-                user_prompt = match_user_prompt(job_type, challenge_prompt)
+                return self._skill_manager.get_skill(challenge_prompt, job_type)
         except Exception as e:
             logger.warning(f"Error while processing captcha payload: {e}")
 
-        if not user_prompt:
-            user_prompt = f"Please note that the current task type is: {job_type.value}"
-
-        return user_prompt
+        return f"Please note that the current task type is: {job_type.value}"
 
     async def click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()

@@ -1,6 +1,7 @@
 [src]
+# Explicitly exclude these directories (takes precedence over include)
 exclude = [
-    # non-producition or generated code
+    ".venv",
     "tests",
     "archive",
 ]

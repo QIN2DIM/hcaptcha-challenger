@@ -123,7 +123,7 @@ class GeminiProvider:
         parts = self._files_to_parts(uploaded_files)
 
         # Add user prompt if provided
-        if user_prompt:
+        if user_prompt and isinstance(user_prompt, str):
             parts.append(types.Part.from_text(text=user_prompt))
 
         contents = [types.Content(role="user", parts=parts)]
