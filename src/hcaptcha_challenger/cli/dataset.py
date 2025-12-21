@@ -17,11 +17,29 @@ from rich.progress import (
     SpinnerColumn,
 )
 from rich.table import Table
-from typing_extensions import Annotated
+from typing_extensions import Annotated, TypedDict
 
 from hcaptcha_challenger.agent.collector import CollectorConfig, Collector, check_dataset
 from hcaptcha_challenger.models import CaptchaPayload
 from hcaptcha_challenger.utils import SiteKey
+
+
+class TypeStats(TypedDict):
+    """Statistics for each request type."""
+
+    total: int
+    valid: int
+    invalid: int
+
+
+class DatasetStats(TypedDict):
+    """Statistics for the dataset."""
+
+    total: int
+    valid: int
+    invalid: int
+    types: dict[str, TypeStats]
+
 
 # Create subcommand application
 app = typer.Typer(
@@ -210,7 +228,12 @@ def check(
         return
 
     errors = []
-    dataset_stats = {"total": len(captcha_files), "valid": 0, "invalid": 0, "types": {}}
+    dataset_stats: DatasetStats = {
+        "total": len(captcha_files),
+        "valid": 0,
+        "invalid": 0,
+        "types": {},
+    }
 
     with Progress(
         TextColumn("[bold blue]{task.description}"),

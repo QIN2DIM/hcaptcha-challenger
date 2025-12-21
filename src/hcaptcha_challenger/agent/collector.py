@@ -78,9 +78,16 @@ class Collector:
 
     async def _click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()
+        if bbox is None:
+            raise ValueError("Element is not visible or does not exist")
 
-        center_x = bbox['x'] + bbox['width'] / 2
-        center_y = bbox['y'] + bbox['height'] / 2
+        x: float = bbox['x']
+        y: float = bbox['y']
+        width: float = bbox['width']
+        height: float = bbox['height']
+
+        center_x = x + width / 2
+        center_y = y + height / 2
 
         await self.page.mouse.move(center_x, center_y)
 
