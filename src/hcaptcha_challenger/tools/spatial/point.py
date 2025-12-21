@@ -28,7 +28,7 @@ class SpatialPointReasoner(SpatialReasoner[ImageAreaSelectChallenge]):
 
     description: str = load_desc(Path(__file__).parent / "point.md")
 
-    async def invoke_async(
+    async def __call__(
         self,
         *,
         challenge_screenshot: Union[str, Path],

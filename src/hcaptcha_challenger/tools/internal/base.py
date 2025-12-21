@@ -11,7 +11,6 @@ Design principles:
 2. Description-driven: Loads prompts from .md files
 3. Standalone-friendly: Can be used without agent context
 """
-import asyncio
 import json
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -28,36 +27,13 @@ ModelT = TypeVar("ModelT", bound=str)
 ResponseT = TypeVar("ResponseT", bound=Union[BaseModel, Enum])
 
 
-def run_sync(coro):
-    """
-    Run an async coroutine as a sync function, handling different threading scenarios.
-    """
-    try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError:
-        return asyncio.run(coro)
-
-    if not loop.is_running():
-        return loop.run_until_complete(coro)
-
-    def _worker():
-        worker_loop = asyncio.new_event_loop()
-        try:
-            return worker_loop.run_until_complete(coro)
-        finally:
-            worker_loop.close()
-
-    future = loop.run_in_executor(None, _worker)
-    return future.result()
-
-
 class Reasoner(ABC, Generic[ModelT, ResponseT]):
     """
     Abstract base class for all reasoning tools.
 
     Subclasses must:
     1. Define a `description` class attribute with the system prompt
-    2. Implement invoke_async() with their specific logic
+    2. Implement __call__() with their specific async logic
 
     Attributes:
         description: The system prompt for the tool.
@@ -93,25 +69,19 @@ class Reasoner(ABC, Generic[ModelT, ResponseT]):
         return GeminiProvider(api_key=self._api_key, model=self._model)
 
     @abstractmethod
-    async def invoke_async(self, **kwargs) -> ResponseT:
+    async def __call__(self, **kwargs) -> ResponseT:
         """
         Invoke the reasoning tool asynchronously.
 
         Subclasses must implement this method with their specific logic.
 
+        Usage:
+            result = await tool(challenge_screenshot=path)
+
         Returns:
             The parsed response from the provider.
         """
         raise NotImplementedError
-
-    def invoke(self, **kwargs) -> ResponseT:
-        """
-        Synchronous wrapper for backward compatibility.
-
-        This allows the tool to be used in synchronous code without
-        having to manually manage the event loop.
-        """
-        return run_sync(self.invoke_async(**kwargs))
 
     def cache_response(self, path: Path) -> None:
         """

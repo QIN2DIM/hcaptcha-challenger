@@ -86,13 +86,8 @@ class GeminiProvider:
         config.thinking_config = types.ThinkingConfig(include_thoughts=True)
 
         if self._model in THINKING_LEVEL_MODELS:
-            if isinstance(thinking_level, str):
-                if thinking_level.lower() == "low":
-                    thinking_level = types.ThinkingLevel.LOW
-                elif thinking_level.lower() == "high":
-                    thinking_level = types.ThinkingLevel.HIGH
-            elif not isinstance(thinking_level, types.ThinkingLevel):
-                thinking_level = types.ThinkingLevel.LOW
+            if not isinstance(thinking_level, types.ThinkingLevel):
+                thinking_level = types.ThinkingLevel.HIGH
 
             config.thinking_config = types.ThinkingConfig(
                 include_thoughts=False, thinking_level=thinking_level

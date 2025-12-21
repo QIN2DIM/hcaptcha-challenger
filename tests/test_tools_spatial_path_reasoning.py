@@ -53,7 +53,7 @@ async def test_gemini_path_reasoning(challenge_screenshot: Path):
     grid_divisions_image = create_coordinate_grid(challenge_screenshot, bbox)
     plt.imsave(str(grid_divisions_path.resolve()), grid_divisions_image)
 
-    results = await gic.invoke_async(
+    results = await gic(
         challenge_screenshot=challenge_screenshot, grid_divisions=grid_divisions_path
     )
     logger.debug(f'ToolInvokeMessage: {results.log_message}')
@@ -91,7 +91,7 @@ async def test_gemini_path_reasoning_concurrent():
         grid_divisions_image = create_coordinate_grid(challenge_screenshot, bbox)
         plt.imsave(str(grid_divisions_path.resolve()), grid_divisions_image)
 
-        results = await gic.invoke_async(
+        results = await gic(
             challenge_screenshot=challenge_screenshot, grid_divisions=grid_divisions_path
         )
         logger.debug(f'ToolInvokeMessage for {challenge_screenshot.name}: {results.log_message}')

@@ -8,9 +8,7 @@ cells should be selected based on the challenge prompt.
 Example:
     >>> from hcaptcha_challenger.tools import ImageClassifier
     >>> classifier = ImageClassifier(gemini_api_key="your-key")
-    >>> result = await classifier.invoke_async(
-    ...     challenge_screenshot=Path("screenshot.png")
-    ... )
+    >>> result = await classifier(challenge_screenshot=Path("screenshot.png"))
     >>> boolean_matrix = result.convert_box_to_boolean_matrix()
     >>> # [True, False, True, False, False, False, True, False, False]
 """
@@ -57,7 +55,7 @@ class ImageClassifier(Reasoner[SCoTModelType, ImageBinaryChallenge]):
     ):
         super().__init__(gemini_api_key, model, provider=provider, **kwargs)
 
-    async def invoke_async(
+    async def __call__(
         self,
         *,
         challenge_screenshot: Union[str, Path],

@@ -103,7 +103,7 @@ class TestChallengeClassifier:
         return ChallengeClassifier(gemini_api_key=api_key)
 
     @pytest.mark.parametrize("image_file, expected_type_enum", generate_individual_test_cases())
-    def test_challenge_classifier(
+    async def test_challenge_classifier(
         self,
         classifier: ChallengeClassifier,
         image_file: Path,
@@ -111,7 +111,7 @@ class TestChallengeClassifier:
     ):
         """Test challenge classification for a single image file."""
 
-        actual_challenge_type = classifier.invoke(image_file, model=TEST_MODEL)
+        actual_challenge_type = await classifier(challenge_screenshot=image_file, model=TEST_MODEL)
 
         assert isinstance(actual_challenge_type, ChallengeTypeEnum), (
             f"Classifier for '{image_file.name}' returned type "
@@ -148,6 +148,6 @@ async def test_challenge_classifier():
     for g in groups:
         for t in groups[g]:
             s = random.choice(groups[g][t]["samples"])
-            result = await challenge_router.invoke_async(s)
+            result = await challenge_router(challenge_screenshot=s)
             assert result.challenge_prompt
             assert result.challenge_type == groups[g][t]["type"]

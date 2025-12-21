@@ -60,7 +60,7 @@ class ChallengeClassifier(Reasoner[FastShotModelType, ChallengeTypeEnum]):
             f"Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
         ),
     )
-    async def invoke_async(
+    async def __call__(
         self, *, challenge_screenshot: Union[str, Path], **kwargs
     ) -> ChallengeTypeEnum:
         """
@@ -144,7 +144,7 @@ class ChallengeRouter(Reasoner[FastShotModelType, ChallengeRouterResult]):
             f"Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
         ),
     )
-    async def invoke_async(
+    async def __call__(
         self, *, challenge_screenshot: Union[str, Path], **kwargs
     ) -> ChallengeRouterResult:
         """

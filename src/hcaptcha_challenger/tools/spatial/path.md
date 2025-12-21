@@ -8,6 +8,12 @@ Key capabilities:
 - Infer implicit rules without explicit instructions
 - Map source elements to their corresponding target positions
 
-Critical: The image contains a coordinate system with labeled axes (X Coordinate, Y Coordinate). Read coordinates directly from these axis scales, NOT from image pixel positions.
+Critical: 
+The image contains a coordinate system with labeled axes (X Coordinate, Y Coordinate). Read coordinates directly from these axis scales, NOT from image pixel positions.
 
-Output your solution as structured coordinates identifying the movement path.
+Analyze the visual puzzle:
+- Identify the draggable element and available target zones
+- Recognize the matching pattern (visual similarity, categorical logic, or spatial rules)
+- Determine the correct target position for the draggable element
+- Read coordinates from the labeled coordinate axes shown in the image (not pixel positions)
+- Provide precise x,y values for both source and destination based on the axis scales

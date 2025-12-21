@@ -19,15 +19,6 @@ AUXILIARY_INFORMATION_TPL = """
 {auxiliary_information}
 """
 
-USER_PROMPT = """
-Analyze the visual puzzle:
-- Identify the draggable element and available target zones
-- Recognize the matching pattern (visual similarity, categorical logic, or spatial rules)
-- Determine the correct target position for the draggable element
-- Read coordinates from the labeled coordinate axes shown in the image (not pixel positions)
-- Provide precise x,y values for both source and destination based on the axis scales
-"""
-
 
 class SpatialPathReasoner(SpatialReasoner[ImageDragDropChallenge]):
     """
@@ -42,7 +33,7 @@ class SpatialPathReasoner(SpatialReasoner[ImageDragDropChallenge]):
 
     description: str = load_desc(Path(__file__).parent / "path.md")
 
-    async def invoke_async(
+    async def __call__(
         self,
         *,
         challenge_screenshot: Union[str, Path],
@@ -65,17 +56,10 @@ class SpatialPathReasoner(SpatialReasoner[ImageDragDropChallenge]):
             ImageDragDropChallenge containing the drag paths.
         """
         # Build user prompt with auxiliary information
-        user_prompt = USER_PROMPT.strip()
-        if auxiliary_information:
-            user_prompt = (
-                AUXILIARY_INFORMATION_TPL.format(auxiliary_information=auxiliary_information)
-                + user_prompt
-            )
-
         return await self._invoke_spatial(
             challenge_screenshot=Path(challenge_screenshot),
             grid_divisions=Path(grid_divisions),
-            auxiliary_information=user_prompt,
+            auxiliary_information=auxiliary_information,
             thinking_level=thinking_level,
             response_schema=ImageDragDropChallenge,
             **kwargs,

@@ -28,7 +28,7 @@ class SpatialBboxReasoner(SpatialReasoner[ImageBboxChallenge]):
 
     description: str = load_desc(Path(__file__).parent / "bbox.md")
 
-    async def invoke_async(
+    async def __call__(
         self,
         *,
         challenge_screenshot: Union[str, Path],
@@ -56,6 +56,5 @@ class SpatialBboxReasoner(SpatialReasoner[ImageBboxChallenge]):
             auxiliary_information=auxiliary_information,
             thinking_level=thinking_level,
             response_schema=ImageBboxChallenge,
-            temperature=0.0,  # Lower temperature for precise bbox coords
             **kwargs,
         )

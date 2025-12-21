@@ -435,9 +435,7 @@ class RoboticArm:
             cache_path = self.config.cache_dir.joinpath(f"challenge_view/_artifacts/{uuid4()}.png")
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             await challenge_view.screenshot(type="png", path=cache_path)
-            router_result = await self._challenge_router.invoke_async(
-                challenge_screenshot=cache_path
-            )
+            router_result = await self._challenge_router(challenge_screenshot=cache_path)
             self._challenge_prompt = router_result.challenge_prompt
             return router_result.challenge_type
         return None
@@ -577,9 +575,7 @@ class RoboticArm:
             await challenge_view.screenshot(type="png", path=challenge_screenshot)
 
             # Image classification
-            response = await self._image_classifier.invoke_async(
-                challenge_screenshot=challenge_screenshot
-            )
+            response = await self._image_classifier(challenge_screenshot=challenge_screenshot)
             boolean_matrix = response.convert_box_to_boolean_matrix()
 
             logger.debug(f'[{cid+1}/{crumb_count}]ToolInvokeMessage: {response.log_message}')
@@ -616,7 +612,7 @@ class RoboticArm:
 
             user_prompt = self._match_user_prompt(job_type)
 
-            response = await self._spatial_path_reasoner.invoke_async(
+            response = await self._spatial_path_reasoner(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 auxiliary_information=user_prompt,
@@ -646,7 +642,7 @@ class RoboticArm:
 
             user_prompt = self._match_user_prompt(job_type)
 
-            response = await self._spatial_point_reasoner.invoke_async(
+            response = await self._spatial_point_reasoner(
                 challenge_screenshot=raw,
                 grid_divisions=projection,
                 auxiliary_information=user_prompt,
