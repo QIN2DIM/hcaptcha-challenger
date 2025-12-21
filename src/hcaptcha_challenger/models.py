@@ -6,12 +6,14 @@
 from __future__ import annotations
 
 import json
+import unicodedata
 from enum import Enum
 from typing import Literal, List, Dict, Any, Union
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
+# Known Unicode homoglyphs mapping (legacy, kept for reference)
 BAD_CODE = {
     "а": "a",
     "е": "e",
@@ -39,11 +41,42 @@ BAD_CODE = {
     "\u006c": "l",
     "\u0399": "I",
     "\u0392": "B",
+    "\u03a1": "P",  # Greek Rho -> Latin P
     "ー": "一",
     "土": "士",
 }
 
 INV = {"\\", "/", ":", "*", "?", "<", ">", "|", "\n"}
+
+
+def normalize_unicode_text(text: str) -> str:
+    """
+    Normalize Unicode text to ASCII-safe string for file paths.
+
+    This function applies a three-layer defense against Unicode homoglyphs:
+    1. NFKC normalization - converts compatibility characters to canonical forms
+    2. BAD_CODE mapping - replaces known homoglyphs with ASCII equivalents
+    3. ASCII fallback - removes any remaining non-ASCII characters
+
+    Args:
+        text: The input text that may contain Unicode homoglyphs
+
+    Returns:
+        A normalized ASCII-safe string suitable for file paths
+    """
+    # Layer 1: NFKC normalization (handles many compatibility characters)
+    # e.g., fullwidth letters, circled letters, superscripts, etc.
+    result = unicodedata.normalize("NFKC", text)
+
+    # Layer 2: Apply known homoglyph mappings
+    for bad_char, good_char in BAD_CODE.items():
+        result = result.replace(bad_char, good_char)
+
+    # Layer 3: ASCII-only fallback for any remaining non-ASCII characters
+    # This ensures the path will always be valid on all file systems
+    result = "".join(c if ord(c) < 128 else "_" for c in result)
+
+    return result
 
 
 class ChallengeSignal(str, Enum):
@@ -121,9 +154,7 @@ class CaptchaPayload(BaseModel):
 
     def get_requester_question(self, language: str = "en") -> str:
         rq = self.requester_question.get(language, "unknown")
-        for i in BAD_CODE:
-            rq = rq.replace(i, BAD_CODE[i])
-        return rq
+        return normalize_unicode_text(rq)
 
 
 class CaptchaResponse(BaseModel):
