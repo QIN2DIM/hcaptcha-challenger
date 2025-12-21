@@ -55,7 +55,7 @@ class SpatialReasoner(Reasoner[SCoTModelType, ResponseT], ABC):
 
         user_prompt = ""
         if auxiliary_information and isinstance(auxiliary_information, str):
-            user_prompt = f"<challenge_type>\n{auxiliary_information}\n</challenge_type>"
+            user_prompt = f"## Game Tips\n\n{auxiliary_information}"
 
         return await self._provider.generate_with_images(
             images=images,
