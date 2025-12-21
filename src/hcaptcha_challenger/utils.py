@@ -7,8 +7,10 @@ from __future__ import annotations
 
 import os
 import random
+import string
 import sys
 import uuid
+from pathlib import Path
 from typing import Literal
 
 import pytz
@@ -141,3 +143,13 @@ class SiteKey:
         ]
         k = random.choice(ks)
         return f"https://accounts.hcaptcha.com/demo?sitekey={k}"
+
+
+def load_desc(path: Path, substitutions: dict[str, str] | None = None) -> str:
+    """Load a tool description from a file, with optional substitutions."""
+    description = path.read_text(encoding="utf-8")
+    if substitutions:
+        description = string.Template(description).safe_substitute(substitutions)
+    if description and isinstance(description, str):
+        description = description.strip()
+    return description

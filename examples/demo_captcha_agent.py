@@ -25,6 +25,7 @@ async def challenge(page: Page) -> AgentV:
     return agent
 
 
+# noinspection DuplicatedCode
 async def main():
     # uv run playwright install --with-deps
     async with async_playwright() as p:

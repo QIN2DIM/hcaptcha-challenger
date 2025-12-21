@@ -211,6 +211,8 @@ SCoTModelType = Union[
         # Recommended for production environments for more tolerant rate limits.
         # [✨] https://ai.google.dev/gemini-api/docs/models?hl=zh-cn#gemini-3-pro
         "gemini-3-pro-preview",
+        # https://ai.google.dev/gemini-api/docs/models?hl=zh-cn#gemini-3-flash
+        "gemini-3-flash-preview",
         # [✨] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro
         "gemini-2.5-pro",
         # [🤷‍♂️] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash

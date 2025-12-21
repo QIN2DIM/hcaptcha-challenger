@@ -25,6 +25,7 @@ async def challenge(page: Page) -> AgentV:
     return agent
 
 
+# noinspection DuplicatedCode
 async def main():
     """uv pip install -U hcaptcha-challenger[camoufox]"""
 

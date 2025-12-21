@@ -18,11 +18,11 @@ from hcaptcha_challenger.models import (
     SCoTModelType,
     CoordinateGrid,
 )
-from hcaptcha_challenger.tools.challenge_classifier import ChallengeClassifier
-from hcaptcha_challenger.tools.image_classifier import ImageClassifier
-from hcaptcha_challenger.tools.spatial_bbox_reasoning import SpatialBboxReasoner
-from hcaptcha_challenger.tools.spatial_path_reasoning import SpatialPathReasoner
-from hcaptcha_challenger.tools.spatial_point_reasoning import SpatialPointReasoner
+from hcaptcha_challenger.tools import ChallengeClassifier
+from hcaptcha_challenger.tools import ImageClassifier
+from hcaptcha_challenger.tools import SpatialBboxReasoner
+from hcaptcha_challenger.tools import SpatialPathReasoner
+from hcaptcha_challenger.tools import SpatialPointReasoner
 from hcaptcha_challenger.utils import init_log
 
 __all__ = [

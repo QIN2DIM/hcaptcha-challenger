@@ -2,18 +2,43 @@
 # Time       : 2023/8/19 17:52
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
-# Description:
+# Description: Tools package for hCaptcha challenge solving.
+"""
+hCaptcha Challenger Tools
+=========================
 
-from .challenge_classifier import ChallengeClassifier
+This module provides AI-powered tools for solving various hCaptcha challenge types.
+
+Available Tools:
+    - ImageClassifier: 9-grid image selection challenges
+    - ChallengeClassifier: Simple challenge type classification
+    - ChallengeRouter: Full classification with prompt extraction
+    - SpatialPathReasoner: Drag-and-drop path challenges
+    - SpatialPointReasoner: Point/area selection challenges
+    - SpatialBboxReasoner: Bounding box challenges
+
+Note:
+    The `_internal` module contains implementation details and should not
+    be imported directly by external code.
+"""
+
+# Challenge classification tools
+from .challenge_router import ChallengeClassifier, ChallengeRouter
+
+# Image classification tool
 from .image_classifier import ImageClassifier
-from .spatial_bbox_reasoning import SpatialBboxReasoner
-from .spatial_path_reasoning import SpatialPathReasoner
-from .spatial_point_reasoning import SpatialPointReasoner
+
+# Spatial reasoning tools
+from .spatial import SpatialPathReasoner, SpatialPointReasoner, SpatialBboxReasoner
 
 __all__ = [
+    # Challenge routing
+    "ChallengeClassifier",
+    "ChallengeRouter",
+    # Image classification
     "ImageClassifier",
-    'ChallengeClassifier',
-    'SpatialPathReasoner',
-    'SpatialPointReasoner',
-    'SpatialBboxReasoner',
+    # Spatial reasoning
+    "SpatialPathReasoner",
+    "SpatialPointReasoner",
+    "SpatialBboxReasoner",
 ]

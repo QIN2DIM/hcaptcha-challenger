@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+@Time    : 2025/12/21 15:30
+@Author  : QIN2DIM
+@GitHub  : https://github.com/QIN2DIM
+@Desc    :
+"""
 import asyncio
 import json
 import re

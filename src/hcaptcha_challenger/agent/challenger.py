@@ -6,7 +6,6 @@
 import asyncio
 import json
 import math
-import os
 import random
 import re
 from asyncio import Queue
@@ -44,10 +43,10 @@ from hcaptcha_challenger.prompts import match_user_prompt
 from hcaptcha_challenger.tools import (
     ImageClassifier,
     ChallengeClassifier,
+    ChallengeRouter,
     SpatialPathReasoner,
     SpatialPointReasoner,
 )
-from hcaptcha_challenger.tools.challenge_classifier import ChallengeRouter
 
 
 def _generate_bezier_trajectory(
@@ -120,8 +119,7 @@ class AgentConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
     GEMINI_API_KEY: SecretStr = Field(
-        default_factory=lambda: os.environ.get("GEMINI_API_KEY", ""),
-        description="Create API Key https://aistudio.google.com/app/apikey",
+        default="", description="Create API Key https://aistudio.google.com/app/apikey"
     )
 
     cache_dir: Path = Path("tmp/.cache")
@@ -485,6 +483,7 @@ class RoboticArm:
         # Capture challenge-view
         challenge_view = frame_challenge.locator("//div[@class='challenge-view']")
         challenge_screenshot = cache_key.joinpath(f"{cache_key.name}_{crumb_id}_challenge_view.png")
+        challenge_screenshot.parent.mkdir(parents=True, exist_ok=True)
         await challenge_view.screenshot(type="png", path=challenge_screenshot)
 
         challenge_view = frame_challenge.locator("//div[@class='challenge-view']")

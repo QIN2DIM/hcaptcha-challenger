@@ -1,0 +1,10 @@
+[src]
+exclude = [
+    # non-producition or generated code
+    "tests",
+    "archive",
+]
+
+[rules]
+missing-argument = "ignore" # TODO: restore when **args for constructor is supported properly
+possibly-unbound-attribute = "ignore"
