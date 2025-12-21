@@ -108,7 +108,6 @@ class GeminiProvider:
         user_prompt: str,
         description: str,
         response_schema: Type[ResponseT],
-        temperature: float = 0.0,
         thinking_level: types.ThinkingLevel | None = types.ThinkingLevel.HIGH,
         **kwargs,
     ) -> ResponseT:
@@ -139,7 +138,6 @@ class GeminiProvider:
 
         # Build config
         config = types.GenerateContentConfig(
-            temperature=temperature,
             system_instruction=description,
             media_resolution=types.MediaResolution.MEDIA_RESOLUTION_HIGH,
             response_mime_type="application/json",
@@ -150,8 +148,10 @@ class GeminiProvider:
         self._set_thinking_config(config=config, thinking_level=thinking_level)
 
         # Generate response
-        self._response = await self.client.aio.models.generate_content(
-            model=self._model, contents=contents, config=config
+        self._response: types.GenerateContentResponse = (
+            await self.client.aio.models.generate_content(
+                model=self._model, contents=contents, config=config
+            )
         )
 
         # Parse response

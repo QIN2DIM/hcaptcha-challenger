@@ -41,6 +41,7 @@ class Reasoner(ABC, Generic[ModelT, ResponseT]):
     """
 
     description: str = ""
+    """The description of the tool."""
 
     def __init__(
         self,
