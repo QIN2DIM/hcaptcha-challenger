@@ -118,9 +118,17 @@ IGNORE_REQUEST_TYPE_LIST = List[SINGLE_IGNORE_TYPE]
 class AgentConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
-    GEMINI_API_KEY: SecretStr = Field(
-        default_factory=lambda: SecretStr(os.environ.get("GEMINI_API_KEY", "")),
-        description="Create API Key https://aistudio.google.com/app/apikey",
+    GEMINI_API_KEYS: Any = Field(
+        default=None,
+        description="Comma-separated list of Gemini API keys",
+    )
+    GROQ_API_KEYS: Any = Field(
+        default=None,
+        description="Comma-separated list of Groq API keys",
+    )
+    AI_PROVIDER: str = Field(
+        default="gemini",
+        description="AI provider to use (gemini, groq)",
     )
 
     cache_dir: Path = Path("tmp/.cache")
@@ -151,14 +159,14 @@ class AgentConfig(BaseSettings):
         description="When your local network is poor, increase this value appropriately [unit: second]",
     )
     RESPONSE_TIMEOUT: float = Field(
-        default=30,
+        default=60,
         description="When your local network is poor, increase this value appropriately [unit: second]",
     )
     RETRY_ON_FAILURE: bool = Field(
         default=True, description="Re-execute the challenge when it fails"
     )
     WAIT_FOR_CHALLENGE_VIEW_TO_RENDER_MS: int = Field(
-        default=1500,
+        default=4000,
         description="When your local network is poor, increase this value appropriately [unit: millisecond]",
     )
 
@@ -195,28 +203,36 @@ class AgentConfig(BaseSettings):
     )
     skills_update_branch: str = Field(default="main", description="GitHub branch for skills update")
 
-    @field_validator('GEMINI_API_KEY', mode="before")
+    @field_validator('GEMINI_API_KEYS', mode="before")
     @classmethod
-    def validate_api_key(cls, v: Any) -> str:
+    def validate_api_keys(cls, v: Any) -> List[SecretStr]:
         """
-        Validates that the GEMINI_API_KEY is not empty.
-
-        Args:
-            v: The API key value to validate
-
-        Returns:
-            The validated API key
-
-        Raises:
-            ValueError: If the API key is empty
+        Validates and parses Gemini API keys.
+        Supports comma-separated strings (from env) or lists.
         """
-        if not v or not isinstance(v, str):
+        # 1. Handle string input (e.g. from environment variable)
+        if isinstance(v, str):
+            v = [k.strip() for k in v.split(",") if k.strip()]
+        
+        # 2. Fallback to environment variables if still empty
+        if not v:
+            env_keys = os.environ.get("GEMINI_API_KEYS", "")
+            if env_keys:
+                v = [k.strip() for k in env_keys.split(",") if k.strip()]
+            else:
+                single_key = os.environ.get("GEMINI_API_KEY")
+                if single_key:
+                    v = [single_key]
+        
+        # 3. Final validation
+        if not v:
             raise ValueError(
-                "GEMINI_API_KEY is required but not provided. "
-                "Please either pass it directly or set the GEMINI_API_KEY environment variable."
-                "Create API Key -> https://aistudio.google.com/app/apikey"
+                "GEMINI_API_KEYS is required but not provided. "
+                "Please set the GEMINI_API_KEYS (comma-separated) or GEMINI_API_KEY environment variable."
             )
-        return v
+            
+        # 4. Ensure everything is a SecretStr
+        return [SecretStr(k) if isinstance(k, str) else k for k in v]
 
     @property
     def spatial_grid_cache(self):
@@ -279,22 +295,53 @@ class RoboticArm:
         self.config = config
         self._debug = config.enable_challenger_debug
 
-        self._challenge_router = ChallengeRouter(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
-            model=self.config.CHALLENGE_CLASSIFIER_MODEL,
-        )
-        self._image_classifier = ImageClassifier(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
-            model=self.config.IMAGE_CLASSIFIER_MODEL,
-        )
-        self._spatial_path_reasoner = SpatialPathReasoner(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
-            model=self.config.SPATIAL_PATH_REASONER_MODEL,
-        )
-        self._spatial_point_reasoner = SpatialPointReasoner(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
-            model=self.config.SPATIAL_POINT_REASONER_MODEL,
-        )
+        if self.config.AI_PROVIDER == "groq":
+            from hcaptcha_challenger.tools.internal.providers.groq import GroqProvider
+            groq_keys = [k.get_secret_value() if hasattr(k, "get_secret_value") else str(k) for k in self.config.GROQ_API_KEYS] if self.config.GROQ_API_KEYS else []
+            
+            # Use model from config if provided, else fallback to default vision model
+            model = self.config.IMAGE_CLASSIFIER_MODEL or "llama-4-scout-17b-16e-instruct"
+            provider = GroqProvider(api_key=groq_keys, model=model)
+            
+            self._challenge_router = ChallengeRouter(
+                gemini_api_key="", # Not used when provider is passed
+                model=model,
+                provider=provider
+            )
+            self._image_classifier = ImageClassifier(
+                gemini_api_key="",
+                model=model,
+                provider=provider
+            )
+            self._spatial_path_reasoner = SpatialPathReasoner(
+                gemini_api_key="",
+                model=model,
+                provider=provider
+            )
+            self._spatial_point_reasoner = SpatialPointReasoner(
+                gemini_api_key="",
+                model=model,
+                provider=provider
+            )
+        else:
+            api_keys = [k.get_secret_value() if hasattr(k, "get_secret_value") else str(k) for k in self.config.GEMINI_API_KEYS] if self.config.GEMINI_API_KEYS else []
+
+            self._challenge_router = ChallengeRouter(
+                gemini_api_key=api_keys,
+                model=self.config.CHALLENGE_CLASSIFIER_MODEL,
+            )
+            self._image_classifier = ImageClassifier(
+                gemini_api_key=api_keys,
+                model=self.config.IMAGE_CLASSIFIER_MODEL,
+            )
+            self._spatial_path_reasoner = SpatialPathReasoner(
+                gemini_api_key=api_keys,
+                model=self.config.SPATIAL_PATH_REASONER_MODEL,
+            )
+            self._spatial_point_reasoner = SpatialPointReasoner(
+                gemini_api_key=api_keys,
+                model=self.config.SPATIAL_POINT_REASONER_MODEL,
+            )
         self._skill_manager = SkillManager(agent_config=config)
         self.signal_crumb_count: int | None = None
         self.captcha_payload: CaptchaPayload | None = None
@@ -384,6 +431,7 @@ class RoboticArm:
 
         return f"Please note that the current task type is: {job_type.value}"
 
+
     async def click_by_mouse(self, locator: Locator):
         bbox = await locator.bounding_box()
         if bbox is None:
@@ -397,9 +445,16 @@ class RoboticArm:
         center_x = x + width / 2
         center_y = y + height / 2
 
-        await self.page.mouse.move(center_x, center_y)
-
-        await self.page.mouse.click(center_x, center_y, delay=150)
+        # Use Playwright's built-in human-like move (steps) + random delay
+        # This is safer than calculating Bezier without knowing start pos
+        steps = random.randint(10, 20)
+        
+        # Add jitter (random offset) to mimic human micro-movements
+        jitter_x = center_x + random.uniform(-2, 2)
+        jitter_y = center_y + random.uniform(-2, 2)
+        
+        await self.page.mouse.move(jitter_x, jitter_y, steps=steps)
+        await self.page.mouse.click(jitter_x, jitter_y, delay=random.randint(100, 200))
 
     async def click_checkbox(self):
         checkbox_frame = self.page.frame_locator(self.checkbox_selector)
@@ -665,13 +720,26 @@ class RoboticArm:
             )
 
             for point in response.points:
-                await self.page.mouse.click(point.x, point.y, delay=180)
-                await self.page.wait_for_timeout(500)
+                # Use Playwright's built-in human-like move (steps)
+                steps = random.randint(25, 50) # Increased steps for smoother movement
+                
+                # Add jitter (random offset) to mimic human micro-movements
+                jitter_x = point.x + random.uniform(-3, 3)
+                jitter_y = point.y + random.uniform(-3, 3)
+                
+                await self.page.mouse.move(jitter_x, jitter_y, steps=steps)
+                await self.page.mouse.click(jitter_x, jitter_y, delay=random.randint(150, 250))
+                await self.page.wait_for_timeout(random.randint(400, 600))
 
             # {{< Verify >}}
             with suppress(TimeoutError):
                 submit_btn = frame_challenge.locator("//div[@class='button-submit button']")
-                await self.click_by_mouse(submit_btn)
+                if await submit_btn.is_visible():
+                    logger.debug("Submit button visible, clicking...")
+                    await self.click_by_mouse(submit_btn)
+                    logger.debug("Submit button clicked.")
+                else:
+                    logger.warning("Submit button NOT visible!")
 
 
 class AgentV:

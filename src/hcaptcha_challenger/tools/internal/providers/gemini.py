@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import List, Type, TypeVar, cast
 
 from google import genai
-from google.genai import types
+from google.genai import types, errors
 from loguru import logger
 from pydantic import BaseModel
 from tenacity import retry, stop_after_attempt, wait_fixed
@@ -39,24 +39,36 @@ class GeminiProvider:
     swap out for other providers in the future.
     """
 
-    def __init__(self, api_key: str, model: str):
+    def __init__(self, api_key: str | List[str], model: str):
         """
         Initialize the Gemini provider.
 
         Args:
-            api_key: Gemini API key.
-            model: Model name to use (e.g., "gemini-2.5-pro").
+            api_key: Gemini API key or list of keys.
+            model: Model name to use (e.g., "gemini-2.0-flash").
         """
-        self._api_key = api_key
+        if isinstance(api_key, str):
+            self._api_keys = [api_key]
+        else:
+            self._api_keys = api_key
+        
+        self._key_index = 0
         self._model = model
         self._client: genai.Client | None = None
         self._response: types.GenerateContentResponse | None = None
+
+    def rotate_key(self):
+        """Rotate to the next API key in the list."""
+        if len(self._api_keys) > 1:
+            self._key_index = (self._key_index + 1) % len(self._api_keys)
+            self._client = None  # Force client re-initialization
+            logger.info(f"Rotating Gemini API key. New index: {self._key_index}")
 
     @property
     def client(self) -> genai.Client:
         """Lazy-initialize the Gemini client."""
         if self._client is None:
-            self._client = genai.Client(api_key=self._api_key)
+            self._client = genai.Client(api_key=self._api_keys[self._key_index])
         return self._client
 
     @property
@@ -89,11 +101,11 @@ class GeminiProvider:
             )
 
     @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_fixed(3),
+        stop=stop_after_attempt(15),  # 3 cycles of 5 keys
+        wait=wait_fixed(15),          # 15s * 5 keys = 75s cycle (covers 60s cooldown)
         before_sleep=lambda retry_state: logger.warning(
-            f"Retry request ({retry_state.attempt_number}/3) - "
-            f"Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
+            f"Retry request ({retry_state.attempt_number}/15) - "
+            f"Wait 15 seconds - Exception: {retry_state.outcome.exception()}"
         ),
     )
     async def generate_with_images(
@@ -140,11 +152,17 @@ class GeminiProvider:
         self._set_thinking_config(config=config)
 
         # Generate response
-        self._response: types.GenerateContentResponse = (
-            await self.client.aio.models.generate_content(
-                model=self._model, contents=contents, config=config
+        try:
+            self._response: types.GenerateContentResponse = (
+                await self.client.aio.models.generate_content(
+                    model=self._model, contents=contents, config=config
+                )
             )
-        )
+        except errors.ClientError as e:
+            # If 429 RESOURCE_EXHAUSTED, rotate key for the next retry
+            if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                self.rotate_key()
+            raise e
 
         # Parse response
         if self._response.parsed:

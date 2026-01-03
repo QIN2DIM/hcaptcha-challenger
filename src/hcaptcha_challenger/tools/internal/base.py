@@ -15,7 +15,7 @@ import json
 from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
-from typing import Generic, TypeVar, Union
+from typing import Generic, TypeVar, Union, List
 
 from loguru import logger
 from pydantic import BaseModel
@@ -45,7 +45,7 @@ class Reasoner(ABC, Generic[ModelT, ResponseT]):
 
     def __init__(
         self,
-        gemini_api_key: str,
+        gemini_api_key: str | List[str],
         model: ModelT | None = None,
         *,
         provider: ChatProvider | None = None,
@@ -55,19 +55,19 @@ class Reasoner(ABC, Generic[ModelT, ResponseT]):
         Initialize the reasoner.
 
         Args:
-            gemini_api_key: Gemini API key (used if no custom provider is set).
+            gemini_api_key: Gemini API key or list of keys.
             model: Model name to use.
             provider: Optional custom provider (for extensibility).
             **kwargs: Additional options for subclasses.
         """
-        self._api_key = gemini_api_key
+        self._api_keys = [gemini_api_key] if isinstance(gemini_api_key, str) else gemini_api_key
         self._model = model
         self._provider: ChatProvider = provider or self._create_default_provider()
         self._response = None
 
     def _create_default_provider(self) -> GeminiProvider:
         """Create the default Gemini provider."""
-        return GeminiProvider(api_key=self._api_key, model=self._model)
+        return GeminiProvider(api_key=self._api_keys, model=self._model)
 
     @abstractmethod
     async def __call__(self, *args, **kwargs) -> ResponseT:

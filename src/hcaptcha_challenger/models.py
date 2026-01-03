@@ -257,7 +257,7 @@ SCoTModelType = Union[
     ],
 ]
 
-DEFAULT_SCOT_MODEL: SCoTModelType = "gemini-2.5-pro"
+DEFAULT_SCOT_MODEL: SCoTModelType = "llama-4-scout-17b-16e-instruct"
 
 FastShotModelType = Union[
     str,
