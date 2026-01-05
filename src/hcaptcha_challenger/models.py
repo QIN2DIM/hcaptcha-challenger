@@ -279,6 +279,8 @@ DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.5-flash"
 ClaudeModelType = Union[
     str,
     Literal[
+        # Claude 4.5 models
+        "claude-opus-4-5-20250514",
         # Claude 4 models
         "claude-sonnet-4-20250514",
         # Claude 3.5 models
