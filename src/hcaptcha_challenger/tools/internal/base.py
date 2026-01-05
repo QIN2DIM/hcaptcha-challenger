@@ -21,7 +21,9 @@ from loguru import logger
 from pydantic import BaseModel
 
 from .providers.gemini import GeminiProvider
+from .providers.anthropic import AnthropicProvider
 from .providers.protocol import ChatProvider
+from hcaptcha_challenger.models import get_provider_from_model
 
 ModelT = TypeVar("ModelT", bound=str)
 ResponseT = TypeVar("ResponseT", bound=Union[BaseModel, Enum])
@@ -45,28 +47,36 @@ class Reasoner(ABC, Generic[ModelT, ResponseT]):
 
     def __init__(
         self,
-        gemini_api_key: str,
+        api_key: str,
         model: ModelT | None = None,
         *,
         provider: ChatProvider | None = None,
+        gemini_api_key: str | None = None,  # Deprecated, use api_key instead
         **kwargs,
     ):
         """
         Initialize the reasoner.
 
         Args:
-            gemini_api_key: Gemini API key (used if no custom provider is set).
+            api_key: API key for the provider (Gemini or Anthropic, determined by model).
             model: Model name to use.
             provider: Optional custom provider (for extensibility).
+            gemini_api_key: Deprecated, use api_key instead.
             **kwargs: Additional options for subclasses.
         """
-        self._api_key = gemini_api_key
+        # Support legacy gemini_api_key parameter
+        self._api_key = api_key or gemini_api_key
+        if not self._api_key:
+            raise ValueError("api_key is required")
         self._model = model
         self._provider: ChatProvider = provider or self._create_default_provider()
         self._response = None
 
-    def _create_default_provider(self) -> GeminiProvider:
-        """Create the default Gemini provider."""
+    def _create_default_provider(self) -> ChatProvider:
+        """Create the default provider based on the model name."""
+        provider_type = get_provider_from_model(self._model or "")
+        if provider_type == "anthropic":
+            return AnthropicProvider(api_key=self._api_key, model=self._model)
         return GeminiProvider(api_key=self._api_key, model=self._model)
 
     @abstractmethod

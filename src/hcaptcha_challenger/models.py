@@ -240,6 +240,9 @@ IGNORE_REQUEST_TYPE_LITERAL = Literal[
     "image_drag_multi",
 ]
 
+# Provider type for selecting between Gemini and Anthropic
+ProviderType = Literal["gemini", "anthropic"]
+
 # https://ai.google.dev/gemini-api/docs/rate-limits#current-rate-limits
 SCoTModelType = Union[
     str,
@@ -271,6 +274,26 @@ FastShotModelType = Union[
 
 DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.5-flash"
 
+# Anthropic Claude model types
+# https://docs.anthropic.com/en/docs/about-claude/models
+ClaudeModelType = Union[
+    str,
+    Literal[
+        # Claude 4 models
+        "claude-sonnet-4-20250514",
+        # Claude 3.5 models
+        "claude-3-5-sonnet-20241022",
+        "claude-3-5-haiku-20241022",
+        # Claude 3 models
+        "claude-3-opus-20240229",
+        "claude-3-sonnet-20240229",
+        "claude-3-haiku-20240307",
+    ],
+]
+
+DEFAULT_CLAUDE_MODEL: ClaudeModelType = "claude-sonnet-4-20250514"
+DEFAULT_CLAUDE_FAST_MODEL: ClaudeModelType = "claude-3-5-haiku-20241022"
+
 THINKING_BUDGET_MODELS: List[Union[SCoTModelType, FastShotModelType]] = [
     "gemini-2.5-flash",
     "gemini-2.5-pro",
@@ -282,6 +305,13 @@ THINKING_LEVEL_MODELS: List[str] = [
     "gemini-3-flash",
     "gemini-3-flash-preview",
 ]
+
+# Helper function to detect provider from model name
+def get_provider_from_model(model: str) -> ProviderType:
+    """Detect the provider type from the model name."""
+    if model.startswith("claude"):
+        return "anthropic"
+    return "gemini"
 
 
 class ChallengeRouterResult(BaseModel):

@@ -3,5 +3,6 @@
 
 from .protocol import ChatProvider
 from .gemini import GeminiProvider
+from .anthropic import AnthropicProvider
 
-__all__ = ["ChatProvider", "GeminiProvider"]
+__all__ = ["ChatProvider", "GeminiProvider", "AnthropicProvider"]

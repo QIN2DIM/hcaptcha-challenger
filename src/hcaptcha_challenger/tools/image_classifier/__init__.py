@@ -34,13 +34,16 @@ class ImageClassifier(Reasoner[SCoTModelType, ImageBinaryChallenge]):
 
     def __init__(
         self,
-        gemini_api_key: str,
+        api_key: str = None,
         model: SCoTModelType = DEFAULT_SCOT_MODEL,
         *,
         provider: ChatProvider | None = None,
+        gemini_api_key: str = None,  # Deprecated, use api_key instead
         **kwargs,
     ):
-        super().__init__(gemini_api_key, model, provider=provider, **kwargs)
+        # Support legacy gemini_api_key parameter
+        effective_api_key = api_key or gemini_api_key
+        super().__init__(effective_api_key, model, provider=provider, **kwargs)
 
     async def __call__(
         self, *, challenge_screenshot: Union[str, Path], **kwargs

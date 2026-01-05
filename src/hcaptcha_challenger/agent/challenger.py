@@ -38,6 +38,11 @@ from hcaptcha_challenger.models import (
     CaptchaPayload,
     IGNORE_REQUEST_TYPE_LITERAL,
     INV,
+    ClaudeModelType,
+    DEFAULT_CLAUDE_MODEL,
+    DEFAULT_CLAUDE_FAST_MODEL,
+    ProviderType,
+    get_provider_from_model,
 )
 from hcaptcha_challenger.models import ChallengeTypeEnum, CoordinateGrid
 from hcaptcha_challenger.skills import SkillManager
@@ -118,9 +123,14 @@ IGNORE_REQUEST_TYPE_LIST = List[SINGLE_IGNORE_TYPE]
 class AgentConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
-    GEMINI_API_KEY: SecretStr = Field(
-        default_factory=lambda: SecretStr(os.environ.get("GEMINI_API_KEY", "")),
+    GEMINI_API_KEY: SecretStr | None = Field(
+        default_factory=lambda: SecretStr(os.environ.get("GEMINI_API_KEY", "")) if os.environ.get("GEMINI_API_KEY") else None,
         description="Create API Key https://aistudio.google.com/app/apikey",
+    )
+
+    ANTHROPIC_API_KEY: SecretStr | None = Field(
+        default_factory=lambda: SecretStr(os.environ.get("ANTHROPIC_API_KEY", "")) if os.environ.get("ANTHROPIC_API_KEY") else None,
+        description="Create API Key https://console.anthropic.com/settings/keys",
     )
 
     cache_dir: Path = Path("tmp/.cache")
@@ -195,28 +205,52 @@ class AgentConfig(BaseSettings):
     )
     skills_update_branch: str = Field(default="main", description="GitHub branch for skills update")
 
-    @field_validator('GEMINI_API_KEY', mode="before")
+    @field_validator('GEMINI_API_KEY', 'ANTHROPIC_API_KEY', mode="before")
     @classmethod
-    def validate_api_key(cls, v: Any) -> str:
+    def validate_api_key(cls, v: Any) -> str | None:
         """
-        Validates that the GEMINI_API_KEY is not empty.
+        Validates that API keys are valid strings if provided.
 
         Args:
             v: The API key value to validate
 
         Returns:
-            The validated API key
+            The validated API key or None
+        """
+        if not v or not isinstance(v, str) or not v.strip():
+            return None
+        return v
+
+    def get_api_key_for_model(self, model: str) -> str:
+        """
+        Get the appropriate API key based on the model name.
+
+        Args:
+            model: The model name to get the API key for
+
+        Returns:
+            The appropriate API key
 
         Raises:
-            ValueError: If the API key is empty
+            ValueError: If the required API key is not provided
         """
-        if not v or not isinstance(v, str):
-            raise ValueError(
-                "GEMINI_API_KEY is required but not provided. "
-                "Please either pass it directly or set the GEMINI_API_KEY environment variable."
-                "Create API Key -> https://aistudio.google.com/app/apikey"
-            )
-        return v
+        provider = get_provider_from_model(model)
+        if provider == "anthropic":
+            if not self.ANTHROPIC_API_KEY:
+                raise ValueError(
+                    "ANTHROPIC_API_KEY is required for Claude models. "
+                    "Please set the ANTHROPIC_API_KEY environment variable. "
+                    "Create API Key -> https://console.anthropic.com/settings/keys"
+                )
+            return self.ANTHROPIC_API_KEY.get_secret_value()
+        else:
+            if not self.GEMINI_API_KEY:
+                raise ValueError(
+                    "GEMINI_API_KEY is required for Gemini models. "
+                    "Please set the GEMINI_API_KEY environment variable. "
+                    "Create API Key -> https://aistudio.google.com/app/apikey"
+                )
+            return self.GEMINI_API_KEY.get_secret_value()
 
     @property
     def spatial_grid_cache(self):
@@ -280,19 +314,19 @@ class RoboticArm:
         self._debug = config.enable_challenger_debug
 
         self._challenge_router = ChallengeRouter(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
+            api_key=self.config.get_api_key_for_model(self.config.CHALLENGE_CLASSIFIER_MODEL),
             model=self.config.CHALLENGE_CLASSIFIER_MODEL,
         )
         self._image_classifier = ImageClassifier(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
+            api_key=self.config.get_api_key_for_model(self.config.IMAGE_CLASSIFIER_MODEL),
             model=self.config.IMAGE_CLASSIFIER_MODEL,
         )
         self._spatial_path_reasoner = SpatialPathReasoner(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
+            api_key=self.config.get_api_key_for_model(self.config.SPATIAL_PATH_REASONER_MODEL),
             model=self.config.SPATIAL_PATH_REASONER_MODEL,
         )
         self._spatial_point_reasoner = SpatialPointReasoner(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
+            api_key=self.config.get_api_key_for_model(self.config.SPATIAL_POINT_REASONER_MODEL),
             model=self.config.SPATIAL_POINT_REASONER_MODEL,
         )
         self._skill_manager = SkillManager(agent_config=config)

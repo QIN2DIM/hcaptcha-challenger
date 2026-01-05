@@ -10,6 +10,7 @@ dependencies = [
     "typer>=0.20.0",
     "matplotlib>=3.10.3",
     "google-genai>=1.56.0",
+    "anthropic>=0.40.0",
     "pytz>=2025.2",
     "httpx[http2]>=0.28.1",
     "loguru>=0.7.3",
