@@ -14,8 +14,8 @@ from hcaptcha_challenger.models import (
     ChallengeRouterResult,
     DEFAULT_FAST_SHOT_MODEL,
 )
-from hcaptcha_challenger.tools.internal.base import Reasoner
-from hcaptcha_challenger.tools.internal.providers.protocol import ChatProvider
+from hcaptcha_challenger.providers import ChatProvider
+from hcaptcha_challenger.tools.base import Reasoner
 from hcaptcha_challenger.utils import load_desc
 
 

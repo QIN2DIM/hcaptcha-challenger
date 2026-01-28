@@ -20,8 +20,7 @@ from typing import Generic, TypeVar, Union
 from loguru import logger
 from pydantic import BaseModel
 
-from .providers.gemini import GeminiProvider
-from .providers.protocol import ChatProvider
+from hcaptcha_challenger.providers import GeminiProvider, ChatProvider
 
 ModelT = TypeVar("ModelT", bound=str)
 ResponseT = TypeVar("ResponseT", bound=Union[BaseModel, Enum])

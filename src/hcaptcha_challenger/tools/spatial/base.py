@@ -12,7 +12,7 @@ from typing import TypeVar, List
 from pydantic import BaseModel
 
 from hcaptcha_challenger.models import SCoTModelType
-from hcaptcha_challenger.tools.internal.base import Reasoner
+from hcaptcha_challenger.tools.base import Reasoner
 
 ResponseT = TypeVar("ResponseT", bound=BaseModel)
 

@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Union
 
 from hcaptcha_challenger.models import SCoTModelType, ImageBinaryChallenge, DEFAULT_SCOT_MODEL
-from hcaptcha_challenger.tools.internal.base import Reasoner
-from hcaptcha_challenger.tools.internal.providers.protocol import ChatProvider
+from hcaptcha_challenger.providers import ChatProvider
+from hcaptcha_challenger.tools.base import Reasoner
 from hcaptcha_challenger.utils import load_desc
 
 

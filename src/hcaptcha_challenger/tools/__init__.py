@@ -17,10 +17,16 @@ Available Tools:
     - SpatialPointReasoner: Point/area selection challenges
     - SpatialBboxReasoner: Bounding box challenges
 
+Base Classes:
+    - Reasoner: Abstract base class for all reasoning tools
+
 Note:
-    The `_internal` module contains implementation details and should not
-    be imported directly by external code.
+    The `providers` module contains LLM provider implementations and can be
+    imported separately for custom provider injection.
 """
+
+# Base class for reasoning tools
+from .base import Reasoner
 
 # Challenge classification tools
 from .challenge_router import ChallengeClassifier, ChallengeRouter
@@ -32,6 +38,8 @@ from .image_classifier import ImageClassifier
 from .spatial import SpatialPathReasoner, SpatialPointReasoner, SpatialBboxReasoner
 
 __all__ = [
+    # Base class
+    "Reasoner",
     # Challenge routing
     "ChallengeClassifier",
     "ChallengeRouter",
