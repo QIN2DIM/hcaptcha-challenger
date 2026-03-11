@@ -18,8 +18,8 @@ Key capabilities & Rules:
 
 Critical Coordinate Instructions:
 - The provided image set includes a grid overlay with labeled axes (X Coordinate, Y Coordinate).
-- **Read coordinates directly from these axis scales.** 
-- Do NOT estimate based on pixel positions; use the numeric labels on the axes to determine precise (X, Y) values.
+- **IMPORTANT: Read coordinates directly from these numeric axis labels.** 
+- Do NOT estimate based on pixel positions or relative distance; use the numeric scales on the axes to determine precise absolute (X, Y) values.
 
 Output Requirement:
 - Identify the source/start position (center of the draggable element).

@@ -30,7 +30,7 @@ class SpatialReasoner(Reasoner[SCoTModelType, ResponseT], ABC):
     async def _invoke_spatial(
         self,
         *,
-        challenge_screenshot: Path,
+        challenge_screenshot: Path | List[Path],
         grid_divisions: Path,
         auxiliary_information: str | None = None,
         response_schema: type[ResponseT],
@@ -40,7 +40,7 @@ class SpatialReasoner(Reasoner[SCoTModelType, ResponseT], ABC):
         Common invocation logic for spatial reasoning.
 
         Args:
-            challenge_screenshot: Path to the challenge image.
+            challenge_screenshot: Path(s) to the challenge image(s).
             grid_divisions: Path to the grid overlay image.
             auxiliary_information: Optional user prompt with additional context.
             thinking_level: Override for thinking level.
@@ -51,7 +51,10 @@ class SpatialReasoner(Reasoner[SCoTModelType, ResponseT], ABC):
         Returns:
             Parsed response matching the response_schema.
         """
-        images: List[Path] = [challenge_screenshot, grid_divisions]
+        if isinstance(challenge_screenshot, list):
+             images: List[Path] = challenge_screenshot + [grid_divisions]
+        else:
+             images: List[Path] = [challenge_screenshot, grid_divisions]
 
         return await self._provider.generate_with_images(
             images=images,

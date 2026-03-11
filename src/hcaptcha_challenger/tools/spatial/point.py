@@ -29,7 +29,7 @@ class SpatialPointReasoner(SpatialReasoner[ImageAreaSelectChallenge]):
     async def __call__(
         self,
         *,
-        challenge_screenshot: Union[str, Path],
+        challenge_screenshot: Union[str, Path, list[Path]],
         grid_divisions: Union[str, Path],
         auxiliary_information: str | None = None,
         **kwargs,
@@ -38,7 +38,7 @@ class SpatialPointReasoner(SpatialReasoner[ImageAreaSelectChallenge]):
         Analyze an area selection challenge and return the solution points.
 
         Args:
-            challenge_screenshot: Path to the challenge image.
+            challenge_screenshot: Path(s) to the challenge image(s).
             grid_divisions: Path to the grid overlay image.
             auxiliary_information: Optional challenge prompt or context.
             thinking_level: Thinking level for the model (default: HIGH).
@@ -47,8 +47,13 @@ class SpatialPointReasoner(SpatialReasoner[ImageAreaSelectChallenge]):
         Returns:
             ImageAreaSelectChallenge containing the click coordinates.
         """
+        if isinstance(challenge_screenshot, list):
+             cs = [Path(p) for p in challenge_screenshot]
+        else:
+             cs = Path(challenge_screenshot)
+
         return await self._invoke_spatial(
-            challenge_screenshot=Path(challenge_screenshot),
+            challenge_screenshot=cs,
             grid_divisions=Path(grid_divisions),
             auxiliary_information=auxiliary_information,
             response_schema=ImageAreaSelectChallenge,
