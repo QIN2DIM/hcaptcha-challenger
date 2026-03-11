@@ -105,19 +105,19 @@ class AgentConfig(BaseSettings):
     )
 
     CHALLENGE_CLASSIFIER_MODEL: FastShotModelType = Field(
-        default="gemini-2.5-flash",
+        default="gemini-3.1-flash-lite",
         description="For the challenge classification task \n"
         "Used as last resort when HSW decoding fails.",
     )
     IMAGE_CLASSIFIER_MODEL: SCoTModelType = Field(
-        default="gemini-2.5-flash", description="For the challenge type: `image_label_binary`"
+        default="gemini-3.1-flash-lite", description="For the challenge type: `image_label_binary`"
     )
     SPATIAL_POINT_REASONER_MODEL: SCoTModelType = Field(
-        default="gemini-2.5-flash",
+        default="gemini-3.1-flash",
         description="For the challenge type: `image_label_area_select` (single/multi)",
     )
     SPATIAL_PATH_REASONER_MODEL: SCoTModelType = Field(
-        default="gemini-2.5-flash",
+        default="gemini-3.1-flash",
         description="For the challenge type: `image_drag_drop` (single/multi)",
     )
 
