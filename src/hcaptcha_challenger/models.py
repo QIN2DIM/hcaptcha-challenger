@@ -222,6 +222,7 @@ class ChallengeTypeEnum(str, Enum):
     IMAGE_LABEL_MULTI_SELECT = "image_label_multi_select"
     IMAGE_DRAG_SINGLE = "image_drag_single"
     IMAGE_DRAG_MULTI = "image_drag_multi"
+    VIDEO_MOTION = "video_motion"
 
 
 # Type alias for skill rule job_type field - mirrors ChallengeTypeEnum values
@@ -244,43 +245,30 @@ IGNORE_REQUEST_TYPE_LITERAL = Literal[
 SCoTModelType = Union[
     str,
     Literal[
-        # This model is not available in the free plan.
-        # Recommended for production environments for more tolerant rate limits.
-        # [✨] https://ai.google.dev/gemini-api/docs/models?hl=zh-cn#gemini-3-pro
-        "gemini-3-pro-preview",
-        # https://ai.google.dev/gemini-api/docs/models?hl=zh-cn#gemini-3-flash
-        "gemini-3-flash-preview",
-        # [✨] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro
-        "gemini-2.5-pro",
-        # [🤷‍♂️] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
+        "gemini-3-flash",
         "gemini-2.5-flash",
     ],
 ]
 
-DEFAULT_SCOT_MODEL: SCoTModelType = "gemini-2.5-pro"
+DEFAULT_SCOT_MODEL: SCoTModelType = "meta-llama/llama-4-maverick-17b-128e-instruct"
 
 FastShotModelType = Union[
     str,
     Literal[
-        # [✨] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
+        "gemini-3-flash",
         "gemini-2.5-flash",
-        # https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-lite
         "gemini-2.5-flash-lite",
     ],
 ]
 
-DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.5-flash"
+DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.5-flash-lite"
 
 THINKING_BUDGET_MODELS: List[Union[SCoTModelType, FastShotModelType]] = [
     "gemini-2.5-flash",
-    "gemini-2.5-pro",
 ]
 
 THINKING_LEVEL_MODELS: List[str] = [
-    "gemini-3-pro-preview",
-    "gemini-3-pro",
     "gemini-3-flash",
-    "gemini-3-flash-preview",
 ]
 
 
@@ -361,13 +349,18 @@ class ImageBinaryChallenge(BaseModel):
     @property
     def log_message(self) -> str:
         _coordinates = [i.box_2d for i in self.coordinates]
-        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": str(_coordinates)}
+        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": _coordinates}
         return json.dumps(bundle, indent=2, ensure_ascii=False)
 
 
 class PointCoordinate(BaseModel):
     x: int
     y: int
+
+
+class VideoObjectDescription(BaseModel):
+    object_description: str = Field(..., description="Detailed visual description of the unique object found in the video")
+    location_hint: str = Field(..., description="General location of the object (e.g., top-left, center)")
 
 
 class ImageAreaSelectChallenge(BaseModel):
@@ -377,7 +370,7 @@ class ImageAreaSelectChallenge(BaseModel):
     @property
     def log_message(self) -> str:
         _coordinates = [{"x": i.x, "y": i.y} for i in self.points]
-        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": str(_coordinates)}
+        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": _coordinates}
         return json.dumps(bundle, indent=2, ensure_ascii=False)
 
 
@@ -391,6 +384,11 @@ class ImageDragDropChallenge(BaseModel):
     paths: List[SpatialPath]
 
     @property
+    def path(self) -> List[SpatialPath]:
+        """Legacy compatibility with singular attribute access"""
+        return self.paths
+
+    @property
     def log_message(self) -> str:
         _coordinates = [
             {
@@ -399,7 +397,7 @@ class ImageDragDropChallenge(BaseModel):
             }
             for i in self.paths
         ]
-        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": str(_coordinates)}
+        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": _coordinates}
         return json.dumps(bundle, indent=2, ensure_ascii=False)
 
     def get_approximate_paths(self, bbox) -> List[SpatialPath]:

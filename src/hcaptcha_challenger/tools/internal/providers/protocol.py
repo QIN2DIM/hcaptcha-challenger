@@ -49,4 +49,26 @@ class ChatProvider(Protocol[ResponseT]):
         Returns:
             Parsed response matching the response_schema type.
         """
+    async def generate_with_media(
+        self,
+        *,
+        media: List[Path],
+        response_schema: type[ResponseT],
+        user_prompt: str | None = None,
+        description: str | None = None,
+        **kwargs,
+    ) -> ResponseT:
+        """
+        Generate content with media inputs (images/videos).
+
+        Args:
+            media: List of media file paths to include in the request.
+            response_schema: Pydantic model class for structured output.
+            user_prompt: User-provided prompt/instructions.
+            description: System instruction/description for the model.
+            **kwargs: Provider-specific options (e.g., thinking_level, temperature).
+
+        Returns:
+            Parsed response matching the response_schema type.
+        """
         ...
