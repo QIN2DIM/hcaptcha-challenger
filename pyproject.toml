@@ -1,7 +1,7 @@
 # https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-optional-dependencies
 [project]
 name = "hcaptcha-challenger"
-version = "0.19.0"
+version = "0.20.0"
 dependencies = [
     "playwright",
     "opencv-python>=4.11.0.88,<5.0",
@@ -14,6 +14,7 @@ dependencies = [
     "httpx[http2]>=0.28.1",
     "loguru>=0.7.3",
     "pydantic-settings>=2.11.0",
+    "rich>=13.9.4",
 ]
 requires-python = ">=3.10"
 authors = [
