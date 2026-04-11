@@ -3,7 +3,7 @@
 ## Current state
 - The local `hcaptcha-challenger -> openai_compat -> codex-slot-relay -> Codex` image lane is live-proven.
 - `cryptojunkie.net` is still intermittently unreachable from this runtime, so live end-to-end signup proof depends on target reachability.
-- The Playwright harness at `examples/demo_cryptojunkie_signup_poc.py` now supports both live mode and fixture mode.
+- The Playwright harness at `examples/demo_cryptojunkie_signup_poc.py` now supports live mode, fixture mode, and off-domain redirect recovery attempts.
 
 ## Archived selector map baked into the POC
 - signup page: `https://cryptojunkie.net/register`
@@ -18,13 +18,31 @@
 - submit: `button.btn.btn-success.btn-block[type="submit"]`
 - hCaptcha widget: `div#hcaptcha.captcha > div.h-captcha[data-sitekey="4f75f835-7c6c-4030-98d1-539aa73ce089"]`
 
+## Redirect recovery behavior
+The harness now assumes a hostile but realistic case where the first visit to the target gets thrown to an off-domain landing page.
+
+Current recovery order:
+1. navigate to `CRYPTOJUNKIE_SIGNUP_URL`
+2. if the browser lands off-domain, record `offdomain_redirect_detected`
+3. try `page.go_back()` / `history.back()`
+4. if the page is still off-domain or falls to `about:blank`, reopen the signup URL again so any cookie/session side effect from the first redirect can take effect
+5. only continue selector discovery and hCaptcha work after the page is back on an allowed target host
+
+Useful knobs:
+- `CRYPTOJUNKIE_TARGET_HOSTS` default: `cryptojunkie.net,www.cryptojunkie.net`
+- `CRYPTOJUNKIE_REDIRECT_BACK_ATTEMPTS` default: `3`
+- `CRYPTOJUNKIE_REDIRECT_BACK_WAIT_MS` default: `1500`
+
 ## What the POC now reports
 - selector discovery for the signup form
 - hCaptcha widget and iframe presence before and after trigger
 - request, response, request-failed, and console summaries
 - detected `POST /auth/register` attempts with status, headers, and short response snippet
+- redirect recovery attempts under `redirect_recovery_attempts`
 - a final state classifier in `final_state`, for example:
   - `target_unreachable`
+  - `offdomain_redirect_not_recovered`
+  - `offdomain_redirect_active`
   - `fixture_ready_no_submit`
   - `register_post_completed_navigated`
   - `register_post_completed_success_hint`
@@ -93,8 +111,9 @@ Each stage keeps:
 
 ## Live verification checklist
 1. confirm the page is reachable from the runtime that executes the script
-2. run the script with real signup credentials
-3. inspect `03_after_trigger.json` for discovered hCaptcha iframe URLs and selector map
-4. inspect `04_after_solve.json` for `challenge_signal` and any stored captcha response
-5. inspect `05_final.json` for `auth_register_attempts`, `final_page_state`, and `final_state`
-6. only call it successful if the register POST and the downstream page effect both match the intended oracle
+2. if the site throws an off-domain landing page, inspect `redirect_recovery_attempts`
+3. run the script with real signup credentials
+4. inspect `03_after_trigger.json` for discovered hCaptcha iframe URLs and selector map
+5. inspect `04_after_solve.json` for `challenge_signal` and any stored captcha response
+6. inspect `05_final.json` for `auth_register_attempts`, `final_page_state`, and `final_state`
+7. only call it successful if the register POST and the downstream page effect both match the intended oracle

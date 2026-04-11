@@ -5,6 +5,7 @@ import shutil
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from playwright.async_api import Error, Page, TimeoutError, async_playwright
 
@@ -25,6 +26,8 @@ FIXTURE_ALLOW_SUBMIT = os.getenv("CRYPTOJUNKIE_FIXTURE_ALLOW_SUBMIT", "0").strip
     "yes",
     "on",
 }
+REDIRECT_BACK_ATTEMPTS = int(os.getenv("CRYPTOJUNKIE_REDIRECT_BACK_ATTEMPTS", "3"))
+REDIRECT_BACK_WAIT_MS = int(os.getenv("CRYPTOJUNKIE_REDIRECT_BACK_WAIT_MS", "1500"))
 TIMEOUT_MS = int(os.getenv("CRYPTOJUNKIE_TIMEOUT_MS", "30000"))
 _headless_env = os.getenv("CRYPTOJUNKIE_HEADLESS")
 if _headless_env is None:
@@ -125,6 +128,13 @@ FINAL_ERROR_HINTS = [
     "error",
     "failed",
 ]
+TARGET_HOSTS = {
+    host.strip()
+    for host in os.getenv(
+        "CRYPTOJUNKIE_TARGET_HOSTS", "cryptojunkie.net,www.cryptojunkie.net"
+    ).split(",")
+    if host.strip()
+}
 
 
 async def first_selector(page: Page, selectors: list[str], *, visible: bool = True) -> str | None:
@@ -348,9 +358,84 @@ async def build_selector_map(page: Page) -> dict[str, str | None]:
     }
 
 
+def extract_host(url: str) -> str:
+    try:
+        return urlparse(url).hostname or ""
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def is_target_domain(url: str) -> bool:
+    return extract_host(url) in TARGET_HOSTS
+
+
+async def recover_from_offdomain_redirect(page: Page, summary: dict[str, Any]) -> bool:
+    attempts_log = summary.setdefault("redirect_recovery_attempts", [])
+    for attempt in range(REDIRECT_BACK_ATTEMPTS + 1):
+        current_url = page.url
+        current_host = extract_host(current_url)
+        if is_target_domain(current_url):
+            attempts_log.append(
+                {
+                    "attempt": attempt,
+                    "action": "on_target_domain",
+                    "url": current_url,
+                    "host": current_host,
+                }
+            )
+            return True
+
+        if attempt >= REDIRECT_BACK_ATTEMPTS:
+            attempts_log.append(
+                {
+                    "attempt": attempt,
+                    "action": "give_up",
+                    "url": current_url,
+                    "host": current_host,
+                }
+            )
+            return False
+
+        attempt_info: dict[str, Any] = {
+            "attempt": attempt,
+            "before_url": current_url,
+            "before_host": current_host,
+        }
+        try:
+            back_response = await page.go_back(wait_until="commit", timeout=TIMEOUT_MS)
+            attempt_info["action"] = "page.go_back"
+            attempt_info["back_response_url"] = back_response.url if back_response else None
+        except Exception as exc:  # noqa: BLE001
+            attempt_info["action"] = "page.go_back_failed"
+            attempt_info["error"] = f"{type(exc).__name__}: {exc}"
+            try:
+                await page.evaluate("history.back()")
+                attempt_info["fallback_action"] = "history.back()"
+            except Exception as fallback_exc:  # noqa: BLE001
+                attempt_info["fallback_action"] = "history.back_failed"
+                attempt_info["fallback_error"] = f"{type(fallback_exc).__name__}: {fallback_exc}"
+        await page.wait_for_timeout(REDIRECT_BACK_WAIT_MS)
+        attempt_info["after_back_url"] = page.url
+        attempt_info["after_back_host"] = extract_host(page.url)
+        if not is_target_domain(page.url):
+            try:
+                await page.goto(SIGNUP_URL, wait_until="commit", timeout=TIMEOUT_MS)
+                attempt_info["reopen_action"] = "goto_signup_url"
+            except Exception as reopen_exc:  # noqa: BLE001
+                attempt_info["reopen_action"] = "goto_signup_url_failed"
+                attempt_info["reopen_error"] = f"{type(reopen_exc).__name__}: {reopen_exc}"
+            await page.wait_for_timeout(REDIRECT_BACK_WAIT_MS)
+        attempt_info["after_url"] = page.url
+        attempt_info["after_host"] = extract_host(page.url)
+        attempts_log.append(attempt_info)
+    return is_target_domain(page.url)
+
+
 def classify_final_state(summary: dict[str, Any]) -> str:
     if summary.get("status") == "goto_failed":
         return "target_unreachable"
+    if summary.get("offdomain_redirect_detected") and not summary.get("redirect_recovered"):
+        return "offdomain_redirect_not_recovered"
     if summary.get("loaded_from_fixture"):
         if summary.get("fixture_submit_skipped"):
             return "fixture_ready_no_submit"
@@ -384,6 +469,8 @@ def classify_final_state(summary: dict[str, Any]) -> str:
 
     if any(hint in combined_text for hint in FINAL_ERROR_HINTS):
         return "register_validation_or_captcha_error"
+    if final_url and not is_target_domain(final_url):
+        return "offdomain_redirect_active"
     if hcaptcha_after_submit.get("detected") and not summary.get("captcha_response"):
         return "captcha_challenge_not_cleared"
     if hcaptcha_after_submit.get("textarea_value_len", 0) > 0 and not observed_attempts:
@@ -402,7 +489,26 @@ async def load_signup_target(page: Page, summary: dict[str, Any]) -> None:
         summary["status"] = "fixture_loaded"
         return
 
-    await page.goto(SIGNUP_URL, wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+    goto_error = None
+    try:
+        await page.goto(SIGNUP_URL, wait_until="commit", timeout=TIMEOUT_MS)
+    except TimeoutError as exc:
+        goto_error = f"{type(exc).__name__}: {exc}"
+        summary["goto_warning"] = goto_error
+    await page.wait_for_timeout(REDIRECT_BACK_WAIT_MS)
+    summary["entry_url_after_goto"] = page.url
+    summary["entry_host_after_goto"] = extract_host(page.url)
+    if not page.url or page.url == "about:blank":
+        if goto_error:
+            raise TimeoutError(goto_error)
+        raise TimeoutError("navigation never left about:blank")
+    if not is_target_domain(page.url):
+        summary["offdomain_redirect_detected"] = True
+        summary["offdomain_redirect_url"] = page.url
+        summary["redirect_recovered"] = await recover_from_offdomain_redirect(page, summary)
+    else:
+        summary["offdomain_redirect_detected"] = False
+        summary["redirect_recovered"] = True
     summary["status"] = "page_loaded"
 
 
@@ -416,6 +522,8 @@ async def main() -> None:
         "status": "starting",
         "browser_executable": BROWSER_EXECUTABLE,
         "loaded_from_fixture": False,
+        "offdomain_redirect_detected": False,
+        "redirect_recovered": False,
         "network_requests": [],
         "network_responses": [],
         "request_failures": [],
@@ -496,6 +604,13 @@ async def main() -> None:
             summary["selector_map"] = await build_selector_map(page)
             summary["hcaptcha_before"] = await detect_hcaptcha(page)
             await dump_artifacts(page, "01_initial", summary)
+
+            if summary.get("offdomain_redirect_detected") and not summary.get("redirect_recovered"):
+                summary["final_page_state"] = await capture_page_state(page)
+                summary["final_state"] = classify_final_state(summary)
+                print(json.dumps(summary, indent=2, ensure_ascii=False))
+                await context.close()
+                return
 
             if has_submit_payload:
                 filled = {
