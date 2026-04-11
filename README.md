@@ -22,6 +22,28 @@ Does not use any third-party anti-captcha services.
 
 Just implement some interfaces to make `AI vs AI` possible.
 
+The agentic solver supports the default Gemini backend and an OpenAI-compatible multimodal backend via `/v1/responses`.
+
+Quick config surface:
+
+```bash
+# default
+AGENT_BACKEND=gemini
+GEMINI_API_KEY=...
+
+# or OpenAI-compatible / Codex-style endpoint
+AGENT_BACKEND=openai_compat
+OPENAI_COMPAT_BASE_URL=https://api.openai.com
+OPENAI_COMPAT_API_KEY=...
+OPENAI_COMPAT_MODEL=gpt-4.1-mini
+```
+
+Local smoke test for the OpenAI-compatible provider:
+
+```bash
+python3 examples/demo_openai_compat_provider_smoke.py
+```
+
 **Documentation:** [English](./docs/README.md) | [简体中文](./docs/README_zh.md) | [Русский 🇷🇺](./docs/README_ru.md) | [Tiếng Việt](./docs/README_vi.md) 🙌
 
 ## What's features

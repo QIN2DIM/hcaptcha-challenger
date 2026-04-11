@@ -50,3 +50,7 @@ class ChatProvider(Protocol[ResponseT]):
             Parsed response matching the response_schema type.
         """
         ...
+
+    def cache_response(self, path: Path) -> None:
+        """Persist the last provider response when supported."""
+        ...

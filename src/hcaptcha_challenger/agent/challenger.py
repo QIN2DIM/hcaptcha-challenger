@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import msgpack
 from loguru import logger
 from playwright.async_api import Locator, expect, Page, Response, TimeoutError, FrameLocator, Frame
-from pydantic import Field, field_validator, SecretStr
+from pydantic import Field, field_validator, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from tenacity import retry, stop_after_attempt, wait_fixed
 
@@ -118,9 +118,43 @@ IGNORE_REQUEST_TYPE_LIST = List[SINGLE_IGNORE_TYPE]
 class AgentConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
+    AGENT_BACKEND: str = Field(
+        default=os.environ.get("AGENT_BACKEND", "gemini"),
+        description="Backend provider for multimodal reasoning. Available choices: gemini, openai_compat",
+    )
+
     GEMINI_API_KEY: SecretStr = Field(
         default_factory=lambda: SecretStr(os.environ.get("GEMINI_API_KEY", "")),
         description="Create API Key https://aistudio.google.com/app/apikey",
+    )
+
+    OPENAI_COMPAT_BASE_URL: str = Field(
+        default=os.environ.get("OPENAI_COMPAT_BASE_URL")
+        or os.environ.get("CODEX_BASE_URL")
+        or "https://api.openai.com",
+        description="Base URL for OpenAI-compatible Responses API",
+    )
+    OPENAI_COMPAT_API_KEY: SecretStr = Field(
+        default_factory=lambda: SecretStr(
+            os.environ.get("OPENAI_COMPAT_API_KEY") or os.environ.get("CODEX_API_KEY", "")
+        ),
+        description="API key for OpenAI-compatible Responses API",
+    )
+    OPENAI_COMPAT_MODEL: str = Field(
+        default=os.environ.get("OPENAI_COMPAT_MODEL")
+        or os.environ.get("CODEX_MODEL")
+        or "gpt-4.1-mini",
+        description="Model name for OpenAI-compatible Responses API",
+    )
+    OPENAI_COMPAT_TIMEOUT: float = Field(
+        default=float(
+            os.environ.get("OPENAI_COMPAT_TIMEOUT") or os.environ.get("CODEX_TIMEOUT") or 60.0
+        ),
+        description="HTTP timeout in seconds for the OpenAI-compatible Responses API",
+    )
+    OPENAI_COMPAT_EXTRA_HEADERS_JSON: str | None = Field(
+        default=os.environ.get("OPENAI_COMPAT_EXTRA_HEADERS_JSON"),
+        description="Optional JSON object of extra headers for the OpenAI-compatible API",
     )
 
     cache_dir: Path = Path("tmp/.cache")
@@ -201,28 +235,49 @@ class AgentConfig(BaseSettings):
     )
     skills_update_branch: str = Field(default="main", description="GitHub branch for skills update")
 
-    @field_validator('GEMINI_API_KEY', mode="before")
+    @field_validator('AGENT_BACKEND')
     @classmethod
-    def validate_api_key(cls, v: Any) -> str:
-        """
-        Validates that the GEMINI_API_KEY is not empty.
+    def validate_agent_backend(cls, v: Any) -> str:
+        if not isinstance(v, str):
+            raise ValueError("AGENT_BACKEND must be a string")
+        backend = v.strip().lower()
+        if backend not in {"gemini", "openai_compat"}:
+            raise ValueError("AGENT_BACKEND must be one of: gemini, openai_compat")
+        return backend
 
-        Args:
-            v: The API key value to validate
-
-        Returns:
-            The validated API key
-
-        Raises:
-            ValueError: If the API key is empty
-        """
-        if not v or not isinstance(v, str):
-            raise ValueError(
-                "GEMINI_API_KEY is required but not provided. "
-                "Please either pass it directly or set the GEMINI_API_KEY environment variable."
-                "Create API Key -> https://aistudio.google.com/app/apikey"
-            )
+    @field_validator('OPENAI_COMPAT_EXTRA_HEADERS_JSON')
+    @classmethod
+    def validate_openai_compat_extra_headers_json(cls, v: str | None) -> str | None:
+        if not v:
+            return v
+        data = json.loads(v)
+        if not isinstance(data, dict):
+            raise ValueError("OPENAI_COMPAT_EXTRA_HEADERS_JSON must be a JSON object")
         return v
+
+    def get_openai_compat_extra_headers(self) -> dict[str, str]:
+        if not self.OPENAI_COMPAT_EXTRA_HEADERS_JSON:
+            return {}
+        raw = json.loads(self.OPENAI_COMPAT_EXTRA_HEADERS_JSON)
+        return {str(key): str(value) for key, value in raw.items()}
+
+    @model_validator(mode="after")
+    def validate_provider_credentials(self):
+        if self.AGENT_BACKEND == "gemini":
+            if not self.GEMINI_API_KEY.get_secret_value():
+                raise ValueError(
+                    "GEMINI_API_KEY is required but not provided. "
+                    "Please either pass it directly or set the GEMINI_API_KEY environment variable."
+                    "Create API Key -> https://aistudio.google.com/app/apikey"
+                )
+            return self
+
+        if not self.OPENAI_COMPAT_API_KEY.get_secret_value():
+            raise ValueError(
+                "OPENAI_COMPAT_API_KEY is required when AGENT_BACKEND=openai_compat"
+            )
+
+        return self
 
     @property
     def spatial_grid_cache(self):
@@ -285,21 +340,62 @@ class RoboticArm:
         self.config = config
         self._debug = config.enable_challenger_debug
 
+        challenge_provider = ChallengeRouter.build_provider(
+            backend=self.config.AGENT_BACKEND,
+            config=self.config,
+            model=(
+                self.config.CHALLENGE_CLASSIFIER_MODEL
+                if self.config.AGENT_BACKEND == "gemini"
+                else self.config.OPENAI_COMPAT_MODEL
+            ),
+        )
+        scot_provider = ImageClassifier.build_provider(
+            backend=self.config.AGENT_BACKEND,
+            config=self.config,
+            model=(
+                self.config.IMAGE_CLASSIFIER_MODEL
+                if self.config.AGENT_BACKEND == "gemini"
+                else self.config.OPENAI_COMPAT_MODEL
+            ),
+        )
+        spatial_path_provider = SpatialPathReasoner.build_provider(
+            backend=self.config.AGENT_BACKEND,
+            config=self.config,
+            model=(
+                self.config.SPATIAL_PATH_REASONER_MODEL
+                if self.config.AGENT_BACKEND == "gemini"
+                else self.config.OPENAI_COMPAT_MODEL
+            ),
+        )
+        spatial_point_provider = SpatialPointReasoner.build_provider(
+            backend=self.config.AGENT_BACKEND,
+            config=self.config,
+            model=(
+                self.config.SPATIAL_POINT_REASONER_MODEL
+                if self.config.AGENT_BACKEND == "gemini"
+                else self.config.OPENAI_COMPAT_MODEL
+            ),
+        )
+
         self._challenge_router = ChallengeRouter(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.CHALLENGE_CLASSIFIER_MODEL,
+            provider=challenge_provider,
         )
         self._image_classifier = ImageClassifier(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.IMAGE_CLASSIFIER_MODEL,
+            provider=scot_provider,
         )
         self._spatial_path_reasoner = SpatialPathReasoner(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.SPATIAL_PATH_REASONER_MODEL,
+            provider=spatial_path_provider,
         )
         self._spatial_point_reasoner = SpatialPointReasoner(
             gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.SPATIAL_POINT_REASONER_MODEL,
+            provider=spatial_point_provider,
         )
         self._skill_manager = SkillManager(agent_config=config)
         self.signal_crumb_count: int | None = None

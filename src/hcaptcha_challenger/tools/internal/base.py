@@ -21,6 +21,7 @@ from loguru import logger
 from pydantic import BaseModel
 
 from .providers.gemini import GeminiProvider
+from .providers.openai_compat import OpenAICompatProvider
 from .providers.protocol import ChatProvider
 
 ModelT = TypeVar("ModelT", bound=str)
@@ -68,6 +69,25 @@ class Reasoner(ABC, Generic[ModelT, ResponseT]):
     def _create_default_provider(self) -> GeminiProvider:
         """Create the default Gemini provider."""
         return GeminiProvider(api_key=self._api_key, model=self._model)
+
+    @staticmethod
+    def build_provider(*, backend: str, config, model: str) -> ChatProvider:
+        if backend == "gemini":
+            return GeminiProvider(
+                api_key=config.GEMINI_API_KEY.get_secret_value(),
+                model=model,
+            )
+
+        if backend == "openai_compat":
+            return OpenAICompatProvider(
+                base_url=config.OPENAI_COMPAT_BASE_URL,
+                api_key=config.OPENAI_COMPAT_API_KEY.get_secret_value(),
+                model=model,
+                timeout=config.OPENAI_COMPAT_TIMEOUT,
+                extra_headers=config.get_openai_compat_extra_headers(),
+            )
+
+        raise ValueError(f"Unsupported provider backend: {backend}")
 
     @abstractmethod
     async def __call__(self, *args, **kwargs) -> ResponseT:

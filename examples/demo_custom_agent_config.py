@@ -12,6 +12,9 @@ async def challenge(page: Page) -> AgentV:
     """Automates the process of solving an hCaptcha challenge."""
     # [IMPORTANT] Initialize the Agent before triggering hCaptcha
     agent_config = AgentConfig(
+        # Switch to an OpenAI-compatible multimodal backend when needed.
+        # AGENT_BACKEND="openai_compat",
+        # OPENAI_COMPAT_MODEL="gpt-4.1-mini",
         # Skip image drag-and-drop & image-label-area-select(single) challenge
         ignore_request_types=[
             types.RequestType.IMAGE_DRAG_DROP,
