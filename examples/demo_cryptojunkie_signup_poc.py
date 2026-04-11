@@ -18,6 +18,13 @@ ARTIFACT_DIR = Path(os.getenv("CRYPTOJUNKIE_ARTIFACT_DIR", "tmp/.challenge/crypt
 USER_DATA_DIR = Path(
     os.getenv("CRYPTOJUNKIE_USER_DATA_DIR", "tmp/.cache/cryptojunkie_user_data")
 )
+FIXTURE_HTML = os.getenv("CRYPTOJUNKIE_FIXTURE_HTML")
+FIXTURE_ALLOW_SUBMIT = os.getenv("CRYPTOJUNKIE_FIXTURE_ALLOW_SUBMIT", "0").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 TIMEOUT_MS = int(os.getenv("CRYPTOJUNKIE_TIMEOUT_MS", "30000"))
 _headless_env = os.getenv("CRYPTOJUNKIE_HEADLESS")
 if _headless_env is None:
@@ -99,6 +106,24 @@ SUBMIT_SELECTORS = [
     "button:has-text('Create Account')",
     "button:has-text('Submit')",
     "form button",
+]
+
+FINAL_SUCCESS_HINTS = [
+    "success",
+    "registered",
+    "verification email",
+    "check your email",
+    "account created",
+    "welcome",
+]
+FINAL_ERROR_HINTS = [
+    "already exists",
+    "already registered",
+    "invalid",
+    "required",
+    "captcha",
+    "error",
+    "failed",
 ]
 
 
@@ -217,6 +242,98 @@ async def dump_artifacts(page: Page, prefix: str, summary: dict[str, Any]) -> No
         summary.setdefault("artifact_errors", []).append(f"json:{exc}")
 
 
+async def capture_notices(page: Page) -> list[str]:
+    selectors = [".alert", ".invalid-feedback", ".text-danger", ".help-block", ".error"]
+    notices: list[str] = []
+    for selector in selectors:
+        locator = page.locator(selector)
+        try:
+            count = await locator.count()
+        except Error:
+            continue
+        for idx in range(min(count, 10)):
+            try:
+                text = " ".join((await locator.nth(idx).inner_text()).split())
+            except Error:
+                continue
+            if text and text not in notices:
+                notices.append(text)
+    return notices
+
+
+async def capture_page_state(page: Page) -> dict[str, Any]:
+    body_text = ""
+    try:
+        body_text = await page.locator("body").inner_text(timeout=3000)
+    except Exception:  # noqa: BLE001
+        body_text = ""
+
+    return {
+        "page_url": page.url,
+        "page_title": await page.title(),
+        "notices": await capture_notices(page),
+        "body_excerpt": " ".join(body_text.split())[:600],
+    }
+
+
+async def extract_response_summary(response, *, label: str) -> dict[str, Any]:
+    headers = await response.all_headers()
+    request = response.request
+    response_text_excerpt = ""
+    content_type = headers.get("content-type", "")
+    if "text" in content_type or "json" in content_type or "html" in content_type:
+        try:
+            response_text_excerpt = " ".join((await response.text()).split())[:600]
+        except Exception as exc:  # noqa: BLE001
+            response_text_excerpt = f"<body unavailable: {type(exc).__name__}: {exc}>"
+
+    post_data = request.post_data or ""
+
+    return {
+        "label": label,
+        "observed": True,
+        "url": response.url,
+        "status": response.status,
+        "method": request.method,
+        "request_resource_type": request.resource_type,
+        "location": headers.get("location"),
+        "content_type": content_type,
+        "post_data_len": len(post_data),
+        "response_text_excerpt": response_text_excerpt,
+    }
+
+
+async def click_and_watch_register_post(page: Page, selector: str, summary: dict[str, Any], *, label: str) -> bool:
+    waiter = asyncio.create_task(
+        page.wait_for_response(
+            lambda response: response.request.method.upper() == "POST" and "/auth/register" in response.url,
+            timeout=5000,
+        )
+    )
+    try:
+        await page.locator(selector).first.click(delay=120)
+        try:
+            response = await waiter
+        except TimeoutError:
+            summary.setdefault("auth_register_attempts", []).append(
+                {
+                    "label": label,
+                    "observed": False,
+                    "reason": "no_post_observed_within_timeout",
+                }
+            )
+        else:
+            summary.setdefault("auth_register_attempts", []).append(
+                await extract_response_summary(response, label=label)
+            )
+        return True
+    except Exception as exc:  # noqa: BLE001
+        summary.setdefault("submit_errors", []).append(f"{label}:{type(exc).__name__}: {exc}")
+        if not waiter.done():
+            waiter.cancel()
+        return False
+
+
 async def build_selector_map(page: Page) -> dict[str, str | None]:
     return {
         "email": EMAIL_SELECTOR_OVERRIDE or await first_selector(page, EMAIL_SELECTORS),
@@ -231,6 +348,64 @@ async def build_selector_map(page: Page) -> dict[str, str | None]:
     }
 
 
+def classify_final_state(summary: dict[str, Any]) -> str:
+    if summary.get("status") == "goto_failed":
+        return "target_unreachable"
+    if summary.get("loaded_from_fixture"):
+        if summary.get("fixture_submit_skipped"):
+            return "fixture_ready_no_submit"
+        if summary.get("auth_register_attempts"):
+            return "fixture_submit_attempted"
+        return "fixture_loaded"
+
+    final = summary.get("final_page_state") or {}
+    final_url = (final.get("page_url") or "").lower()
+    body_excerpt = (final.get("body_excerpt") or "").lower()
+    notices = " ".join(final.get("notices") or []).lower()
+    combined_text = f"{body_excerpt} {notices}"
+    auth_attempts = summary.get("auth_register_attempts") or []
+    observed_attempts = [attempt for attempt in auth_attempts if attempt.get("observed")]
+    latest_attempt = observed_attempts[-1] if observed_attempts else None
+    hcaptcha_after_submit = summary.get("hcaptcha_after_submit") or {}
+
+    if latest_attempt:
+        status_code = latest_attempt.get("status", 0)
+        location = (latest_attempt.get("location") or "").lower()
+        snippet = (latest_attempt.get("response_text_excerpt") or "").lower()
+        combined_text = f"{combined_text} {snippet} {location}"
+
+        if status_code in {200, 201, 202, 204, 301, 302, 303, 307, 308}:
+            if final_url and "/register" not in final_url:
+                return "register_post_completed_navigated"
+            if any(hint in combined_text for hint in FINAL_SUCCESS_HINTS):
+                return "register_post_completed_success_hint"
+        if status_code >= 400:
+            return "register_post_http_error"
+
+    if any(hint in combined_text for hint in FINAL_ERROR_HINTS):
+        return "register_validation_or_captcha_error"
+    if hcaptcha_after_submit.get("detected") and not summary.get("captcha_response"):
+        return "captcha_challenge_not_cleared"
+    if hcaptcha_after_submit.get("textarea_value_len", 0) > 0 and not observed_attempts:
+        return "captcha_token_present_but_no_register_post"
+    if final_url and "/register" not in final_url:
+        return "navigated_away_after_submit"
+    return "submit_attempt_unknown"
+
+
+async def load_signup_target(page: Page, summary: dict[str, Any]) -> None:
+    if FIXTURE_HTML:
+        fixture_path = Path(FIXTURE_HTML)
+        summary["loaded_from_fixture"] = True
+        summary["fixture_html"] = str(fixture_path)
+        await page.set_content(fixture_path.read_text(encoding="utf-8"), wait_until="domcontentloaded")
+        summary["status"] = "fixture_loaded"
+        return
+
+    await page.goto(SIGNUP_URL, wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+    summary["status"] = "page_loaded"
+
+
 async def main() -> None:
     summary: dict[str, Any] = {
         "signup_url": SIGNUP_URL,
@@ -240,8 +415,12 @@ async def main() -> None:
         "mode": "recon",
         "status": "starting",
         "browser_executable": BROWSER_EXECUTABLE,
+        "loaded_from_fixture": False,
         "network_requests": [],
         "network_responses": [],
+        "request_failures": [],
+        "console_messages": [],
+        "auth_register_attempts": [],
     }
 
     has_submit_payload = bool(EMAIL_VALUE and USERNAME_VALUE and PASSWORD_VALUE)
@@ -278,21 +457,42 @@ async def main() -> None:
                 )
                 del summary["network_responses"][:-80]
 
+            def on_request_failed(request) -> None:
+                summary["request_failures"].append(
+                    {
+                        "method": request.method,
+                        "resource_type": request.resource_type,
+                        "url": request.url,
+                        "failure": request.failure,
+                    }
+                )
+                del summary["request_failures"][:-40]
+
+            def on_console(message) -> None:
+                summary["console_messages"].append(
+                    {
+                        "type": message.type,
+                        "text": message.text,
+                    }
+                )
+                del summary["console_messages"][:-40]
+
             page.on("request", on_request)
             page.on("response", on_response)
+            page.on("requestfailed", on_request_failed)
+            page.on("console", on_console)
 
             try:
-                await page.goto(SIGNUP_URL, wait_until="domcontentloaded", timeout=TIMEOUT_MS)
-                summary["status"] = "page_loaded"
+                await load_signup_target(page, summary)
             except Exception as exc:  # noqa: BLE001
                 summary["status"] = "goto_failed"
                 summary["error"] = f"{type(exc).__name__}: {exc}"
+                summary["final_state"] = classify_final_state(summary)
                 print(json.dumps(summary, indent=2, ensure_ascii=False))
                 await context.close()
                 return
 
-            summary["page_url"] = page.url
-            summary["page_title"] = await page.title()
+            summary.update(await capture_page_state(page))
             summary["selector_map"] = await build_selector_map(page)
             summary["hcaptcha_before"] = await detect_hcaptcha(page)
             await dump_artifacts(page, "01_initial", summary)
@@ -336,6 +536,16 @@ async def main() -> None:
                 summary["filled_fields"] = filled
                 await dump_artifacts(page, "02_filled", summary)
 
+                if summary["loaded_from_fixture"] and not FIXTURE_ALLOW_SUBMIT:
+                    summary["fixture_submit_skipped"] = True
+                    summary["status"] = "fixture_ready"
+                    summary["final_page_state"] = await capture_page_state(page)
+                    summary["final_state"] = classify_final_state(summary)
+                    await dump_artifacts(page, "05_final", summary)
+                    print(json.dumps(summary, indent=2, ensure_ascii=False))
+                    await context.close()
+                    return
+
                 agent_config = AgentConfig(
                     AGENT_BACKEND=os.getenv("AGENT_BACKEND", "openai_compat"),
                     OPENAI_COMPAT_BASE_URL=os.getenv(
@@ -364,9 +574,10 @@ async def main() -> None:
                     await agent.robotic_arm.click_checkbox()
                 elif submit_selector:
                     summary["trigger"] = "submit"
-                    await page.locator(submit_selector).first.click(delay=120)
+                    await click_and_watch_register_post(page, submit_selector, summary, label="initial_trigger")
                 else:
                     summary["status"] = "submit_selector_missing"
+                    summary["final_state"] = classify_final_state(summary)
                     print(json.dumps(summary, indent=2, ensure_ascii=False))
                     await context.close()
                     return
@@ -388,24 +599,36 @@ async def main() -> None:
 
                 if submit_selector:
                     try:
-                        await page.locator(submit_selector).first.click(delay=120)
-                        summary["submit_retried"] = True
+                        summary["submit_retried"] = await click_and_watch_register_post(
+                            page,
+                            submit_selector,
+                            summary,
+                            label="post_solve_submit",
+                        )
                     except Exception as exc:  # noqa: BLE001
                         summary["submit_retried"] = False
                         summary["submit_retry_error"] = f"{type(exc).__name__}: {exc}"
 
                 await page.wait_for_timeout(3000)
-                summary["page_url_after_submit"] = page.url
-                summary["page_title_after_submit"] = await page.title()
+                final_page_state = await capture_page_state(page)
+                summary["page_url_after_submit"] = final_page_state["page_url"]
+                summary["page_title_after_submit"] = final_page_state["page_title"]
                 summary["hcaptcha_after_submit"] = await detect_hcaptcha(page)
+                summary["final_page_state"] = final_page_state
                 summary["status"] = "submit_attempt_finished"
+                summary["final_state"] = classify_final_state(summary)
                 await dump_artifacts(page, "05_final", summary)
+
+            if "final_state" not in summary:
+                summary["final_page_state"] = await capture_page_state(page)
+                summary["final_state"] = classify_final_state(summary)
 
             print(json.dumps(summary, indent=2, ensure_ascii=False))
             await context.close()
     except Exception as exc:  # noqa: BLE001
         summary["status"] = "fatal_error"
         summary["error"] = f"{type(exc).__name__}: {exc}"
+        summary["final_state"] = classify_final_state(summary)
         print(json.dumps(summary, indent=2, ensure_ascii=False))
 
 

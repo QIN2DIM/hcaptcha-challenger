@@ -2,10 +2,10 @@
 
 ## Current state
 - The local `hcaptcha-challenger -> openai_compat -> codex-slot-relay -> Codex` image lane is live-proven.
-- `cryptojunkie.net` itself was not reachable from this runtime during recon, so live DOM extraction and end-to-end signup proof are still blocked by reachability.
-- A reusable Playwright harness now exists at `examples/demo_cryptojunkie_signup_poc.py` so the target can be tested immediately once the page is reachable.
+- `cryptojunkie.net` is still intermittently unreachable from this runtime, so live end-to-end signup proof depends on target reachability.
+- The Playwright harness at `examples/demo_cryptojunkie_signup_poc.py` now supports both live mode and fixture mode.
 
-## Archived selector map currently baked into the POC
+## Archived selector map baked into the POC
 - signup page: `https://cryptojunkie.net/register`
 - form: `form.form-horizontal[action="https://cryptojunkie.net/auth/register"][method="POST"]`
 - email: `input#email[name="email"][type="email"]`
@@ -18,17 +18,22 @@
 - submit: `button.btn.btn-success.btn-block[type="submit"]`
 - hCaptcha widget: `div#hcaptcha.captcha > div.h-captcha[data-sitekey="4f75f835-7c6c-4030-98d1-539aa73ce089"]`
 
-## What the POC does
-- opens the signup page
-- auto-discovers likely email, username, password, confirm-password, and submit selectors
-- records HTML, screenshots, and network traces under `tmp/.challenge/cryptojunkie/`
-- detects hCaptcha markup and iframe URLs
-- triggers the challenge either through the visible checkbox or the submit button
-- hands control to `AgentV` for solving
-- optionally retries submit after a successful challenge
-- prints a JSON summary with the observed selectors, hCaptcha state, and final page state
+## What the POC now reports
+- selector discovery for the signup form
+- hCaptcha widget and iframe presence before and after trigger
+- request, response, request-failed, and console summaries
+- detected `POST /auth/register` attempts with status, headers, and short response snippet
+- a final state classifier in `final_state`, for example:
+  - `target_unreachable`
+  - `fixture_ready_no_submit`
+  - `register_post_completed_navigated`
+  - `register_post_completed_success_hint`
+  - `register_validation_or_captcha_error`
+  - `captcha_challenge_not_cleared`
+  - `captcha_token_present_but_no_register_post`
+  - `submit_attempt_unknown`
 
-## Default run
+## Default live run
 ```bash
 cd /root/.openclaw/workspace/projects/hcaptcha-challenger-codex
 
@@ -43,6 +48,25 @@ export CRYPTOJUNKIE_PASSWORD='strong-password-here'
 
 python3 examples/demo_cryptojunkie_signup_poc.py
 ```
+
+## Fixture mode for offline validation
+Use this when the live site is unreachable but you still want to verify selector discovery, field filling, and artifact generation.
+
+```bash
+cd /root/.openclaw/workspace/projects/hcaptcha-challenger-codex
+
+export CRYPTOJUNKIE_FIXTURE_HTML=examples/fixtures/cryptojunkie_register_archived_fixture.html
+export CRYPTOJUNKIE_EMAIL='you@example.com'
+export CRYPTOJUNKIE_USERNAME='yourname'
+export CRYPTOJUNKIE_PASSWORD='strong-password-here'
+
+python3 examples/demo_cryptojunkie_signup_poc.py
+```
+
+Notes:
+- default fixture behavior skips the real submit and returns `final_state=fixture_ready_no_submit`
+- if you want to observe a submit attempt from the fixture anyway, set `CRYPTOJUNKIE_FIXTURE_ALLOW_SUBMIT=1`
+- fixture mode is only for local development, not a success oracle for the real site
 
 ## Optional selector overrides
 If the page uses unusual field names, override them directly:
@@ -72,4 +96,5 @@ Each stage keeps:
 2. run the script with real signup credentials
 3. inspect `03_after_trigger.json` for discovered hCaptcha iframe URLs and selector map
 4. inspect `04_after_solve.json` for `challenge_signal` and any stored captcha response
-5. inspect `05_final.json` and network traces for the real signup success oracle
+5. inspect `05_final.json` for `auth_register_attempts`, `final_page_state`, and `final_state`
+6. only call it successful if the register POST and the downstream page effect both match the intended oracle

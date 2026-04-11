@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cryptojunkie Register Fixture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; background: #f5f7fb; color: #222; }
+      .panel { max-width: 720px; margin: 0 auto; background: #fff; border: 1px solid #d9e0ea; border-radius: 10px; padding: 24px; }
+      .form-group { margin-bottom: 14px; }
+      label { display: block; margin-bottom: 6px; font-weight: 600; }
+      input, select, button { width: 100%; padding: 10px; box-sizing: border-box; }
+      .checkbox { display: flex; gap: 8px; align-items: center; }
+      .checkbox input { width: auto; }
+      .captcha { margin: 18px 0; padding: 16px; border: 1px dashed #aab6c4; background: #fafcff; }
+      .alert { margin-top: 16px; padding: 10px 12px; border-radius: 6px; background: #eef4ff; color: #1f3b64; }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <h1>Create an account</h1>
+      <form class="form-horizontal" action="https://cryptojunkie.net/auth/register" method="POST">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="name@example.com">
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input id="username" name="username" type="text" placeholder="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password">
+        </div>
+        <div class="form-group">
+          <label for="confirm_password">Confirm password</label>
+          <input id="confirm_password" name="confirm_password" type="password">
+        </div>
+        <input name="csrf_token_name" type="hidden" value="fixture-csrf-value">
+        <div class="form-group">
+          <label for="selectCaptcha">Captcha</label>
+          <select id="selectCaptcha" name="captcha">
+            <option value="hcaptcha" selected>hCaptcha</option>
+          </select>
+        </div>
+        <div id="hcaptcha" class="captcha">
+          <div class="h-captcha" data-sitekey="4f75f835-7c6c-4030-98d1-539aa73ce089"></div>
+          <textarea name="h-captcha-response" style="display:none"></textarea>
+        </div>
+        <label class="checkbox">
+          <input name="tos_agree" type="checkbox" value="1">
+          <span>I agree to the terms of service</span>
+        </label>
+        <button class="btn btn-success btn-block" type="submit">Register</button>
+      </form>
+      <div class="alert">Fixture mode only. Use this to verify selectors, filling, and artifact generation when the live site is unreachable.</div>
+    </div>
+  </body>
+</html>
