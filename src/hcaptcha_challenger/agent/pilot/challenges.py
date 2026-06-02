@@ -32,7 +32,7 @@ class PilotChallenges:
             except: pass
         return True
 
-    async def _capture_burst_frames(self, frame: FrameLocator | Frame, cache_key: Path, cid: int, count: int = 3) -> list[Path]:
+    async def _capture_burst_frames(self, frame: FrameLocator | Frame, cache_key: Path, cid: int, count: int = 4) -> list[Path]:
         """
         Captura uma sequência de screenshots para desafios de movimento.
         """
@@ -45,7 +45,7 @@ class PilotChallenges:
             await challenge_view.screenshot(type="png", path=path)
             screenshots.append(path)
             if i < count - 1:
-                await asyncio.sleep(0.2) # 200ms entre frames
+                await asyncio.sleep(0.5) # 500ms entre frames para pegar a animação inteira
         
         return screenshots
 
@@ -266,8 +266,8 @@ class PilotChallenges:
             self.arm.navigation.current_view_bbox = bbox
 
             if is_motion:
-                LoggerHelper.log_info("Desafio de Movimento detectado! Ativando Burst Mode (3 frames)...", emoji='📸')
-                challenge_screenshots = await self._capture_burst_frames(frame, cache_key, cid, count=3)
+                LoggerHelper.log_info("Desafio de Movimento detectado! Ativando Burst Mode (4 frames)...", emoji='📸')
+                challenge_screenshots = await self._capture_burst_frames(frame, cache_key, cid, count=4)
                 
                 # Para grid, usamos o último frame do burst (bbox já definido acima)
                 
@@ -371,6 +371,7 @@ class PilotChallenges:
                         
                         await self.arm.actions.click_by_mouse(tasks.nth(idx))
                     else:
+                        LoggerHelper.log_info(f"Fallback para clique absoluto (count era {count})", emoji='⚠️')
                         await self.arm.page.mouse.click(point.x, point.y, delay=180)
                 except Exception as e:
                     LoggerHelper.log_warning(f"Fallback para clique absoluto devido a erro: {e}")
