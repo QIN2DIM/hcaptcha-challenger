@@ -247,7 +247,17 @@ class PilotChallenges:
             real_prompt = self.arm.captcha_payload.get_requester_question().lower() if self.arm.captcha_payload else ""
             logger.info(f"DEBUG: Checking motion. Real Prompt: '{real_prompt}'")
             
-            motion_keywords = ["motion", "pattern", "move", "different", "fastest", "slowest", "differently"]
+            motion_keywords = [
+                "motion", "pattern", "move", "moving",
+                "different", "differently", "fastest", "slowest",
+                "change", "changes", "changing",
+                "transform", "transforms",
+                "morph", "morphs",
+                "becomes", "turns", "turning",
+                "appear", "disappear",
+                "animate", "animation",
+                "shift", "rotate", "rotating",
+            ]
             is_motion = any(k in real_prompt for k in motion_keywords)
             logger.info(f"DEBUG: is_motion={is_motion}")
             
