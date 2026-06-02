@@ -349,8 +349,33 @@ class PilotChallenges:
             for point in points:
                 # SOUL ALIGNMENT: O SpatialPointReasoner retorna coordenadas GLOBAIS
                 # A imagem grid_divisions contém labels de coordenadas absolutas
-                # Portanto, NÃO adicionamos offset aqui (como na linha 674 do original)
-                await self.arm.page.mouse.click(point.x, point.y, delay=180)
+                LoggerHelper.log_info(f"IA Escolheu: ({point.x}, {point.y}) - BBox: {bbox}", emoji='🖱️')
+                
+                try:
+                    tasks = frame.locator("//div[contains(@class, 'task')]")
+                    count = await tasks.count()
+                    if count in [9, 16]:
+                        grid_size = int(count ** 0.5)
+                        
+                        rel_x = point.x - bbox['x']
+                        rel_y = point.y - bbox['y']
+                        
+                        cell_w = bbox['width'] / grid_size
+                        cell_h = bbox['height'] / grid_size
+                        
+                        col = max(0, min(int(rel_x // cell_w), grid_size - 1))
+                        row = max(0, min(int(rel_y // cell_h), grid_size - 1))
+                        
+                        idx = row * grid_size + col
+                        LoggerHelper.log_info(f"Mapeado para célula {idx+1} do grid {grid_size}x{grid_size}", emoji='🎯')
+                        
+                        await self.arm.actions.click_by_mouse(tasks.nth(idx))
+                    else:
+                        await self.arm.page.mouse.click(point.x, point.y, delay=180)
+                except Exception as e:
+                    LoggerHelper.log_warning(f"Fallback para clique absoluto devido a erro: {e}")
+                    await self.arm.page.mouse.click(point.x, point.y, delay=180)
+                    
                 await asyncio.sleep(random.uniform(0.4, 0.6))
 
             await self._click_submit(frame)
