@@ -296,12 +296,24 @@ class PilotChallenges:
                 preferred_model=self.arm.config.SPATIAL_POINT_REASONER_MODEL
             )
             
+            if is_motion:
+                ai_hint = (
+                    f"{user_prompt}\n"
+                    "STEP-BY-STEP INSTRUCTIONS FOR MOTION DETECTION:\n"
+                    "1. You are given 3 sequential frames of a 3x3 image grid.\n"
+                    "2. Compare the 9 sub-images across the 3 frames.\n"
+                    "3. Find the single sub-image where the content ANIMATES, MOVES, or CHANGES between frames according to the prompt.\n"
+                    "4. Return the exact (X, Y) coordinates of the center of that specific changing sub-image using the provided coordinate grid."
+                )
+            else:
+                ai_hint = user_prompt
+
             try:
                 start_ai = time.time()
                 response = await self.arm.spatial_point_reasoner(
                     challenge_screenshot=raw,
                     grid_divisions=projection,
-                    auxiliary_information=user_prompt
+                    auxiliary_information=ai_hint
                 )
                 ai_duration = time.time() - start_ai
                 if model and available_keys:
