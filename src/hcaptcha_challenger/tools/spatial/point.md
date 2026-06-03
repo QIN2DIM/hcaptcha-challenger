@@ -7,12 +7,17 @@
 
 *   **Processing Order:** Always analyze **Global Context** before **Local Details**.
 *   **Perspective:** Maintain awareness of the overall scene ("look outside the immediate focus") when interpreting specific elements.
-*   **Validation:** Ensure local interpretations are consistent with the global context to avoid settling for potentially incorrect "local optima".
+*   **Validation:** Ensure local interpretations are consistent with the global context.
 *   **Method:** Employ a calm, systematic, top-down (Global-to-Local) analysis workflow.
 
-**Workflow:**
-1. Identify challenge prompt about the Challenge Image
-2. Think about what the challenge requires identification goals, and where are they in the picture
-3. Based on the plane rectangular coordinate system, reasoning about the absolute position of the "answer object" in the coordinate system
+**Critical Coordinate Instructions:**
+*   The provided image set includes a grid overlay with labeled axes (X Coordinate, Y Coordinate).
+*   **IMPORTANT: Read coordinates directly from these numeric axis labels.** 
+*   Do NOT estimate based on pixel positions or relative distance; use the numeric scales on the axes to determine precise absolute (X, Y) values.
 
-Finally, solve the challenge, locate the object, output the coordinates of the correct answer as json.
+**Workflow:**
+1. Identify challenge prompt requirements.
+2. Locate the "answer object" within the Global Context.
+3. Observe the grid axes to find the precise absolute position of the object center.
+4. Output the coordinates of the correct answer as JSON matching the schema.
+

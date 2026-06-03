@@ -10,12 +10,14 @@ from pathlib import Path
 from typing import List, Type, TypeVar, cast
 
 from google import genai
-from google.genai import types
+from google.genai import types, errors
 from loguru import logger
 from pydantic import BaseModel
 from tenacity import retry, stop_after_attempt, wait_fixed
+from hcaptcha_challenger.agent.logger import LoggerHelper
 
 from hcaptcha_challenger.models import THINKING_LEVEL_MODELS
+from hcaptcha_challenger.agent.quota_manager import QuotaManager
 
 ResponseT = TypeVar("ResponseT", bound=BaseModel)
 
@@ -39,24 +41,62 @@ class GeminiProvider:
     swap out for other providers in the future.
     """
 
-    def __init__(self, api_key: str, model: str):
+    def __init__(self, api_key: str | List[str], model: str | List[str]):
         """
         Initialize the Gemini provider.
 
         Args:
-            api_key: Gemini API key.
-            model: Model name to use (e.g., "gemini-2.5-pro").
+            api_key: Gemini API key or list of keys.
+            model: Model name or list of model names to use.
         """
-        self._api_key = api_key
-        self._model = model
+        if isinstance(api_key, str):
+            self._api_keys = [api_key]
+        else:
+            self._api_keys = api_key
+        
+        if isinstance(model, str):
+            self._models = [model]
+        else:
+            self._models = model
+        
+        logger.info(f"GeminiProvider initialized with models: {self._models}")
+        
+        self._key_index = 0
+        self._model_index = 0
         self._client: genai.Client | None = None
         self._response: types.GenerateContentResponse | None = None
+        self._quota_manager = QuotaManager()
+
+    @property
+    def model(self) -> str:
+        """Get the current active model name."""
+        return self._models[self._model_index]
+
+    def rotate_key(self):
+        """Rotate to the next API key in the list. If all keys used, rotate model."""
+        if len(self._api_keys) > 1:
+            self._key_index = (self._key_index + 1) % len(self._api_keys)
+            self._client = None  # Force client re-initialization
+            LoggerHelper.log_info(f"Rotacionando chave API Gemini. Novo índice: {self._key_index}", emoji='refresh')
+            
+            # If we wrapped around to the first key, rotate the model too
+            if self._key_index == 0 and len(self._models) > 1:
+                self.rotate_model()
+        elif len(self._models) > 1:
+            # Only one key, but multiple models - rotate model
+            self.rotate_model()
+
+    def rotate_model(self):
+        """Rotate to the next model in the list."""
+        if len(self._models) > 1:
+            self._model_index = (self._model_index + 1) % len(self._models)
+            LoggerHelper.log_info(f"Rotacionando modelo Gemini. Novo modelo: {self.model}", emoji='refresh')
 
     @property
     def client(self) -> genai.Client:
         """Lazy-initialize the Gemini client."""
         if self._client is None:
-            self._client = genai.Client(api_key=self._api_key)
+            self._client = genai.Client(api_key=self._api_keys[self._key_index])
         return self._client
 
     @property
@@ -78,38 +118,54 @@ class GeminiProvider:
         return [types.Part.from_uri(file_uri=f.uri, mime_type=f.mime_type) for f in files]
 
     def _set_thinking_config(self, config: types.GenerateContentConfig) -> None:
-        """Configure thinking settings based on model capabilities."""
-        config.thinking_config = types.ThinkingConfig(include_thoughts=True)
+        """Configure thinking settings based on model capabilities.
+        
+        - Gemma models: Do not support thinking_config. Thinking is activated via system prompt.
+        - Gemini 2.5+ models (in THINKING_LEVEL_MODELS): support thinking_level=HIGH
+        - Other Gemini models: support include_thoughts=False
+        """
+        from hcaptcha_challenger.models import THINKING_BUDGET_MODELS
 
-        if self._model in THINKING_LEVEL_MODELS:
-            thinking_level = types.ThinkingLevel.HIGH
-
+        if "gemma" in self.model.lower():
+            # Gemma models use prompt-based thinking activation, not API thinking_config
+            if config.system_instruction:
+                if isinstance(config.system_instruction, str):
+                    config.system_instruction += "\n<|think|>"
+                # If it's not a string, we leave it as is to avoid breaking complex structures
+            else:
+                config.system_instruction = "<|think|>"
+            # Ensure thinking_config is explicitly None for Gemma
+            config.thinking_config = None
+        elif self.model in THINKING_LEVEL_MODELS:
+            # Gemini 2.5+ supports thinking_level
             config.thinking_config = types.ThinkingConfig(
-                include_thoughts=False, thinking_level=thinking_level
+                include_thoughts=False, thinking_level=types.ThinkingLevel.HIGH
             )
+        else:
+            # Other Gemini models
+            config.thinking_config = types.ThinkingConfig(include_thoughts=False)
 
     @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_fixed(3),
-        before_sleep=lambda retry_state: logger.warning(
-            f"Retry request ({retry_state.attempt_number}/3) - "
-            f"Wait 3 seconds - Exception: {retry_state.outcome.exception()}"
+        stop=stop_after_attempt(30),  # 3 cycles of (keys * models)
+        wait=wait_fixed(0),           # 0s wait between attempts (instant rotation)
+        before_sleep=lambda retry_state: LoggerHelper.log_provider_error(
+            retry_state.attempt_number, 30, retry_state.outcome.exception()
         ),
     )
-    async def generate_with_images(
+    async def generate_with_media(
         self,
         *,
-        images: List[Path],
+        media: List[Path],
         response_schema: Type[ResponseT],
         user_prompt: str | None = None,
         description: str | None = None,
         **kwargs,
     ) -> ResponseT:
         """
-        Generate content with image inputs.
+        Generate content with media inputs (images/videos).
 
         Args:
-            images: List of image file paths to include in the request.
+            media: List of media file paths to include in the request.
             user_prompt: User-provided prompt/instructions.
             description: System instruction/description for the model.
             response_schema: Pydantic model class for structured output.
@@ -118,8 +174,14 @@ class GeminiProvider:
         Returns:
             Parsed response matching the response_schema type.
         """
+        # Check if current key/model is already known to be exhausted or unstable
+        if self._quota_manager.is_exhausted(self._api_keys[self._key_index], self.model):
+            LoggerHelper.log_info(f"Pulando chave esgotada/instável para o modelo [{self.model}]", emoji='hourglass')
+            self.rotate_key()
+            raise errors.ClientError("Pre-checked RESOURCE_EXHAUSTED/UNSTABLE (Quota Manager)")
+
         # Upload files
-        uploaded_files = await self._upload_files(images)
+        uploaded_files = await self._upload_files(media)
         parts = self._files_to_parts(uploaded_files)
 
         # Add user prompt if provided
@@ -140,11 +202,62 @@ class GeminiProvider:
         self._set_thinking_config(config=config)
 
         # Generate response
-        self._response: types.GenerateContentResponse = (
-            await self.client.aio.models.generate_content(
-                model=self._model, contents=contents, config=config
+        try:
+            self._response: types.GenerateContentResponse = (
+                await self.client.aio.models.generate_content(
+                    model=self.model, contents=contents, config=config
+                )
             )
-        )
+        except (errors.ClientError, TypeError) as e:
+            # Handle library bug where APIError fails to instantiate (missing response_json)
+            # or genuine ClientError (429, etc.)
+            is_masked_sdk_bug = isinstance(e, TypeError) and ("APIError.__init__" in str(e) or "response_json" in str(e))
+            
+            error_str = str(e)
+
+            # Detect invalid API key error (400 with specific message)
+            is_invalid_key = "API key not valid" in error_str or "Invalid API key" in error_str
+            
+            # If 429 RESOURCE_EXHAUSTED, masked SDK bug, or invalid key -> treat as key exhaustion
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or is_masked_sdk_bug or is_invalid_key:
+                if is_masked_sdk_bug:
+                    LoggerHelper.log_warning("Detectado bug no SDK Gemini (APIError Masked). Tratando como falha de provedor.", emoji='bug')
+                if is_invalid_key:
+                    LoggerHelper.log_warning("Chave API Gemini inválida detectada. Marcando como exaurida.", emoji='🔑')
+                
+                # Try to extract retry delay (cooldown)
+                retry_seconds = 0
+                try:
+                    # Look for "retry in Xs" or "retryDelay: 'Xs'"
+                    import re
+                    match = re.search(r"retry in (\d+\.?\d*)s", error_str)
+                    if not match:
+                        match = re.search(r"retryDelay':\s*'(\d+)s'", error_str)
+                    
+                    if match:
+                        retry_seconds = int(float(match.group(1))) + 1 # Add 1s buffer
+                except Exception:
+                    pass
+
+                if retry_seconds > 0:
+                    self._quota_manager.mark_temporary_exhaustion(
+                        self._api_keys[self._key_index], self.model, retry_seconds
+                    )
+                else:
+                    self._quota_manager.mark_exhausted(self._api_keys[self._key_index], self.model)
+                
+                self.rotate_key()
+            else:
+                # Track other client errors or TypeErrors as potential instability
+                self._quota_manager.mark_failure(self._api_keys[self._key_index], self.model)
+                self.rotate_key()
+            raise e
+        except Exception as e:
+
+            # Track unexpected errors as potential instability
+            self._quota_manager.mark_failure(self._api_keys[self._key_index], self.model)
+            self.rotate_key()
+            raise e
 
         # Parse response
         if self._response.parsed:
@@ -162,6 +275,24 @@ class GeminiProvider:
 
         raise ValueError(f"Failed to parse response: {response_text}")
 
+    async def generate_with_images(
+        self,
+        *,
+        images: List[Path],
+        response_schema: Type[ResponseT],
+        user_prompt: str | None = None,
+        description: str | None = None,
+        **kwargs,
+    ) -> ResponseT:
+        """Alias for generate_with_media for backward compatibility."""
+        return await self.generate_with_media(
+            media=images,
+            response_schema=response_schema,
+            user_prompt=user_prompt,
+            description=description,
+            **kwargs,
+        )
+
     def cache_response(self, path: Path) -> None:
         """Cache the last response to a file."""
         if not self._response:
@@ -173,4 +304,4 @@ class GeminiProvider:
                 encoding="utf-8",
             )
         except Exception as e:
-            logger.warning(f"Failed to cache response: {e}")
+            LoggerHelper.log_warning(f"Falha ao salvar cache de resposta: {e}")

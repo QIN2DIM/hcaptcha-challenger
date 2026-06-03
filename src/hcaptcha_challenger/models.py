@@ -222,6 +222,7 @@ class ChallengeTypeEnum(str, Enum):
     IMAGE_LABEL_MULTI_SELECT = "image_label_multi_select"
     IMAGE_DRAG_SINGLE = "image_drag_single"
     IMAGE_DRAG_MULTI = "image_drag_multi"
+    VIDEO_MOTION = "video_motion"
 
 
 # Type alias for skill rule job_type field - mirrors ChallengeTypeEnum values
@@ -244,43 +245,43 @@ IGNORE_REQUEST_TYPE_LITERAL = Literal[
 SCoTModelType = Union[
     str,
     Literal[
-        # This model is not available in the free plan.
-        # Recommended for production environments for more tolerant rate limits.
-        # [✨] https://ai.google.dev/gemini-api/docs/models?hl=zh-cn#gemini-3-pro
-        "gemini-3-pro-preview",
-        # https://ai.google.dev/gemini-api/docs/models?hl=zh-cn#gemini-3-flash
+        "gemma-4-31b-it",
+        "gemini-3.1-flash-lite-preview",
+        "gemini-2.5-flash-lite",
         "gemini-3-flash-preview",
-        # [✨] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro
-        "gemini-2.5-pro",
-        # [🤷‍♂️] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
         "gemini-2.5-flash",
     ],
 ]
 
-DEFAULT_SCOT_MODEL: SCoTModelType = "gemini-2.5-pro"
+DEFAULT_SCOT_MODEL: SCoTModelType = "meta-llama/llama-4-maverick-17b-128e-instruct"
 
 FastShotModelType = Union[
     str,
     Literal[
-        # [✨] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
-        "gemini-2.5-flash",
-        # https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-lite
+        "gemma-4-31b-it",
+        "gemini-3.1-flash-lite-preview",
         "gemini-2.5-flash-lite",
+        "gemini-3-flash-preview",
+        "gemini-2.5-flash",
     ],
 ]
 
-DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.5-flash"
+DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemma-4-31b-it"
 
 THINKING_BUDGET_MODELS: List[Union[SCoTModelType, FastShotModelType]] = [
+    "gemini-3.1-flash-lite-preview",
+    "gemini-2.5-flash-lite",
+    "gemini-3-flash-preview",
     "gemini-2.5-flash",
-    "gemini-2.5-pro",
 ]
 
+# Models that support thinking_level parameter (Gemini 2.5+ exclusive feature)
+# Note: gemma-4-31b-it supports thinking via include_thoughts=True but NOT thinking_level
 THINKING_LEVEL_MODELS: List[str] = [
-    "gemini-3-pro-preview",
-    "gemini-3-pro",
-    "gemini-3-flash",
+    "gemini-3.1-flash-lite-preview",
+    "gemini-2.5-flash-lite",
     "gemini-3-flash-preview",
+    "gemini-2.5-flash",
 ]
 
 
@@ -361,7 +362,7 @@ class ImageBinaryChallenge(BaseModel):
     @property
     def log_message(self) -> str:
         _coordinates = [i.box_2d for i in self.coordinates]
-        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": str(_coordinates)}
+        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": _coordinates}
         return json.dumps(bundle, indent=2, ensure_ascii=False)
 
 
@@ -370,14 +371,20 @@ class PointCoordinate(BaseModel):
     y: int
 
 
+class VideoObjectDescription(BaseModel):
+    object_description: str = Field(..., description="Detailed visual description of the unique object found in the video")
+    location_hint: str = Field(..., description="General location of the object (e.g., top-left, center)")
+
+
 class ImageAreaSelectChallenge(BaseModel):
+    reasoning: str | None = Field(default=None, description="Write your step-by-step thought process here BEFORE providing the coordinates. Explain which frame has the change.")
     challenge_prompt: str
     points: List[PointCoordinate]
 
     @property
     def log_message(self) -> str:
         _coordinates = [{"x": i.x, "y": i.y} for i in self.points]
-        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": str(_coordinates)}
+        bundle = {"Reasoning": self.reasoning, "Challenge Prompt": self.challenge_prompt, "Coordinates": _coordinates}
         return json.dumps(bundle, indent=2, ensure_ascii=False)
 
 
@@ -391,6 +398,11 @@ class ImageDragDropChallenge(BaseModel):
     paths: List[SpatialPath]
 
     @property
+    def path(self) -> List[SpatialPath]:
+        """Legacy compatibility with singular attribute access"""
+        return self.paths
+
+    @property
     def log_message(self) -> str:
         _coordinates = [
             {
@@ -399,7 +411,7 @@ class ImageDragDropChallenge(BaseModel):
             }
             for i in self.paths
         ]
-        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": str(_coordinates)}
+        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": _coordinates}
         return json.dumps(bundle, indent=2, ensure_ascii=False)
 
     def get_approximate_paths(self, bbox) -> List[SpatialPath]:
