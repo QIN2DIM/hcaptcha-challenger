@@ -104,7 +104,7 @@ class AgentV:
                 
                 # Resolver o captcha
                 try:
-                    timeout_seconds = 120
+                    timeout_seconds = 300
                     result = await asyncio.wait_for(self._solve_captcha_flow(), timeout=timeout_seconds)
                     if result:
                         self.state = SolveState.SUBMITTED
@@ -235,7 +235,7 @@ class AgentV:
                 self.reset_count + 1,
                 self.config.MAX_RESETS,
                 prompt=prompt,
-                timeout=120
+                timeout=300
             )
         
         # 3. Verificar ignore list
