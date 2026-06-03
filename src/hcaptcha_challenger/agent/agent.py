@@ -75,7 +75,17 @@ class AgentV:
         if not found:
             LoggerHelper.log_error("Bypass impossível: Captcha não detectado!", emoji='skull')
             return ChallengeSignal.FAILURE
+            
+        # Verificar se foi um "1-Click Pass" (passou só de clicar no checkbox, sem abrir imagens)
+        for _ in range(10):
+            token = await self.page.evaluate("() => document.querySelector('[name=\"h-captcha-response\"]')?.value")
+            if token:
+                LoggerHelper.log_success("1-Click Pass detectado! Desafio visual não foi necessário.", emoji='✅')
+                self.state = SolveState.SUCCESS
+                break
+            await asyncio.sleep(0.5)
         
+
         while self.state not in [SolveState.SUCCESS, SolveState.FAILURE]:
             self.challenge_attempts += 1
             if self.challenge_attempts > self.config.MAX_CHALLENGE_ATTEMPTS:
