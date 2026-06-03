@@ -373,13 +373,14 @@ class VideoObjectDescription(BaseModel):
 
 
 class ImageAreaSelectChallenge(BaseModel):
+    reasoning: str | None = Field(default=None, description="Write your step-by-step thought process here BEFORE providing the coordinates. Explain which frame has the change.")
     challenge_prompt: str
     points: List[PointCoordinate]
 
     @property
     def log_message(self) -> str:
         _coordinates = [{"x": i.x, "y": i.y} for i in self.points]
-        bundle = {"Challenge Prompt": self.challenge_prompt, "Coordinates": _coordinates}
+        bundle = {"Reasoning": self.reasoning, "Challenge Prompt": self.challenge_prompt, "Coordinates": _coordinates}
         return json.dumps(bundle, indent=2, ensure_ascii=False)
 
 

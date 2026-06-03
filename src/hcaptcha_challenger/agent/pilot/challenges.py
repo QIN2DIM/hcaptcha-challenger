@@ -289,25 +289,24 @@ class PilotChallenges:
                 
                 raw = challenge_screenshots # Passa a LISTA de paths
                 LoggerHelper.log_info(f"Burst Mode concluído: {len(raw)} frames capturados.", emoji='🎞️')
+                
+                ai_hint = (
+                    f"{user_prompt}\n"
+                    "STEP-BY-STEP INSTRUCTIONS FOR MOTION DETECTION:\n"
+                    "1. You are given 4 sequential frames of a 3x3 image grid.\n"
+                    "2. Examine the 9 sub-images very carefully across the 4 frames.\n"
+                    "3. Look for the single sub-image where the animal ANIMATES, MOVES, or CHANGES into a completely DIFFERENT animal.\n"
+                    "4. The change might be subtle (e.g. a dog turning into a cat, or an animal morphing). Most animals will stay completely still.\n"
+                    "5. Return the exact (X, Y) coordinates of the center of that specific changing sub-image using the provided coordinate grid."
+                )
             else:
                 raw, projection = await self._capture_spatial_mapping(frame, cache_key, cid)
+                ai_hint = user_prompt
             
             model, available_keys = await self.arm._get_available_model_and_keys(
                 preferred_model=self.arm.config.SPATIAL_POINT_REASONER_MODEL
             )
             
-            if is_motion:
-                ai_hint = (
-                    f"{user_prompt}\n"
-                    "STEP-BY-STEP INSTRUCTIONS FOR MOTION DETECTION:\n"
-                    "1. You are given 3 sequential frames of a 3x3 image grid.\n"
-                    "2. Compare the 9 sub-images across the 3 frames.\n"
-                    "3. Find the single sub-image where the content ANIMATES, MOVES, or CHANGES between frames according to the prompt.\n"
-                    "4. Return the exact (X, Y) coordinates of the center of that specific changing sub-image using the provided coordinate grid."
-                )
-            else:
-                ai_hint = user_prompt
-
             try:
                 start_ai = time.time()
                 response = await self.arm.spatial_point_reasoner(
