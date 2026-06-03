@@ -245,6 +245,7 @@ IGNORE_REQUEST_TYPE_LITERAL = Literal[
 SCoTModelType = Union[
     str,
     Literal[
+        "gemma-4-31b-it",
         "gemini-3.1-flash-lite-preview",
         "gemini-2.5-flash-lite",
         "gemini-3-flash-preview",
@@ -257,6 +258,7 @@ DEFAULT_SCOT_MODEL: SCoTModelType = "meta-llama/llama-4-maverick-17b-128e-instru
 FastShotModelType = Union[
     str,
     Literal[
+        "gemma-4-31b-it",
         "gemini-3.1-flash-lite-preview",
         "gemini-2.5-flash-lite",
         "gemini-3-flash-preview",
@@ -264,9 +266,10 @@ FastShotModelType = Union[
     ],
 ]
 
-DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.5-flash-lite"
+DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemma-4-31b-it"
 
 THINKING_BUDGET_MODELS: List[Union[SCoTModelType, FastShotModelType]] = [
+    "gemma-4-31b-it",
     "gemini-3.1-flash-lite-preview",
     "gemini-2.5-flash-lite",
     "gemini-3-flash-preview",
@@ -274,6 +277,7 @@ THINKING_BUDGET_MODELS: List[Union[SCoTModelType, FastShotModelType]] = [
 ]
 
 THINKING_LEVEL_MODELS: List[str] = [
+    "gemma-4-31b-it",
     "gemini-3.1-flash-lite-preview",
     "gemini-2.5-flash-lite",
     "gemini-3-flash-preview",
