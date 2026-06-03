@@ -197,11 +197,16 @@ class GeminiProvider:
             is_masked_sdk_bug = isinstance(e, TypeError) and ("APIError.__init__" in str(e) or "response_json" in str(e))
             
             error_str = str(e)
+
+            # Detect invalid API key error (400 with specific message)
+            is_invalid_key = "API key not valid" in error_str or "Invalid API key" in error_str
             
-            # If 429 RESOURCE_EXHAUSTED or masked SDK bug that usually implies an error response
-            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or is_masked_sdk_bug:
+            # If 429 RESOURCE_EXHAUSTED, masked SDK bug, or invalid key -> treat as key exhaustion
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or is_masked_sdk_bug or is_invalid_key:
                 if is_masked_sdk_bug:
                     LoggerHelper.log_warning("Detectado bug no SDK Gemini (APIError Masked). Tratando como falha de provedor.", emoji='bug')
+                if is_invalid_key:
+                    LoggerHelper.log_warning("Chave API Gemini inválida detectada. Marcando como exaurida.", emoji='🔑')
                 
                 # Try to extract retry delay (cooldown)
                 retry_seconds = 0
