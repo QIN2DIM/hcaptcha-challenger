@@ -374,8 +374,8 @@ class PilotChallenges:
                         await self.arm.page.mouse.click(point.x, point.y, delay=180)
 
                     else:
-                        # ── count=0: nenhum task div encontrado → clique absoluto ────────
-                        LoggerHelper.log_info(f"Sem task divs (count=0): clique absoluto em ({point.x}, {point.y})", emoji='🖱️')
+                        # ── count=0: canvas gigante (ex: image_label_single_select) ──────
+                        LoggerHelper.log_info(f"Alvo único detectado (canvas): clicando diretamente em ({point.x}, {point.y})", emoji='🎯')
                         await self.arm.page.mouse.click(point.x, point.y, delay=180)
                 except Exception as e:
                     LoggerHelper.log_warning(f"Fallback para clique absoluto devido a erro: {e}")
