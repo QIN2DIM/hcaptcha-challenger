@@ -354,23 +354,28 @@ class PilotChallenges:
                     tasks = frame.locator("//div[contains(@class, 'task')]")
                     count = await tasks.count()
                     if count in [9, 16]:
+                        # ── Grade 3x3 ou 4x4: mapear coordenada IA para célula ──────────
                         grid_size = int(count ** 0.5)
-                        
                         rel_x = point.x - bbox['x']
                         rel_y = point.y - bbox['y']
-                        
                         cell_w = bbox['width'] / grid_size
                         cell_h = bbox['height'] / grid_size
-                        
                         col = max(0, min(int(rel_x // cell_w), grid_size - 1))
                         row = max(0, min(int(rel_y // cell_h), grid_size - 1))
-                        
                         idx = row * grid_size + col
-                        LoggerHelper.log_info(f"Mapeado para célula {idx+1} do grid {grid_size}x{grid_size}", emoji='🎯')
-                        
+                        LoggerHelper.log_info(f"Grid {grid_size}x{grid_size}: clicando célula {idx+1} ({int(rel_x)},{int(rel_y)})", emoji='🎯')
                         await self.arm.actions.click_by_mouse(tasks.nth(idx))
+
+                    elif count >= 1:
+                        # ── Single-select ou área de clique direto ───────────────────────
+                        # image_label_single_select tem 1 task div; não é grade.
+                        # A IA retorna coordenadas absolutas de tela → clicar diretamente.
+                        LoggerHelper.log_info(f"Single-select (count={count}): clicando em ({point.x}, {point.y})", emoji='🎯')
+                        await self.arm.page.mouse.click(point.x, point.y, delay=180)
+
                     else:
-                        LoggerHelper.log_info(f"Fallback para clique absoluto (count era {count})", emoji='⚠️')
+                        # ── count=0: nenhum task div encontrado → clique absoluto ────────
+                        LoggerHelper.log_info(f"Sem task divs (count=0): clique absoluto em ({point.x}, {point.y})", emoji='🖱️')
                         await self.arm.page.mouse.click(point.x, point.y, delay=180)
                 except Exception as e:
                     LoggerHelper.log_warning(f"Fallback para clique absoluto devido a erro: {e}")
