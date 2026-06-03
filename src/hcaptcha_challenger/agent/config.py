@@ -88,6 +88,11 @@ class AgentConfig(BaseSettings):
         description="Maximum number of challenge resets (new challenge after submit) before aborting.",
     )
 
+    BURST_MODE_FRAMES: int = Field(
+        default=6,
+        description="Number of frames to capture in burst mode for motion challenges (default: 6).",
+    )
+
     EXECUTION_TIMEOUT: float = Field(
         default=180,
         description="When your local network is poor, increase this value appropriately [unit: second]",

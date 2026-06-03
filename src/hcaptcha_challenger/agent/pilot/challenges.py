@@ -266,8 +266,9 @@ class PilotChallenges:
             self.arm.navigation.current_view_bbox = bbox
 
             if is_motion:
-                LoggerHelper.log_info("Desafio de Movimento detectado! Ativando Burst Mode (4 frames)...", emoji='📸')
-                challenge_screenshots = await self._capture_burst_frames(frame, cache_key, cid, count=4)
+                num_frames = getattr(self.arm.config, "BURST_MODE_FRAMES", 6)
+                LoggerHelper.log_info(f"Desafio de Movimento detectado! Ativando Burst Mode ({num_frames} frames)...", emoji='📸')
+                challenge_screenshots = await self._capture_burst_frames(frame, cache_key, cid, count=num_frames)
                 
                 # Para grid, usamos o último frame do burst (bbox já definido acima)
                 
@@ -293,10 +294,10 @@ class PilotChallenges:
                 ai_hint = (
                     f"{user_prompt}\n"
                     "STEP-BY-STEP INSTRUCTIONS FOR MOTION DETECTION:\n"
-                    "1. You are given 4 sequential frames of a 3x3 image grid.\n"
-                    "2. Examine the 9 sub-images very carefully across the 4 frames.\n"
-                    "3. Look for the single sub-image where the animal ANIMATES, MOVES, or CHANGES into a completely DIFFERENT animal.\n"
-                    "4. The change might be subtle (e.g. a dog turning into a cat, or an animal morphing). Most animals will stay completely still.\n"
+                    f"1. You are given {num_frames} sequential frames of a 3x3 image grid.\n"
+                    "2. Examine the 9 sub-images very carefully across the frames.\n"
+                    "3. Look for the single sub-image where the object ANIMATES, MOVES, or CHANGES into a completely DIFFERENT object.\n"
+                    "4. The change might be subtle (e.g. an object turning into another, or an animal morphing). Most will stay completely still.\n"
                     "5. Return the exact (X, Y) coordinates of the center of that specific changing sub-image using the provided coordinate grid."
                 )
             else:
