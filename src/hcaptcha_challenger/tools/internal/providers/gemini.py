@@ -118,15 +118,32 @@ class GeminiProvider:
         return [types.Part.from_uri(file_uri=f.uri, mime_type=f.mime_type) for f in files]
 
     def _set_thinking_config(self, config: types.GenerateContentConfig) -> None:
-        """Configure thinking settings based on model capabilities."""
-        config.thinking_config = types.ThinkingConfig(include_thoughts=True)
+        """Configure thinking settings based on model capabilities.
+        
+        - Gemma models: Do not support thinking_config. Thinking is activated via system prompt.
+        - Gemini 2.5+ models (in THINKING_LEVEL_MODELS): support thinking_level=HIGH
+        - Other Gemini models: support include_thoughts=False
+        """
+        from hcaptcha_challenger.models import THINKING_BUDGET_MODELS
 
-        if self.model in THINKING_LEVEL_MODELS:
-            thinking_level = types.ThinkingLevel.HIGH
-
+        if "gemma" in self.model.lower():
+            # Gemma models use prompt-based thinking activation, not API thinking_config
+            if config.system_instruction:
+                if isinstance(config.system_instruction, str):
+                    config.system_instruction += "\n<|think|>"
+                # If it's not a string, we leave it as is to avoid breaking complex structures
+            else:
+                config.system_instruction = "<|think|>"
+            # Ensure thinking_config is explicitly None for Gemma
+            config.thinking_config = None
+        elif self.model in THINKING_LEVEL_MODELS:
+            # Gemini 2.5+ supports thinking_level
             config.thinking_config = types.ThinkingConfig(
-                include_thoughts=False, thinking_level=thinking_level
+                include_thoughts=False, thinking_level=types.ThinkingLevel.HIGH
             )
+        else:
+            # Other Gemini models
+            config.thinking_config = types.ThinkingConfig(include_thoughts=False)
 
     @retry(
         stop=stop_after_attempt(30),  # 3 cycles of (keys * models)

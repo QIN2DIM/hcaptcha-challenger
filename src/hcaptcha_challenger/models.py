@@ -269,15 +269,15 @@ FastShotModelType = Union[
 DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemma-4-31b-it"
 
 THINKING_BUDGET_MODELS: List[Union[SCoTModelType, FastShotModelType]] = [
-    "gemma-4-31b-it",
     "gemini-3.1-flash-lite-preview",
     "gemini-2.5-flash-lite",
     "gemini-3-flash-preview",
     "gemini-2.5-flash",
 ]
 
+# Models that support thinking_level parameter (Gemini 2.5+ exclusive feature)
+# Note: gemma-4-31b-it supports thinking via include_thoughts=True but NOT thinking_level
 THINKING_LEVEL_MODELS: List[str] = [
-    "gemma-4-31b-it",
     "gemini-3.1-flash-lite-preview",
     "gemini-2.5-flash-lite",
     "gemini-3-flash-preview",
