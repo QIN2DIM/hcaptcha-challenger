@@ -254,6 +254,8 @@ SCoTModelType = Union[
         "gemini-2.5-pro",
         # [🤷‍♂️] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
         "gemini-2.5-flash",
+        # [✨] https://platform.minimax.io/docs/api-reference/api-overview
+        "MiniMax-M3",
     ],
 ]
 
