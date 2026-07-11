@@ -47,6 +47,11 @@ from hcaptcha_challenger.tools import (
     SpatialPathReasoner,
     SpatialPointReasoner,
 )
+from hcaptcha_challenger.tools.internal.providers import (
+    ChatProvider,
+    GeminiProvider,
+    OpenAICompatibleProvider,
+)
 
 
 def _generate_bezier_trajectory(
@@ -305,6 +310,18 @@ class AgentConfig(BaseSettings):
         return cache_key
 
 
+def build_provider(config: AgentConfig, model: str) -> ChatProvider:
+    """Construct the chat provider selected by config.CHAT_PROVIDER."""
+    if config.CHAT_PROVIDER == "openai-compatible":
+        return OpenAICompatibleProvider(
+            model=model,
+            api_key=config.OPENAI_API_KEY.get_secret_value() or None,
+            base_url=config.OPENAI_BASE_URL,
+            timeout=config.OPENAI_TIMEOUT,
+        )
+    return GeminiProvider(api_key=config.GEMINI_API_KEY.get_secret_value(), model=model)
+
+
 class RoboticArm:
 
     def __init__(self, page: Page, config: AgentConfig):
@@ -313,20 +330,20 @@ class RoboticArm:
         self._debug = config.enable_challenger_debug
 
         self._challenge_router = ChallengeRouter(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.CHALLENGE_CLASSIFIER_MODEL,
+            provider=build_provider(self.config, self.config.CHALLENGE_CLASSIFIER_MODEL),
         )
         self._image_classifier = ImageClassifier(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.IMAGE_CLASSIFIER_MODEL,
+            provider=build_provider(self.config, self.config.IMAGE_CLASSIFIER_MODEL),
         )
         self._spatial_path_reasoner = SpatialPathReasoner(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.SPATIAL_PATH_REASONER_MODEL,
+            provider=build_provider(self.config, self.config.SPATIAL_PATH_REASONER_MODEL),
         )
         self._spatial_point_reasoner = SpatialPointReasoner(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.SPATIAL_POINT_REASONER_MODEL,
+            provider=build_provider(self.config, self.config.SPATIAL_POINT_REASONER_MODEL),
         )
         self._skill_manager = SkillManager(agent_config=config)
         self.signal_crumb_count: int | None = None
