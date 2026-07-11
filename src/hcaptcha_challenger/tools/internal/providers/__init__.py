@@ -3,5 +3,6 @@
 
 from .protocol import ChatProvider
 from .gemini import GeminiProvider
+from .openai_compatible import OpenAICompatibleProvider
 
-__all__ = ["ChatProvider", "GeminiProvider"]
+__all__ = ["ChatProvider", "GeminiProvider", "OpenAICompatibleProvider"]

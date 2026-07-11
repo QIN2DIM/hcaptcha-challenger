@@ -56,6 +56,9 @@ dataset = [
 camoufox = [
     "camoufox[geoip]>=0.4.11",
 ]
+openai = [
+    "openai>=1.40",
+]
 
 [project.scripts]
 hc = "hcaptcha_challenger.cli.main:main"
