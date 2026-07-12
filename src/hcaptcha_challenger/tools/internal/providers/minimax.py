@@ -27,7 +27,7 @@ class MiniMaxProvider:
 
     default_model = "MiniMax-M3"
     default_base_url = "https://api.minimax.io/v1"
-    default_anthropic_base_url = "https://api.minimax.io/anthropic/v1"
+    default_anthropic_base_url = "https://api.minimax.io/anthropic"
     context_window = 1_000_000
     input_price = 0.6
     output_price = 2.4
