@@ -1523,7 +1523,7 @@ requires-dist = [
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "msgpack", specifier = ">=1.1.1,<2.0.0" },
-    { name = "openai", marker = "extra == 'openai'", specifier = ">=1.40" },
+    { name = "openai", marker = "extra == 'openai'", specifier = ">=1.92" },
     { name = "opencv-python", specifier = ">=4.11.0.88,<5.0" },
     { name = "pillow", specifier = ">=11.1.0" },
     { name = "playwright" },

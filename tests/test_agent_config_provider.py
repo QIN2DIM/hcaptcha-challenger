@@ -5,6 +5,18 @@ from pydantic import ValidationError
 from hcaptcha_challenger.agent.challenger import AgentConfig
 
 
+@pytest.fixture(autouse=True)
+def _isolate_env(monkeypatch):
+    """Provider credentials must come only from explicit kwargs in these tests.
+
+    AgentConfig fields read os.environ via default_factory and also load .env,
+    so a machine with GEMINI_API_KEY / OPENAI_API_KEY exported would otherwise
+    flip the validation outcomes.
+    """
+    for var in ("GEMINI_API_KEY", "OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENAI_TIMEOUT"):
+        monkeypatch.delenv(var, raising=False)
+
+
 def test_default_is_gemini_requires_key():
     with pytest.raises(ValidationError):
         AgentConfig(GEMINI_API_KEY="", CHAT_PROVIDER="gemini")

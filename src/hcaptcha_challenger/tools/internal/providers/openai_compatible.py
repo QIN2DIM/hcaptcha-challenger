@@ -15,12 +15,35 @@ from pathlib import Path
 from typing import Any, List, Type, TypeVar
 
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_fixed
 
 from ._utils import parse_json_response
 
 ResponseT = TypeVar("ResponseT", bound=BaseModel)
+
+# HTTP statuses that mean auth/routing failure, never a capability miss.
+_NON_CAPABILITY_STATUS = frozenset({401, 403, 404})
+
+# Narrow phrases that indicate the backend rejected structured-output itself.
+# Deliberately excludes bare "invalid" (matches invalid_request_error /
+# invalid_api_key on ordinary auth/model/image 400s).
+_CAPABILITY_MARKERS = (
+    "response_format",
+    "json_schema",
+    "structured output",
+    "does not support",
+    "not supported",
+    "unsupported",
+    "unrecognized request argument",
+)
+
+_TRANSIENT_EXC_NAMES = (
+    "APIConnectionError",
+    "APITimeoutError",
+    "RateLimitError",
+    "InternalServerError",
+)
 
 
 class _CapabilityError(Exception):
@@ -36,35 +59,52 @@ def _encode_image_data_url(path: Path) -> str:
 
 
 def _is_capability_error(exc: BaseException) -> bool:
-    """Heuristic: does this exception mean 'json_schema unsupported'?"""
+    """
+    Does this exception mean the backend can't do strict json_schema output?
+
+    True for our internal marker, for an SDK too old to expose
+    ``chat.completions.parse`` (AttributeError/TypeError on the strict call),
+    and for HTTP 400s whose message names the structured-output feature.
+    Auth / not-found statuses (401/403/404) are never capability misses.
+    """
     if isinstance(exc, _CapabilityError):
         return True
+    if isinstance(exc, (AttributeError, TypeError)):
+        # e.g. openai SDK too old: client.chat.completions has no `parse`.
+        return True
+
+    status = getattr(exc, "status_code", None)
+    if isinstance(status, int) and status in _NON_CAPABILITY_STATUS:
+        return False
+
     msg = str(exc).lower()
-    markers = (
-        "response_format",
-        "json_schema",
-        "not supported",
-        "unsupported",
-        "invalid",
-    )
-    return any(m in msg for m in markers)
+    matches_marker = any(m in msg for m in _CAPABILITY_MARKERS)
+    # Only a 400 (or an unknown-status error, e.g. a plain ValueError from the
+    # SDK) that names the feature counts -- not 5xx (transient) or auth errors.
+    if status is None or status == 400:
+        return matches_marker
+    return False
 
 
 def _is_transient(exc: BaseException) -> bool:
-    """Retry only transient errors; never retry capability errors."""
-    if isinstance(exc, _CapabilityError):
+    """
+    Should this exception be retried?
+
+    Capability misses are never retried (they trigger the json_object
+    fallback instead). Network / rate-limit / server errors are retried, and
+    so are post-response parsing failures (ValueError / pydantic
+    ValidationError) -- weak local VLMs emit malformed JSON nondeterministically,
+    so another sample often succeeds (matching GeminiProvider's unconditional
+    retry).
+    """
+    if _is_capability_error(exc):
         return False
-    name = type(exc).__name__
-    transient = (
-        "APIConnectionError",
-        "APITimeoutError",
-        "RateLimitError",
-        "InternalServerError",
-    )
-    if name in transient:
+    if type(exc).__name__ in _TRANSIENT_EXC_NAMES:
         return True
     status = getattr(exc, "status_code", None)
     if isinstance(status, int) and (status == 429 or status >= 500):
+        return True
+    if isinstance(exc, (ValueError, ValidationError)):
         return True
     return False
 
@@ -128,6 +168,8 @@ class OpenAICompatibleProvider:
                         },
                     }
                 )
+            else:
+                logger.debug(f"Skipping missing image path: {img}")
         if user_prompt:
             content.append({"type": "text", "text": user_prompt})
 
