@@ -1,0 +1,281 @@
+# -*- coding: utf-8 -*-
+"""
+OpenAICompatibleProvider - provider for any OpenAI-compatible chat endpoint.
+
+Works with the official OpenAI API, OpenRouter, and self-hosted engines
+(Ollama, vLLM, SGLang, LM Studio, llama.cpp, TGI, LocalAI). Requires a
+vision-capable model (e.g. Qwen2-VL, LLaVA, Pixtral).
+
+The `openai` SDK is an optional dependency and is imported lazily.
+"""
+import base64
+import json
+import mimetypes
+from pathlib import Path
+from typing import Any, List, Type, TypeVar
+
+from loguru import logger
+from pydantic import BaseModel, ValidationError
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_fixed
+
+from ._utils import parse_json_response
+
+ResponseT = TypeVar("ResponseT", bound=BaseModel)
+
+# HTTP statuses that mean auth/routing failure, never a capability miss.
+_NON_CAPABILITY_STATUS = frozenset({401, 403, 404})
+
+# Narrow phrases that indicate the backend rejected structured-output itself.
+# Deliberately excludes bare "invalid" (matches invalid_request_error /
+# invalid_api_key on ordinary auth/model/image 400s).
+_CAPABILITY_MARKERS = (
+    "response_format",
+    "json_schema",
+    "structured output",
+    "does not support",
+    "not supported",
+    "unsupported",
+    "unrecognized request argument",
+)
+
+_TRANSIENT_EXC_NAMES = (
+    "APIConnectionError",
+    "APITimeoutError",
+    "RateLimitError",
+    "InternalServerError",
+)
+
+
+class _CapabilityError(Exception):
+    """Raised when the backend does not support strict json_schema output."""
+
+
+class _RefusalError(Exception):
+    """Raised when the model refuses to answer -- a one-off, retryable event."""
+
+
+def _encode_image_data_url(path: Path) -> str:
+    """Read an image file and return a base64 data URL."""
+    mime, _ = mimetypes.guess_type(str(path))
+    mime = mime or "image/png"
+    data = base64.b64encode(Path(path).read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{data}"
+
+
+def _is_capability_error(exc: BaseException) -> bool:
+    """
+    Does this exception mean the backend can't do strict json_schema output?
+
+    True for our internal marker, for an SDK too old to expose
+    ``chat.completions.parse`` (AttributeError/TypeError on the strict call),
+    and for HTTP 400s whose message names the structured-output feature.
+    Auth / not-found statuses (401/403/404) are never capability misses.
+    """
+    if isinstance(exc, _CapabilityError):
+        return True
+    if isinstance(exc, _RefusalError):
+        # A refusal is a model decision, never a backend capability limit.
+        return False
+    if isinstance(exc, (AttributeError, TypeError)):
+        # e.g. openai SDK too old: client.chat.completions has no `parse`.
+        return True
+
+    status = getattr(exc, "status_code", None)
+    if isinstance(status, int) and status in _NON_CAPABILITY_STATUS:
+        return False
+
+    msg = str(exc).lower()
+    matches_marker = any(m in msg for m in _CAPABILITY_MARKERS)
+    # Only a 400 (or an unknown-status error, e.g. a plain ValueError from the
+    # SDK) that names the feature counts -- not 5xx (transient) or auth errors.
+    if status is None or status == 400:
+        return matches_marker
+    return False
+
+
+def _is_transient(exc: BaseException) -> bool:
+    """
+    Should this exception be retried?
+
+    Capability misses are never retried (they trigger the json_object
+    fallback instead). Network / rate-limit / server errors are retried, and
+    so are post-response parsing failures (ValueError / pydantic
+    ValidationError) -- weak local VLMs emit malformed JSON nondeterministically,
+    so another sample often succeeds (matching GeminiProvider's unconditional
+    retry).
+    """
+    if _is_capability_error(exc):
+        return False
+    if isinstance(exc, _RefusalError):
+        return True
+    if type(exc).__name__ in _TRANSIENT_EXC_NAMES:
+        return True
+    status = getattr(exc, "status_code", None)
+    if isinstance(status, int) and (status == 429 or status >= 500):
+        return True
+    if isinstance(exc, (ValueError, ValidationError)):
+        return True
+    return False
+
+
+class OpenAICompatibleProvider:
+    """Chat provider backed by an OpenAI-compatible endpoint."""
+
+    def __init__(
+        self,
+        model: str,
+        *,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        timeout: float | None = None,
+        **kwargs: Any,
+    ):
+        self._model = model
+        self._api_key = api_key
+        self._base_url = base_url
+        self._timeout = timeout
+        self._extra = kwargs
+        self._client_instance = None
+        self._response: Any = None
+        # Capability flag, memoized after first probe.
+        self._supports_json_schema: bool = True
+
+    @property
+    def _client(self):
+        """Lazy-initialize the AsyncOpenAI client; import the SDK on demand."""
+        if self._client_instance is None:
+            try:
+                from openai import AsyncOpenAI
+            except ImportError as e:
+                raise ImportError(
+                    "The 'openai' package is required for OpenAICompatibleProvider. "
+                    "Install it with: pip install hcaptcha-challenger[openai]"
+                ) from e
+            self._client_instance = AsyncOpenAI(
+                api_key=self._api_key or "sk-no-auth",
+                base_url=self._base_url,
+                timeout=self._timeout,
+                # tenacity is the single retry authority (it also retries parse
+                # failures, which the SDK does not). Disabling the SDK's own
+                # retries avoids compounding both layers on 429/5xx.
+                max_retries=0,
+            )
+        return self._client_instance
+
+    @property
+    def last_response(self):
+        return self._response
+
+    def _build_messages(
+        self, images: List[Path], user_prompt: str | None, description: str | None
+    ) -> list[dict]:
+        content: list[dict] = []
+        for img in images:
+            if img and Path(img).exists():
+                content.append(
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": _encode_image_data_url(Path(img)),
+                            "detail": "high",
+                        },
+                    }
+                )
+            else:
+                logger.debug(f"Skipping missing image path: {img}")
+        if user_prompt:
+            content.append({"type": "text", "text": user_prompt})
+
+        messages: list[dict] = []
+        if description:
+            messages.append({"role": "system", "content": description})
+        messages.append({"role": "user", "content": content})
+        return messages
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_fixed(3),
+        retry=retry_if_exception(_is_transient),
+        before_sleep=lambda rs: logger.warning(
+            f"Retry request ({rs.attempt_number}/3) - Wait 3s - "
+            f"Exception: {rs.outcome.exception()}"
+        ),
+        reraise=True,
+    )
+    async def generate_with_images(
+        self,
+        *,
+        images: List[Path],
+        response_schema: Type[ResponseT],
+        user_prompt: str | None = None,
+        description: str | None = None,
+        **kwargs: Any,
+    ) -> ResponseT:
+        messages = self._build_messages(images, user_prompt, description)
+
+        # Strict json_schema path (memoized capability).
+        if self._supports_json_schema:
+            try:
+                completion = await self._client.chat.completions.parse(
+                    model=self._model,
+                    messages=messages,
+                    response_format=response_schema,
+                    **kwargs,
+                )
+                self._response = completion
+                message = completion.choices[0].message
+                parsed = message.parsed
+                if isinstance(parsed, BaseModel):
+                    return response_schema(**parsed.model_dump())
+                if isinstance(parsed, dict):
+                    return response_schema(**parsed)
+                refusal = getattr(message, "refusal", None)
+                if refusal:
+                    # A refusal is a one-off model decision, not a backend
+                    # capability limit -- resample without disabling strict mode.
+                    raise _RefusalError(str(refusal))
+                # parsed is None and no refusal -> the backend accepted the
+                # request but ignored json_schema: treat as a capability miss.
+                raise _CapabilityError("no parsed structured output returned")
+            except Exception as e:  # noqa: BLE001
+                if _is_transient(e):
+                    raise  # let tenacity retry
+                if not _is_capability_error(e):
+                    raise
+                logger.warning(
+                    f"json_schema unsupported by backend, falling back to "
+                    f"json_object: {e}"
+                )
+                self._supports_json_schema = False
+
+        # Fallback: json_object + schema-in-prompt + tolerant parse.
+        schema_hint = {
+            "role": "system",
+            "content": (
+                "Respond with a single JSON object matching this JSON schema "
+                "(no prose, no code fences):\n"
+                f"{json.dumps(response_schema.model_json_schema())}"
+            ),
+        }
+        completion = await self._client.chat.completions.create(
+            model=self._model,
+            messages=[schema_hint, *messages],
+            response_format={"type": "json_object"},
+            **kwargs,
+        )
+        self._response = completion
+        text = completion.choices[0].message.content
+        data = parse_json_response(text or "")
+        return response_schema(**data)
+
+    def cache_response(self, path: Path) -> None:
+        if not self._response:
+            return
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            dump = self._response.model_dump(mode="json")
+            path.write_text(
+                json.dumps(dump, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+        except Exception as e:  # noqa: BLE001
+            logger.warning(f"Failed to cache response: {e}")

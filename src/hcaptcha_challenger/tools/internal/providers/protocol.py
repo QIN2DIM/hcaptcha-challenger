@@ -6,9 +6,9 @@ This module defines the Protocol that all chat providers must implement.
 Using Protocol instead of ABC allows for duck typing - external implementations
 don't need to inherit from our classes.
 
-Future implementations:
+Implementations:
 - GeminiProvider (current)
-- OpenAIProvider (planned)
+- OpenAICompatibleProvider (current)
 - AnthropicProvider (planned)
 """
 from pathlib import Path

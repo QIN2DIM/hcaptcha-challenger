@@ -45,7 +45,7 @@ class Reasoner(ABC, Generic[ModelT, ResponseT]):
 
     def __init__(
         self,
-        gemini_api_key: str,
+        gemini_api_key: str | None = None,
         model: ModelT | None = None,
         *,
         provider: ChatProvider | None = None,

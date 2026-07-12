@@ -17,18 +17,9 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from hcaptcha_challenger.models import THINKING_LEVEL_MODELS
 
+from ._utils import extract_first_json_block
+
 ResponseT = TypeVar("ResponseT", bound=BaseModel)
-
-
-def extract_first_json_block(text: str) -> dict | None:
-    """Extract the first JSON code block from text."""
-    import re
-
-    pattern = r"```json\s*([\s\S]*?)```"
-    matches = re.findall(pattern, text)
-    if matches:
-        return json.loads(matches[0])
-    return None
 
 
 class GeminiProvider:

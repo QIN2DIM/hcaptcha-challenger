@@ -34,7 +34,7 @@ class ChallengeRouter(Reasoner[FastShotModelType, ChallengeRouterResult]):
 
     def __init__(
         self,
-        gemini_api_key: str,
+        gemini_api_key: str | None = None,
         model: FastShotModelType = DEFAULT_FAST_SHOT_MODEL,
         *,
         provider: ChatProvider | None = None,

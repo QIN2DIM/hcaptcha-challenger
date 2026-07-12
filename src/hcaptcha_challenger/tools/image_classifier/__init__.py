@@ -34,7 +34,7 @@ class ImageClassifier(Reasoner[SCoTModelType, ImageBinaryChallenge]):
 
     def __init__(
         self,
-        gemini_api_key: str,
+        gemini_api_key: str | None = None,
         model: SCoTModelType = DEFAULT_SCOT_MODEL,
         *,
         provider: ChatProvider | None = None,

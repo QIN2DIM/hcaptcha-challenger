@@ -40,6 +40,51 @@ Just implement some interfaces to make `AI vs AI` possible.
 | `self-supervised challenge` | CLIP-ViT [#231022](https://github.com/QIN2DIM/hcaptcha-challenger/issues/858) |
 | `Agentic Workflow`          | AIOps Multimodal Large language model [#250331](https://github.com/QIN2DIM/hcaptcha-challenger/pull/980) |
 
+## Using an OpenAI-compatible provider
+
+By default the agent uses Google Gemini. You can instead run it against any
+OpenAI-compatible endpoint — the official OpenAI API, OpenRouter, or a
+self-hosted engine such as Ollama, vLLM, SGLang, LM Studio, llama.cpp, TGI, or
+LocalAI.
+
+> [!IMPORTANT]
+> A **vision-capable** model is required (e.g. Qwen2-VL, LLaVA, Pixtral).
+> Text-only models cannot solve visual challenges.
+
+Install the optional dependency:
+
+```bash
+pip install hcaptcha-challenger[openai]
+```
+
+Select the provider via `AgentConfig` (or the matching environment variables):
+
+```python
+from hcaptcha_challenger import AgentConfig
+
+# Local Ollama / vLLM (no auth) — set the base URL:
+agent_config = AgentConfig(
+    CHAT_PROVIDER="openai-compatible",
+    OPENAI_BASE_URL="http://localhost:11434/v1",
+    OPENAI_TIMEOUT=120,  # increase for slow local VLMs
+    IMAGE_CLASSIFIER_MODEL="qwen2-vl:7b",
+    SPATIAL_POINT_REASONER_MODEL="qwen2-vl:7b",
+    SPATIAL_PATH_REASONER_MODEL="qwen2-vl:7b",
+    CHALLENGE_CLASSIFIER_MODEL="qwen2-vl:7b",
+)
+
+# Hosted OpenAI-compatible API — set the key instead (base URL optional):
+# agent_config = AgentConfig(
+#     CHAT_PROVIDER="openai-compatible",
+#     OPENAI_API_KEY="sk-...",
+#     IMAGE_CLASSIFIER_MODEL="gpt-4o",
+# )
+```
+
+For `openai-compatible`, set **at least one** of `OPENAI_API_KEY` (hosted APIs)
+or `OPENAI_BASE_URL` (local endpoints). See
+[`examples/demo_openai_provider.py`](examples/demo_openai_provider.py) for a full run.
+
 ## Workflow
 
 | Tasks                         | Resource                                                     |
