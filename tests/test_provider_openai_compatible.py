@@ -197,6 +197,38 @@ async def test_transient_error_is_retried_then_succeeds(png, monkeypatch):
     assert calls["n"] == 3  # two transient failures, third attempt succeeds
 
 
+async def test_refusal_resamples_without_disabling_strict_mode(png, monkeypatch):
+    # A model refusal is a one-off, not a backend capability limit: the provider
+    # must resample and keep _supports_json_schema True (not fall back forever).
+    monkeypatch.setattr(asyncio, "sleep", AsyncMock())
+    provider = OpenAICompatibleProvider(model="qwen2-vl", api_key="k")
+
+    calls = {"n": 0}
+
+    async def refuse_then_ok(**kwargs):
+        calls["n"] += 1
+        completion = MagicMock()
+        if calls["n"] < 2:
+            completion.choices = [
+                MagicMock(message=MagicMock(parsed=None, refusal="I can't help with that"))
+            ]
+        else:
+            completion.choices = [
+                MagicMock(message=MagicMock(parsed=DummySchema(value=1), refusal=None))
+            ]
+        return completion
+
+    client = MagicMock(chat=MagicMock(completions=MagicMock(parse=refuse_then_ok)))
+    monkeypatch.setattr(type(provider), "_client", property(lambda self: client))
+
+    result = await provider.generate_with_images(
+        images=[png], response_schema=DummySchema, user_prompt="go", description="sys"
+    )
+    assert result.value == 1
+    assert calls["n"] == 2  # refused once, resampled successfully
+    assert provider._supports_json_schema is True  # strict mode NOT disabled
+
+
 async def test_fallback_parse_failure_is_retried_then_succeeds(png, monkeypatch):
     monkeypatch.setattr(asyncio, "sleep", AsyncMock())
     provider = OpenAICompatibleProvider(model="llava", base_url="http://localhost:11434/v1")

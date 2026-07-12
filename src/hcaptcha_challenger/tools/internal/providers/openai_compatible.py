@@ -50,6 +50,10 @@ class _CapabilityError(Exception):
     """Raised when the backend does not support strict json_schema output."""
 
 
+class _RefusalError(Exception):
+    """Raised when the model refuses to answer -- a one-off, retryable event."""
+
+
 def _encode_image_data_url(path: Path) -> str:
     """Read an image file and return a base64 data URL."""
     mime, _ = mimetypes.guess_type(str(path))
@@ -69,6 +73,9 @@ def _is_capability_error(exc: BaseException) -> bool:
     """
     if isinstance(exc, _CapabilityError):
         return True
+    if isinstance(exc, _RefusalError):
+        # A refusal is a model decision, never a backend capability limit.
+        return False
     if isinstance(exc, (AttributeError, TypeError)):
         # e.g. openai SDK too old: client.chat.completions has no `parse`.
         return True
@@ -99,6 +106,8 @@ def _is_transient(exc: BaseException) -> bool:
     """
     if _is_capability_error(exc):
         return False
+    if isinstance(exc, _RefusalError):
+        return True
     if type(exc).__name__ in _TRANSIENT_EXC_NAMES:
         return True
     status = getattr(exc, "status_code", None)
@@ -146,6 +155,10 @@ class OpenAICompatibleProvider:
                 api_key=self._api_key or "sk-no-auth",
                 base_url=self._base_url,
                 timeout=self._timeout,
+                # tenacity is the single retry authority (it also retries parse
+                # failures, which the SDK does not). Disabling the SDK's own
+                # retries avoids compounding both layers on 429/5xx.
+                max_retries=0,
             )
         return self._client_instance
 
@@ -210,13 +223,20 @@ class OpenAICompatibleProvider:
                     **kwargs,
                 )
                 self._response = completion
-                parsed = completion.choices[0].message.parsed
+                message = completion.choices[0].message
+                parsed = message.parsed
                 if isinstance(parsed, BaseModel):
                     return response_schema(**parsed.model_dump())
                 if isinstance(parsed, dict):
                     return response_schema(**parsed)
-                # No parsed payload -> treat as capability miss, fall through.
-                raise _CapabilityError("empty parsed payload")
+                refusal = getattr(message, "refusal", None)
+                if refusal:
+                    # A refusal is a one-off model decision, not a backend
+                    # capability limit -- resample without disabling strict mode.
+                    raise _RefusalError(str(refusal))
+                # parsed is None and no refusal -> the backend accepted the
+                # request but ignored json_schema: treat as a capability miss.
+                raise _CapabilityError("no parsed structured output returned")
             except Exception as e:  # noqa: BLE001
                 if _is_transient(e):
                     raise  # let tenacity retry
