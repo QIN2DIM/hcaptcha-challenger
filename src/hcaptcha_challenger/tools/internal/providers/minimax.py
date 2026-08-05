@@ -30,53 +30,23 @@ MINIMAX_ENDPOINTS: dict[MiniMaxRegion, dict[MiniMaxProtocol, str]] = {
 MINIMAX_MODEL_SPECS: dict[str, dict[str, Any]] = {
     "MiniMax-M3": {
         "context_window": 1_000_000,
-        "context_window_semantics": "input_and_output",
         "input_modalities": ("text", "image", "video"),
         "thinking": ("adaptive", "disabled"),
-        "thinking_defaults": {"openai": "adaptive", "anthropic": "disabled"},
         "pricing_usd_per_million_tokens": (
             {
-                "service_tier": "standard",
-                "input_tokens_lte": 512_000,
-                "input": 0.3,
-                "output": 1.2,
-                "cache_read": 0.06,
-                "cache_write": None,
-            },
-            {
-                "service_tier": "standard",
-                "input_tokens_gt": 512_000,
                 "input": 0.6,
                 "output": 2.4,
                 "cache_read": 0.12,
-                "cache_write": None,
-            },
-            {
-                "service_tier": "priority",
-                "input_tokens_lte": 512_000,
-                "input": 0.45,
-                "output": 1.8,
-                "cache_read": 0.09,
-                "cache_write": None,
-            },
-            {
-                "service_tier": "priority",
-                "input_tokens_gt": 512_000,
-                "input": 0.9,
-                "output": 3.6,
-                "cache_read": 0.18,
                 "cache_write": None,
             },
         ),
     },
     "MiniMax-M2.7": {
         "context_window": 204_800,
-        "context_window_semantics": "input_and_output",
         "input_modalities": ("text",),
         "thinking": ("always_on",),
         "pricing_usd_per_million_tokens": (
             {
-                "service_tier": "standard",
                 "input": 0.3,
                 "output": 1.2,
                 "cache_read": 0.06,

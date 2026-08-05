@@ -163,7 +163,7 @@ async def test_m27_accepts_text_and_rejects_image_input(monkeypatch, tmp_path):
         )
 
 
-def test_model_registry_preserves_capabilities_context_and_pricing_tiers():
+def test_model_registry_matches_target_facts():
     assert tuple(MINIMAX_MODEL_SPECS) == ("MiniMax-M3", "MiniMax-M2.7")
     assert MINIMAX_MODEL_SPECS["MiniMax-M3"]["context_window"] == 1_000_000
     assert MINIMAX_MODEL_SPECS["MiniMax-M3"]["input_modalities"] == (
@@ -172,19 +172,20 @@ def test_model_registry_preserves_capabilities_context_and_pricing_tiers():
         "video",
     )
     assert MINIMAX_MODEL_SPECS["MiniMax-M3"]["thinking"] == ("adaptive", "disabled")
-    assert MINIMAX_MODEL_SPECS["MiniMax-M3"]["thinking_defaults"] == {
-        "openai": "adaptive",
-        "anthropic": "disabled",
-    }
-    assert len(MINIMAX_MODEL_SPECS["MiniMax-M3"]["pricing_usd_per_million_tokens"]) == 4
+    assert MINIMAX_MODEL_SPECS["MiniMax-M3"]["pricing_usd_per_million_tokens"] == (
+        {
+            "input": 0.6,
+            "output": 2.4,
+            "cache_read": 0.12,
+            "cache_write": None,
+        },
+    )
     assert MINIMAX_MODEL_SPECS["MiniMax-M2.7"] == {
         "context_window": 204_800,
-        "context_window_semantics": "input_and_output",
         "input_modalities": ("text",),
         "thinking": ("always_on",),
         "pricing_usd_per_million_tokens": (
             {
-                "service_tier": "standard",
                 "input": 0.3,
                 "output": 1.2,
                 "cache_read": 0.06,
