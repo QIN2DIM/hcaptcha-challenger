@@ -125,11 +125,15 @@ class MiniMaxProvider:
         try:
             media_type = _IMAGE_MEDIA_TYPES[path.suffix.lower()]
         except KeyError as exc:
-            raise ValueError(f"Unsupported image format: {path.suffix or '<none>'}") from exc
+            raise ValueError(
+                f"Unsupported image format: {path.suffix or '<none>'}"
+            ) from exc
         data = base64.b64encode(path.read_bytes()).decode("ascii")
         return media_type, data
 
-    def _build_user_content(self, images: List[Path], user_prompt: str | None) -> list[dict]:
+    def _build_user_content(
+        self, images: List[Path], user_prompt: str | None
+    ) -> list[dict]:
         """Build protocol-specific user content blocks."""
         if images and "image" not in self.model_specs[self._model]["input_modalities"]:
             raise ValueError(f"{self._model} does not support image input")
@@ -163,13 +167,19 @@ class MiniMaxProvider:
                 )
 
         if not content:
-            content.append({"type": "text", "text": "Generate the requested JSON response."})
+            content.append(
+                {"type": "text", "text": "Generate the requested JSON response."}
+            )
         return content
 
     @staticmethod
-    def _system_prompt(description: str | None, response_schema: Type[BaseModel]) -> str:
+    def _system_prompt(
+        description: str | None, response_schema: Type[BaseModel]
+    ) -> str:
         schema = json.dumps(
-            response_schema.model_json_schema(), ensure_ascii=True, separators=(",", ":")
+            response_schema.model_json_schema(),
+            ensure_ascii=True,
+            separators=(",", ":"),
         )
         instruction = f"Return only a JSON object matching this JSON Schema:\n{schema}"
         return f"{description.strip()}\n\n{instruction}" if description else instruction
@@ -212,7 +222,9 @@ class MiniMaxProvider:
         if not isinstance(content, str):
             raise ValueError(f"Expected response text, got {type(content).__name__}")
 
-        text = re.sub(r"<think>[\s\S]*?</think>", "", content, flags=re.IGNORECASE).strip()
+        text = re.sub(
+            r"<think>[\s\S]*?</think>", "", content, flags=re.IGNORECASE
+        ).strip()
         fenced = re.findall(r"```(?:json)?\s*([\s\S]*?)```", text, flags=re.IGNORECASE)
         decoder = json.JSONDecoder()
         for candidate in [*fenced, text]:
@@ -247,7 +259,9 @@ class MiniMaxProvider:
             text_blocks = [
                 block["text"]
                 for block in blocks
-                if isinstance(block, dict) and block.get("type") == "text" and "text" in block
+                if isinstance(block, dict)
+                and block.get("type") == "text"
+                and "text" in block
             ]
             return "\n".join(text_blocks)
         return blocks
@@ -298,7 +312,8 @@ class MiniMaxProvider:
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(
-                json.dumps(self._response, indent=2, ensure_ascii=False), encoding="utf-8"
+                json.dumps(self._response, indent=2, ensure_ascii=False),
+                encoding="utf-8",
             )
         except Exception as e:
             logger.warning(f"Failed to cache MiniMax response: {e}")

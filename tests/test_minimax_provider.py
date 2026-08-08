@@ -36,7 +36,9 @@ class StubAsyncClient:
         )
 
 
-def install_stub_client(monkeypatch, response_payload: dict[str, Any]) -> StubAsyncClient:
+def install_stub_client(
+    monkeypatch, response_payload: dict[str, Any]
+) -> StubAsyncClient:
     client = StubAsyncClient(response_payload)
     monkeypatch.setattr(minimax.httpx, "AsyncClient", lambda **kwargs: client)
     return client
