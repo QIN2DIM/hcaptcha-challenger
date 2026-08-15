@@ -5,6 +5,7 @@ SpatialPathReasoner - Drag and drop challenge solver.
 This tool analyzes images to identify which draggable element should be
 moved to which target location based on visual patterns and implicit matching rules.
 """
+
 from pathlib import Path
 from typing import Union
 
