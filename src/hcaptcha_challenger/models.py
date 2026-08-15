@@ -254,6 +254,8 @@ SCoTModelType = Union[
         "gemini-2.5-pro",
         # [🤷‍♂️] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
         "gemini-2.5-flash",
+        # https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash
+        "gemini-3.7-flash",
     ],
 ]
 
