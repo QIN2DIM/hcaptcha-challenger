@@ -257,23 +257,26 @@ SCoTModelType = Union[
     ],
 ]
 
-DEFAULT_SCOT_MODEL: SCoTModelType = "gemini-2.5-pro"
+DEFAULT_SCOT_MODEL: SCoTModelType = "gemini-3.7-flash"
 
 FastShotModelType = Union[
     str,
     Literal[
-        # [✨] https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
+        # https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash
         "gemini-2.5-flash",
         # https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-lite
         "gemini-2.5-flash-lite",
+        # https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash
+        "gemini-3.7-flash",
     ],
 ]
 
-DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-2.5-flash"
+DEFAULT_FAST_SHOT_MODEL: FastShotModelType = "gemini-3.7-flash"
 
 THINKING_BUDGET_MODELS: List[Union[SCoTModelType, FastShotModelType]] = [
     "gemini-2.5-flash",
     "gemini-2.5-pro",
+    "gemini-3.7-flash",
 ]
 
 THINKING_LEVEL_MODELS: List[str] = [

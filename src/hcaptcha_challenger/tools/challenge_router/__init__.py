@@ -6,6 +6,7 @@ This module provides tools to classify challenge screenshots into their
 respective types (single/multi select, single/multi drag) and extract
 the challenge prompt.
 """
+
 from pathlib import Path
 from typing import Union
 
