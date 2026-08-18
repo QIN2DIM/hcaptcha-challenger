@@ -5,6 +5,7 @@ SpatialPointReasoner - Image area selection challenge solver.
 This tool analyzes images to identify specific points or areas that match
 the challenge requirements, using global-to-local visual analysis.
 """
+
 from pathlib import Path
 from typing import Union
 

@@ -717,13 +717,11 @@ class AgentV:
             try:
                 hsw_text = await response.text()
                 await self.page.evaluate(hsw_text)
-                await self.page.evaluate(
-                    """
+                await self.page.evaluate("""
                     () => {
                         return typeof hsw === 'function' ? true : 'hsw不是函数';
                     }
-                    """
-                )
+                    """)
             except Exception as err:
                 logger.error(f"An error occurred while injecting hsw script: {err}")
         elif "/getcaptcha/" in response.url:
@@ -753,17 +751,14 @@ class AgentV:
                     self._captcha_payload_queue.put_nowait(None)
                     return
 
-                has_hsw = await self.page.evaluate(
-                    """
+                has_hsw = await self.page.evaluate("""
                     () => {
                         return typeof hsw === 'function' ? true : false;
                     }
-                    """
-                )
+                    """)
 
                 if has_hsw:
-                    result = await self.page.evaluate(
-                        f"""
+                    result = await self.page.evaluate(f"""
                         async () => {{
                             const byteArray = new Uint8Array({list(raw_data)});
                             console.log('Data has been converted to Uint8Array, length:', byteArray.length);
@@ -775,8 +770,7 @@ class AgentV:
                                 return {{error: e.toString()}};
                             }}
                         }}
-                        """
-                    )
+                        """)
 
                     if isinstance(result, list) and not any(
                         isinstance(x, dict) and "error" in x for x in result
