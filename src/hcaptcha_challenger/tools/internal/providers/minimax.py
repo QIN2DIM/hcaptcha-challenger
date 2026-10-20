@@ -28,12 +28,30 @@ MINIMAX_ENDPOINTS: dict[MiniMaxRegion, dict[MiniMaxProtocol, str]] = {
 }
 
 MINIMAX_MODEL_SPECS: dict[str, dict[str, Any]] = {
+    "MiniMax-M3.1-Flash": {
+        "context_window": 1_000_000,
+        "max_output_tokens": 524_288,
+        "input_modalities": ("text", "image", "video"),
+        "thinking": ("adaptive",),
+        "reasoning_efforts": ("low", "medium", "high", "xhigh", "max"),
+        "pricing_usd_per_million_tokens": (
+            {"input": 0.15, "output": 0.6, "cache_read": 0.015, "cache_write": None},
+        ),
+    },
     "MiniMax-M3": {
         "context_window": 1_000_000,
         "input_modalities": ("text", "image", "video"),
         "thinking": ("adaptive", "disabled"),
         "pricing_usd_per_million_tokens": (
             {
+                "context_tier": "<=512k",
+                "input": 0.3,
+                "output": 1.2,
+                "cache_read": 0.06,
+                "cache_write": None,
+            },
+            {
+                "context_tier": ">512k",
                 "input": 0.6,
                 "output": 2.4,
                 "cache_read": 0.12,
@@ -41,6 +59,10 @@ MINIMAX_MODEL_SPECS: dict[str, dict[str, Any]] = {
             },
         ),
     },
+}
+
+# Keep explicit saved selections working without advertising legacy models.
+_LEGACY_MODEL_SPECS: dict[str, dict[str, Any]] = {
     "MiniMax-M2.7": {
         "context_window": 204_800,
         "input_modalities": ("text",),
@@ -68,7 +90,8 @@ _IMAGE_MEDIA_TYPES = {
 class MiniMaxProvider:
     """Call supported MiniMax models through either compatible API protocol."""
 
-    default_model = "MiniMax-M3"
+    default_model = "MiniMax-M3.1-Flash"
+    default_image_model = "MiniMax-M3"
     default_region: MiniMaxRegion = "global_en"
     default_protocol: MiniMaxProtocol = "openai"
     default_base_url = MINIMAX_ENDPOINTS[default_region][default_protocol]
@@ -79,7 +102,7 @@ class MiniMaxProvider:
     def __init__(
         self,
         api_key: str,
-        model: str = default_model,
+        model: str | None = None,
         *,
         region: MiniMaxRegion = default_region,
         protocol: MiniMaxProtocol = default_protocol,
@@ -87,11 +110,13 @@ class MiniMaxProvider:
     ):
         """Initialize a provider for a model, region, and API protocol.
 
+        Omitted models use Flash for text and retain M3 for image requests.
+        Explicit model IDs, including saved legacy and custom IDs, are preserved.
         The Anthropic ``base_url`` is an API root ending in ``/anthropic``;
         this adapter appends ``/v1/messages`` for direct HTTP requests.
         """
-        if model not in self.model_specs:
-            raise ValueError(f"Unsupported MiniMax model: {model}")
+        if model is not None and (not isinstance(model, str) or not model.strip()):
+            raise ValueError("MiniMax model must be a non-empty string")
         if region not in self.endpoints:
             raise ValueError(f"Unsupported MiniMax region: {region}")
         if protocol not in {"openai", "anthropic"}:
@@ -102,7 +127,8 @@ class MiniMaxProvider:
             raise ValueError("Anthropic base_url must end with /anthropic")
 
         self._api_key = api_key
-        self._model = model
+        self._model = model if model is not None else self.default_model
+        self._explicit_model = model is not None
         self._region = region
         self._protocol = protocol
         self._base_url = resolved_base_url
@@ -125,17 +151,14 @@ class MiniMaxProvider:
         try:
             media_type = _IMAGE_MEDIA_TYPES[path.suffix.lower()]
         except KeyError as exc:
-            raise ValueError(
-                f"Unsupported image format: {path.suffix or '<none>'}"
-            ) from exc
+            raise ValueError(f"Unsupported image format: {path.suffix or '<none>'}") from exc
         data = base64.b64encode(path.read_bytes()).decode("ascii")
         return media_type, data
 
-    def _build_user_content(
-        self, images: List[Path], user_prompt: str | None
-    ) -> list[dict]:
+    def _build_user_content(self, images: List[Path], user_prompt: str | None) -> list[dict]:
         """Build protocol-specific user content blocks."""
-        if images and "image" not in self.model_specs[self._model]["input_modalities"]:
+        spec = self.model_specs.get(self._model) or _LEGACY_MODEL_SPECS.get(self._model)
+        if images and spec and "image" not in spec["input_modalities"]:
             raise ValueError(f"{self._model} does not support image input")
 
         content: list[dict] = []
@@ -167,15 +190,11 @@ class MiniMaxProvider:
                 )
 
         if not content:
-            content.append(
-                {"type": "text", "text": "Generate the requested JSON response."}
-            )
+            content.append({"type": "text", "text": "Generate the requested JSON response."})
         return content
 
     @staticmethod
-    def _system_prompt(
-        description: str | None, response_schema: Type[BaseModel]
-    ) -> str:
+    def _system_prompt(description: str | None, response_schema: Type[BaseModel]) -> str:
         schema = json.dumps(
             response_schema.model_json_schema(),
             ensure_ascii=True,
@@ -212,7 +231,26 @@ class MiniMaxProvider:
                 "max_tokens": 4096,
             }
 
+        if images and not self._explicit_model:
+            payload["model"] = self.default_image_model
         payload.update(options)
+        if payload["model"] == "MiniMax-M3.1-Flash":
+            if payload.get("thinking", {}).get("type") == "disabled":
+                raise ValueError("MiniMax-M3.1-Flash requires adaptive thinking")
+            effort = (
+                payload.get("reasoning_effort")
+                if self._protocol == "openai"
+                else payload.get("output_config", {}).get("effort")
+            )
+            if (
+                effort is not None
+                and effort not in self.model_specs["MiniMax-M3.1-Flash"]["reasoning_efforts"]
+            ):
+                raise ValueError("Unsupported MiniMax-M3.1-Flash reasoning effort")
+            if "service_tier" in payload:
+                raise ValueError("MiniMax-M3.1-Flash does not support service_tier")
+            if payload.get("reasoning_split") is False:
+                raise ValueError("MiniMax-M3.1-Flash requires separate reasoning")
         return payload
 
     @staticmethod
@@ -222,9 +260,7 @@ class MiniMaxProvider:
         if not isinstance(content, str):
             raise ValueError(f"Expected response text, got {type(content).__name__}")
 
-        text = re.sub(
-            r"<think>[\s\S]*?</think>", "", content, flags=re.IGNORECASE
-        ).strip()
+        text = re.sub(r"<think>[\s\S]*?</think>", "", content, flags=re.IGNORECASE).strip()
         fenced = re.findall(r"```(?:json)?\s*([\s\S]*?)```", text, flags=re.IGNORECASE)
         decoder = json.JSONDecoder()
         for candidate in [*fenced, text]:
@@ -259,9 +295,7 @@ class MiniMaxProvider:
             text_blocks = [
                 block["text"]
                 for block in blocks
-                if isinstance(block, dict)
-                and block.get("type") == "text"
-                and "text" in block
+                if isinstance(block, dict) and block.get("type") == "text" and "text" in block
             ]
             return "\n".join(text_blocks)
         return blocks
