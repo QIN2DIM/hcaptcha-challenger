@@ -5,6 +5,7 @@ ImageClassifier - 9-grid image classification challenge solver.
 This tool analyzes 9-grid challenge screenshots and identifies which
 cells should be selected based on the challenge prompt.
 """
+
 from pathlib import Path
 from typing import Union
 

@@ -4,6 +4,7 @@ GeminiProvider - Google Gemini API implementation.
 
 This provider wraps the google-genai SDK to provide image-based content generation.
 """
+
 import asyncio
 import json
 from pathlib import Path
