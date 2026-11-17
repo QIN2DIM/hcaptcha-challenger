@@ -3,6 +3,7 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description:
-from .challenger import AgentV, AgentConfig
+from .agent import AgentV
+from .config import AgentConfig, SolveState, VERSION
 
-__all__ = ['AgentV', 'AgentConfig']
+__all__ = ["AgentV", "AgentConfig", "SolveState", "VERSION"]

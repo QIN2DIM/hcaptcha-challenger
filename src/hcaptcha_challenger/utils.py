@@ -19,42 +19,37 @@ from loguru import logger
 
 def init_log(**sink_channel):
     """
-    Initialize the log configuration
-
-    Parameter:
-        sink_channel: A dictionary containing different log output channels
-        - error: The path to the error log file
-        - runtime: The path to the runtime log file
-        - serialize: serialize the log file path
+    Initialize the log configuration using Rich + Loguru
     """
-    log_level = os.getenv("LOG_LEVEL", "DEBUG").upper()
-
+    import os
+    import sys
+    import pytz
+    from loguru import logger
+    from rich.logging import RichHandler
+    from hcaptcha_challenger.agent.logger import console
+    
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
     shanghai_tz = pytz.timezone("Asia/Shanghai")
 
-    persistent_format = (
-        "<g>{time:YYYY-MM-DD HH:mm:ss}</g> | "
-        "<lvl>{level}</lvl>    | "
-        "<c><u>{name}</u></c>:{function}:{line} | "
-        "{message} - "
-        "{extra}"
-    )
-
-    stdout_format = (
-        "<g>{time:YYYY-MM-DD HH:mm:ss}</g> | "
-        "<lvl>{level:<8}</lvl>    | "
-        "<c>{name}</c>:<c>{function}</c>:<c>{line}</c> | "
-        "<n>{message}</n>"
-    )
-
+    # Clear existing loguru handlers
     logger.remove()
 
+    # Add RichHandler as the primary stdout sink
     logger.add(
-        sink=sys.stdout,
-        colorize=True,
+        RichHandler(
+            console=console,
+            rich_tracebacks=True,
+            show_time=False,  # Coolify/Docker usually add their own timestamp
+            show_path=False,
+            markup=True
+        ),
+        format="{message}",
         level=log_level,
-        format=stdout_format,
-        diagnose=False,
-        filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
+    )
+
+    # File sinks (Persistent logs)
+    persistent_format = (
+        "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}"
     )
 
     if error_sink := sink_channel.get("error"):
@@ -64,29 +59,18 @@ def init_log(**sink_channel):
             rotation="5 MB",
             retention="7 days",
             encoding="utf8",
-            diagnose=False,
+            format=persistent_format,
             filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
         )
 
     if runtime_sink := sink_channel.get("runtime"):
         logger.add(
             sink=runtime_sink,
-            level="TRACE",
+            level="DEBUG",
             rotation="5 MB",
             retention="7 days",
             encoding="utf8",
-            diagnose=False,
-            filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
-        )
-
-    if serialize_sink := sink_channel.get("serialize"):
-        logger.add(
-            sink=serialize_sink,
-            level="DEBUG",
             format=persistent_format,
-            encoding="utf8",
-            diagnose=False,
-            serialize=True,
             filter=lambda record: record["time"].replace(tzinfo=pytz.UTC).astimezone(shanghai_tz),
         )
 

@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from hcaptcha_challenger import models as types
-from hcaptcha_challenger.agent.challenger import AgentV, AgentConfig
+from hcaptcha_challenger.agent import AgentV, AgentConfig
 from hcaptcha_challenger.agent.collector import Collector, CollectorConfig
 from hcaptcha_challenger.models import (
     RequestType,
