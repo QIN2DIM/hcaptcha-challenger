@@ -14,14 +14,14 @@ from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
 from typing import Any
-from typing import List, Tuple
+from typing import List, Tuple, Literal
 from uuid import uuid4
 
 import matplotlib.pyplot as plt
 import msgpack
 from loguru import logger
 from playwright.async_api import Locator, expect, Page, Response, TimeoutError, FrameLocator, Frame
-from pydantic import Field, field_validator, SecretStr
+from pydantic import Field, model_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from tenacity import retry, stop_after_attempt, wait_fixed
 
@@ -46,6 +46,11 @@ from hcaptcha_challenger.tools import (
     ChallengeRouter,
     SpatialPathReasoner,
     SpatialPointReasoner,
+)
+from hcaptcha_challenger.tools.internal.providers import (
+    ChatProvider,
+    GeminiProvider,
+    OpenAICompatibleProvider,
 )
 
 
@@ -121,6 +126,28 @@ class AgentConfig(BaseSettings):
     GEMINI_API_KEY: SecretStr = Field(
         default_factory=lambda: SecretStr(os.environ.get("GEMINI_API_KEY", "")),
         description="Create API Key https://aistudio.google.com/app/apikey",
+    )
+
+    CHAT_PROVIDER: Literal["gemini", "openai-compatible"] = Field(
+        default="gemini",
+        description="Which chat backend to use. 'gemini' (default) or "
+        "'openai-compatible' for any OpenAI-compatible endpoint "
+        "(OpenAI, OpenRouter, Ollama, vLLM, LM Studio, llama.cpp, TGI, LocalAI).",
+    )
+    OPENAI_API_KEY: SecretStr = Field(
+        default_factory=lambda: SecretStr(os.environ.get("OPENAI_API_KEY", "")),
+        description="API key for the OpenAI-compatible endpoint. "
+        "Optional for local no-auth servers.",
+    )
+    OPENAI_BASE_URL: str | None = Field(
+        default=None,
+        description="Base URL for the OpenAI-compatible endpoint, e.g. "
+        "http://localhost:11434/v1 . Leave unset for the official OpenAI API.",
+    )
+    OPENAI_TIMEOUT: float | None = Field(
+        default=None,
+        description="Per-request timeout in seconds for the OpenAI-compatible "
+        "provider. Increase for slow local VLMs.",
     )
 
     cache_dir: Path = Path("tmp/.cache")
@@ -201,28 +228,33 @@ class AgentConfig(BaseSettings):
     )
     skills_update_branch: str = Field(default="main", description="GitHub branch for skills update")
 
-    @field_validator('GEMINI_API_KEY', mode="before")
-    @classmethod
-    def validate_api_key(cls, v: Any) -> str:
+    @model_validator(mode="after")
+    def _validate_provider_credentials(self) -> "AgentConfig":
         """
-        Validates that the GEMINI_API_KEY is not empty.
+        Validate that the credentials required by the selected CHAT_PROVIDER
+        are present.
 
-        Args:
-            v: The API key value to validate
-
-        Returns:
-            The validated API key
-
-        Raises:
-            ValueError: If the API key is empty
+        - gemini: GEMINI_API_KEY is required.
+        - openai-compatible: at least one of OPENAI_API_KEY (hosted APIs) or
+          OPENAI_BASE_URL (local endpoints) must be set.
         """
-        if not v or not isinstance(v, str):
-            raise ValueError(
-                "GEMINI_API_KEY is required but not provided. "
-                "Please either pass it directly or set the GEMINI_API_KEY environment variable."
-                "Create API Key -> https://aistudio.google.com/app/apikey"
-            )
-        return v
+        if self.CHAT_PROVIDER == "gemini":
+            if not self.GEMINI_API_KEY.get_secret_value():
+                raise ValueError(
+                    "GEMINI_API_KEY is required when CHAT_PROVIDER='gemini'. "
+                    "Please either pass it directly or set the GEMINI_API_KEY "
+                    "environment variable. "
+                    "Create API Key -> https://aistudio.google.com/app/apikey"
+                )
+        elif self.CHAT_PROVIDER == "openai-compatible":
+            has_key = bool(self.OPENAI_API_KEY.get_secret_value())
+            has_url = bool(self.OPENAI_BASE_URL)
+            if not (has_key or has_url):
+                raise ValueError(
+                    "When CHAT_PROVIDER='openai-compatible', set at least one of "
+                    "OPENAI_API_KEY (hosted APIs) or OPENAI_BASE_URL (local endpoints)."
+                )
+        return self
 
     @property
     def spatial_grid_cache(self):
@@ -278,6 +310,18 @@ class AgentConfig(BaseSettings):
         return cache_key
 
 
+def build_provider(config: AgentConfig, model: str) -> ChatProvider:
+    """Construct the chat provider selected by config.CHAT_PROVIDER."""
+    if config.CHAT_PROVIDER == "openai-compatible":
+        return OpenAICompatibleProvider(
+            model=model,
+            api_key=config.OPENAI_API_KEY.get_secret_value() or None,
+            base_url=config.OPENAI_BASE_URL,
+            timeout=config.OPENAI_TIMEOUT,
+        )
+    return GeminiProvider(api_key=config.GEMINI_API_KEY.get_secret_value(), model=model)
+
+
 class RoboticArm:
 
     def __init__(self, page: Page, config: AgentConfig):
@@ -286,20 +330,20 @@ class RoboticArm:
         self._debug = config.enable_challenger_debug
 
         self._challenge_router = ChallengeRouter(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.CHALLENGE_CLASSIFIER_MODEL,
+            provider=build_provider(self.config, self.config.CHALLENGE_CLASSIFIER_MODEL),
         )
         self._image_classifier = ImageClassifier(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.IMAGE_CLASSIFIER_MODEL,
+            provider=build_provider(self.config, self.config.IMAGE_CLASSIFIER_MODEL),
         )
         self._spatial_path_reasoner = SpatialPathReasoner(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.SPATIAL_PATH_REASONER_MODEL,
+            provider=build_provider(self.config, self.config.SPATIAL_PATH_REASONER_MODEL),
         )
         self._spatial_point_reasoner = SpatialPointReasoner(
-            gemini_api_key=self.config.GEMINI_API_KEY.get_secret_value(),
             model=self.config.SPATIAL_POINT_REASONER_MODEL,
+            provider=build_provider(self.config, self.config.SPATIAL_POINT_REASONER_MODEL),
         )
         self._skill_manager = SkillManager(agent_config=config)
         self.signal_crumb_count: int | None = None

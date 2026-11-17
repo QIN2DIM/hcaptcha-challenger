@@ -56,6 +56,13 @@ dataset = [
 camoufox = [
     "camoufox[geoip]>=0.4.11",
 ]
+openai = [
+    # >=1.92 is the first release exposing the stable
+    # `client.chat.completions.parse` structured-output helper; older SDKs
+    # only have it under `client.beta` (the strict path degrades gracefully
+    # to the json_object fallback there, but this floor prefers the good path).
+    "openai>=1.92",
+]
 
 [project.scripts]
 hc = "hcaptcha_challenger.cli.main:main"
