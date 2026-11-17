@@ -5,6 +5,7 @@ SpatialReasoner - Base class for spatial reasoning tools.
 This intermediate base class provides common functionality for all
 spatial reasoning tools (path, point, bbox).
 """
+
 from abc import ABC
 from pathlib import Path
 from typing import TypeVar, List

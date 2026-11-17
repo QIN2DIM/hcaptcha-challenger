@@ -5,6 +5,7 @@ SpatialBboxReasoner - Bounding box challenge solver.
 This tool analyzes images to identify the precise bounding box coordinates
 for the target area that fulfills the challenge requirements.
 """
+
 from pathlib import Path
 from typing import Union
 

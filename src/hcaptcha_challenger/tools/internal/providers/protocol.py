@@ -11,6 +11,7 @@ Implementations:
 - OpenAICompatibleProvider (current)
 - AnthropicProvider (planned)
 """
+
 from pathlib import Path
 from typing import Protocol, TypeVar, runtime_checkable, List
 
