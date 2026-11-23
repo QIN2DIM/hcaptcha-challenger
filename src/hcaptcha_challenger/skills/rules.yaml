@@ -10,6 +10,14 @@ rules:
     job_type: "image_drag_single"
     template: "drag_object_to_shadow_v3_cn.md"
 
+  - triggers: ["matching outline"]
+    job_type: "image_drag_single"
+    template: "drag_shadow_outline.md"
+
+  - triggers: ["matching outline"]
+    job_type: "image_drag_multi"
+    template: "drag_shadow_outline.md"
+
   - triggers: ["pairs"]
     job_type: "image_drag_multi"
     template: "drag_pairs.md"
