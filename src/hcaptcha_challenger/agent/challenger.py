@@ -152,6 +152,14 @@ class AgentConfig(BaseSettings):
         ),
         description="HTTP timeout in seconds for the OpenAI-compatible Responses API",
     )
+    OPENAI_COMPAT_API_STYLE: str = Field(
+        default=os.environ.get("OPENAI_COMPAT_API_STYLE", "responses"),
+        description="OpenAI-compatible API style: 'responses' (default) or 'chat' (/v1/chat/completions)",
+    )
+    OPENAI_COMPAT_JSON_MODE: bool = Field(
+        default=os.environ.get("OPENAI_COMPAT_JSON_MODE", "true").lower() != "false",
+        description="Ask for strict JSON via response_format json_object (chat style only)",
+    )
     OPENAI_COMPAT_EXTRA_HEADERS_JSON: str | None = Field(
         default=os.environ.get("OPENAI_COMPAT_EXTRA_HEADERS_JSON"),
         description="Optional JSON object of extra headers for the OpenAI-compatible API",
@@ -244,6 +252,16 @@ class AgentConfig(BaseSettings):
         if backend not in {"gemini", "openai_compat"}:
             raise ValueError("AGENT_BACKEND must be one of: gemini, openai_compat")
         return backend
+
+    @field_validator('OPENAI_COMPAT_API_STYLE')
+    @classmethod
+    def validate_openai_compat_api_style(cls, v: Any) -> str:
+        if not isinstance(v, str):
+            raise ValueError("OPENAI_COMPAT_API_STYLE must be a string")
+        style = v.strip().lower()
+        if style not in {"responses", "chat"}:
+            raise ValueError("OPENAI_COMPAT_API_STYLE must be one of: responses, chat")
+        return style
 
     @field_validator('OPENAI_COMPAT_EXTRA_HEADERS_JSON')
     @classmethod

@@ -79,6 +79,18 @@ class Reasoner(ABC, Generic[ModelT, ResponseT]):
             )
 
         if backend == "openai_compat":
+            api_style = getattr(config, "OPENAI_COMPAT_API_STYLE", "responses")
+            if api_style == "chat":
+                from hcaptcha_challenger.tools.internal.providers import OpenAIChatProvider
+
+                return OpenAIChatProvider(
+                    base_url=config.OPENAI_COMPAT_BASE_URL,
+                    api_key=config.OPENAI_COMPAT_API_KEY.get_secret_value(),
+                    model=model,
+                    timeout=config.OPENAI_COMPAT_TIMEOUT,
+                    json_mode=getattr(config, "OPENAI_COMPAT_JSON_MODE", True),
+                    extra_headers=config.get_openai_compat_extra_headers(),
+                )
             return OpenAICompatProvider(
                 base_url=config.OPENAI_COMPAT_BASE_URL,
                 api_key=config.OPENAI_COMPAT_API_KEY.get_secret_value(),
