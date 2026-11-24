@@ -138,6 +138,8 @@ class OpenAIChatProvider:
                 data.get("challenge_prompt")
                 or data.get("prompt")
                 or data.get("question")
+                or data.get("description")
+                or data.get("text")
                 or "unknown"
             )
             data = {
