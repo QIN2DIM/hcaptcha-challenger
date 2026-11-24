@@ -348,7 +348,14 @@ class OpenAIChatProvider:
 
         json_payload = self._extract_json(self._last_raw)
         if json_payload is not None:
-            return self._validate_with_schema(json_payload, response_schema)
+            parsed = self._validate_with_schema(json_payload, response_schema)
+            # Chat models sometimes answer with an empty result instead of
+            # admitting they cannot see the images; treat that as a failure so
+            # tenacity retries with a fresh challenge.
+            dump = parsed.model_dump() if hasattr(parsed, "model_dump") else {}
+            if dump.get("points") == [] or dump.get("paths") == [] or dump.get("coordinates") == []:
+                raise ValueError(f"Empty answer from model, retrying: {self._last_raw[:120]}")
+            return parsed
 
         raise ValueError(f"Failed to parse structured response: {self._last_raw}")
 
