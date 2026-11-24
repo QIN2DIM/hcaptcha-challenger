@@ -125,6 +125,24 @@ class OpenAIChatProvider:
     def _normalize_for_schema(data: dict[str, Any], schema: Type[ResponseT]) -> dict[str, Any]:
         """Best-effort alias normalization for models from non-Gemini providers."""
         schema_name = getattr(schema, "__name__", "")
+        if schema_name == "ChallengeRouterResult":
+            challenge_type = (
+                data.get("challenge_type")
+                or data.get("type")
+                or data.get("label")
+                or data.get("answer")
+            )
+            challenge_prompt = (
+                data.get("challenge_prompt")
+                or data.get("prompt")
+                or data.get("question")
+                or "unknown"
+            )
+            data = {
+                "challenge_prompt": challenge_prompt,
+                "challenge_type": challenge_type,
+            }
+            return data
         if schema_name == "ImageDragDropChallenge":
             paths = data.get("paths")
             if paths is None:
