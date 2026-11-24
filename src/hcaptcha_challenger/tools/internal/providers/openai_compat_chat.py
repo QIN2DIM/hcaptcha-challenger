@@ -131,6 +131,8 @@ class OpenAIChatProvider:
                 or data.get("type")
                 or data.get("label")
                 or data.get("answer")
+                or data.get("classification")
+                or data.get("result")
             )
             challenge_prompt = (
                 data.get("challenge_prompt")
